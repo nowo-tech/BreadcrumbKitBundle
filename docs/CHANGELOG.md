@@ -7,6 +7,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.1.0] - 2026-07-03
+
+### Changed
+
+- **Minimum Symfony version is 7.0** (`^7.0 || ^8.0` for Symfony components). Symfony **6.4 is no longer supported**. Minimum PHP remains **8.2** (`>=8.2 <8.6`).
+- CI matrix: Symfony **6.4** removed; tests cover Symfony **7.0**, **7.4**, **8.0**, and **8.1**.
+
+### Fixed
+
+- CI: Symfony **8.1** job sets Composer `platform.php` to **8.4.1** (Symfony 8.1 requires PHP >= 8.4.1; the previous `8.4` override resolved as 8.4.0 and broke dependency resolution).
+
+### Documentation
+
+- Requirements updated in README, INSTALLATION, and UPGRADING (Symfony 7+, Symfony 8.1 / PHP 8.4.1 note).
+
 ## [1.0.0] - 2026-07-03
 
 First public release.

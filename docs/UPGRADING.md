@@ -2,22 +2,32 @@
 
 This document describes breaking changes and upgrade notes between versions. Sections are ordered from newest to oldest.
 
-## Initial install (v1.0.0)
+## From 1.0.0 to 1.1.0
 
-There is no prior release to upgrade from. Follow [INSTALLATION.md](INSTALLATION.md).
+**Symfony 6.4 is no longer supported.** All Symfony component constraints are now `^7.0 || ^8.0`.
 
-- Configuration root key: **`nowo_breadcrumb_kit`** (not `breadcrumb_kit`).
-- Map Doctrine entities under `Nowo\BreadcrumbKitBundle\Entity` and create `breadcrumb_collection` / `breadcrumb_item` tables before use.
-- Optional dashboard: set `dashboard.enabled: true`, import `@NowoBreadcrumbKitBundle/Resources/config/routing/dashboard.yaml` with prefix `%nowo_breadcrumb_kit.dashboard.path_prefix%`, and protect the URL in your app firewall.
-- Optional Flex recipe: `.symfony/recipe/nowo-tech/breadcrumb-kit-bundle/1.0/` (see [INSTALLATION.md](INSTALLATION.md#with-symfony-flex)).
+1. Upgrade your application to **Symfony 7.0+** (or **8.x** with PHP >= 8.4) before running `composer update nowo-tech/breadcrumb-kit-bundle:^1.1`.
+2. If you must stay on Symfony 6.4, pin the bundle to **`^1.0`** and do not upgrade past v1.0.0.
+3. Clear cache: `bin/console cache:clear`.
+
+No intentional breaking changes to route names, Twig function signatures, or entity schema in this release.
+
+## Initial install (v1.1.0+)
+
+Follow [INSTALLATION.md](INSTALLATION.md).
+
+- **PHP** >= 8.2, < 8.6
+- **Symfony** 7.x or 8.x
+- Configuration root key: **`nowo_breadcrumb_kit`**
+- Optional dashboard: `dashboard.enabled: true` + route import (see INSTALLATION)
 
 ## From pre-release / local copies to 1.0.0
 
-If you integrated the bundle before this tag:
+If you integrated the bundle before v1.0.0:
 
 1. Rename any `config/packages/breadcrumb_kit.yaml` to `nowo_breadcrumb_kit.yaml` and use root key `nowo_breadcrumb_kit:`.
 2. Clear cache after `composer update nowo-tech/breadcrumb-kit-bundle`.
-3. Sync YAML with [CONFIGURATION.md](CONFIGURATION.md) — new optional keys include `dashboard.pagination`, `dashboard.modals`, `dashboard.layout_template`, and `dashboard.import_max_bytes` (all have safe defaults).
+3. Sync YAML with [CONFIGURATION.md](CONFIGURATION.md).
 4. If you override Twig templates, verify overrides still win after the `TwigPathsPass` prepend change (see [USAGE.md](USAGE.md#twig-templates-req-twig-001)).
 
 ## Doctrine schema
