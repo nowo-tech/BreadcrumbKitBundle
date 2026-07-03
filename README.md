@@ -17,11 +17,11 @@ Design aligns with [DashboardMenuBundle](https://github.com/nowo-tech/DashboardM
 
 ## Version information
 
-Latest release: **[v1.2.0](https://github.com/nowo-tech/BreadcrumbKitBundle/releases/tag/v1.2.0)** (2026-07-03). Requires **PHP 8.2+** and **Symfony 7+**. Supported branches and releases are tagged on GitHub; prefer the latest `v*` tag or `main` for development.
+Latest release: **[v1.2.1](https://github.com/nowo-tech/BreadcrumbKitBundle/releases/tag/v1.2.1)** (2026-07-03). Requires **PHP 8.2+** and **Symfony 7+**. Supported branches and releases are tagged on GitHub; prefer the latest `v*` tag or `main` for development.
 
 ## Status
 
-**MVP (v1.2.0):** entities, repositories, `BreadcrumbLoader`, `BreadcrumbUrlResolver`, Twig (`breadcrumb_trail`, `breadcrumb_render`), **optional web dashboard** (collections/items CRUD + presentation styles, configurable URL prefix), **presentation options** (home icon, hide single-root trail on home). **Demos**: Symfony 7 (`demo/symfony7/`, port **8020**) and Symfony 8.1 (`demo/symfony8/`, port **8021**) with FrankenPHP. **Flex recipe** in `.symfony/recipe/` (publish to Symfony recipe index when ready). Planned: migration command, event-based enrichers.
+**MVP (v1.2.1):** entities, repositories, `BreadcrumbLoader`, `BreadcrumbUrlResolver`, Twig (`breadcrumb_trail`, `breadcrumb_render`), **optional web dashboard** (collections/items CRUD + presentation styles, configurable URL prefix), **presentation options** (home icon, hide single-root trail on home). **Demos**: Symfony 7 (`demo/symfony7/`, port **8020**) and Symfony 8.1 (`demo/symfony8/`, port **8021**) with FrankenPHP. **Flex recipe** in `.symfony/recipe/` (publish to Symfony recipe index when ready). Planned: migration command, event-based enrichers.
 
 **FrankenPHP worker mode:** demos use worker-enabled `Caddyfile` for production-style runs; development uses `Caddyfile.dev` without workers. See [docs/DEMO-FRANKENPHP.md](docs/DEMO-FRANKENPHP.md).
 

@@ -20,6 +20,7 @@ This guide covers installing Breadcrumb Kit Bundle in a Symfony application.
 - **PHP** >= 8.2, < 8.6
 - **Symfony** 7.x or 8.x (`^7.0 || ^8.0` in `composer.json`)
 - **Doctrine ORM** ^2.13 || ^3.0
+- **Doctrine Bundle** ^2.8 || ^3.0 — on **Symfony 8** with **PHP >= 8.4**, Composer resolves **`doctrine/doctrine-bundle` ^3.0** (2.x supports Symfony up to 7.x only).
 
 **Note:** Symfony **8.0+** requires **PHP >= 8.4**. Symfony **8.1+** requires **PHP >= 8.4.1**. With PHP 8.2 or 8.3, Composer resolves Symfony **7.x** only.
 

@@ -2,6 +2,16 @@
 
 This document describes breaking changes and upgrade notes between versions. Sections are ordered from newest to oldest.
 
+## From 1.2.0 to 1.2.1
+
+No intentional breaking changes to the bundle API, routes, or schema. Patch release (CI and demo lockfiles).
+
+If you run **Symfony 8** with **PHP >= 8.4**, ensure your application uses **`doctrine/doctrine-bundle` ^3.0** (required for Symfony 8; the bundle already allows `^2.8 || ^3.0` in `composer.json`).
+
+```bash
+composer update nowo-tech/breadcrumb-kit-bundle:^1.2
+```
+
 ## From 1.1.0 to 1.2.0
 
 No intentional breaking changes. New options are optional and default to previous behaviour (`hide_when_single_root: false`, `home_icon_replaces_label: true`).
