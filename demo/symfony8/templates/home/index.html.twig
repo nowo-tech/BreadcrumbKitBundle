@@ -1,0 +1,46 @@
+{% extends 'base.html.twig' %}
+{% trans_default_domain 'NowoBreadcrumbKitBundle' %}
+
+{% block title %}{{ 'demo.home.title'|trans }}{% endblock %}
+
+{% block body %}
+    {% set dashboard_collections_url = breadcrumb_kit_dashboard_collections_url() %}
+    <h1>{{ 'demo.home.welcome'|trans }}</h1>
+    <p class="lead text-muted">
+        {{ 'demo.home.lead'|trans|raw }}
+    </p>
+
+    <div class="card mb-4">
+        <div class="card-header fw-bold">{{ 'demo.home.card_what_title'|trans }}</div>
+        <div class="card-body">
+            <p class="mb-2">{{ 'demo.home.card_what_p1'|trans|raw }}</p>
+            <p class="mb-0">{{ 'demo.home.card_what_p2'|trans|raw }}</p>
+        </div>
+    </div>
+
+    {% if dashboard_collections_url %}
+    <div class="card mb-4">
+        <div class="card-header fw-bold">{{ 'demo.home.card_editor_title'|trans }}</div>
+        <div class="card-body">
+            <ul class="list-unstyled mb-0">
+                <li class="mb-2">
+                    <a href="{{ dashboard_collections_url }}"><i class="bi bi-database me-1"></i>{{ 'demo.home.manage_link'|trans }}</a>
+                    — <code>{{ breadcrumb_kit_dashboard_path_prefix }}</code>
+                </li>
+                <li class="mb-0">
+                    {{ 'demo.home.inline_help'|trans|raw }}
+                    <a href="{{ path('app_home', { _locale: app.request.locale }) }}?breadcrumb_edit=1">{{ 'demo.home.try_home'|trans }}</a>
+                </li>
+            </ul>
+        </div>
+    </div>
+    {% endif %}
+
+    <div class="card mb-4">
+        <div class="card-header fw-bold">{{ 'demo.home.card_check_title'|trans }}</div>
+        <div class="card-body">
+            <p class="mb-2 text-muted small">{{ 'demo.home.check_p1'|trans }}</p>
+            <p class="mb-0 text-muted small">{{ 'demo.home.check_p2'|trans }}</p>
+        </div>
+    </div>
+{% endblock %}

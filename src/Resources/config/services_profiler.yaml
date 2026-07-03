@@ -1,0 +1,11 @@
+services:
+  _defaults:
+    autowire: true
+    autoconfigure: true
+    public: false
+
+  Nowo\BreadcrumbKitBundle\DataCollector\BreadcrumbDataCollector:
+    tags:
+      - name: data_collector
+        template: '@NowoBreadcrumbKitBundle/Collector/breadcrumb.html.twig'
+        id: 'nowo_breadcrumb_kit'

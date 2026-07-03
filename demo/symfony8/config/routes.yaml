@@ -1,0 +1,32 @@
+# Panel CRUD del bundle (prefijo = nowo_breadcrumb_kit.dashboard.path_prefix).
+nowo_breadcrumb_kit_dashboard:
+    resource: '@NowoBreadcrumbKitBundle/Resources/config/routing/dashboard.yaml'
+    type: yaml
+    prefix: '%nowo_breadcrumb_kit.dashboard.path_prefix%'
+
+# Ruta literal `/` (sin prefijo _locale). Un import `resource` + `attribute` sobre un solo
+# __invoke a veces no registra bien; aquí va explícita.
+app_root:
+    path: /
+    methods: [GET]
+    controller: App\Controller\RootController
+
+controllers:
+    resource:
+        path: ../src/Controller/
+        exclude: ../src/Controller/RootController.php
+        namespace: App\Controller
+    type: attribute
+    prefix: /{_locale}
+    requirements:
+        _locale: en|es
+    defaults:
+        _locale: en
+
+when@dev:
+    nowo_twig_inspector:
+        resource: '@NowoTwigInspectorBundle/Resources/config/routes.yaml'
+
+when@test:
+    nowo_twig_inspector:
+        resource: '@NowoTwigInspectorBundle/Resources/config/routes.yaml'

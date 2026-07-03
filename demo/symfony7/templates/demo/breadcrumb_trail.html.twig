@@ -1,0 +1,21 @@
+{% extends 'base.html.twig' %}
+{% trans_default_domain 'NowoBreadcrumbKitBundle' %}
+
+{% block title %}{{ 'demo.breadcrumb_trail.title'|trans }}{% endblock %}
+
+{% block body %}
+    <h1><code>breadcrumb_trail()</code></h1>
+    <p>{{ 'demo.breadcrumb_trail.lead_html'|trans|raw }}</p>
+    <ol class="demo-trail-list">
+        {% for node in breadcrumb_trail('default') %}
+            <li>
+                {% if not node.current and node.linkEnabled and node.url %}
+                    <a href="{{ node.url }}">{{ node.label }}</a>
+                {% else %}
+                    <span{% if node.current %} aria-current="page"{% endif %}>{{ node.label }}{% if node.current %}{{ 'demo.breadcrumb_trail.current_suffix'|trans }}{% endif %}</span>
+                {% endif %}
+            </li>
+        {% endfor %}
+    </ol>
+    <p><a href="{{ path('app_home') }}">{{ 'demo.breadcrumb_trail.back_home'|trans }}</a></p>
+{% endblock %}

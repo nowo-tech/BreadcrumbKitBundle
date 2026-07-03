@@ -1,0 +1,35 @@
+# Dependencies
+/vendor/
+/node_modules/
+/demo/*/vendor/
+
+# Symfony / runtime
+/var/
+/demo/*/var/
+
+# PHPUnit and coverage
+/.phpunit.cache/
+/coverage/
+/coverage.xml
+/coverage-php.txt
+/coverage-output.txt
+
+# Tooling caches
+/.php-cs-fixer.cache
+
+# Local environment
+.env
+.env.local
+.env.*.local
+/demo/*/.env.local
+
+# Demo runtime data
+/demo/*/.data/
+
+# Archives / compressed
+*.zip
+*.tar
+*.tar.gz
+*.tgz
+*.rar
+*.7z

@@ -1,0 +1,19 @@
+{% trans_default_domain 'NowoBreadcrumbKitBundle' %}
+<div id="modal-bk-item-form-container">
+{{ form_start(form, { attr: { class: 'bk-dashboard-form' } }) }}
+    <input type="hidden" name="_modal" value="1">
+    {{ form_row(form.routeName, { label_attr: { class: 'form-label' }, row_attr: { class: 'mb-2' } }) }}
+    {{ form_row(form.staticRouteParams, { label_attr: { class: 'form-label' }, row_attr: { class: 'mb-2' }, attr: { class: 'form-control font-monospace', rows: 3, spellcheck: 'false' } }) }}
+    {{ form_row(form.dynamicParamKeys, { label_attr: { class: 'form-label' }, row_attr: { class: 'mb-2' }, attr: { class: 'form-control font-monospace', rows: 2, spellcheck: 'false' } }) }}
+    {{ form_row(form.linkEnabled, { label_attr: { class: 'form-check-label' }, row_attr: { class: 'form-check mb-2' } }) }}
+    {{ form_row(form.label, { label_attr: { class: 'form-label' }, row_attr: { class: 'mb-2' } }) }}
+    {{ form_row(form.translations, { label_attr: { class: 'form-label' }, row_attr: { class: 'mb-2' }, attr: { class: 'form-control font-monospace', rows: 4, spellcheck: 'false' } }) }}
+    {{ form_row(form.icon, { label_attr: { class: 'form-label' }, row_attr: { class: 'mb-2' } }) }}
+    {{ form_row(form.parent, { label_attr: { class: 'form-label' }, row_attr: { class: 'mb-2' } }) }}
+    {{ form_rest(form) }}
+    <div class="d-flex gap-1 flex-wrap mt-3">
+        <button type="submit" class="btn btn-primary">{{ is_edit|default(false) ? ('dashboard.form_update'|trans) : ('dashboard.form_create'|trans) }}</button>
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ 'dashboard.cancel'|trans }}</button>
+    </div>
+{{ form_end(form) }}
+</div>

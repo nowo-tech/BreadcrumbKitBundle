@@ -1,0 +1,12 @@
+{% extends 'base.html.twig' %}
+{% trans_default_domain 'NowoBreadcrumbKitBundle' %}
+
+{% block title %}{{ 'demo.section.title'|trans({'%section%': section|capitalize}) }}{% endblock %}
+
+{% block body %}
+    <h1>{{ section|capitalize }}</h1>
+    <p>
+        {{ 'demo.section.lead_html'|trans|raw }}
+    </p>
+    <p><a href="{{ path('app_home') }}">{{ 'demo.section.back_home'|trans }}</a></p>
+{% endblock %}

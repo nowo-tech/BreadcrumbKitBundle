@@ -1,0 +1,28 @@
+services:
+  _defaults:
+    autowire: true
+    autoconfigure: true
+    public: false
+
+  Nowo\BreadcrumbKitBundle\Controller\Dashboard\:
+    resource: '../../Controller/Dashboard/'
+    tags: ['controller.service_arguments']
+
+  Nowo\BreadcrumbKitBundle\Twig\BreadcrumbKitDashboardGlobalsExtension:
+    arguments:
+      $layoutTemplate: '%nowo_breadcrumb_kit.dashboard.layout_template%'
+    tags: ['twig.extension']
+
+  Nowo\BreadcrumbKitBundle\Controller\Dashboard\CollectionCrudController:
+    arguments:
+      $paginationEnabled: '%nowo_breadcrumb_kit.dashboard.pagination.enabled%'
+      $paginationPerPage: '%nowo_breadcrumb_kit.dashboard.pagination.per_page%'
+      $modalSizes: '%nowo_breadcrumb_kit.dashboard.modals%'
+
+  Nowo\BreadcrumbKitBundle\Controller\Dashboard\ItemCrudController:
+    arguments:
+      $modalSizes: '%nowo_breadcrumb_kit.dashboard.modals%'
+
+  Nowo\BreadcrumbKitBundle\Controller\Dashboard\ImportExportController:
+    arguments:
+      $importMaxBytes: '%nowo_breadcrumb_kit.dashboard.import_max_bytes%'

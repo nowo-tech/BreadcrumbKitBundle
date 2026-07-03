@@ -1,0 +1,70 @@
+<?php
+
+declare(strict_types=1);
+
+namespace Nowo\BreadcrumbKitBundle\DependencyInjection\Compiler;
+
+use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
+use Symfony\Component\DependencyInjection\ContainerBuilder;
+
+/**
+ * REQ-TWIG-001: application overrides win. When {@code templates/bundles/NowoBreadcrumbKitBundle/}
+ * exists, it is registered with {@code prependPath()} first; the bundle {@code Resources/views}
+ * path is registered with {@code addPath()} so the app directory is searched before the vendor
+ * copy for {@code @NowoBreadcrumbKitBundle/...}. Resolves {@code twig.loader.native} alias chains.
+ */
+final class TwigPathsPass implements CompilerPassInterface
+{
+    private const TWIG_NAMESPACE = 'NowoBreadcrumbKitBundle';
+
+    public function process(ContainerBuilder $container): void
+    {
+        $loaderId = $this->getNativeLoaderServiceId($container);
+        if (null === $loaderId) {
+            return;
+        }
+
+        $viewsPath = \dirname(__DIR__, 2).'/Resources/views';
+
+        $definition = $container->getDefinition($loaderId);
+
+        if ($container->hasParameter('kernel.project_dir')) {
+            $projectDir = rtrim((string) $container->getParameter('kernel.project_dir'), '/\\');
+            $overridePath = $projectDir.'/templates/bundles/NowoBreadcrumbKitBundle';
+            if (is_dir($overridePath)) {
+                $definition->addMethodCall('prependPath', [$overridePath, self::TWIG_NAMESPACE]);
+            }
+        }
+
+        $definition->addMethodCall('addPath', [$viewsPath, self::TWIG_NAMESPACE]);
+    }
+
+    private function getNativeLoaderServiceId(ContainerBuilder $container): ?string
+    {
+        if ($container->hasAlias('twig.loader.native')) {
+            $resolved = $this->resolveDefinitionId($container, (string) $container->getAlias('twig.loader.native'));
+            if (null !== $resolved) {
+                return $resolved;
+            }
+        }
+
+        if ($container->hasDefinition('twig.loader.native')) {
+            return 'twig.loader.native';
+        }
+
+        if ($container->hasDefinition('twig.loader.native_filesystem')) {
+            return 'twig.loader.native_filesystem';
+        }
+
+        return null;
+    }
+
+    private function resolveDefinitionId(ContainerBuilder $container, string $id): ?string
+    {
+        for ($i = 0; $i < 32 && $container->hasAlias($id); ++$i) {
+            $id = (string) $container->getAlias($id);
+        }
+
+        return $container->hasDefinition($id) ? $id : null;
+    }
+}

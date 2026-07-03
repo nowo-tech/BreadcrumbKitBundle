@@ -1,0 +1,6 @@
+.git
+.phpunit.cache
+coverage
+coverage.xml
+coverage-php.txt
+.php-cs-fixer.cache

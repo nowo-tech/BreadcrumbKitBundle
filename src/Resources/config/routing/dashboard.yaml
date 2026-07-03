@@ -1,0 +1,11 @@
+# Import in your app (prefix must match nowo_breadcrumb_kit.dashboard.path_prefix).
+# Use type: yaml on this file — not type: attribute (that loader expects PHP classes).
+#
+# nowo_breadcrumb_kit_dashboard:
+#     resource: '@NowoBreadcrumbKitBundle/Resources/config/routing/dashboard.yaml'
+#     type: yaml
+#     prefix: '%nowo_breadcrumb_kit.dashboard.path_prefix%'
+
+controllers:
+  resource: ../../../Controller/Dashboard/
+  type: attribute

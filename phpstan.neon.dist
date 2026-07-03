@@ -1,0 +1,10 @@
+parameters:
+  level: 8
+  paths:
+    - src
+    - tests
+  excludePaths:
+    - demo/*
+  bootstrapFiles:
+    - vendor/autoload.php
+  reportUnmatchedIgnoredErrors: false

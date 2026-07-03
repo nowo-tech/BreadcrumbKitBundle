@@ -1,0 +1,10 @@
+{% extends 'admin/base.html.twig' %}
+{% trans_default_domain 'NowoBreadcrumbKitBundle' %}
+
+{% block title %}{{ 'demo.admin_users.title'|trans }}{% endblock %}
+
+{% block body %}
+    <h1>{{ 'demo.admin_users.heading'|trans }}</h1>
+    <p>{{ 'demo.admin_users.lead'|trans }}</p>
+    <p><a href="{{ path('app_admin_dashboard') }}">{{ 'demo.admin_users.back_dashboard'|trans }}</a></p>
+{% endblock %}

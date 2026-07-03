@@ -1,0 +1,277 @@
+# Breadcrumb Kit Bundle — English (semantic keys). Dashboard + forms + demo.
+
+dashboard:
+  title: 'Breadcrumb Kit'
+  title_suffix: 'Breadcrumb panel'
+  brand: 'Breadcrumb Kit'
+  nav_collections: Collections
+  loading: Loading…
+  error_loading_form: Could not load the form.
+  close: Close
+  cancel: Cancel
+  confirm_delete: Confirm deletion
+  delete: Delete
+  delete_confirm_message: Confirm this deletion?
+  collections_heading: Collections
+  collections_lead: Per-collection presentation styles and items linked to Symfony routes.
+  export_all: Export all
+  import: Import
+  new_collection: New collection
+  context: Context
+  search_placeholder: 'Search by code, name or context…'
+  clear: Clear
+  previous: Previous
+  next: Next
+  pagination_collections: Collections pagination
+  showing_from_to_of_total: 'Showing %from%-%to% of %total%'
+  open_form_full_page: Open form as full page
+  table_id: ID
+  table_code: Code
+  table_context: Context
+  table_name: Name
+  table_actions: Actions
+  link_items: Items
+  link_export_json: JSON
+  link_edit: Edit
+  empty_collections: No collections yet. Create one or import JSON exported from the panel.
+  delete_collection_confirm: 'Delete collection “%code%” and all its items?'
+  items_heading: Breadcrumb items
+  items_title_with_code: 'Items · %code%'
+  unnamed_collection: Unnamed
+  back_collections: ← Collections
+  search: Search
+  clear_search: Clear
+  export_collection: Export collection
+  new_item: New item
+  open_item_form_page: Full-page form
+  collection_styles: Collection styles
+  search_results: '%count% result(s) for “%query%”'
+  empty_items_search: No items match.
+  view_all_link: View all
+  empty_items_none: No items.
+  empty_items_add_hint: Add one from the button above or here.
+  add_item_button: Add one
+  table_route: Route
+  table_label: Label
+  table_parent: Parent
+  table_link: Link
+  link_yes: 'yes'
+  link_no: 'no'
+  filter_by_route: Filter
+  delete_item_confirm: 'Delete item #%id% (%route%)?'
+  import_page_title: Import collections
+  import_modal_title: Import JSON
+  collection_modal_title: Collection
+  item_modal_title: Item
+  new_collection_modal_title: New collection
+  edit_collection_modal_title: 'Edit · %code%'
+  collection_styles_modal_title: 'Styles · %code%'
+  new_item_modal_title: New item
+  item_new_page_title: New breadcrumb item
+  edit_item_modal_title: 'Edit item #%id%'
+  collection_not_found: Collection not found.
+  item_not_found: Item not found.
+  import_help: 'Expected export format (<code>breadcrumbKitExport</code>): one collection + item tree, or several under <code>collections</code>.'
+  import_submit: Import
+  form_save: Save
+  form_create: Create
+  form_update: Update
+  breadcrumb_crumb_nav: Panel breadcrumbs
+  import_partial_hint: 'Format exported by the panel (<code>breadcrumbKitExport</code>): collection + items as a tree, or multiple under <code>collections</code>.'
+  alert_close: Close
+
+  flash:
+    collection_created: Collection created.
+    collection_updated: Collection updated.
+    collection_deleted: Collection deleted.
+    collection_duplicate: A collection with this code and context key already exists.
+    csrf_invalid: Invalid CSRF token.
+    item_created: Item created.
+    item_updated: Item updated.
+    item_deleted: Item deleted.
+    import_file_too_large: 'File exceeds the maximum allowed size (%max% MiB).'
+    import_json_invalid: 'Invalid JSON: %message%'
+    import_json_not_object: The JSON must be an object or array.
+    import_done: 'Import: %created% created, %updated% updated, %skipped% skipped.'
+
+breadcrumb:
+  aria_label: Breadcrumb
+  inline_edit:
+    open: Edit breadcrumbs
+    close: Close
+    modal_title_edit: Edit breadcrumb trail for this route
+    modal_title_new: New breadcrumb item for this route
+
+import:
+  error:
+    entry_missing_keys: 'Entry %index%: missing ''collection'' or ''items''.'
+    collection_not_object: 'Entry %index%: ''collection'' must be an object.'
+    entry_code_required: 'Entry %index%: collection code is required.'
+    invalid_root: 'Do not use a bare JSON root array; export from the panel or use { "collections": [ ... ] }.'
+    invalid_shape: 'Expected format: { "collection", "items" } or { "collections": [ ... ] }.'
+    collection_code_required: Collection code is required.
+
+form:
+  delete:
+    csrf_invalid: Invalid CSRF token.
+
+  dashboard_search:
+    placeholder: Search by route, label or ID…
+
+  import_breadcrumb:
+    file:
+      label: JSON file
+      required: Please choose a file.
+      mime: The file must be JSON.
+    strategy:
+      label: If the collection already exists (same code + context key)
+      skip: Skip (do not import that block)
+      replace: Replace items and update data
+
+  breadcrumb_collection:
+    code.label: Code
+    context_key.label: Context key
+    context_key.help: 'Leave empty unless you use several collections with the same code.'
+    name.label: Display name
+    home_icon.label: Home icon (short emoji/HTML)
+    separator_icon.label: Separator
+    class_list.label: CSS container (classList)
+    class_list.placeholder: 'breadcrumb breadcrumb--demo'
+    class_item.label: Item CSS
+    class_separator.label: Separator CSS
+    class_current.label: Current item CSS
+    responsive_config.label: Responsive (JSON)
+    responsive_config.help: 'JSON object (breakpoints, hints). Empty = null.'
+    inline_edit_access.label: Inline edit (access service)
+    inline_edit_access.placeholder: Disabled
+    inline_edit_access.help: 'Only applies when the URL includes the configured `nowo_breadcrumb_kit.inline_edit.query_param` (truthy) and the dashboard is enabled.'
+
+  breadcrumb_item:
+    route_name.label: Symfony route name
+    route_name.not_blank: Enter a route name.
+    static_params.label: Static parameters (JSON)
+    static_params.help: 'e.g. {"section":"sales"} — must match _route_params.'
+    dynamic_keys.label: Dynamic keys (JSON array)
+    dynamic_keys.help: 'e.g. ["id"] copied from the request when generating the link.'
+    link_enabled.label: Link enabled
+    label.label: Default label
+    translations.label: Translations (JSON)
+    translations.help: '{"en":"Home","es":"Inicio"}'
+    icon.label: Icon
+    parent.label: Parent
+    parent.placeholder: — root —
+
+# Demo app (symfony7) — same domain as bundle
+demo:
+  base:
+    title_default: 'Breadcrumb Kit demo'
+    brand_sub: nowo-tech/breadcrumb-kit-bundle
+    language_switch_aria: Language
+    edit_breadcrumbs: Edit breadcrumbs
+    resources_aria: Resources
+    resources_title: Resources
+    github: GitHub
+    packagist: Packagist
+    resources_note: Same visual baseline as the Dashboard Menu bundle demo (Bootstrap 5).
+    footer_home: Home
+    footer_crud: CRUD
+  sidebar:
+    aria: Bundle examples
+    navigation: Navigation
+    section_start: Start
+    overview: Overview
+    section_manage: Manage
+    breadcrumb_editor: Breadcrumb editor (CRUD)
+    section_inline: Inline edit
+    home_with_flag: 'Home + ?flag'
+    product_with_modal: Product + modal
+    section_chain: Chain & product
+    shop: Shop
+    product_42: 'Product #42'
+    section_static: static_route_params
+    sales: Sales
+    support: Support
+    section_depth: Depth
+    long_trail: Long trail
+    eight_crumbs: 8 crumbs
+    section_admin_col: Admin collection
+    admin: Admin
+    users: Users
+    six_admin_crumbs: 6 admin crumbs
+    section_twig: Twig
+    custom_template: Custom template
+    section_edge: Edge cases
+    no_db_row: No DB row
+    admin_block: Admin
+    breadcrumb_panel: Breadcrumb panel
+  home:
+    title: 'Home — Breadcrumb Kit demo'
+    welcome: Welcome
+    lead: 'Interactive demo sharing the same visual baseline as the <strong>Dashboard Menu</strong> bundle demo (Bootstrap&nbsp;5).'
+    card_what_title: What this demo is
+    card_what_p1: 'Use the <strong>sidebar</strong> to jump between scenarios—one app, different routes and breadcrumb rows in the database.'
+    card_what_p2: '<strong>nowo-tech/breadcrumb-kit-bundle</strong> resolves labels, URLs, parent chains, and multiple collections.'
+    card_editor_title: Editor & in-context edit
+    manage_link: Manage collections & items
+    inline_help: 'In-context edit: add <code>?breadcrumb_edit=1</code> and the <em>Edit breadcrumbs</em> button when config + checker allow it.'
+    try_home: Try on home
+    card_check_title: What to check
+    check_p1: 'The card above shows breadcrumbs; in dev you will see the Symfony / Twig Inspector toolbar. The active sidebar link matches the current route.'
+    check_p2: 'For many segments and horizontal scroll, open “8 crumbs” or “6 admin crumbs”.'
+  product:
+    title: 'Product %id% — Breadcrumb demo'
+    heading: 'Product %id%'
+    lead_html: 'The trail includes <em>Shop</em> as non-linked text (<code>link_enabled = false</code>) and the current segment without a URL.'
+    back_shop: 'Back to shop'
+    back_home: Home
+  shop:
+    title: 'Shop — Breadcrumb demo'
+    heading: Shop
+    lead: 'Trail: Home → Shop (current page).'
+    open_product: 'Open product #42'
+    back_home: 'Back to home'
+  section:
+    title: '%section% — Breadcrumb demo'
+    lead_html: 'Same Symfony route for <code>sales</code> and <code>support</code>; the item with the most matching <code>static_route_params</code> wins.'
+    back_home: Home
+  deep:
+    title: 'Deep trail — Breadcrumb demo'
+    heading: Long breadcrumb trail
+    body_html: '<p>The deepest page has <strong>8 segments</strong> (Home + hub + 6 steps). On narrow viewports the strip uses <strong>horizontal scroll</strong> (<code>breadcrumb--many</code> in the app breadcrumb override).</p>'
+    current_level: 'Current level'
+    step_label: Step
+    shortcuts: Shortcuts
+    jump_aria: Jump level
+  no_match:
+    title: 'No DB match — Breadcrumb demo'
+    heading: No database match
+    lead_html: 'There is no <code>BreadcrumbItem</code> for this route; the breadcrumb area above is empty.'
+    back_home: Home
+  breadcrumb_trail:
+    title: 'breadcrumb_trail() — Breadcrumb demo'
+    lead_html: 'Same data as <code>breadcrumb_render()</code>, custom markup:'
+    current_suffix: ' (current)'
+    back_home: Home
+  custom_template:
+    title: 'Custom template — Breadcrumb demo'
+    nav_aria: 'Custom breadcrumb template'
+    lead_html: 'This page uses an application Twig template instead of the bundle default.'
+    back_home: Home
+  admin_dashboard:
+    title: 'Admin — Breadcrumb demo'
+    heading: Dashboard
+    lead_intro: 'Second collection <code>admin</code> and child route:'
+    back_public: 'Back to public site'
+  admin_users:
+    title: 'Users — Breadcrumb demo'
+    heading: Users
+    lead: 'Trail: Admin → Users.'
+    back_dashboard: 'Back to dashboard'
+  admin_nav_aria: Admin breadcrumb
+  admin_long:
+    title: 'Admin · long trail — Breadcrumb demo'
+    heading: 'Dashboard · deep hierarchy'
+    body_html: '<p><code>admin</code> collection: up to <strong>6 segments</strong> (Admin + five levels under <code>/admin/long/…</code>). Same horizontal scroll behaviour for crowded trails.</p>'
+    level_heading: Level
+    shortcuts: Shortcuts
+    jump_aria: Admin levels
