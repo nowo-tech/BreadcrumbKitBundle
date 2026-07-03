@@ -1,0 +1,13 @@
+{
+    "bundles": {
+        "Nowo\\BreadcrumbKitBundle\\NowoBreadcrumbKitBundle": ["all"]
+    },
+    "copy-from-recipe": {
+        "config/": "%CONFIG_DIR%/"
+    },
+    "post-install-output": [
+        "Map Doctrine entities for Nowo\\BreadcrumbKitBundle\\Entity and create tables (migration or schema update).",
+        "To enable the web dashboard, set dashboard.enabled to true in config/packages/nowo_breadcrumb_kit.yaml and add to config/routes.yaml:",
+        "  _nowo_breadcrumb_kit_dashboard:\n    resource: routes_nowo_breadcrumb_kit.yaml"
+    ]
+}

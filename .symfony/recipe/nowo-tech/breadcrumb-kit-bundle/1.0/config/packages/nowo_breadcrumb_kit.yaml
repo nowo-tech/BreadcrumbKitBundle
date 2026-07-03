@@ -1,0 +1,39 @@
+# Breadcrumb Kit Bundle – reference configuration.
+# Collections and items are stored in the database (dashboard or fixtures).
+# Uncomment and adjust only what you need.
+
+nowo_breadcrumb_kit:
+    # doctrine:
+    #     connection: default
+    #     table_prefix: ''
+
+    # Optional project id when multiple apps share the same DB.
+    # project: null
+
+    # locales: ['en', 'es']
+    # default_locale: 'en'
+
+    # default_collection: 'default'
+
+    cache:
+        ttl: 60
+        pool: cache.app
+
+    dashboard:
+        enabled: false
+        path_prefix: /breadcrumb-kit-admin
+        # layout_template: '@NowoBreadcrumbKitBundle/dashboard/layout.html.twig'
+        # import_max_bytes: 2097152
+        pagination:
+            enabled: true
+            per_page: 20
+        # modals:
+        #     collection_form: lg
+        #     item_form: lg
+        #     import: normal
+        #     delete: normal
+
+    # inline_edit:
+    #     query_param: breadcrumb_edit
+    #     access_services:
+    #         staff: app.breadcrumb_inline_edit_checker

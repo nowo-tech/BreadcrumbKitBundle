@@ -1,0 +1,28 @@
+# Dependencies
+/vendor/
+/node_modules/
+
+# Symfony runtime and caches
+/var/
+/.phpunit.cache/
+
+# Build and coverage outputs
+/dist/
+/build/
+/coverage/
+/coverage.xml
+
+# Local environment (keep template)
+/.env
+/.env.*
+!.env.example
+
+# IDE and tooling
+/.idea/
+/.vscode/
+
+# Archives and binaries
+*.zip
+*.tar
+*.tar.gz
+*.tgz

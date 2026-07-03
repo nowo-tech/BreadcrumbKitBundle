@@ -1,0 +1,52 @@
+services:
+  _defaults:
+    autowire: true
+    autoconfigure: true
+    public: false
+
+  Nowo\BreadcrumbKitBundle\Repository\BreadcrumbCollectionRepository:
+    public: true
+
+  Nowo\BreadcrumbKitBundle\Repository\BreadcrumbItemRepository:
+    public: true
+
+  Nowo\BreadcrumbKitBundle\Service\BreadcrumbUrlResolver:
+    public: true
+
+  Nowo\BreadcrumbKitBundle\Service\BreadcrumbUrlResolverInterface:
+    alias: Nowo\BreadcrumbKitBundle\Service\BreadcrumbUrlResolver
+
+  Nowo\BreadcrumbKitBundle\Profiler\BreadcrumbProfilerRecorder:
+    arguments:
+      $debug: '%kernel.debug%'
+
+  Nowo\BreadcrumbKitBundle\Service\BreadcrumbLoader:
+    public: true
+    arguments:
+      $defaultLocale: '%nowo_breadcrumb_kit.default_locale_resolved%'
+      $cachePool: null
+      $cacheTtl: '%nowo_breadcrumb_kit.cache.ttl%'
+      $profilerRecorder: '@Nowo\BreadcrumbKitBundle\Profiler\BreadcrumbProfilerRecorder'
+
+  Nowo\BreadcrumbKitBundle\Service\BreadcrumbInlineEditResolver:
+    arguments:
+      $inlineEditAccessCheckerLocator: '@nowo_breadcrumb_kit.inline_edit.access_checker_locator'
+      $tokenStorage: '@?security.token_storage'
+      $queryParamName: '%nowo_breadcrumb_kit.inline_edit.query_param%'
+      $dashboardEnabled: '%nowo_breadcrumb_kit.dashboard.enabled%'
+
+  Nowo\BreadcrumbKitBundle\Service\BreadcrumbExporter: ~
+
+  Nowo\BreadcrumbKitBundle\Service\BreadcrumbImporter: ~
+
+  Nowo\BreadcrumbKitBundle\Twig\BreadcrumbExtension:
+    arguments:
+      $defaultCollection: '%nowo_breadcrumb_kit.default_collection%'
+    tags:
+      - { name: twig.extension }
+
+  Nowo\BreadcrumbKitBundle\Twig\BreadcrumbKitDashboardLinkExtension:
+    arguments:
+      $dashboardEnabled: '%nowo_breadcrumb_kit.dashboard.enabled%'
+    tags:
+      - { name: twig.extension }

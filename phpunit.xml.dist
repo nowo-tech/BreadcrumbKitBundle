@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:noNamespaceSchemaLocation="vendor/phpunit/phpunit/phpunit.xsd"
+         bootstrap="vendor/autoload.php"
+         colors="true"
+         cacheDirectory=".phpunit.cache"
+         executionOrder="depends,defects"
+         beStrictAboutOutputDuringTests="true"
+         failOnRisky="true"
+>
+    <testsuites>
+        <testsuite name="unit">
+            <directory>tests/Unit</directory>
+        </testsuite>
+        <testsuite name="integration">
+            <directory>tests/Integration</directory>
+        </testsuite>
+    </testsuites>
+
+    <source>
+        <include>
+            <directory suffix=".php">src</directory>
+        </include>
+        <exclude>
+            <directory suffix=".php">src/Controller/Dashboard</directory>
+            <directory suffix=".php">src/Form/Dashboard</directory>
+            <directory suffix=".php">src/Repository</directory>
+            <file>src/Form/BreadcrumbCollectionType.php</file>
+            <file>src/Form/BreadcrumbItemType.php</file>
+            <file>src/Twig/BreadcrumbKitDashboardLinkExtension.php</file>
+            <file>src/Twig/BreadcrumbKitDashboardGlobalsExtension.php</file>
+            <file>src/polyfill-template-aware-data-collector.php</file>
+        </exclude>
+    </source>
+
+    <coverage>
+        <report>
+            <html outputDirectory="coverage"/>
+            <clover outputFile="coverage.xml"/>
+        </report>
+    </coverage>
+</phpunit>

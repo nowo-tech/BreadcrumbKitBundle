@@ -1,0 +1,124 @@
+{# Sidebar markup compatible with DashboardMenuBundle demo CSS (.dashboard-menu-tree). #}
+{% trans_default_domain 'NowoBreadcrumbKitBundle' %}
+{% set route = app.request.attributes.get('_route') %}
+{% set section = app.request.attributes.get('section') %}
+{% set admin_long_routes = ['app_admin_long_w1', 'app_admin_long_w2', 'app_admin_long_w3', 'app_admin_long_w4', 'app_admin_long_w5'] %}
+{% set dashboard_collections_url = breadcrumb_kit_dashboard_collections_url() %}
+{% set dashboard_routes_prefix = 'nowo_breadcrumb_kit_dashboard_' %}
+{% set is_dashboard = route is not null and route starts with dashboard_routes_prefix %}
+
+<nav class="app-sidebar" aria-label="{{ 'demo.sidebar.aria'|trans }}">
+    <div class="sidebar-title">{{ 'demo.sidebar.navigation'|trans }}</div>
+    <ul class="dashboard-menu-tree">
+        <li><span class="navigation-header">{{ 'demo.sidebar.section_start'|trans }}</span></li>
+        <li>
+            <a href="{{ path('app_home') }}" class="{{ route == 'app_home' ? 'active' : '' }}">
+                <i class="bi bi-house" aria-hidden="true"></i>{{ 'demo.sidebar.overview'|trans }}
+            </a>
+        </li>
+
+        {% if dashboard_collections_url %}
+        <li><span class="navigation-header">{{ 'demo.sidebar.section_manage'|trans }}</span></li>
+        <li>
+            <a href="{{ dashboard_collections_url }}" class="{{ is_dashboard ? 'active' : '' }}">
+                <i class="bi bi-database" aria-hidden="true"></i>{{ 'demo.sidebar.breadcrumb_editor'|trans }}
+            </a>
+        </li>
+        <li class="px-3 pb-1"><small class="text-muted"><code class="small">{{ breadcrumb_kit_dashboard_path_prefix }}</code></small></li>
+        {% endif %}
+
+        <li><span class="navigation-header">{{ 'demo.sidebar.section_inline'|trans }}</span></li>
+        <li>
+            <a href="{{ path('app_home', { _locale: app.request.locale }) }}?breadcrumb_edit=1">
+                <i class="bi bi-window-sidebar" aria-hidden="true"></i>{{ 'demo.sidebar.home_with_flag'|trans }}
+            </a>
+        </li>
+        <li>
+            <a href="{{ path('app_product_show', { _locale: app.request.locale, id: 42 }) }}?breadcrumb_edit=1">
+                <i class="bi bi-box" aria-hidden="true"></i>{{ 'demo.sidebar.product_with_modal'|trans }}
+            </a>
+        </li>
+
+        <li><span class="navigation-header">{{ 'demo.sidebar.section_chain'|trans }}</span></li>
+        <li>
+            <a href="{{ path('app_shop') }}" class="{{ route == 'app_shop' ? 'active' : '' }}">
+                <i class="bi bi-shop" aria-hidden="true"></i>{{ 'demo.sidebar.shop'|trans }}
+            </a>
+        </li>
+        <li>
+            <a href="{{ path('app_product_show', { id: 42 }) }}" class="{{ route == 'app_product_show' ? 'active' : '' }}">
+                <i class="bi bi-tag" aria-hidden="true"></i>{{ 'demo.sidebar.product_42'|trans }}
+            </a>
+        </li>
+
+        <li><span class="navigation-header">{{ 'demo.sidebar.section_static'|trans }}</span></li>
+        <li>
+            <a href="{{ path('app_section_show', { section: 'sales' }) }}" class="{{ route == 'app_section_show' and section == 'sales' ? 'active' : '' }}">
+                <i class="bi bi-graph-up" aria-hidden="true"></i>{{ 'demo.sidebar.sales'|trans }}
+            </a>
+        </li>
+        <li>
+            <a href="{{ path('app_section_show', { section: 'support' }) }}" class="{{ route == 'app_section_show' and section == 'support' ? 'active' : '' }}">
+                <i class="bi bi-life-preserver" aria-hidden="true"></i>{{ 'demo.sidebar.support'|trans }}
+            </a>
+        </li>
+
+        <li><span class="navigation-header">{{ 'demo.sidebar.section_depth'|trans }}</span></li>
+        <li>
+            <a href="{{ path('app_demo_deep') }}" class="{{ route == 'app_demo_deep' ? 'active' : '' }}">
+                <i class="bi bi-diagram-3" aria-hidden="true"></i>{{ 'demo.sidebar.long_trail'|trans }}
+            </a>
+        </li>
+        <li>
+            <a href="{{ path('app_demo_deep_s6') }}" class="{{ route == 'app_demo_deep_s6' ? 'active' : '' }}">
+                <i class="bi bi-list-ol" aria-hidden="true"></i>{{ 'demo.sidebar.eight_crumbs'|trans }}
+            </a>
+        </li>
+
+        <li><span class="navigation-header">{{ 'demo.sidebar.section_admin_col'|trans }}</span></li>
+        <li>
+            <a href="{{ path('app_admin_dashboard') }}" class="{{ route == 'app_admin_dashboard' ? 'active' : '' }}">
+                <i class="bi bi-speedometer2" aria-hidden="true"></i>{{ 'demo.sidebar.admin'|trans }}
+            </a>
+        </li>
+        <li>
+            <a href="{{ path('app_admin_users') }}" class="{{ route == 'app_admin_users' ? 'active' : '' }}">
+                <i class="bi bi-people" aria-hidden="true"></i>{{ 'demo.sidebar.users'|trans }}
+            </a>
+        </li>
+        <li>
+            <a href="{{ path('app_admin_long_w5') }}" class="{{ route in admin_long_routes ? 'active' : '' }}">
+                <i class="bi bi-layers" aria-hidden="true"></i>{{ 'demo.sidebar.six_admin_crumbs'|trans }}
+            </a>
+        </li>
+
+        <li><span class="navigation-header">{{ 'demo.sidebar.section_twig'|trans }}</span></li>
+        <li>
+            <a href="{{ path('app_demo_breadcrumb_trail') }}" class="{{ route == 'app_demo_breadcrumb_trail' ? 'active' : '' }}">
+                <i class="bi bi-braces" aria-hidden="true"></i><code class="small bg-transparent p-0">breadcrumb_trail()</code>
+            </a>
+        </li>
+        <li>
+            <a href="{{ path('app_demo_custom_template') }}" class="{{ route == 'app_demo_custom_template' ? 'active' : '' }}">
+                <i class="bi bi-file-earmark-code" aria-hidden="true"></i>{{ 'demo.sidebar.custom_template'|trans }}
+            </a>
+        </li>
+
+        <li><span class="navigation-header">{{ 'demo.sidebar.section_edge'|trans }}</span></li>
+        <li>
+            <a href="{{ path('app_demo_no_breadcrumb_match') }}" class="{{ route == 'app_demo_no_breadcrumb_match' ? 'active' : '' }}">
+                <i class="bi bi-question-circle" aria-hidden="true"></i>{{ 'demo.sidebar.no_db_row'|trans }}
+            </a>
+        </li>
+    </ul>
+
+    {% if dashboard_collections_url %}
+    <div class="sidebar-admin mt-3 pt-3 border-top">
+        <div class="sidebar-title">{{ 'demo.sidebar.admin_block'|trans }}</div>
+        <a href="{{ dashboard_collections_url }}">
+            <i class="bi bi-gear" aria-hidden="true"></i>
+            <span>{{ 'demo.sidebar.breadcrumb_panel'|trans }}</span>
+        </a>
+    </div>
+    {% endif %}
+</nav>

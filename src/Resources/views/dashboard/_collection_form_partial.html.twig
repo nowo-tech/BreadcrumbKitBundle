@@ -1,0 +1,24 @@
+{% trans_default_domain 'NowoBreadcrumbKitBundle' %}
+<div id="modal-bk-collection-form-container">
+{{ form_start(form, { attr: { class: 'bk-dashboard-form' } }) }}
+    <input type="hidden" name="_modal" value="1">
+    {{ form_row(form.code, { label_attr: { class: 'form-label' }, row_attr: { class: 'mb-2' } }) }}
+    {{ form_row(form.contextKey, { label_attr: { class: 'form-label' }, row_attr: { class: 'mb-2' } }) }}
+    {{ form_row(form.name, { label_attr: { class: 'form-label' }, row_attr: { class: 'mb-2' } }) }}
+    {{ form_row(form.homeIcon, { label_attr: { class: 'form-label' }, row_attr: { class: 'mb-2' } }) }}
+    {{ form_row(form.separatorIcon, { label_attr: { class: 'form-label' }, row_attr: { class: 'mb-2' } }) }}
+    {{ form_row(form.classList, { label_attr: { class: 'form-label' }, row_attr: { class: 'mb-2' } }) }}
+    {{ form_row(form.classItem, { label_attr: { class: 'form-label' }, row_attr: { class: 'mb-2' } }) }}
+    {{ form_row(form.classSeparator, { label_attr: { class: 'form-label' }, row_attr: { class: 'mb-2' } }) }}
+    {{ form_row(form.classCurrent, { label_attr: { class: 'form-label' }, row_attr: { class: 'mb-2' } }) }}
+    {{ form_row(form.responsiveConfigJson, { label_attr: { class: 'form-label' }, row_attr: { class: 'mb-2' }, attr: { class: 'form-control font-monospace', rows: 6, spellcheck: 'false' } }) }}
+    {% if form.inlineEditAccessKey is defined %}
+        {{ form_row(form.inlineEditAccessKey, { label_attr: { class: 'form-label' }, row_attr: { class: 'mb-2' } }) }}
+    {% endif %}
+    {{ form_rest(form) }}
+    <div class="d-flex gap-1 flex-wrap mt-3">
+        <button type="submit" class="btn btn-primary">{{ is_edit|default(false) ? ('dashboard.form_update'|trans) : ('dashboard.form_create'|trans) }}</button>
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ 'dashboard.cancel'|trans }}</button>
+    </div>
+{{ form_end(form) }}
+</div>

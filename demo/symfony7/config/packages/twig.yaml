@@ -1,0 +1,5 @@
+twig:
+    default_path: '%kernel.project_dir%/templates'
+    strict_variables: true
+    globals:
+        breadcrumb_kit_dashboard_path_prefix: '%nowo_breadcrumb_kit.dashboard.path_prefix%'

@@ -1,0 +1,14 @@
+name: breadcrumb-kit-bundle
+
+services:
+  php:
+    build: .
+    # Keep the container alive so `docker compose exec` (Makefile targets) works.
+    command: ["tail", "-f", "/dev/null"]
+    working_dir: /app
+    volumes:
+      - .:/app
+      - coverage-data:/app/coverage
+
+volumes:
+  coverage-data:

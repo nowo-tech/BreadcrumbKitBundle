@@ -1,0 +1,276 @@
+# Breadcrumb Kit Bundle — Español
+
+dashboard:
+  title: 'Breadcrumb Kit'
+  title_suffix: 'Panel de migas'
+  brand: 'Breadcrumb Kit'
+  nav_collections: Colecciones
+  loading: Cargando…
+  error_loading_form: No se pudo cargar el formulario.
+  close: Cerrar
+  cancel: Cancelar
+  confirm_delete: Confirmar eliminación
+  delete: Eliminar
+  delete_confirm_message: ¿Confirmar la eliminación?
+  collections_heading: Colecciones
+  collections_lead: Estilos por colección e ítems enlazados a rutas Symfony.
+  export_all: Exportar todo
+  import: Importar
+  new_collection: Nueva colección
+  context: Contexto
+  search_placeholder: 'Buscar por código, nombre o contexto…'
+  clear: Limpiar
+  previous: Anterior
+  next: Siguiente
+  pagination_collections: Paginación de colecciones
+  showing_from_to_of_total: 'Mostrando %from%-%to% de %total%'
+  open_form_full_page: Abrir formulario en página
+  table_id: ID
+  table_code: Código
+  table_context: Context
+  table_name: Nombre
+  table_actions: Acciones
+  link_items: Ítems
+  link_export_json: JSON
+  link_edit: Editar
+  empty_collections: No hay colecciones. Crea una o importa un JSON exportado desde el panel.
+  delete_collection_confirm: '¿Eliminar la colección «%code%» y todos sus ítems?'
+  items_heading: Ítems de migas
+  items_title_with_code: 'Ítems · %code%'
+  unnamed_collection: Sin nombre
+  back_collections: ← Colecciones
+  search: Buscar
+  clear_search: Limpiar
+  export_collection: Exportar colección
+  new_item: Nuevo ítem
+  open_item_form_page: Formulario en página
+  collection_styles: Estilos colección
+  search_results: '%count% resultado(s) para «%query%»'
+  empty_items_search: Ningún ítem coincide.
+  view_all_link: Ver todos
+  empty_items_none: No hay ítems.
+  empty_items_add_hint: Añade uno con el botón superior o aquí.
+  add_item_button: Añadir uno
+  table_route: Ruta
+  table_label: Etiqueta
+  table_parent: Padre
+  table_link: Link
+  link_yes: sí
+  link_no: 'no'
+  filter_by_route: Filtrar
+  delete_item_confirm: '¿Eliminar el ítem #%id% (%route%)?'
+  import_page_title: Importar colecciones
+  import_modal_title: Importar JSON
+  collection_modal_title: Colección
+  item_modal_title: Ítem
+  new_collection_modal_title: Nueva colección
+  edit_collection_modal_title: 'Editar · %code%'
+  collection_styles_modal_title: 'Estilos · %code%'
+  new_item_modal_title: Nuevo ítem
+  item_new_page_title: Nuevo ítem de migas
+  edit_item_modal_title: 'Editar ítem #%id%'
+  collection_not_found: Colección no encontrada.
+  item_not_found: Ítem no encontrado.
+  import_help: 'Formato exportado por el panel (<code>breadcrumbKitExport</code>): colección + ítems en árbol, o varias en <code>collections</code>.'
+  import_submit: Importar
+  form_save: Guardar
+  form_create: Crear
+  form_update: Actualizar
+  breadcrumb_crumb_nav: Migas del panel
+  import_partial_hint: 'Formato exportado por el panel (<code>breadcrumbKitExport</code>): colección + ítems en árbol, o varias en <code>collections</code>.'
+  alert_close: Cerrar
+
+  flash:
+    collection_created: Colección creada.
+    collection_updated: Colección actualizada.
+    collection_deleted: Colección eliminada.
+    collection_duplicate: Ya existe una colección con ese código y context key.
+    csrf_invalid: Token CSRF inválido.
+    item_created: Ítem creado.
+    item_updated: Ítem actualizado.
+    item_deleted: Ítem eliminado.
+    import_file_too_large: 'El archivo supera el máximo permitido (%max% MiB).'
+    import_json_invalid: 'JSON no válido: %message%'
+    import_json_not_object: El JSON debe ser un objeto o array.
+    import_done: 'Importación: %created% creadas, %updated% actualizadas, %skipped% omitidas.'
+
+breadcrumb:
+  aria_label: Migas de navegación
+  inline_edit:
+    open: Editar migas
+    close: Cerrar
+    modal_title_edit: Editar migas de esta ruta
+    modal_title_new: Nuevo ítem de migas para esta ruta
+
+import:
+  error:
+    entry_missing_keys: 'Entrada %index%: faltan ''collection'' o ''items''.'
+    collection_not_object: 'Entrada %index%: ''collection'' debe ser un objeto.'
+    entry_code_required: 'Entrada %index%: el código de colección es obligatorio.'
+    invalid_root: 'No uses un array JSON raíz suelto; exporta desde el panel o usa { "collections": [ ... ] }.'
+    invalid_shape: 'Formato esperado: { "collection", "items" } o { "collections": [ ... ] }.'
+    collection_code_required: El código de colección es obligatorio.
+
+form:
+  delete:
+    csrf_invalid: Token CSRF inválido.
+
+  dashboard_search:
+    placeholder: Buscar por ruta, etiqueta o ID…
+
+  import_breadcrumb:
+    file:
+      label: Archivo JSON
+      required: Selecciona un archivo.
+      mime: El archivo debe ser JSON.
+    strategy:
+      label: Si la colección ya existe (mismo código + context key)
+      skip: Omitir (no importar ese bloque)
+      replace: Reemplazar ítems y actualizar datos
+
+  breadcrumb_collection:
+    code.label: Código
+    context_key.label: Context key
+    context_key.help: 'Vacío salvo que uses varias colecciones con el mismo code.'
+    name.label: Nombre visible
+    home_icon.label: Icono inicio (emoji/HTML corto)
+    separator_icon.label: Separador
+    class_list.label: CSS contenedor (classList)
+    class_list.placeholder: 'breadcrumb breadcrumb--demo'
+    class_item.label: CSS ítem
+    class_separator.label: CSS separador
+    class_current.label: CSS ítem actual
+    responsive_config.label: Responsive (JSON)
+    responsive_config.help: 'Objeto JSON (breakpoint, hints). Vacío = null.'
+    inline_edit_access.label: Edición en línea (servicio de acceso)
+    inline_edit_access.placeholder: Desactivada
+    inline_edit_access.help: 'Solo tiene efecto si la URL incluye el query param configurado en `nowo_breadcrumb_kit.inline_edit.query_param` (valor truthy) y el dashboard está activo.'
+
+  breadcrumb_item:
+    route_name.label: Nombre de ruta Symfony
+    route_name.not_blank: Indica un nombre de ruta.
+    static_params.label: Parámetros estáticos (JSON)
+    static_params.help: 'Ej. {"section":"sales"} — debe coincidir con _route_params.'
+    dynamic_keys.label: Claves dinámicas (JSON array)
+    dynamic_keys.help: 'Ej. ["id"] copiados de la petición al generar el enlace.'
+    link_enabled.label: Enlace habilitado
+    label.label: Etiqueta por defecto
+    translations.label: Traducciones (JSON)
+    translations.help: '{"en":"Home","es":"Inicio"}'
+    icon.label: Icono
+    parent.label: Padre
+    parent.placeholder: — raíz —
+
+demo:
+  base:
+    title_default: 'Demo Breadcrumb Kit'
+    brand_sub: nowo-tech/breadcrumb-kit-bundle
+    language_switch_aria: Idioma
+    edit_breadcrumbs: Editor migas
+    resources_aria: Recursos
+    resources_title: Recursos
+    github: GitHub
+    packagist: Packagist
+    resources_note: Misma línea visual que la demo de Dashboard Menu (Bootstrap 5).
+    footer_home: Inicio
+    footer_crud: CRUD
+  sidebar:
+    aria: Ejemplos del bundle
+    navigation: Navegación
+    section_start: Inicio
+    overview: Presentación
+    section_manage: Gestión
+    breadcrumb_editor: Editor migas (CRUD)
+    section_inline: Edición en línea
+    home_with_flag: 'Inicio + ?flag'
+    product_with_modal: Producto + modal
+    section_chain: Cadena y producto
+    shop: Tienda
+    product_42: 'Producto #42'
+    section_static: static_route_params
+    sales: Sales
+    support: Support
+    section_depth: Profundidad
+    long_trail: Cadena larga
+    eight_crumbs: 8 migas
+    section_admin_col: Colección admin
+    admin: Admin
+    users: Usuarios
+    six_admin_crumbs: 6 migas admin
+    section_twig: Twig
+    custom_template: Plantilla custom
+    section_edge: Casos límite
+    no_db_row: Sin fila BD
+    admin_block: Admin
+    breadcrumb_panel: Panel migas
+  home:
+    title: 'Inicio — Demo Breadcrumb Kit'
+    welcome: Bienvenido
+    lead: 'Demo interactiva con la misma línea visual que la demo de <strong>Dashboard Menu</strong> (Bootstrap&nbsp;5).'
+    card_what_title: Qué es esta demo
+    card_what_p1: 'Explora cada escenario desde el <strong>menú lateral</strong>: misma app, distintas rutas y migas en base de datos.'
+    card_what_p2: 'El paquete <strong>nowo-tech/breadcrumb-kit-bundle</strong> resuelve etiquetas, URLs, jerarquía padre/hijo y colecciones múltiples.'
+    card_editor_title: Editor y edición en contexto
+    manage_link: Gestionar colecciones e ítems
+    inline_help: 'Edición en contexto: añade <code>?breadcrumb_edit=1</code> y el botón <em>Editar migas</em> si la config y el checker lo permiten.'
+    try_home: Probar en inicio
+    card_check_title: Qué revisar
+    check_p1: 'La tarjeta superior muestra las migas; en dev verás la toolbar de Symfony / Twig Inspector. El enlace activo del sidebar coincide con la ruta actual.'
+    check_p2: 'Para muchos segmentos y scroll horizontal, abre «8 migas» o «6 migas admin».'
+  product:
+    title: 'Producto %id% — Breadcrumb demo'
+    heading: 'Producto %id%'
+    lead_html: 'Las migas incluyen «Tienda» sin enlace (<code>link_enabled = false</code>) y el segmento actual sin URL.'
+    back_shop: 'Volver a la tienda'
+    back_home: Inicio
+  shop:
+    title: 'Tienda — Breadcrumb demo'
+    heading: Tienda
+    lead: 'Cadena: Inicio → Tienda (página actual).'
+    open_product: 'Ver producto #42'
+    back_home: 'Volver al inicio'
+  section:
+    title: '%section% — Breadcrumb demo'
+    lead_html: 'Misma ruta Symfony para <code>sales</code> y <code>support</code>; el ítem con más <code>static_route_params</code> coincidentes gana.'
+    back_home: Inicio
+  deep:
+    title: 'Cadena profunda — Breadcrumb demo'
+    heading: Migas muy largas
+    body_html: '<p>Hay <strong>8 segmentos</strong> en la hoja más profunda (Inicio + demo + 6 pasos). En pantallas estrechas la barra permite <strong>desplazamiento horizontal</strong> (clase <code>breadcrumb--many</code> en la plantilla de la app).</p>'
+    current_level: 'Nivel actual'
+    step_label: Paso
+    shortcuts: 'Atajos:'
+    jump_aria: Saltar de nivel
+  no_match:
+    title: 'Sin coincidencia BD — Breadcrumb demo'
+    heading: Sin coincidencia en base de datos
+    lead_html: 'No hay ningún BreadcrumbItem para esta ruta; la zona de migas arriba está vacía.'
+    back_home: Inicio
+  breadcrumb_trail:
+    title: 'breadcrumb_trail() — Breadcrumb demo'
+    lead_html: 'Mismo modelo de datos que <code>breadcrumb_render()</code>, maquetación manual:'
+    current_suffix: ' (actual)'
+    back_home: Inicio
+  custom_template:
+    title: 'Plantilla custom — Breadcrumb demo'
+    nav_aria: 'Plantilla custom de migas'
+    lead_html: 'Esta página usa una plantilla Twig propia en lugar de la del bundle.'
+    back_home: Inicio
+  admin_dashboard:
+    title: 'Admin — Breadcrumb demo'
+    heading: Panel
+    lead_intro: 'Colección «admin» y ruta hija:'
+    back_public: 'Volver al sitio público'
+  admin_users:
+    title: 'Usuarios — Breadcrumb demo'
+    heading: Usuarios
+    lead: 'Cadena Admin → Usuarios.'
+    back_dashboard: 'Volver al panel'
+  admin_nav_aria: Migas de administración
+  admin_long:
+    title: 'Admin · cadena larga — Breadcrumb demo'
+    heading: 'Panel · jerarquía larga'
+    body_html: '<p>Colección <code>admin</code>: hasta <strong>6 segmentos</strong> (Administración + cinco niveles bajo <code>/admin/long/…</code>). Misma idea de scroll en migas cuando hay muchos ítems.</p>'
+    level_heading: Nivel
+    shortcuts: 'Atajos:'
+    jump_aria: Niveles admin

@@ -1,0 +1,4 @@
+# nowo-tech/twig-inspector-bundle — dev defaults (toolbar + overlay; cookie toggles injection).
+nowo_twig_inspector:
+    enable_metrics: true
+    overlay_theme: auto

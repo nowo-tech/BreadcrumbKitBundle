@@ -1,0 +1,97 @@
+{% extends '@WebProfiler/Profiler/layout.html.twig' %}
+
+{% block toolbar %}
+    {% if collector.snapshotCount > 0 %}
+        {% set icon %}
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true">
+                <path d="M4 6h6v4H4V6zm5 8h6v4H9v-4zm5-8h6v4h-6V6z"/>
+                <path d="M10 8h4M7 12h2M15 12h2" stroke-linecap="round"/>
+            </svg>
+        {% endset %}
+        <div class="sf-toolbar-block sf-toolbar-block-nowo-breadcrumb-kit sf-toolbar-status-{{ collector.lastNodeCount > 0 ? 'green' : 'yellow' }}">
+            <a href="{{ path('_profiler', { token: token }) }}?panel={{ collector.name|e('url') }}">
+                <div class="sf-toolbar-icon">{{ icon|raw }}</div>
+                <span class="sf-toolbar-label">Breadcrumb</span>
+                <span class="sf-toolbar-value">{{ collector.lastNodeCount }}</span>
+                <span class="sf-toolbar-info-piece sf-toolbar-info-extra">
+                    <b>Resolutions</b>
+                    <span>{{ collector.snapshotCount }}</span>
+                </span>
+            </a>
+        </div>
+    {% endif %}
+{% endblock %}
+
+{% block menu %}
+    <span class="label">
+        <span class="icon">{{ include('@NowoBreadcrumbKitBundle/Collector/_icon.svg.twig') }}</span>
+        <strong>Breadcrumb Kit</strong>
+    </span>
+    <span class="count">
+        <span>{{ collector.snapshotCount }}</span>
+    </span>
+{% endblock %}
+
+{% block panel %}
+    <h2>Breadcrumb Kit</h2>
+    <p>One entry per <code>breadcrumb_render()</code> / <code>breadcrumb_trail()</code> call that hit the loader.</p>
+
+    {% if collector.trails is empty %}
+        <p class="help">No breadcrumb data was recorded for this request (profiler disabled, or loader not invoked).</p>
+    {% else %}
+        {% for trail in collector.trails %}
+            <h3>#{{ loop.index }} — collection <code>{{ trail.collection }}</code>
+                {% if trail.contextKey is not empty %}<span class="text-muted">/ context <code>{{ trail.contextKey }}</code></span>{% endif %}
+            </h3>
+            <div class="metrics">
+                <div class="metric">
+                    <span class="value">{{ trail.status }}</span>
+                    <span class="label">Status</span>
+                </div>
+                <div class="metric">
+                    <span class="value">{{ trail.requestRoute ?? '—' }}</span>
+                    <span class="label">Request route</span>
+                </div>
+                <div class="metric">
+                    <span class="value">{{ trail.matchedItemRoute ?? '—' }}</span>
+                    <span class="label">Matched DB route</span>
+                </div>
+                <div class="metric">
+                    <span class="value">{{ trail.nodeCount }}</span>
+                    <span class="label">Nodes</span>
+                </div>
+            </div>
+            {% if trail.classList %}
+                <p><small>classList: <code>{{ trail.classList }}</code>{% if trail.separatorIcon %} · separator: <code>{{ trail.separatorIcon }}</code>{% endif %}</small></p>
+            {% endif %}
+            {% if trail.nodes is not empty %}
+                <table>
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Label</th>
+                            <th>URL</th>
+                            <th>Current</th>
+                            <th>Link</th>
+                            <th>Params</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for node in trail.nodes %}
+                            <tr>
+                                <td>{{ loop.index }}</td>
+                                <td>{% if node.icon %}<span class="text-muted">{{ node.icon }}</span> {% endif %}{{ node.label }}</td>
+                                <td><code>{{ node.url ?? '—' }}</code></td>
+                                <td>{{ node.current ? 'yes' : 'no' }}</td>
+                                <td>{{ node.linkEnabled ? 'yes' : 'no' }}</td>
+                                <td><code>{{ node.routeParamKeys|join(', ') ?: '—' }}</code></td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            {% elseif trail.status == 'ok' %}
+                <p class="help">Trail resolved but produced zero nodes (unexpected).</p>
+            {% endif %}
+        {% endfor %}
+    {% endif %}
+{% endblock %}

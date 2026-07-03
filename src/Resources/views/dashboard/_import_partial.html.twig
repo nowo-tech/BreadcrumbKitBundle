@@ -1,0 +1,20 @@
+{% trans_default_domain 'NowoBreadcrumbKitBundle' %}
+<div id="modal-bk-import-container">
+    {% for msg in app.flashes('danger') %}
+        <div class="alert alert-danger">{{ msg }}</div>
+    {% endfor %}
+    {% for msg in app.flashes('success') %}
+        <div class="alert alert-success">{{ msg }}</div>
+    {% endfor %}
+    <p class="text-muted small">{{ 'dashboard.import_partial_hint'|trans|raw }}</p>
+    {{ form_start(form, { attr: { enctype: 'multipart/form-data', class: 'import-form', 'data-import-form': '1' } }) }}
+        <input type="hidden" name="_modal" value="1">
+        {{ form_row(form.file, { row_attr: { class: 'mb-2' }, label_attr: { class: 'form-label' } }) }}
+        {{ form_row(form.strategy, { row_attr: { class: 'mb-2' }, label_attr: { class: 'form-label' } }) }}
+        {{ form_rest(form) }}
+        <div class="d-flex gap-1 flex-wrap">
+            <button type="submit" class="btn btn-primary">{{ 'dashboard.import_submit'|trans }}</button>
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ 'dashboard.cancel'|trans }}</button>
+        </div>
+    {{ form_end(form) }}
+</div>
