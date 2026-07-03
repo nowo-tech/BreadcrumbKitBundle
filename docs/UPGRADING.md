@@ -2,6 +2,16 @@
 
 This document describes breaking changes and upgrade notes between versions. Sections are ordered from newest to oldest.
 
+## From 1.1.0 to 1.2.0
+
+No intentional breaking changes. New options are optional and default to previous behaviour (`hide_when_single_root: false`, `home_icon_replaces_label: true`).
+
+1. Run `composer update nowo-tech/breadcrumb-kit-bundle:^1.2`.
+2. Optionally add `presentation` to `config/packages/nowo_breadcrumb_kit.yaml` (see [CONFIGURATION.md](CONFIGURATION.md)).
+3. To hide breadcrumbs on a lone root/home page, set `presentation.hide_when_single_root: true` globally or `hide_when_single_root` inside a collection’s `responsiveConfig` JSON.
+4. Clear cache: `bin/console cache:clear`.
+5. If you override `breadcrumb.html.twig`, consider including `@NowoBreadcrumbKitBundle/_breadcrumb_crumb.html.twig` or copy its markup for home-icon behaviour.
+
 ## From 1.0.0 to 1.1.0
 
 **Symfony 6.4 is no longer supported.** All Symfony component constraints are now `^7.0 || ^8.0`.
