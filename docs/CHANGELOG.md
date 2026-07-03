@@ -7,6 +7,28 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.2.0] - 2026-07-03
+
+### Added
+
+- **`presentation` configuration** (YAML under `nowo_breadcrumb_kit.presentation`):
+  - `home_icon` — global fallback when a collection has no `homeIcon`.
+  - `home_icon_replaces_label` — when `true` (default), the first crumb can show only the home icon; the text label remains in `aria-label`.
+  - `hide_when_single_root` — when `true`, hides the trail on pages where the only crumb is the root item and it is the current page (typical home). Per-collection override via `responsiveConfig.hide_when_single_root` in the dashboard.
+- Twig partial **`_breadcrumb_crumb.html.twig`** for a single crumb (link, current, or plain text + optional icon).
+- Unit tests for single-root hiding and home-icon presentation on `BreadcrumbLoader`.
+
+### Changed
+
+- **`BreadcrumbTrailView`:** new property `homeIconReplacesLabel` (passed from config).
+- **`breadcrumb.html.twig`:** includes `_breadcrumb_crumb.html.twig`; wrapper renders only when the trail has nodes or inline-edit toolbar is shown.
+- Dashboard collection form: help text for `homeIcon` field (EN/ES).
+
+### Documentation
+
+- [CONFIGURATION.md](CONFIGURATION.md): `presentation.*` reference and example YAML.
+- [USAGE.md](USAGE.md): presentation options and `_breadcrumb_crumb.html.twig` override.
+
 ## [1.1.0] - 2026-07-03
 
 ### Changed

@@ -3,6 +3,7 @@
 ## Table of contents
 
 - [Twig functions](#twig-functions)
+- [Presentation (home icon, hide on home)](#presentation-home-icon-hide-on-home)
 - [Overriding templates and translations](#overriding-templates-and-translations)
   - [Twig templates (REQ-TWIG-001)](#twig-templates-req-twig-001)
   - [Overriding translations (REQ-I18N-001)](#overriding-translations-req-i18n-001)
@@ -37,6 +38,24 @@ Optional dashboard link in your admin shell:
 {% if url %}<a href="{{ url }}">Breadcrumb Kit</a>{% endif %}
 ```
 
+## Presentation (home icon, hide on home)
+
+Global defaults live under `nowo_breadcrumb_kit.presentation` (see [CONFIGURATION.md](CONFIGURATION.md)):
+
+| Option | Effect |
+|--------|--------|
+| `home_icon` | Fallback icon/HTML for the first crumb when the collection has no `homeIcon`. |
+| `home_icon_replaces_label` | When `true` (default), first crumb shows the icon only; `aria-label` keeps the text label. |
+| `hide_when_single_root` | When `true`, no trail is rendered if the only matched crumb is the root and it is the current page. |
+
+Per collection, set `homeIcon` in the dashboard and optionally `hide_when_single_root` inside **Responsive (JSON)**:
+
+```json
+{ "hide_when_single_root": true, "breakpoint": "md" }
+```
+
+Collection `homeIcon` wins over `presentation.home_icon`. Override `@NowoBreadcrumbKitBundle/_breadcrumb_crumb.html.twig` in your app for custom first-crumb markup.
+
 ## Overriding templates and translations
 
 ### Twig templates (REQ-TWIG-001)
@@ -54,6 +73,7 @@ Optional dashboard link in your admin shell:
 | Subpath | Purpose |
 |---------|---------|
 | `breadcrumb.html.twig` | Default breadcrumb markup (and optional inline-edit UI). |
+| `_breadcrumb_crumb.html.twig` | Single crumb (icon, link, current page). |
 | `dashboard/layout.html.twig` | Dashboard shell (Bootstrap navbar, main block). |
 | `dashboard/base.html.twig` | Extends configurable layout; flashes + body block. |
 | `dashboard/collection/index.html.twig` | Collections list. |
