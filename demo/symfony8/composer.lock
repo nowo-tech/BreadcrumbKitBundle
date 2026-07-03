@@ -932,26 +932,26 @@
             "dist": {
                 "type": "path",
                 "url": "/var/breadcrumb-kit-bundle",
-                "reference": "467e9a228fb370c2479b4e03c15b56b441ccf4ea"
+                "reference": "e398b2fdbb4fdddbb639bd821dbeb77fda3ffa2c"
             },
             "require": {
                 "doctrine/doctrine-bundle": "^2.8 || ^3.0",
                 "doctrine/orm": "^2.13 || ^3.0",
                 "php": ">=8.2 <8.6",
                 "psr/cache": "^3.0",
-                "symfony/asset": "^6.4 || ^7.0 || ^8.0",
-                "symfony/config": "^6.4 || ^7.0 || ^8.0",
-                "symfony/dependency-injection": "^6.4 || ^7.0 || ^8.0",
-                "symfony/form": "^6.4 || ^7.0 || ^8.0",
-                "symfony/framework-bundle": "^6.4 || ^7.0 || ^8.0",
-                "symfony/http-foundation": "^6.4 || ^7.0 || ^8.0",
-                "symfony/http-kernel": "^6.4 || ^7.0 || ^8.0",
-                "symfony/routing": "^6.4 || ^7.0 || ^8.0",
-                "symfony/security-core": "^6.4 || ^7.0 || ^8.0",
-                "symfony/security-csrf": "^6.4 || ^7.0 || ^8.0",
-                "symfony/twig-bundle": "^6.4 || ^7.0 || ^8.0",
-                "symfony/validator": "^6.4 || ^7.0 || ^8.0",
-                "symfony/yaml": "^6.4 || ^7.0 || ^8.0"
+                "symfony/asset": "^7.0 || ^8.0",
+                "symfony/config": "^7.0 || ^8.0",
+                "symfony/dependency-injection": "^7.0 || ^8.0",
+                "symfony/form": "^7.0 || ^8.0",
+                "symfony/framework-bundle": "^7.0 || ^8.0",
+                "symfony/http-foundation": "^7.0 || ^8.0",
+                "symfony/http-kernel": "^7.0 || ^8.0",
+                "symfony/routing": "^7.0 || ^8.0",
+                "symfony/security-core": "^7.0 || ^8.0",
+                "symfony/security-csrf": "^7.0 || ^8.0",
+                "symfony/twig-bundle": "^7.0 || ^8.0",
+                "symfony/validator": "^7.0 || ^8.0",
+                "symfony/yaml": "^7.0 || ^8.0"
             },
             "require-dev": {
                 "friendsofphp/php-cs-fixer": "^3.0",
@@ -1019,6 +1019,14 @@
             "license": [
                 "MIT"
             ],
+            "authors": [
+                {
+                    "name": "Héctor Franco Aceituno",
+                    "email": "hectorfranco@nowo.tech",
+                    "homepage": "https://github.com/HecFranco",
+                    "role": "Developer"
+                }
+            ],
             "description": "Symfony bundle: configurable breadcrumb trails (route matching, i18n, optional links, collection-level presentation).",
             "homepage": "https://github.com/nowo-tech/BreadcrumbKitBundle",
             "keywords": [
@@ -1028,6 +1036,10 @@
                 "symfony",
                 "symfony-bundle"
             ],
+            "support": {
+                "issues": "https://github.com/nowo-tech/BreadcrumbKitBundle/issues",
+                "source": "https://github.com/nowo-tech/BreadcrumbKitBundle"
+            },
             "transport-options": {
                 "relative": false
             }
