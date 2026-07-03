@@ -1,0 +1,21 @@
+{#
+  Single breadcrumb item content.
+  Variables: node (BreadcrumbNode), trail (BreadcrumbTrailView), is_first (bool)
+#}
+{% set show_home_icon_only = is_first and trail.homeIcon and trail.homeIconReplacesLabel %}
+{% set crumb_icon = show_home_icon_only ? trail.homeIcon : node.icon %}
+{% set crumb_label = show_home_icon_only ? '' : node.label %}
+{% if not node.current and node.linkEnabled and node.url %}
+    <a href="{{ node.url }}"{% if show_home_icon_only %} aria-label="{{ node.label }}"{% endif %}>
+        {%- if crumb_icon %}<span class="breadcrumb-icon" aria-hidden="true">{{ crumb_icon|raw }}</span>{% endif -%}
+        {%- if crumb_label %} {{ crumb_label }}{% endif -%}
+    </a>
+{% elseif node.current %}
+    <span aria-current="page"{% if show_home_icon_only %} aria-label="{{ node.label }}"{% endif %}>
+        {%- if crumb_icon %}<span class="breadcrumb-icon" aria-hidden="true">{{ crumb_icon|raw }}</span>{% endif -%}
+        {%- if crumb_label %} {{ crumb_label }}{% endif -%}
+    </span>
+{% else %}
+    {%- if crumb_icon %}<span class="breadcrumb-icon" aria-hidden="true">{{ crumb_icon|raw }}</span>{% endif -%}
+    {%- if crumb_label %} {{ crumb_label }}{% endif -%}
+{% endif %}

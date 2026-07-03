@@ -44,6 +44,7 @@ final class BreadcrumbCollectionType extends AbstractType
                 'label' => 'form.breadcrumb_collection.home_icon.label',
                 'required' => false,
                 'constraints' => [new Length(max: 128)],
+                'help' => 'form.breadcrumb_collection.home_icon.help',
             ])
             ->add('separatorIcon', TextType::class, [
                 'label' => 'form.breadcrumb_collection.separator_icon.label',

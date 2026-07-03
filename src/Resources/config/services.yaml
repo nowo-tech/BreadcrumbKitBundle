@@ -27,6 +27,9 @@ services:
       $cachePool: null
       $cacheTtl: '%nowo_breadcrumb_kit.cache.ttl%'
       $profilerRecorder: '@Nowo\BreadcrumbKitBundle\Profiler\BreadcrumbProfilerRecorder'
+      $hideWhenSingleRoot: '%nowo_breadcrumb_kit.presentation.hide_when_single_root%'
+      $homeIconReplacesLabel: '%nowo_breadcrumb_kit.presentation.home_icon_replaces_label%'
+      $defaultHomeIcon: '%nowo_breadcrumb_kit.presentation.home_icon%'
 
   Nowo\BreadcrumbKitBundle\Service\BreadcrumbInlineEditResolver:
     arguments:

@@ -21,6 +21,9 @@ Configuration root key: `nowo_breadcrumb_kit` (see `Nowo\BreadcrumbKitBundle\Dep
 | `locales` | `string[]` | `[]` | Supported locales for resolving labels from JSON translations on items. |
 | `default_locale` | `string\|null` | `null` | Fallback locale; if null and `locales` is non-empty, the first locale is used. |
 | `default_collection` | `string` | `default` | Collection code used when Twig helpers omit an explicit collection. |
+| `presentation.home_icon` | `string\|null` | `null` | Fallback home/root icon when the collection `homeIcon` is empty (HTML, emoji, or an app-specific token such as `tabler:home` with Symfony UX Icons). |
+| `presentation.home_icon_replaces_label` | `bool` | `true` | When `true` and a home icon is set, the first crumb shows the icon instead of its text label (`aria-label` keeps the label for accessibility). |
+| `presentation.hide_when_single_root` | `bool` | `false` | When `true`, hides the trail on pages where the only crumb is the root item and it is the current page (typical home). Per-collection override: `responsiveConfig.hide_when_single_root` in the dashboard. |
 | `dashboard.enabled` | `bool` | `false` | When `true`, registers CRUD controllers (requires `symfony/form` + `symfony/framework-bundle`; import routing as below). |
 | `dashboard.path_prefix` | `string` | `/breadcrumb-kit-admin` | URL prefix for dashboard routes (leading slash, no trailing slash). Must match the `prefix` used when importing bundle routes. |
 | `dashboard.layout_template` | `string` | `@NowoBreadcrumbKitBundle/dashboard/layout.html.twig` | Twig layout extended by dashboard pages (override in the app like DashboardMenuBundle). Must define block `nowo_breadcrumb_kit_content`. |
@@ -84,6 +87,10 @@ nowo_breadcrumb_kit:
     locales: ['en', 'es']
     default_locale: 'en'
     default_collection: 'default'
+    presentation:
+        home_icon: null
+        home_icon_replaces_label: true
+        hide_when_single_root: false
     dashboard:
         enabled: false
         path_prefix: /breadcrumb-kit-admin

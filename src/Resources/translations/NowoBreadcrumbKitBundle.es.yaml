@@ -134,6 +134,7 @@ form:
     context_key.help: 'Vacío salvo que uses varias colecciones con el mismo code.'
     name.label: Nombre visible
     home_icon.label: Icono inicio (emoji/HTML corto)
+    home_icon.help: Se muestra en la primera miga en lugar del texto cuando presentation.home_icon_replaces_label está activo (p. ej. ⌂ o tabler:home en apps con UX Icons).
     separator_icon.label: Separador
     class_list.label: CSS contenedor (classList)
     class_list.placeholder: 'breadcrumb breadcrumb--demo'
