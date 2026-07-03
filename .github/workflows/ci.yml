@@ -56,12 +56,20 @@ jobs:
             ${{ runner.os }}-php-${{ matrix.php }}-symfony-${{ matrix.symfony }}-composer-
             ${{ runner.os }}-php-${{ matrix.php }}-composer-
 
-      - name: Override platform for Symfony 8.1 (requires PHP >= 8.4.1)
-        if: matrix.symfony == '8.1'
-        run: composer config platform.php 8.4.1
+      - name: Set Composer platform PHP for Symfony 8
+        if: startsWith(matrix.symfony, '8.')
+        run: |
+          if [ "${{ matrix.symfony }}" = "8.1" ]; then
+            composer config platform.php 8.4.1
+          else
+            composer config platform.php 8.4.0
+          fi
 
       - name: Install dependencies with Symfony ${{ matrix.symfony }}
         run: |
+          if [ "${{ matrix.symfony }}" = "8.0" ] || [ "${{ matrix.symfony }}" = "8.1" ]; then
+            composer require doctrine/doctrine-bundle:^3.0 --no-interaction --no-update
+          fi
           composer require symfony/config:^${{ matrix.symfony }} symfony/dependency-injection:^${{ matrix.symfony }} symfony/http-kernel:^${{ matrix.symfony }} symfony/http-foundation:^${{ matrix.symfony }} symfony/routing:^${{ matrix.symfony }} symfony/web-profiler-bundle:^${{ matrix.symfony }} --no-interaction --no-update
           composer update symfony/* doctrine/* --with-all-dependencies --no-interaction --prefer-dist --no-progress
 
