@@ -134,6 +134,7 @@ form:
     context_key.help: 'Leave empty unless you use several collections with the same code.'
     name.label: Display name
     home_icon.label: Home icon (short emoji/HTML)
+    home_icon.help: Shown on the first crumb instead of its text when presentation.home_icon_replaces_label is enabled (e.g. ⌂ or tabler:home in apps with UX Icons).
     separator_icon.label: Separator
     class_list.label: CSS container (classList)
     class_list.placeholder: 'breadcrumb breadcrumb--demo'

@@ -22,6 +22,7 @@ final readonly class BreadcrumbTrailView
         public ?string $classSeparator = null,
         public ?string $classCurrent = null,
         public array $responsiveConfig = [],
+        public bool $homeIconReplacesLabel = true,
     ) {
     }
 }

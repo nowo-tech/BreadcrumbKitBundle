@@ -1,5 +1,6 @@
 SHELL := /bin/bash
 COMPOSE ?= docker compose
+SERVICE_PHP ?= php
 
 .PHONY: help build up down restart shell install ensure-up update-bundle verify cache-clear demo-started-msg test test-coverage
 

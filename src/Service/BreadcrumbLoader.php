@@ -31,6 +31,9 @@ final readonly class BreadcrumbLoader
         private ?CacheItemPoolInterface $cachePool = null,
         private int $cacheTtl = 60,
         private ?BreadcrumbProfilerRecorder $profilerRecorder = null,
+        private bool $hideWhenSingleRoot = false,
+        private bool $homeIconReplacesLabel = true,
+        private ?string $defaultHomeIcon = null,
     ) {
     }
 
@@ -105,17 +108,20 @@ final readonly class BreadcrumbLoader
             );
         }
 
+        $nodes = $this->finalizeNodes($nodes, $collection);
+
         $responsive = $collection->getResponsiveConfig();
 
         $view = new BreadcrumbTrailView(
             nodes: $nodes,
-            homeIcon: $collection->getHomeIcon(),
+            homeIcon: $collection->getHomeIcon() ?? $this->defaultHomeIcon,
             separatorIcon: $collection->getSeparatorIcon(),
             classList: $collection->getClassList(),
             classItem: $collection->getClassItem(),
             classSeparator: $collection->getClassSeparator(),
             classCurrent: $collection->getClassCurrent(),
             responsiveConfig: \is_array($responsive) ? $responsive : [],
+            homeIconReplacesLabel: $this->homeIconReplacesLabel,
         );
         $this->profile(
             $collectionCode,
@@ -183,14 +189,50 @@ final readonly class BreadcrumbLoader
 
         return new BreadcrumbTrailView(
             [],
-            $collection->getHomeIcon(),
+            $collection->getHomeIcon() ?? $this->defaultHomeIcon,
             $collection->getSeparatorIcon(),
             $collection->getClassList(),
             $collection->getClassItem(),
             $collection->getClassSeparator(),
             $collection->getClassCurrent(),
             \is_array($responsive) ? $responsive : [],
+            $this->homeIconReplacesLabel,
         );
+    }
+
+    /**
+     * @param list<BreadcrumbNode> $nodes
+     *
+     * @return list<BreadcrumbNode>
+     */
+    private function finalizeNodes(array $nodes, BreadcrumbCollection $collection): array
+    {
+        if (!$this->shouldHideSingleRoot($nodes, $collection)) {
+            return $nodes;
+        }
+
+        return [];
+    }
+
+    /**
+     * @param list<BreadcrumbNode> $nodes
+     */
+    private function shouldHideSingleRoot(array $nodes, BreadcrumbCollection $collection): bool
+    {
+        if (1 !== \count($nodes)) {
+            return false;
+        }
+
+        if (!$nodes[0]->current) {
+            return false;
+        }
+
+        $responsive = $collection->getResponsiveConfig();
+        if (\is_array($responsive) && \array_key_exists('hide_when_single_root', $responsive)) {
+            return (bool) $responsive['hide_when_single_root'];
+        }
+
+        return $this->hideWhenSingleRoot;
     }
 
     /**

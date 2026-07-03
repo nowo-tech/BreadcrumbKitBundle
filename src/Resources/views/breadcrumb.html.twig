@@ -15,11 +15,7 @@
           <li class="{{ trail.classSeparator|default('breadcrumb-separator') }}" aria-hidden="true">{% if trail.separatorIcon %}<span class="breadcrumb-sep-icon">{{ trail.separatorIcon }}</span>{% else %}<span>/</span>{% endif %}</li>
         {% endif %}
         <li class="{{ trail.classItem|default('breadcrumb-item') }}{% if node.current %} {{ trail.classCurrent|default('is-current') }}{% endif %}">
-          {% if not node.current and node.linkEnabled and node.url %}
-            <a href="{{ node.url }}">{% if node.icon %}<span class="breadcrumb-icon" aria-hidden="true">{{ node.icon }}</span> {% endif %}{{ node.label }}</a>
-          {% else %}
-            <span{% if node.current %} aria-current="page"{% endif %}>{% if node.icon %}<span class="breadcrumb-icon" aria-hidden="true">{{ node.icon }}</span> {% endif %}{{ node.label }}</span>
-          {% endif %}
+          {% include '@NowoBreadcrumbKitBundle/_breadcrumb_crumb.html.twig' with { node: node, trail: trail, is_first: loop.first } %}
         </li>
       {% endfor %}
     </ol>
@@ -50,6 +46,7 @@
     .breadcrumb-kit__dialog-title { margin: 0; font-size: 1rem; font-weight: 600; color: #0f172a; }
     .breadcrumb-kit__dialog-close { font: inherit; font-size: 0.8rem; padding: 0.2rem 0.5rem; border-radius: 6px; border: 1px solid #cbd5e1; background: #fff; cursor: pointer; }
     .breadcrumb-kit__iframe { display: block; width: 100%; height: min(72vh, 640px); border: 0; background: #fff; }
+    .breadcrumb-icon { display: inline-flex; align-items: center; }
   </style>
   <script>
     (function () {

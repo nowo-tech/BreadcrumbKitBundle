@@ -470,6 +470,78 @@ final class BreadcrumbLoaderTest extends TestCase
         self::assertSame('no_item_match', $log[0]['status']);
     }
 
+    public function testLoadTrailViewHidesSingleRootOnCurrentPageWhenConfigured(): void
+    {
+        $collection = $this->collectionWithId(1);
+        $collection->setHomeIcon('⌂');
+        $item = $this->itemWithId(1, $collection, null, 'app_home', 'Home');
+        $item->setLinkEnabled(true);
+
+        $colRepo = $this->createMock(BreadcrumbCollectionRepository::class);
+        $colRepo->method('findOneByCodeAndContextKey')->willReturn($collection);
+        $itemRepo = $this->createMock(BreadcrumbItemRepository::class);
+        $itemRepo->method('findAllForCollection')->willReturn([$item]);
+
+        $request = Request::create('/');
+        $request->attributes->set('_route', 'app_home');
+        $request->attributes->set('_route_params', []);
+        $stack = new RequestStack();
+        $stack->push($request);
+
+        $urlResolver = $this->createMock(BreadcrumbUrlResolverInterface::class);
+        $urlResolver->method('resolve')->willReturn(['/', []]);
+
+        $loader = new BreadcrumbLoader(
+            $colRepo,
+            $itemRepo,
+            $urlResolver,
+            $stack,
+            'en',
+            null,
+            60,
+            null,
+            true,
+        );
+
+        $view = $loader->loadTrailView('default', '');
+
+        self::assertSame([], $view->nodes);
+        self::assertSame('⌂', $view->homeIcon);
+        self::assertTrue($view->homeIconReplacesLabel);
+    }
+
+    public function testLoadTrailViewKeepsSingleRootWhenHideDisabled(): void
+    {
+        $collection = $this->collectionWithId(1);
+        $item = $this->itemWithId(1, $collection, null, 'app_home', 'Home');
+        $item->setLinkEnabled(false);
+
+        $colRepo = $this->createMock(BreadcrumbCollectionRepository::class);
+        $colRepo->method('findOneByCodeAndContextKey')->willReturn($collection);
+        $itemRepo = $this->createMock(BreadcrumbItemRepository::class);
+        $itemRepo->method('findAllForCollection')->willReturn([$item]);
+
+        $request = Request::create('/');
+        $request->attributes->set('_route', 'app_home');
+        $request->attributes->set('_route_params', []);
+        $stack = new RequestStack();
+        $stack->push($request);
+
+        $loader = new BreadcrumbLoader(
+            $colRepo,
+            $itemRepo,
+            $this->createMock(BreadcrumbUrlResolverInterface::class),
+            $stack,
+            'en',
+            null,
+            60,
+            null,
+            false,
+        );
+
+        self::assertCount(1, $loader->loadTrailView('default', '')->nodes);
+    }
+
     private function collectionWithId(int $id): BreadcrumbCollection
     {
         $collection = new BreadcrumbCollection();

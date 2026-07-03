@@ -65,6 +65,13 @@ final class BreadcrumbKitExtension extends Extension implements PrependExtension
         $container->setParameter(Configuration::ALIAS.'.default_collection', $config['default_collection']);
         $container->setParameter(Configuration::ALIAS.'.cache.ttl', (int) $config['cache']['ttl']);
 
+        $presentation = \is_array($config['presentation'] ?? null) ? $config['presentation'] : [];
+        $defaultHomeIcon = $presentation['home_icon'] ?? null;
+        $defaultHomeIcon = \is_string($defaultHomeIcon) && '' !== $defaultHomeIcon ? $defaultHomeIcon : null;
+        $container->setParameter(Configuration::ALIAS.'.presentation.home_icon', $defaultHomeIcon);
+        $container->setParameter(Configuration::ALIAS.'.presentation.home_icon_replaces_label', (bool) ($presentation['home_icon_replaces_label'] ?? true));
+        $container->setParameter(Configuration::ALIAS.'.presentation.hide_when_single_root', (bool) ($presentation['hide_when_single_root'] ?? false));
+
         $dashboard = \is_array($config['dashboard'] ?? null) ? $config['dashboard'] : [];
         $pathPrefix = trim((string) ($dashboard['path_prefix'] ?? '/breadcrumb-kit-admin'));
         if ('' === $pathPrefix || !str_starts_with($pathPrefix, '/')) {
@@ -123,6 +130,11 @@ final class BreadcrumbKitExtension extends Extension implements PrependExtension
                 ->setArgument('$cachePool', new Reference($poolId))
                 ->setArgument('$cacheTtl', (int) $config['cache']['ttl']);
         }
+
+        $container->getDefinition(BreadcrumbLoader::class)
+            ->setArgument('$hideWhenSingleRoot', '%nowo_breadcrumb_kit.presentation.hide_when_single_root%')
+            ->setArgument('$homeIconReplacesLabel', '%nowo_breadcrumb_kit.presentation.home_icon_replaces_label%')
+            ->setArgument('$defaultHomeIcon', '%nowo_breadcrumb_kit.presentation.home_icon%');
 
         $container->getDefinition(BreadcrumbExtension::class)
             ->setArgument('$defaultCollection', $config['default_collection']);
