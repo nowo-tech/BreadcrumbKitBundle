@@ -53,3 +53,7 @@ services:
       $dashboardEnabled: '%nowo_breadcrumb_kit.dashboard.enabled%'
     tags:
       - { name: twig.extension }
+
+  Nowo\BreadcrumbKitBundle\EventSubscriber\TablePrefixSubscriber:
+    arguments:
+      $tablePrefix: '%nowo_breadcrumb_kit.table_prefix%'

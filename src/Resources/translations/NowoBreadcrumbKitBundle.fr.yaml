@@ -1,0 +1,277 @@
+# Breadcrumb Kit Bundle — Français
+
+dashboard:
+  title: 'Breadcrumb Kit'
+  title_suffix: 'Panneau fil d''Ariane'
+  brand: 'Breadcrumb Kit'
+  nav_collections: Collections
+  loading: Chargement…
+  error_loading_form: Impossible de charger le formulaire.
+  close: Fermer
+  cancel: Annuler
+  confirm_delete: Confirmer la suppression
+  delete: Supprimer
+  delete_confirm_message: Confirmer la suppression ?
+  collections_heading: Collections
+  collections_lead: Styles de présentation par collection et éléments liés aux routes Symfony.
+  export_all: Tout exporter
+  import: Importer
+  new_collection: Nouvelle collection
+  context: Contexte
+  search_placeholder: 'Rechercher par code, nom ou contexte…'
+  clear: Effacer
+  previous: Précédent
+  next: Suivant
+  pagination_collections: Pagination des collections
+  showing_from_to_of_total: 'Affichage de %from% à %to% sur %total%'
+  open_form_full_page: Ouvrir le formulaire en pleine page
+  table_id: ID
+  table_code: Code
+  table_context: Contexte
+  table_name: Nom
+  table_actions: Actions
+  link_items: Éléments
+  link_export_json: JSON
+  link_edit: Modifier
+  empty_collections: Aucune collection. Créez-en une ou importez un JSON exporté depuis le panneau.
+  delete_collection_confirm: 'Supprimer la collection « %code% » et tous ses éléments ?'
+  items_heading: Éléments du fil d''Ariane
+  items_title_with_code: 'Éléments · %code%'
+  unnamed_collection: Sans nom
+  back_collections: ← Collections
+  search: Rechercher
+  clear_search: Effacer
+  export_collection: Exporter la collection
+  new_item: Nouvel élément
+  open_item_form_page: Formulaire pleine page
+  collection_styles: Styles de collection
+  search_results: '%count% résultat(s) pour « %query% »'
+  empty_items_search: Aucun élément ne correspond.
+  view_all_link: Tout afficher
+  empty_items_none: Aucun élément.
+  empty_items_add_hint: Ajoutez-en un via le bouton ci-dessus ou ici.
+  add_item_button: Ajouter un élément
+  table_route: Route
+  table_label: Libellé
+  table_parent: Parent
+  table_link: Lien
+  link_yes: oui
+  link_no: 'non'
+  filter_by_route: Filtrer
+  delete_item_confirm: 'Supprimer l''élément #%id% (%route%) ?'
+  import_page_title: Importer des collections
+  import_modal_title: Importer JSON
+  collection_modal_title: Collection
+  item_modal_title: Élément
+  new_collection_modal_title: Nouvelle collection
+  edit_collection_modal_title: 'Modifier · %code%'
+  collection_styles_modal_title: 'Styles · %code%'
+  new_item_modal_title: Nouvel élément
+  item_new_page_title: Nouvel élément du fil d''Ariane
+  edit_item_modal_title: 'Modifier l''élément #%id%'
+  collection_not_found: Collection introuvable.
+  item_not_found: Élément introuvable.
+  import_help: 'Format d''export du panneau (<code>breadcrumbKitExport</code>) : une collection + arbre d''éléments, ou plusieurs sous <code>collections</code>.'
+  import_submit: Importer
+  form_save: Enregistrer
+  form_create: Créer
+  form_update: Mettre à jour
+  breadcrumb_crumb_nav: Fil d''Ariane du panneau
+  import_partial_hint: 'Format d''export du panneau (<code>breadcrumbKitExport</code>) : collection + éléments en arbre, ou plusieurs sous <code>collections</code>.'
+  alert_close: Fermer
+
+  flash:
+    collection_created: Collection créée.
+    collection_updated: Collection mise à jour.
+    collection_deleted: Collection supprimée.
+    collection_duplicate: Une collection avec ce code et cette context key existe déjà.
+    csrf_invalid: Jeton CSRF invalide.
+    item_created: Élément créé.
+    item_updated: Élément mis à jour.
+    item_deleted: Élément supprimé.
+    import_file_too_large: 'Le fichier dépasse la taille maximale autorisée (%max% Mio).'
+    import_json_invalid: 'JSON invalide : %message%'
+    import_json_not_object: Le JSON doit être un objet ou un tableau.
+    import_done: 'Import : %created% créée(s), %updated% mise(s) à jour, %skipped% ignorée(s).'
+
+breadcrumb:
+  aria_label: Fil d''Ariane
+  inline_edit:
+    open: Modifier le fil d''Ariane
+    close: Fermer
+    modal_title_edit: Modifier le fil d''Ariane pour cette route
+    modal_title_new: Nouvel élément du fil d''Ariane pour cette route
+
+import:
+  error:
+    entry_missing_keys: 'Entrée %index% : ''collection'' ou ''items'' manquant(s).'
+    collection_not_object: 'Entrée %index% : ''collection'' doit être un objet.'
+    entry_code_required: 'Entrée %index% : le code de collection est obligatoire.'
+    invalid_root: 'N''utilisez pas un tableau JSON racine nu ; exportez depuis le panneau ou utilisez { "collections": [ ... ] }.'
+    invalid_shape: 'Format attendu : { "collection", "items" } ou { "collections": [ ... ] }.'
+    collection_code_required: Le code de collection est obligatoire.
+
+form:
+  delete:
+    csrf_invalid: Jeton CSRF invalide.
+
+  dashboard_search:
+    placeholder: Rechercher par route, libellé ou ID…
+
+  import_breadcrumb:
+    file:
+      label: Fichier JSON
+      required: Veuillez choisir un fichier.
+      mime: Le fichier doit être au format JSON.
+    strategy:
+      label: Si la collection existe déjà (même code + context key)
+      skip: Ignorer (ne pas importer ce bloc)
+      replace: Remplacer les éléments et mettre à jour les données
+
+  breadcrumb_collection:
+    code.label: Code
+    context_key.label: Context key
+    context_key.help: 'Laisser vide sauf si vous utilisez plusieurs collections avec le même code.'
+    name.label: Nom affiché
+    home_icon.label: Icône d''accueil (emoji/HTML court)
+    home_icon.help: Affichée sur le premier élément à la place du texte lorsque presentation.home_icon_replaces_label est activé (ex. ⌂ ou tabler:home dans les apps avec UX Icons).
+    separator_icon.label: Séparateur
+    class_list.label: CSS conteneur (classList)
+    class_list.placeholder: 'breadcrumb breadcrumb--demo'
+    class_item.label: CSS élément
+    class_separator.label: CSS séparateur
+    class_current.label: CSS élément courant
+    responsive_config.label: Responsive (JSON)
+    responsive_config.help: 'Objet JSON (breakpoints, hints). Vide = null.'
+    inline_edit_access.label: Édition inline (service d''accès)
+    inline_edit_access.placeholder: Désactivée
+    inline_edit_access.help: 'Ne s''applique que si l''URL inclut le query param configuré dans `nowo_breadcrumb_kit.inline_edit.query_param` (valeur truthy) et que le dashboard est activé.'
+
+  breadcrumb_item:
+    route_name.label: Nom de route Symfony
+    route_name.not_blank: Saisissez un nom de route.
+    static_params.label: Paramètres statiques (JSON)
+    static_params.help: 'Ex. {"section":"sales"} — doit correspondre à _route_params.'
+    dynamic_keys.label: Clés dynamiques (tableau JSON)
+    dynamic_keys.help: 'Ex. ["id"] copiés depuis la requête lors de la génération du lien.'
+    link_enabled.label: Lien activé
+    label.label: Libellé par défaut
+    translations.label: Traductions (JSON)
+    translations.help: '{"en":"Home","es":"Inicio"}'
+    icon.label: Icône
+    parent.label: Parent
+    parent.placeholder: — racine —
+
+demo:
+  base:
+    title_default: 'Démo Breadcrumb Kit'
+    brand_sub: nowo-tech/breadcrumb-kit-bundle
+    language_switch_aria: Langue
+    edit_breadcrumbs: Modifier le fil d''Ariane
+    resources_aria: Ressources
+    resources_title: Ressources
+    github: GitHub
+    packagist: Packagist
+    resources_note: Même ligne visuelle que la démo du bundle Dashboard Menu (Bootstrap 5).
+    footer_home: Accueil
+    footer_crud: CRUD
+  sidebar:
+    aria: Exemples du bundle
+    navigation: Navigation
+    section_start: Démarrage
+    overview: Présentation
+    section_manage: Gestion
+    breadcrumb_editor: Éditeur fil d''Ariane (CRUD)
+    section_inline: Édition inline
+    home_with_flag: 'Accueil + ?flag'
+    product_with_modal: Produit + modale
+    section_chain: Chaîne et produit
+    shop: Boutique
+    product_42: 'Produit #42'
+    section_static: static_route_params
+    sales: Sales
+    support: Support
+    section_depth: Profondeur
+    long_trail: Chaîne longue
+    eight_crumbs: 8 éléments
+    section_admin_col: Collection admin
+    admin: Admin
+    users: Utilisateurs
+    six_admin_crumbs: 6 éléments admin
+    section_twig: Twig
+    custom_template: Modèle personnalisé
+    section_edge: Cas limites
+    no_db_row: Aucune ligne BD
+    admin_block: Admin
+    breadcrumb_panel: Panneau fil d''Ariane
+  home:
+    title: 'Accueil — Démo Breadcrumb Kit'
+    welcome: Bienvenue
+    lead: 'Démo interactive partageant la même ligne visuelle que la démo du bundle <strong>Dashboard Menu</strong> (Bootstrap&nbsp;5).'
+    card_what_title: Qu''est-ce que cette démo
+    card_what_p1: 'Utilisez la <strong>barre latérale</strong> pour naviguer entre les scénarios — une app, différentes routes et lignes de fil d''Ariane en base de données.'
+    card_what_p2: '<strong>nowo-tech/breadcrumb-kit-bundle</strong> résout les libellés, URLs, chaînes parentes et collections multiples.'
+    card_editor_title: Éditeur et édition en contexte
+    manage_link: Gérer collections et éléments
+    inline_help: 'Édition en contexte : ajoutez <code>?breadcrumb_edit=1</code> et le bouton <em>Modifier le fil d''Ariane</em> lorsque la config et le checker le permettent.'
+    try_home: Essayer sur l''accueil
+    card_check_title: Points à vérifier
+    check_p1: 'La carte ci-dessus affiche le fil d''Ariane ; en dev vous verrez la barre Symfony / Twig Inspector. Le lien actif de la barre latérale correspond à la route courante.'
+    check_p2: 'Pour de nombreux segments et défilement horizontal, ouvrez « 8 éléments » ou « 6 éléments admin ».'
+  product:
+    title: 'Produit %id% — Démo Breadcrumb'
+    heading: 'Produit %id%'
+    lead_html: 'Le fil inclut <em>Boutique</em> comme texte non lié (<code>link_enabled = false</code>) et le segment courant sans URL.'
+    back_shop: 'Retour à la boutique'
+    back_home: Accueil
+  shop:
+    title: 'Boutique — Démo Breadcrumb'
+    heading: Boutique
+    lead: 'Fil : Accueil → Boutique (page courante).'
+    open_product: 'Ouvrir le produit #42'
+    back_home: 'Retour à l''accueil'
+  section:
+    title: '%section% — Démo Breadcrumb'
+    lead_html: 'Même route Symfony pour <code>sales</code> et <code>support</code> ; l''élément avec le plus de <code>static_route_params</code> correspondants l''emporte.'
+    back_home: Accueil
+  deep:
+    title: 'Chaîne profonde — Démo Breadcrumb'
+    heading: Long fil d''Ariane
+    body_html: '<p>La page la plus profonde comporte <strong>8 segments</strong> (Accueil + hub + 6 étapes). Sur les écrans étroits, la barre utilise le <strong>défilement horizontal</strong> (<code>breadcrumb--many</code> dans le remplacement breadcrumb de l''app).</p>'
+    current_level: 'Niveau actuel'
+    step_label: Étape
+    shortcuts: Raccourcis
+    jump_aria: Sauter de niveau
+  no_match:
+    title: 'Aucune correspondance BD — Démo Breadcrumb'
+    heading: Aucune correspondance en base de données
+    lead_html: 'Il n''y a aucun <code>BreadcrumbItem</code> pour cette route ; la zone fil d''Ariane ci-dessus est vide.'
+    back_home: Accueil
+  breadcrumb_trail:
+    title: 'breadcrumb_trail() — Démo Breadcrumb'
+    lead_html: 'Mêmes données que <code>breadcrumb_render()</code>, balisage personnalisé :'
+    current_suffix: ' (courant)'
+    back_home: Accueil
+  custom_template:
+    title: 'Modèle personnalisé — Démo Breadcrumb'
+    nav_aria: 'Modèle de fil d''Ariane personnalisé'
+    lead_html: 'Cette page utilise un modèle Twig de l''application au lieu du modèle par défaut du bundle.'
+    back_home: Accueil
+  admin_dashboard:
+    title: 'Admin — Démo Breadcrumb'
+    heading: Tableau de bord
+    lead_intro: 'Deuxième collection <code>admin</code> et route enfant :'
+    back_public: 'Retour au site public'
+  admin_users:
+    title: 'Utilisateurs — Démo Breadcrumb'
+    heading: Utilisateurs
+    lead: 'Fil : Admin → Utilisateurs.'
+    back_dashboard: 'Retour au tableau de bord'
+  admin_nav_aria: Fil d''Ariane admin
+  admin_long:
+    title: 'Admin · chaîne longue — Démo Breadcrumb'
+    heading: 'Tableau de bord · hiérarchie profonde'
+    body_html: '<p>Collection <code>admin</code> : jusqu''à <strong>6 segments</strong> (Admin + cinq niveaux sous <code>/admin/long/…</code>). Même comportement de défilement horizontal pour les fils chargés.</p>'
+    level_heading: Niveau
+    shortcuts: Raccourcis
+    jump_aria: Niveaux admin

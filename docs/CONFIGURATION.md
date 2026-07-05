@@ -15,7 +15,7 @@ Configuration root key: `nowo_breadcrumb_kit` (see `Nowo\BreadcrumbKitBundle\Dep
 |--------|------|---------|-------------|
 | `project` | `string\|null` | `null` | Optional identifier when several apps share one database. |
 | `doctrine.connection` | `string` | `default` | Doctrine connection name for entity metadata. |
-| `doctrine.table_prefix` | `string` | `''` | Prefix for table names (`breadcrumb_collection`, `breadcrumb_item`). |
+| `doctrine.table_prefix` | `string` | `''` | Prefix for table names (`dashboard_breadcrumb_collection`, `dashboard_breadcrumb_item`). |
 | `cache.ttl` | `int` | `60` | TTL in seconds for the PSR-6 cache of serialized breadcrumb items (0 disables TTL semantics per pool). |
 | `cache.pool` | `string` | `cache.app` | PSR-6 cache pool service id. Empty string keeps the loader without a pool (no item-list cache). |
 | `locales` | `string[]` | `[]` | Supported locales for resolving labels from JSON translations on items. |

@@ -12,7 +12,7 @@ use Nowo\BreadcrumbKitBundle\Repository\BreadcrumbItemRepository;
  * One crumb: matches a route name + static param subset; parent links form the trail order (no sibling ordering field).
  */
 #[ORM\Entity(repositoryClass: BreadcrumbItemRepository::class)]
-#[ORM\Table(name: 'nowo_breadcrumb_item')]
+#[ORM\Table(name: 'dashboard_breadcrumb_item')]
 class BreadcrumbItem
 {
     #[ORM\Id]

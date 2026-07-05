@@ -1,0 +1,277 @@
+# Breadcrumb Kit Bundle — Nederlands
+
+dashboard:
+  title: 'Breadcrumb Kit'
+  title_suffix: 'Breadcrumbpaneel'
+  brand: 'Breadcrumb Kit'
+  nav_collections: Collecties
+  loading: Laden…
+  error_loading_form: Kon het formulier niet laden.
+  close: Sluiten
+  cancel: Annuleren
+  confirm_delete: Verwijderen bevestigen
+  delete: Verwijderen
+  delete_confirm_message: Deze verwijdering bevestigen?
+  collections_heading: Collecties
+  collections_lead: Presentatiestijlen per collectie en items gekoppeld aan Symfony-routes.
+  export_all: Alles exporteren
+  import: Importeren
+  new_collection: Nieuwe collectie
+  context: Contexto
+  search_placeholder: 'Zoeken op code, naam of context…'
+  clear: Wissen
+  previous: Vorige
+  next: Volgende
+  pagination_collections: Collectiepaginering
+  showing_from_to_of_total: 'Weergave %from%-%to% van %total%'
+  open_form_full_page: Formulier als volledige pagina openen
+  table_id: ID
+  table_code: Code
+  table_context: Context
+  table_name: Naam
+  table_actions: Acties
+  link_items: Elementen
+  link_export_json: JSON
+  link_edit: Bewerken
+  empty_collections: Nog geen collecties. Maak er een aan of importeer JSON geëxporteerd uit het paneel.
+  delete_collection_confirm: 'Collectie «%code%» en alle bijbehorende items verwijderen?'
+  items_heading: Breadcrumb-items
+  items_title_with_code: 'Elementen · %code%'
+  unnamed_collection: Naamloos
+  back_collections: ← Collecties
+  search: Zoeken
+  clear_search: Wissen
+  export_collection: Collectie exporteren
+  new_item: Nieuw item
+  open_item_form_page: Volledig-paginaformulier
+  collection_styles: Collectiestijlen
+  search_results: '%count% resultaat/resultaten voor «%query%»'
+  empty_items_search: Geen items komen overeen.
+  view_all_link: Alles bekijken
+  empty_items_none: Geen items.
+  empty_items_add_hint: Voeg er een toe via de knop hierboven of hier.
+  add_item_button: Item toevoegen
+  table_route: Route
+  table_label: Label
+  table_parent: Ouder
+  table_link: Link
+  link_yes: ja
+  link_no: 'nee'
+  filter_by_route: Filteren
+  delete_item_confirm: 'Item #%id% (%route%) verwijderen?'
+  import_page_title: Collecties importeren
+  import_modal_title: JSON importeren
+  collection_modal_title: Collectie
+  item_modal_title: Item
+  new_collection_modal_title: Nieuwe collectie
+  edit_collection_modal_title: 'Bewerken · %code%'
+  collection_styles_modal_title: 'Stijlen · %code%'
+  new_item_modal_title: Nieuw item
+  item_new_page_title: Nieuw breadcrumb-item
+  edit_item_modal_title: 'Item #%id% bewerken'
+  collection_not_found: Collectie niet gevonden.
+  item_not_found: Item niet gevonden.
+  import_help: 'Exportformaat van het paneel (<code>breadcrumbKitExport</code>): één collectie + itemboom, of meerdere onder <code>collections</code>.'
+  import_submit: Importeren
+  form_save: Opslaan
+  form_create: Aanmaken
+  form_update: Bijwerken
+  breadcrumb_crumb_nav: Paneelbreadcrumbs
+  import_partial_hint: 'Exportformaat van het paneel (<code>breadcrumbKitExport</code>): collectie + items als boom, of meerdere onder <code>collections</code>.'
+  alert_close: Sluiten
+
+  flash:
+    collection_created: Collectie aangemaakt.
+    collection_updated: Collectie bijgewerkt.
+    collection_deleted: Collectie verwijderd.
+    collection_duplicate: Er bestaat al een collectie met deze code en context key.
+    csrf_invalid: Ongeldig CSRF-token.
+    item_created: Item aangemaakt.
+    item_updated: Item bijgewerkt.
+    item_deleted: Item verwijderd.
+    import_file_too_large: 'Bestand overschrijdt de maximaal toegestane grootte (%max% MiB).'
+    import_json_invalid: 'Ongeldige JSON: %message%'
+    import_json_not_object: JSON moet een object of array zijn.
+    import_done: 'Import: %created% aangemaakt, %updated% bijgewerkt, %skipped% overgeslagen.'
+
+breadcrumb:
+  aria_label: Kruimelpad
+  inline_edit:
+    open: Breadcrumbs bewerken
+    close: Sluiten
+    modal_title_edit: Breadcrumbpad voor deze route bewerken
+    modal_title_new: Nieuw breadcrumb-item voor deze route
+
+import:
+  error:
+    entry_missing_keys: 'Invoer %index%: ''collection'' of ''items'' ontbreekt.'
+    collection_not_object: 'Invoer %index%: ''collection'' moet een object zijn.'
+    entry_code_required: 'Invoer %index%: collectiecode is verplicht.'
+    invalid_root: 'Gebruik geen kale JSON-rootarray; exporteer vanuit het paneel of gebruik { "collections": [ ... ] }.'
+    invalid_shape: 'Verwacht formaat: { "collection", "items" } of { "collections": [ ... ] }.'
+    collection_code_required: Collectiecode is verplicht.
+
+form:
+  delete:
+    csrf_invalid: Ongeldig CSRF-token.
+
+  dashboard_search:
+    placeholder: Zoeken op route, label of ID…
+
+  import_breadcrumb:
+    file:
+      label: JSON-bestand
+      required: Kies een bestand.
+      mime: Het bestand moet JSON zijn.
+    strategy:
+      label: Als de collectie al bestaat (zelfde code + context key)
+      skip: Overslaan (dit blok niet importeren)
+      replace: Items vervangen en gegevens bijwerken
+
+  breadcrumb_collection:
+    code.label: Code
+    context_key.label: Context key
+    context_key.help: 'Leeg laten tenzij u meerdere collecties met dezelfde code gebruikt.'
+    name.label: Weergavenaam
+    home_icon.label: Home-icoon (kort emoji/HTML)
+    home_icon.help: Getoond op het eerste item in plaats van de tekst wanneer presentation.home_icon_replaces_label is ingeschakeld (bijv. ⌂ of tabler:home in apps met UX Icons).
+    separator_icon.label: Scheidingsteken
+    class_list.label: CSS-container (classList)
+    class_list.placeholder: 'breadcrumb breadcrumb--demo'
+    class_item.label: Item-CSS
+    class_separator.label: Scheidingsteken-CSS
+    class_current.label: Huidig item-CSS
+    responsive_config.label: Responsive (JSON)
+    responsive_config.help: 'JSON-object (breakpoints, hints). Leeg = null.'
+    inline_edit_access.label: Inline bewerken (toegangsservice)
+    inline_edit_access.placeholder: Uitgeschakeld
+    inline_edit_access.help: 'Geldt alleen wanneer de URL de geconfigureerde query parameter in `nowo_breadcrumb_kit.inline_edit.query_param` bevat (truthy) en het dashboard is ingeschakeld.'
+
+  breadcrumb_item:
+    route_name.label: Symfony-routenaam
+    route_name.not_blank: Voer een routenaam in.
+    static_params.label: Statische parameters (JSON)
+    static_params.help: 'bijv. {"section":"sales"} — moet overeenkomen met _route_params.'
+    dynamic_keys.label: Dynamische sleutels (JSON-array)
+    dynamic_keys.help: 'bijv. ["id"] gekopieerd uit het verzoek bij het genereren van de link.'
+    link_enabled.label: Link ingeschakeld
+    label.label: Standaardlabel
+    translations.label: Vertalingen (JSON)
+    translations.help: '{"en":"Home","es":"Inicio"}'
+    icon.label: Icoon
+    parent.label: Ouder
+    parent.placeholder: — wortel —
+
+demo:
+  base:
+    title_default: 'Demo Breadcrumb Kit'
+    brand_sub: nowo-tech/breadcrumb-kit-bundle
+    language_switch_aria: Taal
+    edit_breadcrumbs: Breadcrumbs bewerken
+    resources_aria: Bronnen
+    resources_title: Bronnen
+    github: GitHub
+    packagist: Packagist
+    resources_note: Dezelfde visuele basis als de Dashboard Menu bundle demo (Bootstrap 5).
+    footer_home: Start
+    footer_crud: CRUD
+  sidebar:
+    aria: Bundle-voorbeelden
+    navigation: Navigatie
+    section_start: Begin
+    overview: Overzicht
+    section_manage: Beheer
+    breadcrumb_editor: Breadcrumb-editor (CRUD)
+    section_inline: Inline bewerken
+    home_with_flag: 'Start + ?flag'
+    product_with_modal: Product + modaal
+    section_chain: Keten & product
+    shop: Winkel
+    product_42: 'Product nr. 42'
+    section_static: static_route_params
+    sales: Sales
+    support: Support
+    section_depth: Diepte
+    long_trail: Lange keten
+    eight_crumbs: 8 breadcrumbs
+    section_admin_col: Admin-collectie
+    admin: Admin
+    users: Gebruikers
+    six_admin_crumbs: 6 admin-breadcrumbs
+    section_twig: Twig
+    custom_template: Aangepaste template
+    section_edge: Randgevallen
+    no_db_row: Geen DB-rij
+    admin_block: Admin
+    breadcrumb_panel: Breadcrumbpaneel
+  home:
+    title: 'Start — Breadcrumb Kit-demo'
+    welcome: Welkom
+    lead: 'Interactieve demo met dezelfde visuele basis als de <strong>Dashboard Menu</strong> bundle demo (Bootstrap&nbsp;5).'
+    card_what_title: Wat deze demo is
+    card_what_p1: 'Gebruik de <strong>zijbalk</strong> om tussen scenario''s te wisselen — één app, verschillende routes en breadcrumb-rijen in de database.'
+    card_what_p2: '<strong>nowo-tech/breadcrumb-kit-bundle</strong> lost labels, URL''s, ouderketens en meerdere collecties op.'
+    card_editor_title: Editor & contextbewerking
+    manage_link: Collecties & items beheren
+    inline_help: 'Contextbewerking: voeg <code>?breadcrumb_edit=1</code> toe en de knop <em>Breadcrumbs bewerken</em> wanneer config en checker het toestaan.'
+    try_home: Proberen op home
+    card_check_title: Wat te controleren
+    check_p1: 'De kaart hierboven toont breadcrumbs; in dev ziet u de Symfony / Twig Inspector toolbar. De actieve zijbalklink komt overeen met de huidige route.'
+    check_p2: 'Voor veel segmenten en horizontaal scrollen, open «8 breadcrumbs» of «6 admin-breadcrumbs».'
+  product:
+    title: 'Product %id% — Breadcrumb-demo'
+    heading: 'Product %id%'
+    lead_html: 'Het pad bevat <em>Winkel</em> als niet-gelinkte tekst (<code>link_enabled = false</code>) en het huidige segment zonder URL.'
+    back_shop: 'Terug naar winkel'
+    back_home: Start
+  shop:
+    title: 'Winkel — Breadcrumb demo'
+    heading: Winkel
+    lead: 'Pad: Home → Winkel (huidige pagina).'
+    open_product: 'Product #42 openen'
+    back_home: 'Terug naar start'
+  section:
+    title: '%section% — Breadcrumb demo'
+    lead_html: 'Dezelfde Symfony-route voor <code>sales</code> en <code>support</code>; het item met de meeste overeenkomende <code>static_route_params</code> wint.'
+    back_home: Start
+  deep:
+    title: 'Diep pad — Breadcrumb demo'
+    heading: Lang breadcrumbpad
+    body_html: '<p>De diepste pagina heeft <strong>8 segmenten</strong> (Home + hub + 6 stappen). Op smalle viewports gebruikt de balk <strong>horizontaal scrollen</strong> (<code>breadcrumb--many</code> in de app breadcrumb override).</p>'
+    current_level: 'Huidig niveau'
+    step_label: Stap
+    shortcuts: Snelkoppelingen
+    jump_aria: Niveau springen
+  no_match:
+    title: 'Geen DB-match — Breadcrumb demo'
+    heading: Geen databasematch
+    lead_html: 'Er is geen <code>BreadcrumbItem</code> voor deze route; het breadcrumbgebied hierboven is leeg.'
+    back_home: Start
+  breadcrumb_trail:
+    title: 'breadcrumb_trail() — Breadcrumb demo'
+    lead_html: 'Dezelfde gegevens als <code>breadcrumb_render()</code>, aangepaste markup:'
+    current_suffix: ' (huidig)'
+    back_home: Start
+  custom_template:
+    title: 'Aangepaste template — Breadcrumb demo'
+    nav_aria: 'Aangepaste breadcrumb-template'
+    lead_html: 'Deze pagina gebruikt een applicatie-Twig-template in plaats van de bundle-standaard.'
+    back_home: Start
+  admin_dashboard:
+    title: 'Admin — Breadcrumb demo'
+    heading: Paneel
+    lead_intro: 'Tweede collectie <code>admin</code> en childroute:'
+    back_public: 'Terug naar publieke site'
+  admin_users:
+    title: 'Gebruikers — Breadcrumb demo'
+    heading: Gebruikers
+    lead: 'Pad: Admin → Gebruikers.'
+    back_dashboard: 'Terug naar dashboard'
+  admin_nav_aria: Admin-breadcrumb
+  admin_long:
+    title: 'Admin · lang pad — Breadcrumb demo'
+    heading: 'Dashboard · diepe hiërarchie'
+    body_html: '<p>Collectie <code>admin</code>: tot <strong>6 segmenten</strong> (Admin + vijf niveaus onder <code>/admin/long/…</code>). Zelfde horizontaal scrollgedrag voor volle paden.</p>'
+    level_heading: Niveau
+    shortcuts: Snelkoppelingen
+    jump_aria: Admin-niveaus

@@ -30,7 +30,7 @@ final class Configuration implements ConfigurationInterface
                     ->children()
                         ->scalarNode('connection')->defaultValue('default')->end()
                         ->scalarNode('table_prefix')
-                            ->info('Prepended to table names (breadcrumb_collection, breadcrumb_item).')
+                            ->info('Prefix prepended to table names (dashboard_breadcrumb_collection, dashboard_breadcrumb_item). Empty = no prefix.')
                             ->defaultValue('')
                         ->end()
                     ->end()

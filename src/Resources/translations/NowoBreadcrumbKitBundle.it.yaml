@@ -1,0 +1,277 @@
+# Breadcrumb Kit Bundle — Italiano
+
+dashboard:
+  title: 'Breadcrumb Kit'
+  title_suffix: 'Pannello breadcrumb'
+  brand: 'Breadcrumb Kit'
+  nav_collections: Collezioni
+  loading: Caricamento…
+  error_loading_form: Impossibile caricare il modulo.
+  close: Chiudi
+  cancel: Annulla
+  confirm_delete: Conferma eliminazione
+  delete: Elimina
+  delete_confirm_message: Confermare l'eliminazione?
+  collections_heading: Collezioni
+  collections_lead: Stili di presentazione per collezione e elementi collegati alle rotte Symfony.
+  export_all: Esporta tutto
+  import: Importa
+  new_collection: Nuova collezione
+  context: Contesto
+  search_placeholder: 'Cerca per codice, nome o contesto…'
+  clear: Cancella
+  previous: Precedente
+  next: Successivo
+  pagination_collections: Paginazione collezioni
+  showing_from_to_of_total: 'Visualizzazione %from%-%to% di %total%'
+  open_form_full_page: Apri modulo a pagina intera
+  table_id: ID
+  table_code: Codice
+  table_context: Contesto
+  table_name: Nome
+  table_actions: Azioni
+  link_items: Elementi
+  link_export_json: JSON
+  link_edit: Modifica
+  empty_collections: Nessuna collezione. Creane una o importa un JSON esportato dal pannello.
+  delete_collection_confirm: 'Eliminare la collezione «%code%» e tutti i suoi elementi?'
+  items_heading: Elementi breadcrumb
+  items_title_with_code: 'Elementi · %code%'
+  unnamed_collection: Senza nome
+  back_collections: ← Collezioni
+  search: Cerca
+  clear_search: Cancella
+  export_collection: Esporta collezione
+  new_item: Nuovo elemento
+  open_item_form_page: Modulo a pagina intera
+  collection_styles: Stili collezione
+  search_results: '%count% risultato/i per «%query%»'
+  empty_items_search: Nessun elemento corrisponde.
+  view_all_link: Visualizza tutti
+  empty_items_none: Nessun elemento.
+  empty_items_add_hint: Aggiungine uno dal pulsante sopra o da qui.
+  add_item_button: Aggiungi uno
+  table_route: Rotta
+  table_label: Etichetta
+  table_parent: Padre
+  table_link: Link
+  link_yes: sì
+  link_no: 'no'
+  filter_by_route: Filtra
+  delete_item_confirm: 'Eliminare l''elemento #%id% (%route%)?'
+  import_page_title: Importa collezioni
+  import_modal_title: Importa JSON
+  collection_modal_title: Collezione
+  item_modal_title: Elemento
+  new_collection_modal_title: Nuova collezione
+  edit_collection_modal_title: 'Modifica · %code%'
+  collection_styles_modal_title: 'Stili · %code%'
+  new_item_modal_title: Nuovo elemento
+  item_new_page_title: Nuovo elemento breadcrumb
+  edit_item_modal_title: 'Modifica elemento #%id%'
+  collection_not_found: Collezione non trovata.
+  item_not_found: Elemento non trovato.
+  import_help: 'Formato di export del pannello (<code>breadcrumbKitExport</code>): una collezione + albero di elementi, o più sotto <code>collections</code>.'
+  import_submit: Importa
+  form_save: Salva
+  form_create: Crea
+  form_update: Aggiorna
+  breadcrumb_crumb_nav: Breadcrumb del pannello
+  import_partial_hint: 'Formato di export del pannello (<code>breadcrumbKitExport</code>): collezione + elementi ad albero, o più sotto <code>collections</code>.'
+  alert_close: Chiudi
+
+  flash:
+    collection_created: Collezione creata.
+    collection_updated: Collezione aggiornata.
+    collection_deleted: Collezione eliminata.
+    collection_duplicate: Esiste già una collezione con questo codice e context key.
+    csrf_invalid: Token CSRF non valido.
+    item_created: Elemento creato.
+    item_updated: Elemento aggiornato.
+    item_deleted: Elemento eliminato.
+    import_file_too_large: 'Il file supera la dimensione massima consentita (%max% MiB).'
+    import_json_invalid: 'JSON non valido: %message%'
+    import_json_not_object: Il JSON deve essere un oggetto o un array.
+    import_done: 'Importazione: %created% create, %updated% aggiornate, %skipped% saltate.'
+
+breadcrumb:
+  aria_label: Briciole di pane
+  inline_edit:
+    open: Modifica breadcrumb
+    close: Chiudi
+    modal_title_edit: Modifica breadcrumb per questa rotta
+    modal_title_new: Nuovo elemento breadcrumb per questa rotta
+
+import:
+  error:
+    entry_missing_keys: 'Voce %index%: mancano ''collection'' o ''items''.'
+    collection_not_object: 'Voce %index%: ''collection'' deve essere un oggetto.'
+    entry_code_required: 'Voce %index%: il codice della collezione è obbligatorio.'
+    invalid_root: 'Non usare un array JSON radice nudo; esporta dal pannello o usa { "collections": [ ... ] }.'
+    invalid_shape: 'Formato atteso: { "collection", "items" } o { "collections": [ ... ] }.'
+    collection_code_required: Il codice della collezione è obbligatorio.
+
+form:
+  delete:
+    csrf_invalid: Token CSRF non valido.
+
+  dashboard_search:
+    placeholder: Cerca per rotta, etichetta o ID…
+
+  import_breadcrumb:
+    file:
+      label: File JSON
+      required: Seleziona un file.
+      mime: Il file deve essere JSON.
+    strategy:
+      label: Se la collezione esiste già (stesso codice + context key)
+      skip: Salta (non importare quel blocco)
+      replace: Sostituisci elementi e aggiorna dati
+
+  breadcrumb_collection:
+    code.label: Codice
+    context_key.label: Context key
+    context_key.help: 'Lascia vuoto salvo che tu usi più collezioni con lo stesso codice.'
+    name.label: Nome visualizzato
+    home_icon.label: Icona home (emoji/HTML breve)
+    home_icon.help: Mostrata sul primo elemento al posto del testo quando presentation.home_icon_replaces_label è attivo (es. ⌂ o tabler:home in app con UX Icons).
+    separator_icon.label: Separatore
+    class_list.label: CSS contenitore (classList)
+    class_list.placeholder: 'breadcrumb breadcrumb--demo'
+    class_item.label: CSS elemento
+    class_separator.label: CSS separatore
+    class_current.label: CSS elemento corrente
+    responsive_config.label: Responsive (JSON)
+    responsive_config.help: 'Oggetto JSON (breakpoint, hints). Vuoto = null.'
+    inline_edit_access.label: Modifica inline (servizio di accesso)
+    inline_edit_access.placeholder: Disabilitata
+    inline_edit_access.help: 'Ha effetto solo se l''URL include il query param configurato in `nowo_breadcrumb_kit.inline_edit.query_param` (valore truthy) e la dashboard è attiva.'
+
+  breadcrumb_item:
+    route_name.label: Nome rotta Symfony
+    route_name.not_blank: Inserisci un nome di rotta.
+    static_params.label: Parametri statici (JSON)
+    static_params.help: 'Es. {"section":"sales"} — deve corrispondere a _route_params.'
+    dynamic_keys.label: Chiavi dinamiche (array JSON)
+    dynamic_keys.help: 'Es. ["id"] copiati dalla richiesta durante la generazione del link.'
+    link_enabled.label: Link abilitato
+    label.label: Etichetta predefinita
+    translations.label: Traduzioni (JSON)
+    translations.help: '{"en":"Home","es":"Inicio"}'
+    icon.label: Icona
+    parent.label: Padre
+    parent.placeholder: — radice —
+
+demo:
+  base:
+    title_default: 'Demo Breadcrumb Kit'
+    brand_sub: nowo-tech/breadcrumb-kit-bundle
+    language_switch_aria: Lingua
+    edit_breadcrumbs: Modifica breadcrumb
+    resources_aria: Risorse
+    resources_title: Risorse
+    github: GitHub
+    packagist: Packagist
+    resources_note: Stessa linea visiva della demo del bundle Dashboard Menu (Bootstrap 5).
+    footer_home: Inizio
+    footer_crud: CRUD
+  sidebar:
+    aria: Esempi del bundle
+    navigation: Navigazione
+    section_start: Inizio
+    overview: Panoramica
+    section_manage: Gestione
+    breadcrumb_editor: Editor breadcrumb (CRUD)
+    section_inline: Modifica inline
+    home_with_flag: 'Inizio + ?flag'
+    product_with_modal: Prodotto + modale
+    section_chain: Catena e prodotto
+    shop: Negozio
+    product_42: 'Prodotto #42'
+    section_static: static_route_params
+    sales: Sales
+    support: Support
+    section_depth: Profondità
+    long_trail: Catena lunga
+    eight_crumbs: 8 elementi
+    section_admin_col: Collezione admin
+    admin: Admin
+    users: Utenti
+    six_admin_crumbs: 6 elementi admin
+    section_twig: Twig
+    custom_template: Template personalizzato
+    section_edge: Casi limite
+    no_db_row: Nessuna riga DB
+    admin_block: Admin
+    breadcrumb_panel: Pannello breadcrumb
+  home:
+    title: 'Home — Demo Breadcrumb Kit'
+    welcome: Benvenuto
+    lead: 'Demo interattiva con la stessa linea visiva della demo del bundle <strong>Dashboard Menu</strong> (Bootstrap&nbsp;5).'
+    card_what_title: Cos''è questa demo
+    card_what_p1: 'Usa la <strong>barra laterale</strong> per passare tra scenari — un''app, rotte diverse e righe breadcrumb nel database.'
+    card_what_p2: '<strong>nowo-tech/breadcrumb-kit-bundle</strong> risolve etichette, URL, catene padre e collezioni multiple.'
+    card_editor_title: Editor e modifica in contesto
+    manage_link: Gestisci collezioni ed elementi
+    inline_help: 'Modifica in contesto: aggiungi <code>?breadcrumb_edit=1</code> e il pulsante <em>Modifica breadcrumb</em> quando config e checker lo consentono.'
+    try_home: Prova sulla home
+    card_check_title: Cosa verificare
+    check_p1: 'La scheda sopra mostra i breadcrumb; in dev vedrai la toolbar Symfony / Twig Inspector. Il link attivo nella sidebar corrisponde alla rotta corrente.'
+    check_p2: 'Per molti segmenti e scroll orizzontale, apri «8 elementi» o «6 elementi admin».'
+  product:
+    title: 'Prodotto %id% — Demo Breadcrumb'
+    heading: 'Prodotto %id%'
+    lead_html: 'Il percorso include <em>Negozio</em> come testo non collegato (<code>link_enabled = false</code>) e il segmento corrente senza URL.'
+    back_shop: 'Torna al negozio'
+    back_home: Inizio
+  shop:
+    title: 'Negozio — Demo Breadcrumb'
+    heading: Negozio
+    lead: 'Percorso: Home → Negozio (pagina corrente).'
+    open_product: 'Apri prodotto #42'
+    back_home: 'Torna alla home'
+  section:
+    title: '%section% — Demo Breadcrumb'
+    lead_html: 'Stessa rotta Symfony per <code>sales</code> e <code>support</code>; vince l''elemento con più <code>static_route_params</code> corrispondenti.'
+    back_home: Inizio
+  deep:
+    title: 'Catena profonda — Demo Breadcrumb'
+    heading: Catena breadcrumb lunga
+    body_html: '<p>La pagina più profonda ha <strong>8 segmenti</strong> (Home + hub + 6 passi). Su schermi stretti la barra usa lo <strong>scroll orizzontale</strong> (<code>breadcrumb--many</code> nell''override breadcrumb dell''app).</p>'
+    current_level: 'Livello corrente'
+    step_label: Passo
+    shortcuts: Scorciatoie
+    jump_aria: Salta livello
+  no_match:
+    title: 'Nessuna corrispondenza DB — Demo Breadcrumb'
+    heading: Nessuna corrispondenza nel database
+    lead_html: 'Non c''è alcun <code>BreadcrumbItem</code> per questa rotta; l''area breadcrumb sopra è vuota.'
+    back_home: Inizio
+  breadcrumb_trail:
+    title: 'breadcrumb_trail() — Demo Breadcrumb'
+    lead_html: 'Stessi dati di <code>breadcrumb_render()</code>, markup personalizzato:'
+    current_suffix: ' (corrente)'
+    back_home: Inizio
+  custom_template:
+    title: 'Template personalizzato — Demo Breadcrumb'
+    nav_aria: 'Template breadcrumb personalizzato'
+    lead_html: 'Questa pagina usa un template Twig dell''applicazione invece del default del bundle.'
+    back_home: Inizio
+  admin_dashboard:
+    title: 'Admin — Demo Breadcrumb'
+    heading: Pannello
+    lead_intro: 'Seconda collezione <code>admin</code> e rotta figlia:'
+    back_public: 'Torna al sito pubblico'
+  admin_users:
+    title: 'Utenti — Demo Breadcrumb'
+    heading: Utenti
+    lead: 'Percorso: Admin → Utenti.'
+    back_dashboard: 'Torna alla dashboard'
+  admin_nav_aria: Breadcrumb admin
+  admin_long:
+    title: 'Admin · catena lunga — Demo Breadcrumb'
+    heading: 'Dashboard · gerarchia profonda'
+    body_html: '<p>Collezione <code>admin</code>: fino a <strong>6 segmenti</strong> (Admin + cinque livelli sotto <code>/admin/long/…</code>). Stesso comportamento di scroll orizzontale per percorsi affollati.</p>'
+    level_heading: Livello
+    shortcuts: Scorciatoie
+    jump_aria: Livelli admin

@@ -60,6 +60,7 @@ final class BreadcrumbKitExtension extends Extension implements PrependExtension
         $container->setParameter(Configuration::ALIAS.'.project', $config['project']);
         $container->setParameter(Configuration::ALIAS.'.doctrine.connection', $config['doctrine']['connection']);
         $container->setParameter(Configuration::ALIAS.'.doctrine.table_prefix', $config['doctrine']['table_prefix']);
+        $container->setParameter(Configuration::ALIAS.'.table_prefix', $config['doctrine']['table_prefix']);
         $container->setParameter(Configuration::ALIAS.'.locales', $locales);
         $container->setParameter(Configuration::ALIAS.'.default_locale_resolved', $defaultLocale ?? 'en');
         $container->setParameter(Configuration::ALIAS.'.default_collection', $config['default_collection']);
