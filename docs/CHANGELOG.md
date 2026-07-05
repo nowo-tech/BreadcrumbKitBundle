@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.0.1] - 2026-07-05
+
+### Changed
+
+- **`composer.lock`:** bumped dev/tooling dependencies (PHPStan 2.2.5, Rector 2.5.3, PHPUnit-related `nikic/php-parser` 5.8.0, `phpstan/phpstan-phpunit` 2.0.18, transitive `twig/twig` 3.28.0). No runtime `require` changes.
+
 ## [2.0.0] - 2026-07-05
 
 ### Changed
