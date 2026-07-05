@@ -17,11 +17,11 @@ Design aligns with [DashboardMenuBundle](https://github.com/nowo-tech/DashboardM
 
 ## Version information
 
-Latest release: **[v2.0.0](https://github.com/nowo-tech/BreadcrumbKitBundle/releases/tag/v2.0.0)** (2026-07-05). Requires **PHP 8.2+** and **Symfony 7+**. Tables: `dashboard_breadcrumb_*` (see [UPGRADING.md](docs/UPGRADING.md) from v1.2.x).
+Latest release: **[v2.0.1](https://github.com/nowo-tech/BreadcrumbKitBundle/releases/tag/v2.0.1)** (2026-07-05). Requires **PHP 8.2+** and **Symfony 7+**. Tables: `dashboard_breadcrumb_*` (see [UPGRADING.md](docs/UPGRADING.md) from v1.2.x).
 
 ## Status
 
-**MVP (v2.0.0):** entities (`dashboard_breadcrumb_*` tables, aligned with DashboardMenuBundle), repositories, `BreadcrumbLoader`, `BreadcrumbUrlResolver`, Twig (`breadcrumb_trail`, `breadcrumb_render`), **optional web dashboard**, **presentation options**, dashboard i18n **en/es/de/fr/it/nl/pt**. **Demos**: Symfony 7 (**8020**) and Symfony 8.1 (**8021**) with FrankenPHP. **Flex recipe** in `.symfony/recipe/`. Planned: migration command, event-based enrichers.
+**MVP (v2.0.1):** entities (`dashboard_breadcrumb_*` tables, aligned with DashboardMenuBundle), repositories, `BreadcrumbLoader`, `BreadcrumbUrlResolver`, Twig (`breadcrumb_trail`, `breadcrumb_render`), **optional web dashboard**, **presentation options**, dashboard i18n **en/es/de/fr/it/nl/pt**. **Demos**: Symfony 7 (**8020**) and Symfony 8.1 (**8021**) with FrankenPHP. **Flex recipe** in `.symfony/recipe/`. Planned: migration command, event-based enrichers.
 
 **FrankenPHP worker mode:** demos use worker-enabled `Caddyfile` for production-style runs; development uses `Caddyfile.dev` without workers. See [docs/DEMO-FRANKENPHP.md](docs/DEMO-FRANKENPHP.md).
 
