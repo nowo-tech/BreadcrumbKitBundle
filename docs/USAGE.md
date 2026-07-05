@@ -93,7 +93,7 @@ Collection `homeIcon` wins over `presentation.home_icon`. Override `@NowoBreadcr
 
 ### Overriding translations (REQ-I18N-001)
 
-The bundle uses the translation domain **`NowoBreadcrumbKitBundle`** for dashboard UI, forms, and validation messages. Bundle files live at `src/Resources/translations/NowoBreadcrumbKitBundle.{locale}.yaml` (e.g. `NowoBreadcrumbKitBundle.en.yaml`, `NowoBreadcrumbKitBundle.es.yaml`).
+The bundle uses the translation domain **`NowoBreadcrumbKitBundle`** for dashboard UI, forms, and validation messages. Bundle files live at `src/Resources/translations/NowoBreadcrumbKitBundle.{locale}.yaml` (bundled locales: **en**, **es**, **de**, **fr**, **it**, **nl**, **pt**).
 
 Keys are grouped under **`dashboard`** (panel labels, buttons, pagination), **`form`** (field labels and help), and **`flash`** (success/error messages). Dashboard templates use `{% trans_default_domain 'NowoBreadcrumbKitBundle' %}` or explicit `|trans({}, 'NowoBreadcrumbKitBundle')`.
 
