@@ -7,17 +7,28 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.0.0] - 2026-07-05
+
 ### Changed
 
 - **Breaking:** Doctrine table names now use the `dashboard_breadcrumb_*` prefix (`dashboard_breadcrumb_collection`, `dashboard_breadcrumb_item`), aligned with [DashboardMenuBundle](https://github.com/nowo-tech/DashboardMenuBundle).
 - **`doctrine.table_prefix`** is applied at runtime via `TablePrefixSubscriber` (same pattern as dashboard menu).
 
+### Added
+
+- Dashboard/form translations: **de**, **fr**, **it**, **nl**, **pt** (`NowoBreadcrumbKitBundle.{locale}.yaml`).
+- Unit tests for `TablePrefixSubscriber`; DI integration test asserts subscriber registration.
+
 ### Migration
 
-Rename existing tables or regenerate migrations:
+Rename existing tables before deploying (or drop/recreate in dev):
 
-- `nowo_breadcrumb_collection` → `dashboard_breadcrumb_collection`
-- `nowo_breadcrumb_item` → `dashboard_breadcrumb_item`
+| Old | New |
+|-----|-----|
+| `nowo_breadcrumb_collection` | `dashboard_breadcrumb_collection` |
+| `nowo_breadcrumb_item` | `dashboard_breadcrumb_item` |
+
+With `doctrine.table_prefix: app_`, physical names become `app_dashboard_breadcrumb_*`.
 
 ## [1.2.1] - 2026-07-03
 
