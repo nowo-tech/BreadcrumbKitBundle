@@ -30,6 +30,8 @@ final class BreadcrumbKitExtensionTest extends TestCase
         self::assertTrue($container->hasDefinition(BreadcrumbLoader::class));
         self::assertTrue($container->hasDefinition(BreadcrumbInlineEditResolver::class));
         self::assertTrue($container->hasDefinition('nowo_breadcrumb_kit.inline_edit.access_checker_locator'));
+        self::assertTrue($container->hasDefinition(\Nowo\BreadcrumbKitBundle\EventSubscriber\TablePrefixSubscriber::class));
+        self::assertSame('', $container->getParameter('nowo_breadcrumb_kit.table_prefix'));
     }
 
     public function testPrependSetsDefaultDashboardParameters(): void

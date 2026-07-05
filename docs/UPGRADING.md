@@ -2,6 +2,21 @@
 
 This document describes breaking changes and upgrade notes between versions. Sections are ordered from newest to oldest.
 
+## From 1.2.x to next release
+
+**Breaking:** entity table names changed from `nowo_breadcrumb_*` to `dashboard_breadcrumb_*`.
+
+1. Run `composer update nowo-tech/breadcrumb-kit-bundle`.
+2. Apply a migration renaming tables (or drop and recreate in dev):
+
+   | Old | New |
+   |-----|-----|
+   | `nowo_breadcrumb_collection` | `dashboard_breadcrumb_collection` |
+   | `nowo_breadcrumb_item` | `dashboard_breadcrumb_item` |
+
+3. Optional: set `nowo_breadcrumb_kit.doctrine.table_prefix` for an extra prefix (prepended to `dashboard_breadcrumb_*`, same as dashboard menu).
+4. Clear cache: `bin/console cache:clear`.
+
 ## From 1.2.0 to 1.2.1
 
 No intentional breaking changes to the bundle API, routes, or schema. Patch release (CI and demo lockfiles).

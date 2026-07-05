@@ -57,7 +57,7 @@ Nowo\BreadcrumbKitBundle\NowoBreadcrumbKitBundle::class => ['all' => true],
 ## Doctrine mapping and schema
 
 1. Map entities under `Nowo\BreadcrumbKitBundle\Entity` in your Doctrine configuration (attribute mapping).
-2. Create tables `breadcrumb_collection` and `breadcrumb_item` (respecting `doctrine.table_prefix` if set) via a migration or, in development only, `doctrine:schema:update --force`.
+2. Create tables `dashboard_breadcrumb_collection` and `dashboard_breadcrumb_item` (respecting `doctrine.table_prefix` if set) via a migration or, in development only, `doctrine:schema:update --force`.
 3. Seed at least one `BreadcrumbCollection` whose `code` matches `default_collection`, then add `BreadcrumbItem` rows (`routeName`, `staticRouteParams`, optional `parent` chain).
 
 See the demo fixtures in `demo/symfony7/src/DataFixtures/BreadcrumbDemoFixtures.php` for an example.

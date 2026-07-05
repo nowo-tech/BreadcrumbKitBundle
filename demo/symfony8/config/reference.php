@@ -945,6 +945,11 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *     locales?: list<scalar|Param|null>,
  *     default_locale?: scalar|Param|null, // Default: null
  *     default_collection?: scalar|Param|null, // Collection code used when none is passed to Twig/helpers. // Default: "default"
+ *     presentation?: array{ // Default trail presentation; collection homeIcon and responsiveConfig can override per collection.
+ *         home_icon?: scalar|Param|null, // Fallback home/root icon (HTML, emoji, or app-specific token) when the collection homeIcon is empty. // Default: null
+ *         home_icon_replaces_label?: bool|Param, // When true and a home icon is set, the first crumb shows the icon instead of its text label (label stays in aria-label). // Default: true
+ *         hide_when_single_root?: bool|Param, // When true, hides the trail on pages where the only crumb is the root item and it is the current page (typical home). // Default: false
+ *     },
  *     dashboard?: array{
  *         enabled?: bool|Param, // Registers CRUD controllers and forms; import bundle routing with path_prefix (see docs). // Default: false
  *         path_prefix?: scalar|Param|null, // URL prefix for dashboard routes (leading slash, no trailing slash). Use the same value when importing routing in your app. // Default: "/breadcrumb-kit-admin"

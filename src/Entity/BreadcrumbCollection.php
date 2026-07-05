@@ -14,7 +14,7 @@ use Nowo\BreadcrumbKitBundle\Repository\BreadcrumbCollectionRepository;
  * A named set of breadcrumb items (e.g. "admin", "public") with shared presentation options.
  */
 #[ORM\Entity(repositoryClass: BreadcrumbCollectionRepository::class)]
-#[ORM\Table(name: 'nowo_breadcrumb_collection')]
+#[ORM\Table(name: 'dashboard_breadcrumb_collection')]
 #[ORM\UniqueConstraint(name: 'uniq_breadcrumb_collection_code_context', columns: ['code', 'context_key'])]
 class BreadcrumbCollection
 {
