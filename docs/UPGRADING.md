@@ -2,6 +2,14 @@
 
 This document describes breaking changes and upgrade notes between versions. Sections are ordered from newest to oldest.
 
+## From 2.0.0 to 2.0.1
+
+No intentional breaking changes or runtime dependency changes. Dev lockfile sync only.
+
+```bash
+composer update nowo-tech/breadcrumb-kit-bundle:^2.0
+```
+
 ## From 1.2.x to 2.0.0
 
 **Breaking:** entity table names changed from `nowo_breadcrumb_*` to `dashboard_breadcrumb_*`. Pin **`^1.2`** if you cannot migrate yet.
