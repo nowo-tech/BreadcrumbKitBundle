@@ -24,14 +24,14 @@ final readonly class TablePrefixSubscriber
     public function loadClassMetadata(LoadClassMetadataEventArgs $args): void
     {
         $metadata = $args->getClassMetadata();
-        $class    = $metadata->getName();
+        $class = $metadata->getName();
 
-        if ($this->tablePrefix === '' || ($class !== BreadcrumbCollection::class && $class !== BreadcrumbItem::class)) {
+        if ('' === $this->tablePrefix || (BreadcrumbCollection::class !== $class && BreadcrumbItem::class !== $class)) {
             return;
         }
 
         $metadata->setPrimaryTable([
-            'name' => $this->tablePrefix . $metadata->getTableName(),
+            'name' => $this->tablePrefix.$metadata->getTableName(),
         ]);
     }
 }
