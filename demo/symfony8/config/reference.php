@@ -936,7 +936,7 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *     project?: scalar|Param|null, // Optional project id when several apps share one DB. // Default: null
  *     doctrine?: array{
  *         connection?: scalar|Param|null, // Default: "default"
- *         table_prefix?: scalar|Param|null, // Prepended to table names (breadcrumb_collection, breadcrumb_item). // Default: ""
+ *         table_prefix?: scalar|Param|null, // Prefix prepended to table names (dashboard_breadcrumb_collection, dashboard_breadcrumb_item). Empty = no prefix. // Default: ""
  *     },
  *     cache?: array{
  *         ttl?: int|Param, // Default: 60
