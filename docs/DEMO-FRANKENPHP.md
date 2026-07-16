@@ -1,13 +1,12 @@
-# Demo applications with FrankenPHP
+# Demo application with FrankenPHP
 
-This bundle ships two FrankenPHP demos, aligned with [DashboardMenuBundle](https://github.com/nowo-tech/DashboardMenuBundle):
+This bundle ships a FrankenPHP demo aligned with [DashboardMenuBundle](https://github.com/nowo-tech/DashboardMenuBundle):
 
 | Demo | Symfony | PHP | Default port |
 |------|---------|-----|--------------|
-| `demo/symfony7/` | 7.4 | 8.2 | **8020** |
 | `demo/symfony8/` | **8.1** | **8.4** | **8021** |
 
-Both apps share the same fixtures, routes, and UI shell; use Symfony 8 to validate compatibility with the current Symfony 8 maintenance line.
+Use it to validate compatibility with the current Symfony 8 maintenance line.
 
 ## Contents
 
@@ -18,18 +17,18 @@ Both apps share the same fixtures, routes, and UI shell; use Symfony 8 to valida
 
 ## Overview
 
-- **Demo UI**: templates under `demo/symfony7/templates/` and `demo/symfony8/templates/` use the same shell as **DashboardMenuBundle** demos (Bootstrap 5.3, Bootstrap Icons, `app-header` gradient navbar, `app-layout` with light gray `app-sidebar` / `app-main` / `app-aside`, `app-footer`) so all Nowo bundle demos feel consistent.
-- **Compose project names**: `breadcrumb-kit-bundle-demo-symfony-7` and `breadcrumb-kit-bundle-demo-symfony-8` (`docker-compose.yml` → `name:`).
-- **FrankenPHP** serves the app from `demo/symfony7` with the parent bundle mounted at **`/var/breadcrumb-kit-bundle`** (Composer `path` repository), same layout as [DashboardMenuBundle](https://github.com/nowo-tech/dashboard-menu-bundle) / Twig Inspector demos: `../..` → `/var/<bundle-slug>-bundle` in `docker-compose.yml`, and `composer.json` uses `{ "type": "path", "url": "/var/…" }` **without** extra `options` (Composer defaults).
+- **Demo UI**: templates under `demo/symfony8/templates/` use the same shell as **DashboardMenuBundle** demos (Bootstrap 5.3, Bootstrap Icons, `app-header` gradient navbar, `app-layout` with light gray `app-sidebar` / `app-main` / `app-aside`, `app-footer`) so all Nowo bundle demos feel consistent.
+- **Compose project name**: `breadcrumb-kit-bundle-demo-symfony-8` (`docker-compose.yml` → `name:`).
+- **FrankenPHP** serves the app from `demo/symfony8` with the parent bundle mounted at **`/var/breadcrumb-kit-bundle`** (Composer `path` repository), same layout as [DashboardMenuBundle](https://github.com/nowo-tech/dashboard-menu-bundle) / Twig Inspector demos: `../..` → `/var/<bundle-slug>-bundle` in `docker-compose.yml`, and `composer.json` uses `{ "type": "path", "url": "/var/…" }` **without** extra `options` (Composer defaults).
 - **MySQL 8** runs in a separate container; **no DB port is published to the host** (only `expose:`). The app uses hostname `mysql` on the Docker network.
 - **Caddyfiles**: `docker/frankenphp/Caddyfile` (production, **worker** mode) and `Caddyfile.dev` (development, **no worker**). The image entrypoint copies `Caddyfile.dev` over the active file when `APP_ENV=dev`.
 - **Developer UX** (with `APP_ENV=dev`, `APP_DEBUG=1`, Composer **dev** dependencies installed): **Symfony Web Debug Toolbar** + **Web Profiler** (`config/packages/web_profiler.yaml`, routes in `config/routes/web_profiler.yaml`), **`symfony/asset` + `symfony/stopwatch`** (in the demo `composer.json` so Twig can use `asset()` and the profiler can time requests), **`assets:install`** in the `Makefile` / Docker entrypoint for `public/bundles/`, and **`config/packages/dev/framework.yaml`** (`profiler.collect: true`). **[nowo-tech/twig-inspector-bundle](https://github.com/nowo-tech/TwigInspectorBundle)** (profiler panel + `/_template/…` route in `config/routes.yaml`). Twig Inspector: cookie / **Ctrl+Shift+T** by default; see `config/packages/dev/nowo_twig_inspector.yaml`.
 
-Default HTTP **PORT** (host) is **8020** (see `demo/symfony7/.env.example`).
+Default HTTP **PORT** (host) is **8021** (see `demo/symfony8/.env.example`).
 
 Public routes use the **`/{_locale}/…`** prefix (`en`, `es`). **`/`** redirects to `/en/` (default locale).
 
-### Demo use-case map (Symfony 7 app)
+### Demo use-case map
 
 | Feature | Where to see it |
 |--------|------------------|
@@ -50,25 +49,18 @@ Public routes use the **`/{_locale}/…`** prefix (`en`, `es`). **`/`** redirect
 | **PSR-6 item-list cache** (`nowo_breadcrumb_kit.cache`) | Enabled like in production apps; not visually distinct — see [USAGE.md](USAGE.md#caching) |
 | **Dashboard CRUD** (collections + items + styles) | `http://localhost:<PORT>/breadcrumb-kit-admin/` (`nowo_breadcrumb_kit.dashboard.path_prefix`; demos use `framework.csrf_protection: true` without SecurityBundle) |
 
-Fixture source: `demo/symfony7/src/DataFixtures/BreadcrumbDemoFixtures.php` (same file in `demo/symfony8/`).
+Fixture source: `demo/symfony8/src/DataFixtures/BreadcrumbDemoFixtures.php`.
 
 ## Quick start
 
-**Symfony 7** — from `demo/symfony7/`:
+From `demo/symfony8/`:
 
 ```bash
 cp .env.example .env   # first time only
 make up
 ```
 
-**Symfony 8.1** — from `demo/symfony8/`:
-
-```bash
-cp .env.example .env
-make up
-```
-
-Default ports: **8020** (symfony7), **8021** (symfony8).
+Default port: **8021**.
 
 The Makefile prints:
 

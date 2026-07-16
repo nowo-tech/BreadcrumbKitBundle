@@ -4,6 +4,7 @@ SERVICE_PHP ?= php
 export COMPOSER_ALLOW_SUPERUSER ?= 1
 
 .PHONY: help ensure-up up down down-dev build shell install assets test test-coverage \
+	check-no-cursor-coauthor strip-cursor-coauthor-from-history setup-hooks \
 	cs-check cs-fix rector rector-dry phpstan qa release-check composer-sync \
 	clean update validate
 
@@ -16,7 +17,7 @@ help:
 	@echo "Tests: test, test-coverage, coverage-check"
 	@echo "Quality: cs-check, cs-fix, rector, rector-dry, phpstan, qa"
 	@echo "Release: release-check, composer-sync"
-	@echo "Demos: make -C demo/symfony7 up (8020) | make -C demo/symfony8 up (8021) — see docs/DEMO-FRANKENPHP.md"
+	@echo "Demos: make -C demo/symfony8 up (8021) — see docs/DEMO-FRANKENPHP.md"
 	@echo "Cleanup: clean"
 
 ensure-up:
@@ -77,7 +78,7 @@ composer-sync: ensure-up
 	@$(COMPOSE) exec -T $(SERVICE_PHP) composer validate --strict
 	@$(COMPOSE) exec -T $(SERVICE_PHP) composer install --no-interaction --prefer-dist
 
-release-check:
+release-check: check-no-cursor-coauthor
 	@$(MAKE) ensure-up
 	@$(MAKE) composer-sync
 	@$(MAKE) cs-fix
@@ -101,6 +102,20 @@ validate-translations: ensure-up
 	@echo "Translation YAML files OK."
 
 
+
+setup-hooks:
+	@chmod +x .githooks/pre-commit 2>/dev/null || true
+	@chmod +x .githooks/commit-msg 2>/dev/null || true
+	@git config core.hooksPath .githooks
+	@echo "✅ Git hooks installed (.githooks — includes commit-msg for REQ-GIT-001)."
+
 # REQ-MAKE-008: update-deps (REQ-MAKE-008)
 BUNDLE_ROOT := $(abspath $(dir $(lastword $(MAKEFILE_LIST))))
 include $(BUNDLE_ROOT)/../.scripts/Makefile.update-deps.mk
+check-no-cursor-coauthor:
+	@chmod +x .scripts/check-no-cursor-coauthor.sh
+	@./.scripts/check-no-cursor-coauthor.sh HEAD
+
+strip-cursor-coauthor-from-history:
+	@chmod +x .scripts/strip-cursor-coauthor-from-history.sh
+	@./.scripts/strip-cursor-coauthor-from-history.sh main

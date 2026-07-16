@@ -19,7 +19,7 @@ The Makefile ends with:
 
 `Demo started at: http://localhost:<PORT>`
 
-Default **PORT** is `8021` (see `.env.example`). The Symfony 7 demo uses **8020**.
+Default **PORT** is `8021` (see `.env.example`).
 
 ## Useful targets
 

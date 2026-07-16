@@ -2,6 +2,11 @@
 
 Thank you for helping improve **Breadcrumb Kit Bundle**.
 
+
+## Code of Conduct
+
+This project follows the [Contributor Covenant Code of Conduct](../CODE_OF_CONDUCT.md). By participating, you are expected to uphold it. Please report unacceptable behavior to **hectorfranco@nowo.tech**.
+
 ## Workflow
 
 1. Fork the repository and create a feature branch from `main`.
@@ -44,3 +49,14 @@ PHPUnit excludes paths that are thin wiring or require a full HTTP/Doctrine stac
 - Dashboard Twig globals/link helpers and the Web Profiler polyfill.
 
 Target: **~100%** on included code; CI enforces a **99%** floor via `coverage-check`.
+## Git hooks (REQ-GIT-001)
+
+Do **not** add `Co-authored-by: Cursor` or `cursoragent@cursor.com` trailers to commit messages.
+
+```bash
+make setup-hooks
+make check-no-cursor-coauthor
+```
+
+`make setup-hooks` installs `.githooks/commit-msg` (or sets `core.hooksPath` to `.githooks`). Run it once per clone before your first commit.
+If CI fails because trailers are already on the remote, see [GITHUB_CI.md](GITHUB_CI.md) (REQ-GIT-001) and run `make strip-cursor-coauthor-from-history` before `git push --force-with-lease`.

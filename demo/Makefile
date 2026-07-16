@@ -1,26 +1,16 @@
-# Demo aggregate — Symfony 7 and Symfony 8 (Breadcrumb Kit Bundle).
+# Demo aggregate — Symfony 8 (Breadcrumb Kit Bundle).
 
-DEMOS := symfony7 symfony8
+DEMOS := symfony8
 
 .PHONY: help clean test-all test-coverage-all verify-all release-check release-verify
-.PHONY: up down update-bundle up-symfony7 down-symfony7 update-bundle-symfony7
-.PHONY: up-symfony8 down-symfony8 update-bundle-symfony8
+.PHONY: up down update-bundle up-symfony8 down-symfony8 update-bundle-symfony8
 
 help:
 	@echo "Breadcrumb Kit Bundle — Demos: $(DEMOS)"
-	@echo "  make up DEMO=symfony7   (port 8020) | make up DEMO=symfony8 (port 8021)"
-	@echo "  make up-symfony7 | make up-symfony8"
-	@echo "  make down DEMO=symfony7 | make update-bundle DEMO=symfony8"
+	@echo "  make up DEMO=symfony8   (port 8021)"
+	@echo "  make up-symfony8"
+	@echo "  make down DEMO=symfony8 | make update-bundle DEMO=symfony8"
 	@echo "  make update-bundle-all | release-check"
-
-up-symfony7:
-	@$(MAKE) -C symfony7 up
-
-down-symfony7:
-	@$(MAKE) -C symfony7 down
-
-update-bundle-symfony7:
-	@$(MAKE) -C symfony7 update-bundle
 
 up-symfony8:
 	@$(MAKE) -C symfony8 up
@@ -35,15 +25,15 @@ up:
 	@if [ -n "$(DEMO)" ]; then \
 		$(MAKE) up-$(DEMO); \
 	else \
-		$(MAKE) up-symfony7; \
+		$(MAKE) up-symfony8; \
 	fi
 
 down:
-	@[ -n "$(DEMO)" ] || { echo "Usage: make down DEMO=symfony7|symfony8"; exit 1; }
+	@[ -n "$(DEMO)" ] || { echo "Usage: make down DEMO=symfony8"; exit 1; }
 	@$(MAKE) down-$(DEMO)
 
 update-bundle:
-	@[ -n "$(DEMO)" ] || { echo "Usage: make update-bundle DEMO=symfony7|symfony8"; exit 1; }
+	@[ -n "$(DEMO)" ] || { echo "Usage: make update-bundle DEMO=symfony8"; exit 1; }
 	@$(MAKE) update-bundle-$(DEMO)
 
 update-bundle-all:

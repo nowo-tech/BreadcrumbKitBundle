@@ -1,6 +1,0 @@
-# Profiler + toolbar: en proyectos mínimos a veces no se recopilan datos sin esto explícito.
-when@dev:
-    framework:
-        profiler:
-            collect: true
-            only_exceptions: false

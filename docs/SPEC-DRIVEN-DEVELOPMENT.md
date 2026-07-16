@@ -1,9 +1,10 @@
 # Spec-driven development
 
-In this repository, **spec-driven development** has two layers that stay in sync:
+In this repository, **spec-driven development** has three layers that stay in sync:
 
-1. **Product behavior** — what **BreadcrumbKitBundle** guarantees to applications that integrate it (see [`USAGE.md`](USAGE.md), [`CONFIGURATION.md`](CONFIGURATION.md), [`INSTALLATION.md`](INSTALLATION.md)). **PHPUnit** and **PHPStan** enforce contracts in CI where applicable.
-2. **Traceability anchors** — stable **`REQ-*`** identifiers in Makefiles and demos (when present) so changes to scripts, ports, and demo workflows stay discoverable from issues and PRs.
+1. **GitHub Spec Kit baseline** — [`specs/001-baseline/`](../specs/001-baseline/) ([`spec.md`](../specs/001-baseline/spec.md), [`code-inventory.md`](../specs/001-baseline/code-inventory.md)), initialized with [GitHub Spec Kit](https://github.com/github/spec-kit) (`.specify/`, **Cursor Agent** skills in `.cursor/skills/speckit-*`). The inventory maps **100%** of production code in `src/`. **How to install, initialize, and use Spec Kit:** [`SPEC-KIT.md`](SPEC-KIT.md).
+2. **Product behavior** — what **BreadcrumbKitBundle** guarantees to applications that integrate it (see [`USAGE.md`](USAGE.md), [`CONFIGURATION.md`](CONFIGURATION.md), [`INSTALLATION.md`](INSTALLATION.md)). **PHPUnit** and **PHPStan** enforce contracts in CI where applicable.
+3. **Traceability anchors** — stable **`REQ-*`** identifiers in Makefiles and demos (when present) so changes to scripts, ports, and demo workflows stay discoverable from issues and PRs.
 
 There is no separate executable spec language (for example Gherkin); tests and static analysis are the mechanical proof alongside this document.
 
@@ -58,7 +59,7 @@ The sections below state **behavior**; this subsection states **intent** in back
 | ID | Where | What it marks |
 | --- | --- | --- |
 | REQ-MAKE-008 | Root `Makefile` (via `../.scripts/Makefile.update-deps.mk`) | `update-deps`: run `composer update` in the bundle and each demo. |
-| REQ-DEMO-005 | `demo/symfony7/Makefile`, `demo/symfony8/Makefile` | Canonical demo `up` flow (`.env`, compose, install, URL from `PORT`). |
+| REQ-DEMO-005 | `demo/symfony8/Makefile` | Canonical demo `up` flow (`.env`, compose, install, URL from `PORT`). |
 | REQ-RECIPE-001 | `.symfony/recipe/nowo-tech/breadcrumb-kit-bundle/1.0/` | Flex recipe: bundle registration, default YAML config, dashboard routes stub. |
 
 When you change scripted behavior, **update the existing `REQ-*` comment** if the ID still matches the rule, or **add a new `REQ-*`** and document it here and in the PR description.

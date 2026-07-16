@@ -1,5 +1,0 @@
-# En dev, no cachear listas de ítems por colección: si no, tras fixtures o cambios en BD
-# el trail puede quedar vacío (p. ej. rutas admin/long/… recién añadidas).
-nowo_breadcrumb_kit:
-    cache:
-        pool: ''

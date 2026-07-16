@@ -60,7 +60,7 @@ Nowo\BreadcrumbKitBundle\NowoBreadcrumbKitBundle::class => ['all' => true],
 2. Create tables `dashboard_breadcrumb_collection` and `dashboard_breadcrumb_item` (respecting `doctrine.table_prefix` if set) via a migration or, in development only, `doctrine:schema:update --force`.
 3. Seed at least one `BreadcrumbCollection` whose `code` matches `default_collection`, then add `BreadcrumbItem` rows (`routeName`, `staticRouteParams`, optional `parent` chain).
 
-See the demo fixtures in `demo/symfony7/src/DataFixtures/BreadcrumbDemoFixtures.php` for an example.
+See the demo fixtures in `demo/symfony8/src/DataFixtures/BreadcrumbDemoFixtures.php` for an example.
 
 ## Import routes (dashboard)
 
@@ -108,4 +108,4 @@ Or `make install` / `make test` as described in the root `README.md`.
 
 - [USAGE.md](USAGE.md) — Twig helpers, template and translation overrides.
 - [CONFIGURATION.md](CONFIGURATION.md) — full configuration reference.
-- [DEMO-FRANKENPHP.md](DEMO-FRANKENPHP.md) — run the Symfony 7 demo (`demo/symfony7/`) or Symfony 8 demo (`demo/symfony8/`).
+- [DEMO-FRANKENPHP.md](DEMO-FRANKENPHP.md) — run the Symfony 8 demo (`demo/symfony8/`).

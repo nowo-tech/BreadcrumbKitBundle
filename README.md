@@ -17,11 +17,11 @@ Design aligns with [DashboardMenuBundle](https://github.com/nowo-tech/DashboardM
 
 ## Version information
 
-Latest release: **[v2.0.1](https://github.com/nowo-tech/BreadcrumbKitBundle/releases/tag/v2.0.1)** (2026-07-05). Requires **PHP 8.2+** and **Symfony 7+**. Tables: `dashboard_breadcrumb_*` (see [UPGRADING.md](docs/UPGRADING.md) from v1.2.x).
+Latest release: **[v2.0.2](https://github.com/nowo-tech/BreadcrumbKitBundle/releases/tag/v2.0.2)** (2026-07-16). Requires **PHP 8.2+** and **Symfony 7+**. Tables: `dashboard_breadcrumb_*` (see [UPGRADING.md](docs/UPGRADING.md) from v1.2.x).
 
 ## Status
 
-**MVP (v2.0.1):** entities (`dashboard_breadcrumb_*` tables, aligned with DashboardMenuBundle), repositories, `BreadcrumbLoader`, `BreadcrumbUrlResolver`, Twig (`breadcrumb_trail`, `breadcrumb_render`), **optional web dashboard**, **presentation options**, dashboard i18n **en/es/de/fr/it/nl/pt**. **Demos**: Symfony 7 (**8020**) and Symfony 8.1 (**8021**) with FrankenPHP. **Flex recipe** in `.symfony/recipe/`. Planned: migration command, event-based enrichers.
+**MVP (v2.0.2):** entities (`dashboard_breadcrumb_*` tables, aligned with DashboardMenuBundle), repositories, `BreadcrumbLoader`, `BreadcrumbUrlResolver`, Twig (`breadcrumb_trail`, `breadcrumb_render`), **optional web dashboard**, **presentation options**, dashboard i18n **en/es/de/fr/it/nl/pt**. **Demo**: Symfony 8.1 (**8021**) with FrankenPHP. **Flex recipe** in `.symfony/recipe/`. Planned: migration command, event-based enrichers.
 
 **FrankenPHP worker mode:** demos use worker-enabled `Caddyfile` for production-style runs; development uses `Caddyfile.dev` without workers. See [docs/DEMO-FRANKENPHP.md](docs/DEMO-FRANKENPHP.md).
 
@@ -59,30 +59,26 @@ nowo_breadcrumb_kit:
 
 ## Documentation
 
+
+- [GitHub Actions CI requirements](docs/GITHUB_CI.md)
 - [Installation](docs/INSTALLATION.md)
 - [Configuration](docs/CONFIGURATION.md)
 - [Usage](docs/USAGE.md)
 - [Contributing](docs/CONTRIBUTING.md)
+- [Code of Conduct](CODE_OF_CONDUCT.md)
 - [Changelog](docs/CHANGELOG.md)
 - [Upgrading](docs/UPGRADING.md)
 - [Release](docs/RELEASE.md)
 - [Security](docs/SECURITY.md)
 - [Engram](docs/ENGRAM.md)
 - [Spec-driven development](docs/SPEC-DRIVEN-DEVELOPMENT.md)
+- [GitHub Spec Kit manual](docs/SPEC-KIT.md)
 
 ### Additional documentation
 
-- [DEMO-FRANKENPHP.md](docs/DEMO-FRANKENPHP.md) — FrankenPHP demos (`demo/symfony7`, `demo/symfony8`)
+- [DEMO-FRANKENPHP.md](docs/DEMO-FRANKENPHP.md) — FrankenPHP demo (`demo/symfony8`)
 
-### Demo applications
-
-**Symfony 7** (default):
-
-```bash
-make -C demo/symfony7 up
-```
-
-Opens at `http://localhost:8020` (see `demo/symfony7/.env.example` → `PORT`).
+### Demo application
 
 **Symfony 8** (Symfony 8.1, PHP 8.4):
 

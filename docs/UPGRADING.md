@@ -2,6 +2,17 @@
 
 This document describes breaking changes and upgrade notes between versions. Sections are ordered from newest to oldest.
 
+## From 2.0.1 to 2.0.2
+
+No intentional breaking changes to the bundle API, routes, schema, or runtime dependencies. Patch release focused on demos, docs, and maintainer tooling.
+
+- If you used **`demo/symfony7/`** locally, switch to **`demo/symfony8/`** (`make -C demo/symfony8 up`, port **8021**). Application integrations are unaffected.
+- Contributors: run `make setup-hooks` once per clone (REQ-GIT-001).
+
+```bash
+composer update nowo-tech/breadcrumb-kit-bundle:^2.0
+```
+
 ## From 2.0.0 to 2.0.1
 
 No intentional breaking changes or runtime dependency changes. Dev lockfile sync only.

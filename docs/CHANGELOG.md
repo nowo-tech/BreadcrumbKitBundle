@@ -7,6 +7,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.0.2] - 2026-07-16
+
+### Changed
+
+- **Demo:** removed `demo/symfony7/` (port 8020). The maintained FrankenPHP demo is **`demo/symfony8/`** only (Symfony 8.1 / PHP 8.4, port **8021**). README, INSTALLATION, DEMO-FRANKENPHP, and related docs updated accordingly.
+- **Git hygiene (REQ-GIT-001):** CI job + `make check-no-cursor-coauthor` / `make setup-hooks` reject Cursor `Co-authored-by` trailers; `release-check` runs the check first.
+
+### Added
+
+- [CODE_OF_CONDUCT.md](../CODE_OF_CONDUCT.md) (Contributor Covenant 2.1).
+- Spec Kit baseline: [`.specify/`](../.specify/), Cursor skills (`.cursor/skills/speckit-*`), [`docs/SPEC-KIT.md`](SPEC-KIT.md), [`specs/001-baseline/`](../specs/001-baseline/).
+- [`docs/GITHUB_CI.md`](GITHUB_CI.md) — CI matrix and git-history checks.
+
+### Documentation
+
+- [UPGRADING.md](UPGRADING.md): 2.0.1 → 2.0.2 (no API or schema changes).
+- [CONTRIBUTING.md](CONTRIBUTING.md), [RELEASE.md](RELEASE.md), [SPEC-DRIVEN-DEVELOPMENT.md](SPEC-DRIVEN-DEVELOPMENT.md) aligned with Spec Kit and REQ-GIT-001.
+
 ## [2.0.1] - 2026-07-05
 
 ### Changed

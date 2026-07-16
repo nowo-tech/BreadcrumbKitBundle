@@ -162,7 +162,7 @@ form:
     parent.label: Parent
     parent.placeholder: — root —
 
-# Demo app (symfony7) — same domain as bundle
+# Demo app — same domain as bundle
 demo:
   base:
     title_default: 'Breadcrumb Kit demo'
