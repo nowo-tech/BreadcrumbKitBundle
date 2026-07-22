@@ -21,6 +21,7 @@ services:
       - APP_ENV=dev
       - APP_DEBUG=1
       - APP_SECRET=${APP_SECRET:-demo-secret}
+      - FRANKENPHP_MODE=${FRANKENPHP_MODE:-worker}
       - DATABASE_URL=mysql://${MYSQL_USER:-demo_user}:${MYSQL_PASSWORD:-password}@mysql:3306/${MYSQL_DATABASE:-breadcrumb_kit_demo}?serverVersion=8.0&charset=utf8mb4
       - DEFAULT_URI=${DEFAULT_URI:-http://localhost:8021/en}
       - VAR_DUMPER_SERVER=127.0.0.1:9912

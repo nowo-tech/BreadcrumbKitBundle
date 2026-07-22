@@ -13,6 +13,7 @@ Use it to validate compatibility with the current Symfony 8 maintenance line.
 - [Overview](#overview)
 - [Quick start](#quick-start)
 - [Development vs production](#development-vs-production)
+- [Switching classic vs worker (`FRANKENPHP_MODE`)](#switching-classic-vs-worker-frankenphp_mode)
 - [Troubleshooting](#troubleshooting)
 
 ## Overview
@@ -21,7 +22,7 @@ Use it to validate compatibility with the current Symfony 8 maintenance line.
 - **Compose project name**: `breadcrumb-kit-bundle-demo-symfony-8` (`docker-compose.yml` → `name:`).
 - **FrankenPHP** serves the app from `demo/symfony8` with the parent bundle mounted at **`/var/breadcrumb-kit-bundle`** (Composer `path` repository), same layout as [DashboardMenuBundle](https://github.com/nowo-tech/dashboard-menu-bundle) / Twig Inspector demos: `../..` → `/var/<bundle-slug>-bundle` in `docker-compose.yml`, and `composer.json` uses `{ "type": "path", "url": "/var/…" }` **without** extra `options` (Composer defaults).
 - **MySQL 8** runs in a separate container; **no DB port is published to the host** (only `expose:`). The app uses hostname `mysql` on the Docker network.
-- **Caddyfiles**: `docker/frankenphp/Caddyfile` (production, **worker** mode) and `Caddyfile.dev` (development, **no worker**). The image entrypoint copies `Caddyfile.dev` over the active file when `APP_ENV=dev`.
+- **Caddyfiles**: `docker/frankenphp/Caddyfile` (**worker** mode) and `Caddyfile.dev` (**classic** / no worker). The entrypoint selects which file is active via **`FRANKENPHP_MODE`** (`worker` by default; set `classic` for per-request PHP / easier hot-reload). Independent of `APP_ENV`.
 - **Developer UX** (with `APP_ENV=dev`, `APP_DEBUG=1`, Composer **dev** dependencies installed): **Symfony Web Debug Toolbar** + **Web Profiler** (`config/packages/web_profiler.yaml`, routes in `config/routes/web_profiler.yaml`), **`symfony/asset` + `symfony/stopwatch`** (in the demo `composer.json` so Twig can use `asset()` and the profiler can time requests), **`assets:install`** in the `Makefile` / Docker entrypoint for `public/bundles/`, and **`config/packages/dev/framework.yaml`** (`profiler.collect: true`). **[nowo-tech/twig-inspector-bundle](https://github.com/nowo-tech/TwigInspectorBundle)** (profiler panel + `/_template/…` route in `config/routes.yaml`). Twig Inspector: cookie / **Ctrl+Shift+T** by default; see `config/packages/dev/nowo_twig_inspector.yaml`.
 
 Default HTTP **PORT** (host) is **8021** (see `demo/symfony8/.env.example`).
@@ -79,11 +80,22 @@ make -C demo release-check
 
 | Aspect | Development (`APP_ENV=dev`) | Production (`APP_ENV=prod`) |
 |--------|---------------------------|------------------------------|
-| FrankenPHP | Classic `php_server` (see `Caddyfile.dev`) | `php_server { worker /app/public/index.php 2 }` |
-| Twig | `config/packages/dev/twig.yaml` sets `cache: false` | Default caching |
+| Symfony / Twig | Toolbar, profiler, `twig.cache: false` | Default caching |
 | OPcache | `docker/php-dev.ini` → `opcache.revalidate_freq=0` | Image defaults |
+| FrankenPHP | Controlled by **`FRANKENPHP_MODE`** (see below), not by `APP_ENV` | Same |
 
-**FrankenPHP worker mode:** the bundle is exercised in production-style demos with workers enabled in `Caddyfile`. Use `APP_ENV=prod` (and rebuild/restart the container with the prod Caddyfile) to validate worker behaviour end-to-end.
+Compose demos run with `APP_ENV=dev` and default **`FRANKENPHP_MODE=worker`** so the worker Caddyfile is exercised even while Symfony stays in debug mode. Set `FRANKENPHP_MODE=classic` for hot-reload-friendly classic PHP.
+
+## Switching classic vs worker (`FRANKENPHP_MODE`)
+
+Demos select the FrankenPHP runtime via **`FRANKENPHP_MODE`** in `.env` / `.env.example` (not a Dockerfile `ENV`):
+
+| Value | Behaviour |
+| --- | --- |
+| **`worker`** (default) | Keep the worker Caddyfile (`php_server { worker ... }`) |
+| **`classic`** | Entrypoint copies `Caddyfile.dev` (plain `php_server`, hot-reload friendly) |
+
+Compose passes `FRANKENPHP_MODE=${FRANKENPHP_MODE:-worker}` into the PHP service. After changing `.env`, run `docker compose up -d` (or `make up`) so the container is **recreated** — a plain `restart` does not reload env. No image rebuild is required.
 
 ## Troubleshooting
 

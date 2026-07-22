@@ -2,6 +2,17 @@
 
 This document describes breaking changes and upgrade notes between versions. Sections are ordered from newest to oldest.
 
+## From 2.0.2 to 2.0.3
+
+No intentional breaking changes to the bundle API, routes, schema, or runtime dependencies. Patch release focused on the Symfony 8 FrankenPHP demo.
+
+- Local demo: FrankenPHP mode is no longer implied by `APP_ENV=dev`. Set **`FRANKENPHP_MODE=classic`** or **`worker`** in `demo/symfony8/.env` (default `worker`), then recreate the container (`docker compose up -d` / `make up`). See [DEMO-FRANKENPHP.md](DEMO-FRANKENPHP.md).
+- Application integrations are unaffected.
+
+```bash
+composer update nowo-tech/breadcrumb-kit-bundle:^2.0
+```
+
 ## From 2.0.1 to 2.0.2
 
 No intentional breaking changes to the bundle API, routes, schema, or runtime dependencies. Patch release focused on demos, docs, and maintainer tooling.

@@ -32,4 +32,4 @@ Default **PORT** is `8021` (see `.env.example`).
 
 ## Documentation
 
-- FrankenPHP setup (dev vs production worker): [../../docs/DEMO-FRANKENPHP.md](../../docs/DEMO-FRANKENPHP.md)
+- FrankenPHP setup (`FRANKENPHP_MODE` classic vs worker): [../../docs/DEMO-FRANKENPHP.md](../../docs/DEMO-FRANKENPHP.md)

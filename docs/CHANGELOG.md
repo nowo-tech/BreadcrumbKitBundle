@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.0.3] - 2026-07-22
+
+### Changed
+
+- **Demo (`demo/symfony8`):** FrankenPHP classic vs worker is selected with **`FRANKENPHP_MODE`** (`.env` / Compose; default `worker`), independent of `APP_ENV`. Entrypoint extracted to `docker/entrypoint.sh`.
+
+### Documentation
+
+- [DEMO-FRANKENPHP.md](DEMO-FRANKENPHP.md): document `FRANKENPHP_MODE` and align overview / dev-vs-prod with the entrypoint.
+- [UPGRADING.md](UPGRADING.md): 2.0.2 → 2.0.3 (no API or schema changes).
+
 ## [2.0.2] - 2026-07-16
 
 ### Changed
