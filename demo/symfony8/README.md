@@ -1,6 +1,6 @@
 # Breadcrumb Kit Bundle — Symfony 8 demo
 
-FrankenPHP + MySQL demo running **Symfony 8.1** on **PHP 8.4**. The parent bundle is mounted at `/var/breadcrumb-kit-bundle` (path repository).
+FrankenPHP + MySQL demo running **Symfony 8.1** on **PHP 8.5**. The parent bundle is mounted at `/var/breadcrumb-kit-bundle` (path repository).
 
 The demo **web UI** follows the same Bootstrap 5 shell as [DashboardMenuBundle](https://github.com/nowo-tech/DashboardMenuBundle) demos (navbar, sidebar, main, aside, footer).
 

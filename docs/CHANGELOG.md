@@ -7,6 +7,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.0.5] - 2026-07-23
+
+### Changed
+
+- **Demo (`demo/symfony8`):** FrankenPHP base image **PHP 8.5** (`dunglas/frankenphp:1-php8.5-alpine`); `.env.example` / `.env.test` commented per variable; demo `.gitignore` grouped by category (REQ-DEMO-003 / REQ-ENV-001 / REQ-DEMO-010).
+
+### Added
+
+- **REQ-DOCS-017:** `docs/images/frankenphp-friendly.png` + README FrankenPHP worker-friendly banner (after REQ-CS-005).
+
+### Documentation
+
+- [DEMO-FRANKENPHP.md](DEMO-FRANKENPHP.md): troubleshooting in English (REQ-DOCS-016); PHP 8.5 policy note.
+- [CONTRIBUTING.md](CONTRIBUTING.md): note that PHPStan includes `nowo-tech/phpstan-frankenphp` (require-dev).
+- [UPGRADING.md](UPGRADING.md): 2.0.4 → 2.0.5 (no API or schema changes).
+
 ## [2.0.4] - 2026-07-23
 
 ### Changed

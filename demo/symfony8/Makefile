@@ -5,7 +5,7 @@ SERVICE_PHP ?= php
 .PHONY: help build up down restart shell install ensure-up update-bundle verify cache-clear demo-started-msg test test-coverage
 
 help:
-	@echo "Breadcrumb Kit — Symfony 8 demo (Symfony 8.1, FrankenPHP, PHP 8.4)"
+	@echo "Breadcrumb Kit — Symfony 8 demo (Symfony 8.1, FrankenPHP, PHP 8.5)"
 	@echo "  up, down, restart, build, shell, install, ensure-up, update-bundle, verify, test, test-coverage"
 
 build:

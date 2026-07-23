@@ -20,6 +20,8 @@ composer phpstan
 composer test
 ```
 
+`composer phpstan` includes **`nowo-tech/phpstan-frankenphp`** rulesets (classic + worker) via `phpstan.neon.dist` (require-dev only; not a runtime dependency for applications).
+
 With Docker and the root `Makefile`:
 
 ```bash

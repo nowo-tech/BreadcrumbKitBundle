@@ -1,5 +1,5 @@
-# FrankenPHP demo (Symfony 8.1 — PHP 8.4)
-FROM dunglas/frankenphp:1-php8.4-alpine
+# FrankenPHP + latest PHP available for Symfony 8 (REQ-DEMO-010)
+FROM dunglas/frankenphp:1-php8.5-alpine
 
 RUN apk add --no-cache git unzip bash curl ca-certificates icu-dev libzip-dev
 RUN install-php-extensions zip pdo_mysql intl

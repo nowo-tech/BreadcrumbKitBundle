@@ -2,6 +2,17 @@
 
 This document describes breaking changes and upgrade notes between versions. Sections are ordered from newest to oldest.
 
+## From 2.0.4 to 2.0.5
+
+No intentional breaking changes to the bundle API, routes, schema, or runtime dependencies. Patch release focused on org compliance (demo env docs, English Markdown, FrankenPHP banner) and the Symfony 8 demo PHP image.
+
+- Local demo: rebuild/recreate after pulling (`make -C demo/symfony8 up`) to pick up **PHP 8.5** FrankenPHP. Refresh `.env` from `.env.example` if you still lack per-variable comments or `FRANKENPHP_MODE`.
+- Application integrations are unaffected.
+
+```bash
+composer update nowo-tech/breadcrumb-kit-bundle:^2.0
+```
+
 ## From 2.0.3 to 2.0.4
 
 No intentional breaking changes to the bundle API, routes, schema, or runtime dependencies. Patch release focused on PHPStan level 8 cleanliness and maintainer tooling.
@@ -12,7 +23,6 @@ No intentional breaking changes to the bundle API, routes, schema, or runtime de
 ```bash
 composer update nowo-tech/breadcrumb-kit-bundle:^2.0
 ```
-
 ## From 2.0.2 to 2.0.3
 
 No intentional breaking changes to the bundle API, routes, schema, or runtime dependencies. Patch release focused on the Symfony 8 FrankenPHP demo.

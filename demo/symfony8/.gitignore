@@ -1,34 +1,29 @@
-# Local environment (do not version secrets)
+# Local environment (do not version secrets / machine-specific overrides)
 /.env
-/.env.local
-/.env.*.local
 /.env.dev
+/.env.local
+/.env.local.php
+/.env.*.local
 
 # Dependencies
 /vendor/
 
-# Symfony
+# Caches, logs, and runtime
 /var/
 /.phpunit.cache/
-/public/bundles/
+*.log
 
-# Demo MySQL data
+# Symfony public assets and secrets
+/public/bundles/
+/config/secrets/
+
+# Demo MySQL data (Docker volume bind)
 /.data/
 
-# Archives / compressed
+# Archives / compressed (REQ-GITIGNORE-001)
 *.zip
 *.tar
 *.tar.gz
 *.tgz
 *.rar
 *.7z
-
-###> symfony/framework-bundle ###
-/.env.local
-/.env.local.php
-/.env.*.local
-/config/secrets/prod/prod.decrypt.private.php
-/public/bundles/
-/var/
-/vendor/
-###< symfony/framework-bundle ###

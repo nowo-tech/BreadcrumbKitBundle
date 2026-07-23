@@ -4,9 +4,9 @@ This bundle ships a FrankenPHP demo aligned with [DashboardMenuBundle](https://g
 
 | Demo | Symfony | PHP | Default port |
 |------|---------|-----|--------------|
-| `demo/symfony8/` | **8.1** | **8.4** | **8021** |
+| `demo/symfony8/` | **8.1** | **8.5** | **8021** |
 
-Use it to validate compatibility with the current Symfony 8 maintenance line.
+Use it to validate compatibility with the current Symfony 8 maintenance line. The FrankenPHP image uses the **newest PHP minor** available for Symfony 8 demos (REQ-DEMO-010): currently **PHP 8.5**.
 
 ## Contents
 
@@ -99,8 +99,8 @@ Compose passes `FRANKENPHP_MODE=${FRANKENPHP_MODE:-worker}` into the PHP service
 
 ## Troubleshooting
 
-- **Breadcrumb vacío tras cambiar fixtures o rutas**: el loader puede cachear la lista de ítems por colección (`nowo_breadcrumb_kit.cache.pool`). En la demo, `config/packages/dev/nowo_breadcrumb_kit.yaml` desactiva ese pool en `dev`. Si usas otro entorno o pool, ejecuta `php bin/console cache:clear` (o `make cache-clear`) tras `doctrine:fixtures:load`.
-- **No aparece la Web Debug Toolbar**: comprueba `APP_ENV=dev`, `APP_DEBUG=1` (en Docker Compose van fijados) y que instalaste dependencias **con dev** (`composer install` sin `--no-dev`). Ejecuta `php bin/console assets:install public` para publicar `public/bundles/webprofiler`. Un `.env` local con `APP_ENV=prod` **no** debe pisar las variables del servicio `php` en Compose; si ejecutas Symfony fuera de Docker, alinea `APP_DEBUG=1` en tu `.env`.
+- **Empty breadcrumb after changing fixtures or routes**: the loader may cache the item list per collection (`nowo_breadcrumb_kit.cache.pool`). In the demo, `config/packages/dev/nowo_breadcrumb_kit.yaml` disables that pool in `dev`. If you use another environment or pool, run `php bin/console cache:clear` (or `make cache-clear`) after `doctrine:fixtures:load`.
+- **Web Debug Toolbar missing**: check `APP_ENV=dev`, `APP_DEBUG=1` (Compose sets both) and that dependencies were installed **with dev** (`composer install` without `--no-dev`). Run `php bin/console assets:install public` to publish `public/bundles/webprofiler`. A local `.env` with `APP_ENV=prod` must **not** override the `php` service env in Compose; if you run Symfony outside Docker, set `APP_DEBUG=1` in your `.env`.
 - **Composer / path bundle**: ensure the repository root is mounted at `/var/breadcrumb-kit-bundle` (see `docker-compose.yml` volumes). Run `make update-bundle` after editing bundle code.
 - **Database**: if schema is out of date, from the demo directory run `make down`, remove `.data/mysql` if you need a clean MySQL volume, then `make up` again.
 - **Port in use**: change `PORT` in `.env` and ensure `DEFAULT_URI` matches (used by Symfony routing defaults).
