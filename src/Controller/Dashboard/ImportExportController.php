@@ -102,8 +102,9 @@ final class ImportExportController extends AbstractController
 
                         return $this->redirectToRefererOr($request, $this->dashboardRoutes()['collections_index']);
                     }
-                    $strategy = isset($data['strategy']) && \is_string($data['strategy'])
-                        ? $data['strategy']
+                    $rawStrategy = $data['strategy'] ?? BreadcrumbImporter::STRATEGY_SKIP_EXISTING;
+                    $strategy = \in_array($rawStrategy, [BreadcrumbImporter::STRATEGY_REPLACE, BreadcrumbImporter::STRATEGY_SKIP_EXISTING], true)
+                        ? $rawStrategy
                         : BreadcrumbImporter::STRATEGY_SKIP_EXISTING;
                     $result = $this->breadcrumbImporter->import($decoded, $strategy);
                     foreach ($result['errors'] as $err) {

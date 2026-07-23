@@ -11,6 +11,8 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 
 /**
  * GET search form: query param {@code q} at the root (empty block prefix).
+ *
+ * @extends AbstractType<array{q?: string|null}>
  */
 final class DashboardGetSearchType extends AbstractType
 {

@@ -25,7 +25,8 @@ final class JsonStringListTransformerTest extends TestCase
 
     public function testTransformFiltersNonStringsAndEncodesList(): void
     {
-        $json = $this->transformer->transform(['id', '', 5, 'slug']);
+        $dirty = ['id', '', 5, 'slug'];
+        $json = $this->transformer->transform($dirty);
 
         self::assertStringContainsString('"id"', $json);
         self::assertStringContainsString('"slug"', $json);
@@ -40,7 +41,8 @@ final class JsonStringListTransformerTest extends TestCase
 
     public function testReverseTransformReturnsNullForNonString(): void
     {
-        self::assertNull($this->transformer->reverseTransform(['id']));
+        $nonString = ['id'];
+        self::assertNull($this->transformer->reverseTransform($nonString));
     }
 
     public function testReverseTransformDecodesStringList(): void

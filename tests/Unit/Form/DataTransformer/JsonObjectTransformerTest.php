@@ -39,7 +39,8 @@ final class JsonObjectTransformerTest extends TestCase
 
     public function testReverseTransformReturnsEmptyArrayForNonString(): void
     {
-        self::assertSame([], $this->transformer->reverseTransform(123));
+        $nonString = 123;
+        self::assertSame([], $this->transformer->reverseTransform($nonString));
     }
 
     public function testReverseTransformDecodesValidJsonObject(): void

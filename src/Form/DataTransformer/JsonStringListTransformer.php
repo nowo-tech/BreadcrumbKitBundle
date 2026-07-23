@@ -10,10 +10,13 @@ use Symfony\Component\Form\Exception\TransformationFailedException;
 /**
  * Textarea ↔ list<string> (dynamic route param keys), JSON array e.g. ["id","slug"].
  *
- * @implements DataTransformerInterface<string, list<string>|null>
+ * @implements DataTransformerInterface<array<int|string, mixed>|null, string>
  */
 final class JsonStringListTransformer implements DataTransformerInterface
 {
+    /**
+     * @param mixed $value Model data from the form (list of strings in normal use)
+     */
     public function transform(mixed $value): string
     {
         if (!\is_array($value) || [] === $value) {
@@ -34,6 +37,11 @@ final class JsonStringListTransformer implements DataTransformerInterface
         }
     }
 
+    /**
+     * @param mixed $value View data from the textarea
+     *
+     * @return list<string>|null
+     */
     public function reverseTransform(mixed $value): ?array
     {
         if (!\is_string($value)) {

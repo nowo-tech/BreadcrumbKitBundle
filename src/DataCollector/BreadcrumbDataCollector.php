@@ -17,11 +17,9 @@ final class BreadcrumbDataCollector extends DataCollector implements TemplateAwa
 {
     public function collect(Request $request, Response $response, ?\Throwable $exception = null): void
     {
+        $rawTrails = $request->attributes->get(BreadcrumbProfilerRecorder::REQUEST_ATTRIBUTE, []);
         /** @var list<array<string, mixed>> $trails */
-        $trails = $request->attributes->get(BreadcrumbProfilerRecorder::REQUEST_ATTRIBUTE, []);
-        if (!\is_array($trails)) {
-            $trails = [];
-        }
+        $trails = \is_array($rawTrails) ? array_values($rawTrails) : [];
 
         $this->data = [
             'trails' => $trails,

@@ -25,7 +25,7 @@ final class BreadcrumbInlineEditAccessLocatorPass implements CompilerPassInterfa
 
         $refs = [];
         foreach ($map as $logicalKey => $serviceId) {
-            if (!\is_string($logicalKey) || '' === $logicalKey || !\is_string($serviceId) || '' === $serviceId) {
+            if ('' === $logicalKey || '' === $serviceId) {
                 continue;
             }
             $refs[$logicalKey] = new Reference($serviceId);

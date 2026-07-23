@@ -10,7 +10,6 @@ use Nowo\BreadcrumbKitBundle\DependencyInjection\Compiler\TwigPathsPass;
 use Nowo\BreadcrumbKitBundle\NowoBreadcrumbKitBundle;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
-use Symfony\Component\DependencyInjection\Extension\ExtensionInterface;
 
 final class NowoBreadcrumbKitBundleTest extends TestCase
 {
@@ -54,12 +53,13 @@ final class NowoBreadcrumbKitBundleTest extends TestCase
         $extension = $bundle->getContainerExtension();
 
         self::assertInstanceOf(BreadcrumbKitExtension::class, $extension);
-        self::assertInstanceOf(ExtensionInterface::class, $extension);
         self::assertSame($extension, $bundle->getContainerExtension());
     }
 
     public function testTranslationDomainConstant(): void
     {
-        self::assertSame('NowoBreadcrumbKitBundle', NowoBreadcrumbKitBundle::TRANSLATION_DOMAIN);
+        $value = (new \ReflectionClassConstant(NowoBreadcrumbKitBundle::class, 'TRANSLATION_DOMAIN'))->getValue();
+
+        self::assertSame('NowoBreadcrumbKitBundle', $value);
     }
 }

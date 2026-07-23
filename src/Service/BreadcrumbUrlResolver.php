@@ -7,6 +7,7 @@ namespace Nowo\BreadcrumbKitBundle\Service;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
+use Symfony\Component\Routing\Route;
 use Symfony\Component\Routing\RouterInterface;
 
 /**
@@ -42,7 +43,7 @@ final readonly class BreadcrumbUrlResolver implements BreadcrumbUrlResolverInter
 
         try {
             $route = $this->router->getRouteCollection()->get($routeName);
-            if ($route instanceof \Symfony\Component\Routing\Route && $request instanceof Request) {
+            if ($route instanceof Route && $request instanceof Request) {
                 $compiled = $route->compile();
                 $pathVars = $compiled->getPathVariables();
                 $routeNeedsLocale = \in_array('_locale', $pathVars, true);

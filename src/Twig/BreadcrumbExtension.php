@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Nowo\BreadcrumbKitBundle\Twig;
 
+use Nowo\BreadcrumbKitBundle\Dto\BreadcrumbNode;
 use Nowo\BreadcrumbKitBundle\Service\BreadcrumbInlineEditResolver;
 use Nowo\BreadcrumbKitBundle\Service\BreadcrumbLoader;
 use Twig\Environment;
@@ -28,7 +29,7 @@ final class BreadcrumbExtension extends AbstractExtension
     }
 
     /**
-     * @return list<\Nowo\BreadcrumbKitBundle\Dto\BreadcrumbNode>
+     * @return list<BreadcrumbNode>
      */
     public function trail(?string $collectionCode = null, string $contextKey = ''): array
     {

@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Nowo\BreadcrumbKitBundle\Tests\Unit\Service;
 
 use Nowo\BreadcrumbKitBundle\Contract\BreadcrumbInlineEditAccessCheckerInterface;
-use Nowo\BreadcrumbKitBundle\Dto\BreadcrumbInlineEditContext;
 use Nowo\BreadcrumbKitBundle\Entity\BreadcrumbCollection;
 use Nowo\BreadcrumbKitBundle\Entity\BreadcrumbItem;
 use Nowo\BreadcrumbKitBundle\Repository\BreadcrumbCollectionRepository;
@@ -279,7 +278,6 @@ final class BreadcrumbInlineEditResolverTest extends TestCase
             locator: $locator,
         );
 
-        self::assertInstanceOf(BreadcrumbInlineEditContext::class, $resolver->resolve('default'));
         self::assertFalse($resolver->resolve('default')->show);
     }
 

@@ -57,9 +57,9 @@ final class BreadcrumbProfilerRecorderTest extends TestCase
 
     public function testRecordDoesNothingWithoutCurrentRequest(): void
     {
+        $this->expectNotToPerformAssertions();
+
         $recorder = new BreadcrumbProfilerRecorder(new RequestStack(), debug: true);
         $recorder->record('default', '', new BreadcrumbTrailView([]), 'no_http_request');
-
-        self::assertTrue(true);
     }
 }

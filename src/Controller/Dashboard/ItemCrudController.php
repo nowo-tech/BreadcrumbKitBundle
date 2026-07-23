@@ -245,7 +245,7 @@ final class ItemCrudController extends AbstractController
         if (\is_array($tr)) {
             $clean = [];
             foreach ($tr as $k => $v) {
-                if (\is_string($k) && \is_string($v) && '' !== $v) {
+                if ('' !== $v) {
                     $clean[$k] = $v;
                 }
             }

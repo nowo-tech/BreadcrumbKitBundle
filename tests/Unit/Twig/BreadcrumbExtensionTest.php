@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Nowo\BreadcrumbKitBundle\Tests\Unit\Twig;
 
+use Nowo\BreadcrumbKitBundle\Contract\BreadcrumbInlineEditAccessCheckerInterface;
 use Nowo\BreadcrumbKitBundle\Entity\BreadcrumbCollection;
 use Nowo\BreadcrumbKitBundle\Entity\BreadcrumbItem;
 use Nowo\BreadcrumbKitBundle\Repository\BreadcrumbCollectionRepository;
@@ -17,6 +18,7 @@ use Psr\Container\ContainerInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
+use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use Twig\Environment;
 use Twig\Loader\ArrayLoader;
@@ -120,8 +122,8 @@ final class BreadcrumbExtensionTest extends TestCase
         );
 
         $collection->setInlineEditAccessKey('admin');
-        $checker = new class implements \Nowo\BreadcrumbKitBundle\Contract\BreadcrumbInlineEditAccessCheckerInterface {
-            public function canUseInlineBreadcrumbEditor(Request $request, ?\Symfony\Component\Security\Core\User\UserInterface $user): bool
+        $checker = new class implements BreadcrumbInlineEditAccessCheckerInterface {
+            public function canUseInlineBreadcrumbEditor(Request $request, ?UserInterface $user): bool
             {
                 return true;
             }

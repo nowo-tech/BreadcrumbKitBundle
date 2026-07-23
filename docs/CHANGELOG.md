@@ -7,6 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.0.4] - 2026-07-23
+
+### Changed
+
+- **Static analysis:** clear PHPStan level 8 findings (typing, form `@extends`, DataTransformer generics, redundant guards). Empty [`phpstan-baseline.neon`](../phpstan-baseline.neon) kept in the tree for future suppressions.
+- **Dev tooling:** require-dev [`nowo-tech/phpstan-frankenphp`](https://github.com/nowo-tech/PhpStanFrankenPhp) (`^1.0`); `phpstan.neon.dist` includes classic + worker rulesets. PHP CS Fixer enables `fully_qualified_strict_types.import_symbols`.
+- **`composer.lock` / demo lock:** dependency sync (incl. `nowo-tech/phpstan-frankenphp` v1.0.1). No runtime `require` changes.
+
+### Documentation
+
+- [UPGRADING.md](UPGRADING.md): 2.0.3 → 2.0.4 (no API or schema changes).
+
 ## [2.0.3] - 2026-07-22
 
 ### Changed

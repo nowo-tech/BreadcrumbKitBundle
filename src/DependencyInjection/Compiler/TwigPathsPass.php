@@ -29,10 +29,13 @@ final class TwigPathsPass implements CompilerPassInterface
         $definition = $container->getDefinition($loaderId);
 
         if ($container->hasParameter('kernel.project_dir')) {
-            $projectDir = rtrim((string) $container->getParameter('kernel.project_dir'), '/\\');
-            $overridePath = $projectDir.'/templates/bundles/NowoBreadcrumbKitBundle';
-            if (is_dir($overridePath)) {
-                $definition->addMethodCall('prependPath', [$overridePath, self::TWIG_NAMESPACE]);
+            $rawProjectDir = $container->getParameter('kernel.project_dir');
+            if (\is_string($rawProjectDir)) {
+                $projectDir = rtrim($rawProjectDir, '/\\');
+                $overridePath = $projectDir.'/templates/bundles/NowoBreadcrumbKitBundle';
+                if (is_dir($overridePath)) {
+                    $definition->addMethodCall('prependPath', [$overridePath, self::TWIG_NAMESPACE]);
+                }
             }
         }
 

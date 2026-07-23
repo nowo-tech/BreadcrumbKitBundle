@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Nowo\BreadcrumbKitBundle\Tests\Integration\DependencyInjection;
 
 use Nowo\BreadcrumbKitBundle\DependencyInjection\BreadcrumbKitExtension;
+use Nowo\BreadcrumbKitBundle\EventSubscriber\TablePrefixSubscriber;
 use Nowo\BreadcrumbKitBundle\Service\BreadcrumbInlineEditResolver;
 use Nowo\BreadcrumbKitBundle\Service\BreadcrumbLoader;
 use PHPUnit\Framework\TestCase;
@@ -30,7 +31,7 @@ final class BreadcrumbKitExtensionTest extends TestCase
         self::assertTrue($container->hasDefinition(BreadcrumbLoader::class));
         self::assertTrue($container->hasDefinition(BreadcrumbInlineEditResolver::class));
         self::assertTrue($container->hasDefinition('nowo_breadcrumb_kit.inline_edit.access_checker_locator'));
-        self::assertTrue($container->hasDefinition(\Nowo\BreadcrumbKitBundle\EventSubscriber\TablePrefixSubscriber::class));
+        self::assertTrue($container->hasDefinition(TablePrefixSubscriber::class));
         self::assertSame('', $container->getParameter('nowo_breadcrumb_kit.table_prefix'));
     }
 

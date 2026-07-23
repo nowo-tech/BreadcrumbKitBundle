@@ -5,13 +5,16 @@ declare(strict_types=1);
 namespace Nowo\BreadcrumbKitBundle\Form\Dashboard;
 
 use Nowo\BreadcrumbKitBundle\NowoBreadcrumbKitBundle;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
 /**
- * Empty POST form: CSRF only. Built with {@see \Symfony\Bundle\FrameworkBundle\Controller\AbstractController::createNamedBuilder()}
+ * Empty POST form: CSRF only. Built with {@see AbstractController::createNamedBuilder()}
  * so each row has a unique name and {@code csrf_token_id}.
+ *
+ * @extends AbstractType<null>
  */
 final class DashboardPostDeleteType extends AbstractType
 {

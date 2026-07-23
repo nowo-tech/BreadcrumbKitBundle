@@ -58,11 +58,9 @@ final readonly class BreadcrumbProfilerRecorder
             'separatorIcon' => $view->separatorIcon,
         ];
 
+        $rawLog = $request->attributes->get(self::REQUEST_ATTRIBUTE, []);
         /** @var list<array<string, mixed>> $log */
-        $log = $request->attributes->get(self::REQUEST_ATTRIBUTE, []);
-        if (!\is_array($log)) {
-            $log = [];
-        }
+        $log = \is_array($rawLog) ? array_values($rawLog) : [];
         $log[] = $snapshot;
         $request->attributes->set(self::REQUEST_ATTRIBUTE, $log);
     }

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Nowo\BreadcrumbKitBundle\Tests\Unit;
 
 use Doctrine\ORM\EntityManagerInterface;
+use Nowo\BreadcrumbKitBundle\Contract\BreadcrumbInlineEditAccessCheckerInterface;
 use Nowo\BreadcrumbKitBundle\DataCollector\BreadcrumbDataCollector;
 use Nowo\BreadcrumbKitBundle\DependencyInjection\BreadcrumbKitExtension;
 use Nowo\BreadcrumbKitBundle\DependencyInjection\Compiler\TwigPathsPass;
@@ -24,6 +25,7 @@ use Nowo\BreadcrumbKitBundle\Service\BreadcrumbUrlResolverInterface;
 use PHPUnit\Framework\TestCase;
 use Psr\Cache\CacheItemInterface;
 use Psr\Cache\CacheItemPoolInterface;
+use Psr\Container\ContainerInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Definition;
 use Symfony\Component\DependencyInjection\Reference;
@@ -36,6 +38,8 @@ use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Routing\Route;
 use Symfony\Component\Routing\RouteCollection;
 use Symfony\Component\Routing\RouterInterface;
+use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
+use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 final class CoverageCompletionTest extends TestCase
@@ -119,7 +123,8 @@ final class CoverageCompletionTest extends TestCase
 
     public function testJsonObjectTransformerReturnsEmptyStringWhenJsonEncodeFails(): void
     {
-        self::assertSame('', (new JsonObjectTransformer())->transform(['bad' => "\xB1\x31"]));
+        $bad = ['bad' => "\xB1\x31"];
+        self::assertSame('', (new JsonObjectTransformer())->transform($bad));
     }
 
     public function testJsonStringListTransformerRejectsScalarJson(): void
@@ -132,7 +137,8 @@ final class CoverageCompletionTest extends TestCase
 
     public function testJsonStringListTransformerReturnsEmptyStringWhenJsonEncodeFails(): void
     {
-        self::assertSame('', (new JsonStringListTransformer())->transform(["\xB1\x31"]));
+        $bad = ["\xB1\x31"];
+        self::assertSame('', (new JsonStringListTransformer())->transform($bad));
     }
 
     public function testExtensionLoadUsesEmptyLayoutFallbackAndCachePool(): void
@@ -299,7 +305,8 @@ final class CoverageCompletionTest extends TestCase
         $collection = $this->collectionWithId(1);
         $item = $this->itemWithId(1, $collection, null, 'search', 'Search');
         $item->setLinkEnabled(true);
-        $item->setDynamicParamKeys(['q', 5, '']);
+        // Dirty DB/JSON-like payload: castDynamicKeys keeps only strings.
+        (new \ReflectionProperty($item, 'dynamicParamKeys'))->setValue($item, ['q', 5, '']);
 
         $colRepo = $this->createMock(BreadcrumbCollectionRepository::class);
         $colRepo->method('findOneByCodeAndContextKey')->willReturn($collection);
@@ -392,14 +399,14 @@ final class CoverageCompletionTest extends TestCase
         $collection->setCode('default');
         $collection->setInlineEditAccessKey('admin');
 
-        $checker = new class implements \Nowo\BreadcrumbKitBundle\Contract\BreadcrumbInlineEditAccessCheckerInterface {
-            public function canUseInlineBreadcrumbEditor(Request $request, ?\Symfony\Component\Security\Core\User\UserInterface $user): bool
+        $checker = new class implements BreadcrumbInlineEditAccessCheckerInterface {
+            public function canUseInlineBreadcrumbEditor(Request $request, ?UserInterface $user): bool
             {
                 return true;
             }
         };
 
-        $locator = new class($checker) implements \Psr\Container\ContainerInterface {
+        $locator = new class($checker) implements ContainerInterface {
             public function __construct(private readonly object $checker)
             {
             }
@@ -449,14 +456,14 @@ final class CoverageCompletionTest extends TestCase
         $collection = $this->collectionWithId(1);
         $collection->setInlineEditAccessKey('admin');
 
-        $checker = new class implements \Nowo\BreadcrumbKitBundle\Contract\BreadcrumbInlineEditAccessCheckerInterface {
-            public function canUseInlineBreadcrumbEditor(Request $request, ?\Symfony\Component\Security\Core\User\UserInterface $user): bool
+        $checker = new class implements BreadcrumbInlineEditAccessCheckerInterface {
+            public function canUseInlineBreadcrumbEditor(Request $request, ?UserInterface $user): bool
             {
-                return $user instanceof \Symfony\Component\Security\Core\User\UserInterface;
+                return $user instanceof UserInterface;
             }
         };
 
-        $locator = new class($checker) implements \Psr\Container\ContainerInterface {
+        $locator = new class($checker) implements ContainerInterface {
             public function __construct(private readonly object $checker)
             {
             }
@@ -510,7 +517,7 @@ final class CoverageCompletionTest extends TestCase
         $stack2 = new RequestStack();
         $stack2->push($request2);
 
-        $tokenStorage = $this->createMock(\Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface::class);
+        $tokenStorage = $this->createMock(TokenStorageInterface::class);
         $tokenStorage->method('getToken')->willReturn(null);
 
         $resolver2 = new BreadcrumbInlineEditResolver(

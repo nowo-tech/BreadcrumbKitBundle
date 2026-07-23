@@ -2,6 +2,17 @@
 
 This document describes breaking changes and upgrade notes between versions. Sections are ordered from newest to oldest.
 
+## From 2.0.3 to 2.0.4
+
+No intentional breaking changes to the bundle API, routes, schema, or runtime dependencies. Patch release focused on PHPStan level 8 cleanliness and maintainer tooling.
+
+- Contributors: `composer update` pulls require-dev `nowo-tech/phpstan-frankenphp`; `make phpstan` / `composer phpstan` use the empty baseline + FrankenPHP rulesets.
+- Application integrations are unaffected.
+
+```bash
+composer update nowo-tech/breadcrumb-kit-bundle:^2.0
+```
+
 ## From 2.0.2 to 2.0.3
 
 No intentional breaking changes to the bundle API, routes, schema, or runtime dependencies. Patch release focused on the Symfony 8 FrankenPHP demo.

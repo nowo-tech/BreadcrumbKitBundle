@@ -105,7 +105,7 @@ final readonly class BreadcrumbImporter
             }
         }
 
-        return ['collections' => array_values($data)];
+        return ['collections' => $data];
     }
 
     /**
@@ -190,9 +190,6 @@ final readonly class BreadcrumbImporter
     private function persistItemTree(array $itemsData, BreadcrumbCollection $collection, ?BreadcrumbItem $parent): void
     {
         foreach ($itemsData as $row) {
-            if (!\is_array($row)) {
-                continue;
-            }
             $routeName = isset($row['routeName']) && \is_string($row['routeName']) ? trim($row['routeName']) : '';
             if ('' === $routeName) {
                 continue;

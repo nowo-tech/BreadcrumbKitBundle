@@ -10,10 +10,13 @@ use Symfony\Component\Form\Exception\TransformationFailedException;
 /**
  * Textarea ↔ array for JSON objects (static route params, translations, responsive config).
  *
- * @implements DataTransformerInterface<string, array<string, mixed>>
+ * @implements DataTransformerInterface<array<int|string, mixed>|null, string>
  */
 final class JsonObjectTransformer implements DataTransformerInterface
 {
+    /**
+     * @param mixed $value Model data from the form (array|null in normal use)
+     */
     public function transform(mixed $value): string
     {
         if (!\is_array($value) || [] === $value) {
@@ -27,6 +30,11 @@ final class JsonObjectTransformer implements DataTransformerInterface
         }
     }
 
+    /**
+     * @param mixed $value View data from the textarea
+     *
+     * @return array<int|string, mixed>
+     */
     public function reverseTransform(mixed $value): array
     {
         if (!\is_string($value)) {
@@ -48,7 +56,6 @@ final class JsonObjectTransformer implements DataTransformerInterface
             throw new TransformationFailedException('Se esperaba un objeto JSON (asociativo).');
         }
 
-        /* @var array<string, mixed> $decoded */
         return $decoded;
     }
 }

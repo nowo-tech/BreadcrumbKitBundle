@@ -137,7 +137,7 @@ final readonly class BreadcrumbInlineEditResolver
             return false;
         }
 
-        $v = $request->query->get($param);
+        $v = $request->query->all()[$param] ?? null;
         if (\is_array($v)) {
             return false;
         }

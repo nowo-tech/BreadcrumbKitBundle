@@ -12,6 +12,9 @@ use Symfony\Component\HttpFoundation\Request;
  */
 trait DashboardRedirectTrait
 {
+    /**
+     * @param array<string, mixed> $routeParams
+     */
     private function redirectToRefererOr(Request $request, string $route, array $routeParams = []): RedirectResponse
     {
         $referer = $request->headers->get('Referer');
