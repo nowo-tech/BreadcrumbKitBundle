@@ -954,6 +954,8 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *         enabled?: bool|Param, // Registers CRUD controllers and forms; import bundle routing with path_prefix (see docs). // Default: false
  *         path_prefix?: scalar|Param|null, // URL prefix for dashboard routes (leading slash, no trailing slash). Use the same value when importing routing in your app. // Default: "/breadcrumb-kit-admin"
  *         layout_template?: scalar|Param|null, // Twig layout extended by dashboard pages (override in app like DashboardMenuBundle). // Default: "@NowoBreadcrumbKitBundle/dashboard/layout.html.twig"
+ *         css_framework?: scalar|Param|null, // CSS stack for dashboard markup (REQ-UI-001): bootstrap/bootstrap5, bootstrap4, tailwind, foundation, custom, tabler, none. // Default: "bootstrap5"
+ *         icon_set?: scalar|Param|null, // Icon set for dashboard row actions (REQ-UI-001): bootstrap-icons, tabler-icons, ux_icon, svg_inline, none. // Default: "bootstrap-icons"
  *         import_max_bytes?: int|Param, // Max JSON upload size for dashboard import (default 2 MiB). // Default: 2097152
  *         pagination?: array{ // Pagination for the collections list in the dashboard.
  *             enabled?: bool|Param, // Default: true
@@ -965,6 +967,11 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *             import?: scalar|Param|null, // Default: "normal"
  *             delete?: scalar|Param|null, // Default: "normal"
  *         },
+ *     },
+ *     security?: array{ // Private dashboard access (REQ-UI-002). Defaults to ROLE_ADMIN; demos may set allow_unauthenticated.
+ *         access_checker?: scalar|Param|null, // Service id implementing BreadcrumbKitAccessCheckerInterface. null = built-in role checker. // Default: null
+ *         access_roles?: list<scalar|Param|null>,
+ *         allow_unauthenticated?: bool|Param, // DEV/DEMO only: allow dashboard without SecurityBundle / without login. Never true in production. // Default: false
  *     },
  *     inline_edit?: array{
  *         query_param?: scalar|Param|null, // Query parameter name; when present and truthy (1, true, yes, on), the default breadcrumb template may show an edit control if the collection enables a checker and the checker allows access. // Default: null

@@ -5,6 +5,7 @@ This document describes breaking changes and upgrade notes between versions. Sec
 
 ## Table of contents
 
+- [From 2.0.6 to 2.0.7](#from-206-to-207)
 - [From 2.0.5 to 2.0.6](#from-205-to-206)
 - [From 2.0.4 to 2.0.5](#from-204-to-205)
 - [From 2.0.3 to 2.0.4](#from-203-to-204)
@@ -19,6 +20,17 @@ This document describes breaking changes and upgrade notes between versions. Sec
 - [From pre-release / local copies to 1.0.0](#from-pre-release-local-copies-to-100)
 - [Doctrine schema](#doctrine-schema)
 - [General upgrade steps (any version)](#general-upgrade-steps-any-version)
+
+## From 2.0.6 to 2.0.7
+
+**Dashboard look-and-feel (REQ-UI-001):** `dashboard.css_framework` now drives Twig macros and CDN choice in the demo layout (`bootstrap5`, `bootstrap4`, `tailwind`, `foundation`, `custom` / `none`). Semantic classes live in `bundles/nowobreadcrumbkit/css/nowo-ui.css`. Re-run `assets:install` after upgrade. Host layouts should keep `stylesheets` / `javascripts` blocks so pages can call `{{ parent() }}`.
+
+No Doctrine schema or public PHP API renames. Default remains `bootstrap5`.
+
+```bash
+composer update nowo-tech/breadcrumb-kit-bundle:^2.0
+php bin/console assets:install
+```
 
 ## From 2.0.5 to 2.0.6
 

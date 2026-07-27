@@ -93,7 +93,23 @@ security:
 
 After changes from the UI, clear or wait out the PSR-6 item-list cache if enabled (`cache.pool`).
 
-The dashboard UI aligns visually with [DashboardMenuBundle](https://github.com/nowo-tech/DashboardMenuBundle): Bootstrap 5 list/table views, fetch-loaded modals (`?_partial=1`), search on collections and items, optional pagination on the collections index, and export/import JSON. Twig globals: `nowo_breadcrumb_kit_layout_template`, `nowo_breadcrumb_kit_css_framework`, `nowo_breadcrumb_kit_icon_set`.
+The dashboard UI aligns visually with [DashboardMenuBundle](https://github.com/nowo-tech/DashboardMenuBundle): list/table views, fetch-loaded modals (`?_partial=1`), search, optional pagination, export/import JSON. Twig globals: `nowo_breadcrumb_kit_layout_template`, `nowo_breadcrumb_kit_css_framework`, `nowo_breadcrumb_kit_icon_set`.
+
+### CSS framework (REQ-UI-001)
+
+Set `dashboard.css_framework` to switch look-and-feel **without forking page templates** (macros in `dashboard/_ui_macros.html.twig` + semantic `nowo-ui-*` classes in `public/css/nowo-ui.css`):
+
+| Value | Markup / CDN (demo layout) |
+| ----- | -------------------------- |
+| `bootstrap5` / `bootstrap` / `tabler` | Bootstrap 5 classes + CDN (default) |
+| `bootstrap4` | Bootstrap 4 classes + CDN |
+| `tailwind` | Tailwind utilities + CDN script |
+| `foundation` | Foundation classes + CDN |
+| `custom` / `none` | Semantic `nowo-ui-*` only (host CSS / `nowo-ui.css`) |
+
+When `layout_template` points at the **project layout**, the demo CDN is skipped; the host layout must expose `stylesheets` / `javascripts` blocks. Bundle pages call `{{ parent() }}` then add `nowo-ui.css` and `dashboard.js`. Override nested blocks `nowo_ui_styles` / `nowo_ui_scripts` if needed.
+
+Stable content block: `nowo_breadcrumb_kit_content` (also aliased as `nowo_ui_content` in the demo layout). Overridable Twig paths: `dashboard/*.html.twig`, `dashboard/collection/*`, `dashboard/item/*`, `breadcrumb.html.twig` (see [USAGE.md](USAGE.md) / REQ-TWIG-001).
 
 ### Twig helper
 
@@ -122,6 +138,8 @@ nowo_breadcrumb_kit:
         enabled: false
         path_prefix: /breadcrumb-kit-admin
         layout_template: '@NowoBreadcrumbKitBundle/dashboard/layout.html.twig'
+        css_framework: bootstrap5
+        icon_set: bootstrap-icons
         import_max_bytes: 2097152
         pagination:
             enabled: true

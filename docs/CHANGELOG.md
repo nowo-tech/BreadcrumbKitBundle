@@ -9,6 +9,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## Table of contents
 
 - [[Unreleased]](#unreleased)
+- [[2.0.7] - 2026-07-27](#207---2026-07-27)
+  - [Added](#added)
+  - [Documentation](#documentation)
 - [[2.0.6] - 2026-07-27](#206---2026-07-27)
   - [Added](#added)
   - [Changed](#changed)
@@ -50,6 +53,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - [Documentation](#documentation)
 
 ## [Unreleased]
+
+## [2.0.7] - 2026-07-27
+
+### Added
+
+- **REQ-UI-001:** dashboard `_ui_macros.html.twig` (bootstrap5 / bootstrap4 / tailwind / foundation / custom), semantic `nowo-ui-*` CSS (`public/css/nowo-ui.css`), demo layout CDN switching by `css_framework`, and dual-class markup on list/table/toolbar/modals.
+
+### Documentation
+
+- [CONFIGURATION.md](CONFIGURATION.md): CSS framework table, host `parent()` stacking, overridable Twig paths.
+- [UPGRADING.md](UPGRADING.md): 2.0.6 → 2.0.7 (`assets:install` after upgrade).
 
 ## [2.0.6] - 2026-07-27
 

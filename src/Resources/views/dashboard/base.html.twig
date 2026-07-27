@@ -1,5 +1,6 @@
 {% extends nowo_breadcrumb_kit_layout_template|default('@NowoBreadcrumbKitBundle/dashboard/layout.html.twig') %}
 {% trans_default_domain 'NowoBreadcrumbKitBundle' %}
+{% import '@NowoBreadcrumbKitBundle/dashboard/_ui_macros.html.twig' as ui %}
 
 {% set dashboard_routes = dashboard_routes|default({
     collections_index: 'nowo_breadcrumb_kit_dashboard_collections_index',
@@ -8,19 +9,39 @@
     export_all: 'nowo_breadcrumb_kit_dashboard_export_all',
 }) %}
 
+{# When the host sets layout_template to the project layout, stack assets via parent(). #}
+{% block stylesheets %}
+    {{ parent() }}
+    {% block nowo_ui_styles %}
+        <link href="{{ asset('bundles/nowobreadcrumbkit/css/nowo-ui.css') }}" rel="stylesheet">
+    {% endblock %}
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    {% block nowo_ui_scripts %}{% endblock %}
+    <script src="{{ asset('bundles/nowobreadcrumbkit/js/dashboard.js') }}" defer></script>
+{% endblock %}
+
 {% block nowo_breadcrumb_kit_content %}
     {% set modal_classes = modal_classes|default({}) %}
-    {% for msg in app.flashes('success') %}
-        <div class="alert alert-success">{{ msg }}</div>
-    {% endfor %}
-    {% for msg in app.flashes('danger') %}
-        <div class="alert alert-danger">{{ msg }}</div>
-    {% endfor %}
-    {% for msg in app.flashes('error') %}
-        <div class="alert alert-danger">{{ msg }}</div>
-    {% endfor %}
+    {% block nowo_ui_flashes %}
+        {% for msg in app.flashes('success') %}
+            <div class="{{ ui.flash('success') }}">{{ msg }}</div>
+        {% endfor %}
+        {% for msg in app.flashes('danger') %}
+            <div class="{{ ui.flash('danger') }}">{{ msg }}</div>
+        {% endfor %}
+        {% for msg in app.flashes('error') %}
+            <div class="{{ ui.flash('error') }}">{{ msg }}</div>
+        {% endfor %}
+    {% endblock %}
 
-    {% block body %}{% endblock %}
+    {% block nowo_ui_content %}
+        {% block body %}{% endblock %}
+    {% endblock %}
 
-    {% include '@NowoBreadcrumbKitBundle/dashboard/_dashboard_modals.html.twig' %}
+    {% block nowo_ui_modals %}
+        {% include '@NowoBreadcrumbKitBundle/dashboard/_dashboard_modals.html.twig' %}
+    {% endblock %}
 {% endblock %}
