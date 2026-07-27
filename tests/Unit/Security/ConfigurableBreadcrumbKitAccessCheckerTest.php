@@ -6,7 +6,6 @@ namespace Nowo\BreadcrumbKitBundle\Tests\Unit\Security;
 
 use Nowo\BreadcrumbKitBundle\Security\ConfigurableBreadcrumbKitAccessChecker;
 use PHPUnit\Framework\TestCase;
-use stdClass;
 use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 
 final class ConfigurableBreadcrumbKitAccessCheckerTest extends TestCase
@@ -18,7 +17,7 @@ final class ConfigurableBreadcrumbKitAccessCheckerTest extends TestCase
             [],
         );
 
-        self::assertTrue($checker->canAccess(new stdClass()));
+        self::assertTrue($checker->canAccess(new \stdClass()));
     }
 
     public function testAllowsAccessWhenUserHasConfiguredRole(): void
@@ -31,7 +30,7 @@ final class ConfigurableBreadcrumbKitAccessCheckerTest extends TestCase
 
         $checker = new ConfigurableBreadcrumbKitAccessChecker($authorization, ['ROLE_USER', 'ROLE_ADMIN']);
 
-        self::assertTrue($checker->canAccess(new stdClass()));
+        self::assertTrue($checker->canAccess(new \stdClass()));
     }
 
     public function testDeniesAccessWhenNoRoleMatches(): void
@@ -41,6 +40,6 @@ final class ConfigurableBreadcrumbKitAccessCheckerTest extends TestCase
 
         $checker = new ConfigurableBreadcrumbKitAccessChecker($authorization, ['ROLE_ADMIN']);
 
-        self::assertFalse($checker->canAccess(new stdClass()));
+        self::assertFalse($checker->canAccess(new \stdClass()));
     }
 }

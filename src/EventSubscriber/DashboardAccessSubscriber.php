@@ -11,8 +11,6 @@ use Symfony\Component\HttpKernel\KernelEvents;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 
-use function sprintf;
-
 /**
  * Enforces dashboard CRUD access via BreadcrumbKitAccessCheckerInterface (REQ-UI-002).
  */
@@ -36,17 +34,14 @@ final readonly class DashboardAccessSubscriber implements EventSubscriberInterfa
     public function onKernelController(ControllerEvent $event): void
     {
         $route = $event->getRequest()->attributes->get('_route');
-        if ($route === null || !str_starts_with((string) $route, self::ROUTE_PREFIX)) {
+        if (null === $route || !str_starts_with((string) $route, self::ROUTE_PREFIX)) {
             return;
         }
 
         $token = $this->tokenStorage?->getToken();
         $user = $token?->getUser();
         if (!\is_object($user) || !$this->accessChecker->canAccess($user)) {
-            throw new AccessDeniedException(sprintf(
-                'Breadcrumb Kit dashboard requires an authenticated user allowed by %s.',
-                BreadcrumbKitAccessCheckerInterface::class,
-            ));
+            throw new AccessDeniedException(\sprintf('Breadcrumb Kit dashboard requires an authenticated user allowed by %s.', BreadcrumbKitAccessCheckerInterface::class));
         }
     }
 }

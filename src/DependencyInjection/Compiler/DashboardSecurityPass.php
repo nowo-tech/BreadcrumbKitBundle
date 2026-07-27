@@ -31,10 +31,7 @@ final class DashboardSecurityPass implements CompilerPassInterface
         $hasSecurity = $container->has('security.authorization_checker');
 
         if (!$hasSecurity && !$allowUnauthenticated) {
-            throw new InvalidConfigurationException(
-                'nowo_breadcrumb_kit.dashboard.enabled requires symfony/security-bundle (security.authorization_checker), '
-                .'or set nowo_breadcrumb_kit.security.allow_unauthenticated: true (dev/demo only — never in production).'
-            );
+            throw new InvalidConfigurationException('nowo_breadcrumb_kit.dashboard.enabled requires symfony/security-bundle (security.authorization_checker), or set nowo_breadcrumb_kit.security.allow_unauthenticated: true (dev/demo only — never in production).');
         }
 
         if ($allowUnauthenticated) {
@@ -45,7 +42,7 @@ final class DashboardSecurityPass implements CompilerPassInterface
         $accessRoles = $container->getParameter(Configuration::ALIAS.'.security.access_roles');
         $customChecker = (bool) $container->getParameter(Configuration::ALIAS.'.security.custom_access_checker');
         // Empty access_roles with the default checker = no bundle-level enforcement (firewall only).
-        if ($accessRoles === [] && !$customChecker) {
+        if ([] === $accessRoles && !$customChecker) {
             return;
         }
 

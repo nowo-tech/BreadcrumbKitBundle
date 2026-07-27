@@ -6,6 +6,7 @@ namespace Nowo\BreadcrumbKitBundle\Tests\Integration\DependencyInjection;
 
 use Nowo\BreadcrumbKitBundle\DependencyInjection\BreadcrumbKitExtension;
 use Nowo\BreadcrumbKitBundle\EventSubscriber\TablePrefixSubscriber;
+use Nowo\BreadcrumbKitBundle\Security\BreadcrumbKitAccessCheckerInterface;
 use Nowo\BreadcrumbKitBundle\Service\BreadcrumbInlineEditResolver;
 use Nowo\BreadcrumbKitBundle\Service\BreadcrumbLoader;
 use PHPUnit\Framework\TestCase;
@@ -100,7 +101,7 @@ final class BreadcrumbKitExtensionTest extends TestCase
         ], $container->getParameter('nowo_breadcrumb_kit.dashboard.modals'));
         self::assertSame(['ROLE_ADMIN'], $container->getParameter('nowo_breadcrumb_kit.security.access_roles'));
         self::assertFalse($container->getParameter('nowo_breadcrumb_kit.security.allow_unauthenticated'));
-        self::assertTrue($container->hasAlias(\Nowo\BreadcrumbKitBundle\Security\BreadcrumbKitAccessCheckerInterface::class));
+        self::assertTrue($container->hasAlias(BreadcrumbKitAccessCheckerInterface::class));
         self::assertSame('edit_breadcrumbs', $container->getParameter('nowo_breadcrumb_kit.inline_edit.query_param'));
         self::assertSame(['demo' => 'app.checker'], $container->getParameter('nowo_breadcrumb_kit.inline_edit.access_services'));
         self::assertSame('es', $container->getParameter('nowo_breadcrumb_kit.default_locale_resolved'));

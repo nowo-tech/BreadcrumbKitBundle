@@ -89,7 +89,7 @@ final class BreadcrumbKitExtension extends Extension implements PrependExtension
         }
         $container->setParameter(Configuration::ALIAS.'.dashboard.layout_template', $layoutTemplate);
         $cssFramework = (string) ($dashboard['css_framework'] ?? 'bootstrap5');
-        if ($cssFramework === 'bootstrap') {
+        if ('bootstrap' === $cssFramework) {
             $cssFramework = 'bootstrap5';
         }
         $container->setParameter(Configuration::ALIAS.'.dashboard.css_framework', $cssFramework);
@@ -109,12 +109,12 @@ final class BreadcrumbKitExtension extends Extension implements PrependExtension
         /** @var list<string> $accessRoles */
         $accessRoles = [];
         foreach ($security['access_roles'] ?? ['ROLE_ADMIN'] as $role) {
-            if (\is_string($role) && $role !== '') {
+            if (\is_string($role) && '' !== $role) {
                 $accessRoles[] = $role;
             }
         }
         $accessCheckerId = $security['access_checker'] ?? null;
-        $customAccessChecker = \is_string($accessCheckerId) && $accessCheckerId !== '';
+        $customAccessChecker = \is_string($accessCheckerId) && '' !== $accessCheckerId;
         $container->setParameter(Configuration::ALIAS.'.security.access_roles', $accessRoles);
         $container->setParameter(Configuration::ALIAS.'.security.allow_unauthenticated', (bool) ($security['allow_unauthenticated'] ?? false));
         $container->setParameter(Configuration::ALIAS.'.security.custom_access_checker', $customAccessChecker);
@@ -170,7 +170,7 @@ final class BreadcrumbKitExtension extends Extension implements PrependExtension
      */
     private function registerAccessChecker(ContainerBuilder $container, array $accessRoles, ?string $accessCheckerId): void
     {
-        if ($accessCheckerId === null || $accessCheckerId === '') {
+        if (null === $accessCheckerId || '' === $accessCheckerId) {
             $accessCheckerId = 'nowo_breadcrumb_kit.access_checker.default';
             $container->setDefinition($accessCheckerId, (new Definition(ConfigurableBreadcrumbKitAccessChecker::class))
                 ->setAutowired(true)

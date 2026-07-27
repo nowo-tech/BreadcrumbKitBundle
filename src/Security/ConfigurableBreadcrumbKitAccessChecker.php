@@ -22,7 +22,7 @@ final readonly class ConfigurableBreadcrumbKitAccessChecker implements Breadcrum
 
     public function canAccess(object $user): bool
     {
-        if ($this->accessRoles === []) {
+        if ([] === $this->accessRoles) {
             return true;
         }
 
