@@ -4,10 +4,13 @@ declare(strict_types=1);
 
 namespace Nowo\BreadcrumbKitBundle\DependencyInjection;
 
+use Nowo\BreadcrumbKitBundle\Security\BreadcrumbKitAccessCheckerInterface;
+use Nowo\BreadcrumbKitBundle\Security\ConfigurableBreadcrumbKitAccessChecker;
 use Nowo\BreadcrumbKitBundle\Service\BreadcrumbLoader;
 use Nowo\BreadcrumbKitBundle\Twig\BreadcrumbExtension;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
+use Symfony\Component\DependencyInjection\Definition;
 use Symfony\Component\DependencyInjection\Extension\Extension;
 use Symfony\Component\DependencyInjection\Extension\PrependExtensionInterface;
 use Symfony\Component\DependencyInjection\Loader\YamlFileLoader;
@@ -85,6 +88,12 @@ final class BreadcrumbKitExtension extends Extension implements PrependExtension
             $layoutTemplate = '@NowoBreadcrumbKitBundle/dashboard/layout.html.twig';
         }
         $container->setParameter(Configuration::ALIAS.'.dashboard.layout_template', $layoutTemplate);
+        $cssFramework = (string) ($dashboard['css_framework'] ?? 'bootstrap5');
+        if ($cssFramework === 'bootstrap') {
+            $cssFramework = 'bootstrap5';
+        }
+        $container->setParameter(Configuration::ALIAS.'.dashboard.css_framework', $cssFramework);
+        $container->setParameter(Configuration::ALIAS.'.dashboard.icon_set', (string) ($dashboard['icon_set'] ?? 'bootstrap-icons'));
         $container->setParameter(Configuration::ALIAS.'.dashboard.import_max_bytes', (int) ($dashboard['import_max_bytes'] ?? 2_097_152));
         $pagination = \is_array($dashboard['pagination'] ?? null) ? $dashboard['pagination'] : [];
         $container->setParameter(Configuration::ALIAS.'.dashboard.pagination.enabled', (bool) ($pagination['enabled'] ?? true));
@@ -95,6 +104,20 @@ final class BreadcrumbKitExtension extends Extension implements PrependExtension
             'import' => 'normal',
             'delete' => 'normal',
         ]);
+
+        $security = \is_array($config['security'] ?? null) ? $config['security'] : [];
+        /** @var list<string> $accessRoles */
+        $accessRoles = [];
+        foreach ($security['access_roles'] ?? ['ROLE_ADMIN'] as $role) {
+            if (\is_string($role) && $role !== '') {
+                $accessRoles[] = $role;
+            }
+        }
+        $accessCheckerId = $security['access_checker'] ?? null;
+        $customAccessChecker = \is_string($accessCheckerId) && $accessCheckerId !== '';
+        $container->setParameter(Configuration::ALIAS.'.security.access_roles', $accessRoles);
+        $container->setParameter(Configuration::ALIAS.'.security.allow_unauthenticated', (bool) ($security['allow_unauthenticated'] ?? false));
+        $container->setParameter(Configuration::ALIAS.'.security.custom_access_checker', $customAccessChecker);
 
         $inlineEdit = \is_array($config['inline_edit'] ?? null) ? $config['inline_edit'] : [];
         $queryParam = $inlineEdit['query_param'] ?? null;
@@ -119,6 +142,7 @@ final class BreadcrumbKitExtension extends Extension implements PrependExtension
 
         if (($dashboard['enabled'] ?? false) === true) {
             $loader->load('services_dashboard.yaml');
+            $this->registerAccessChecker($container, $accessRoles, $customAccessChecker ? (string) $accessCheckerId : null);
         }
 
         if (class_exists('Symfony\\Bundle\\WebProfilerBundle\\WebProfilerBundle')) {
@@ -139,5 +163,20 @@ final class BreadcrumbKitExtension extends Extension implements PrependExtension
 
         $container->getDefinition(BreadcrumbExtension::class)
             ->setArgument('$defaultCollection', $config['default_collection']);
+    }
+
+    /**
+     * @param list<string> $accessRoles
+     */
+    private function registerAccessChecker(ContainerBuilder $container, array $accessRoles, ?string $accessCheckerId): void
+    {
+        if ($accessCheckerId === null || $accessCheckerId === '') {
+            $accessCheckerId = 'nowo_breadcrumb_kit.access_checker.default';
+            $container->setDefinition($accessCheckerId, (new Definition(ConfigurableBreadcrumbKitAccessChecker::class))
+                ->setAutowired(true)
+                ->setArgument('$accessRoles', $accessRoles));
+        }
+
+        $container->setAlias(BreadcrumbKitAccessCheckerInterface::class, $accessCheckerId);
     }
 }

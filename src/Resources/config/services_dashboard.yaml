@@ -11,6 +11,8 @@ services:
   Nowo\BreadcrumbKitBundle\Twig\BreadcrumbKitDashboardGlobalsExtension:
     arguments:
       $layoutTemplate: '%nowo_breadcrumb_kit.dashboard.layout_template%'
+      $cssFramework: '%nowo_breadcrumb_kit.dashboard.css_framework%'
+      $iconSet: '%nowo_breadcrumb_kit.dashboard.icon_set%'
     tags: ['twig.extension']
 
   Nowo\BreadcrumbKitBundle\Controller\Dashboard\CollectionCrudController:

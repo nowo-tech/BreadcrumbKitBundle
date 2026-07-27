@@ -2,6 +2,36 @@
 
 This document describes breaking changes and upgrade notes between versions. Sections are ordered from newest to oldest.
 
+
+## Table of contents
+
+- [From 2.0.5 to 2.0.6](#from-205-to-206)
+- [From 2.0.4 to 2.0.5](#from-204-to-205)
+- [From 2.0.3 to 2.0.4](#from-203-to-204)
+- [From 2.0.2 to 2.0.3](#from-202-to-203)
+- [From 2.0.1 to 2.0.2](#from-201-to-202)
+- [From 2.0.0 to 2.0.1](#from-200-to-201)
+- [From 1.2.x to 2.0.0](#from-12x-to-200)
+- [From 1.2.0 to 1.2.1](#from-120-to-121)
+- [From 1.1.0 to 1.2.0](#from-110-to-120)
+- [From 1.0.0 to 1.1.0](#from-100-to-110)
+- [Initial install (v1.1.0+)](#initial-install-v110)
+- [From pre-release / local copies to 1.0.0](#from-pre-release-local-copies-to-100)
+- [Doctrine schema](#doctrine-schema)
+- [General upgrade steps (any version)](#general-upgrade-steps-any-version)
+
+## From 2.0.5 to 2.0.6
+
+**Dashboard security (REQ-UI-002):** enabling `dashboard.enabled: true` now requires `symfony/security-bundle` unless you set `security.allow_unauthenticated: true` (demo/dev only). Default `security.access_roles` is `['ROLE_ADMIN']`. Add host `access_control` for your `dashboard.path_prefix`.
+
+Optional new keys (defaults preserve previous look): `dashboard.css_framework` (`bootstrap5`), `dashboard.icon_set` (`bootstrap-icons`).
+
+No Doctrine schema or public Twig/API renames.
+
+```bash
+composer update nowo-tech/breadcrumb-kit-bundle:^2.0
+```
+
 ## From 2.0.4 to 2.0.5
 
 No intentional breaking changes to the bundle API, routes, schema, or runtime dependencies. Patch release focused on org compliance (demo env docs, English Markdown, FrankenPHP banner) and the Symfony 8 demo PHP image.

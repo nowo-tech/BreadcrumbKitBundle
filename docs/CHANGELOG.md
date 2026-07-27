@@ -5,7 +5,71 @@ All notable changes to this project are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+
+## Table of contents
+
+- [[Unreleased]](#unreleased)
+- [[2.0.6] - 2026-07-27](#206---2026-07-27)
+  - [Added](#added)
+  - [Changed](#changed)
+  - [Documentation](#documentation)
+- [[2.0.5] - 2026-07-23](#205---2026-07-23)
+  - [Changed](#changed)
+  - [Added](#added)
+  - [Documentation](#documentation)
+- [[2.0.4] - 2026-07-23](#204---2026-07-23)
+  - [Changed](#changed)
+  - [Documentation](#documentation)
+- [[2.0.3] - 2026-07-22](#203---2026-07-22)
+  - [Changed](#changed)
+  - [Documentation](#documentation)
+- [[2.0.2] - 2026-07-16](#202---2026-07-16)
+  - [Changed](#changed)
+  - [Added](#added)
+  - [Documentation](#documentation)
+- [[2.0.1] - 2026-07-05](#201---2026-07-05)
+  - [Changed](#changed)
+- [[2.0.0] - 2026-07-05](#200---2026-07-05)
+  - [Changed](#changed)
+  - [Added](#added)
+  - [Migration](#migration)
+- [[1.2.1] - 2026-07-03](#121---2026-07-03)
+  - [Fixed](#fixed)
+  - [Documentation](#documentation)
+- [[1.2.0] - 2026-07-03](#120---2026-07-03)
+  - [Added](#added)
+  - [Changed](#changed)
+  - [Documentation](#documentation)
+- [[1.1.0] - 2026-07-03](#110---2026-07-03)
+  - [Changed](#changed)
+  - [Fixed](#fixed)
+  - [Documentation](#documentation)
+- [[1.0.0] - 2026-07-03](#100---2026-07-03)
+  - [Added](#added)
+  - [Fixed](#fixed)
+  - [Documentation](#documentation)
+
 ## [Unreleased]
+
+## [2.0.6] - 2026-07-27
+
+### Added
+
+- **REQ-UI-002:** `security.access_roles` / `security.access_checker` / `security.allow_unauthenticated`, `BreadcrumbKitAccessCheckerInterface`, `ConfigurableBreadcrumbKitAccessChecker`, `DashboardAccessSubscriber`, and `DashboardSecurityPass` (compilation fails if the dashboard is enabled without SecurityBundle unless `allow_unauthenticated`).
+- **REQ-UI-001 (config):** `dashboard.css_framework` and `dashboard.icon_set` with Twig globals (`nowo_breadcrumb_kit_css_framework`, `nowo_breadcrumb_kit_icon_set`).
+- **REQ-MAKE-002 / REQ-REL-003:** `.scripts/check-open-prs.sh` and `make check-open-prs` wired into `release-check`.
+- **REQ-CI-002:** root `.scrutinizer.yml`.
+- **REQ-SF-005:** `SYMFONY_DEPRECATIONS_HELPER=max[direct]=0` in `phpunit.xml.dist` and CI.
+- **REQ-DOCS-005:** table of contents on long Markdown docs; **REQ-DOCS-018:** GitHub About Description / Website / Topics.
+
+### Changed
+
+- **Demo:** no committed `.env.dev`; `.gitignore` adds `/.pnpm-store`; demo YAML sets `security.allow_unauthenticated: true` with empty `access_roles` (demo only — never copy to production).
+
+### Documentation
+
+- [CONFIGURATION.md](CONFIGURATION.md) / [SECURITY.md](SECURITY.md) / [INSTALLATION.md](INSTALLATION.md): dashboard private-access contract and host `access_control` example.
+- [UPGRADING.md](UPGRADING.md): 2.0.5 → 2.0.6 (SecurityBundle required when dashboard enabled).
 
 ## [2.0.5] - 2026-07-23
 

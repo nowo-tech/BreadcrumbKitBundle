@@ -4,7 +4,7 @@ SERVICE_PHP ?= php
 export COMPOSER_ALLOW_SUPERUSER ?= 1
 
 .PHONY: help ensure-up up down down-dev build shell install assets test test-coverage \
-	check-no-cursor-coauthor strip-cursor-coauthor-from-history setup-hooks \
+	check-no-cursor-coauthor check-open-prs strip-cursor-coauthor-from-history setup-hooks \
 	cs-check cs-fix rector rector-dry phpstan qa release-check composer-sync \
 	clean update validate
 
@@ -16,7 +16,7 @@ help:
 	@echo "Assets: assets"
 	@echo "Tests: test, test-coverage, coverage-check"
 	@echo "Quality: cs-check, cs-fix, rector, rector-dry, phpstan, qa"
-	@echo "Release: release-check, composer-sync"
+	@echo "Release: release-check, composer-sync, check-open-prs"
 	@echo "Demos: make -C demo/symfony8 up (8021) — see docs/DEMO-FRANKENPHP.md"
 	@echo "Cleanup: clean"
 
@@ -78,14 +78,7 @@ composer-sync: ensure-up
 	@$(COMPOSE) exec -T $(SERVICE_PHP) composer validate --strict
 	@$(COMPOSE) exec -T $(SERVICE_PHP) composer install --no-interaction --prefer-dist
 
-release-check: check-no-cursor-coauthor
-	@$(MAKE) ensure-up
-	@$(MAKE) composer-sync
-	@$(MAKE) cs-fix
-	@$(MAKE) cs-check
-	@$(MAKE) rector-dry
-	@$(MAKE) phpstan
-	@$(MAKE) coverage-check
+release-check: ensure-up check-no-cursor-coauthor check-open-prs composer-sync cs-fix cs-check rector-dry phpstan coverage-check
 	@if [ -d demo ]; then $(MAKE) -C demo release-check; fi
 
 clean:
@@ -115,6 +108,10 @@ include $(BUNDLE_ROOT)/../.scripts/Makefile.update-deps.mk
 check-no-cursor-coauthor:
 	@chmod +x .scripts/check-no-cursor-coauthor.sh
 	@./.scripts/check-no-cursor-coauthor.sh HEAD
+
+check-open-prs:
+	@chmod +x .scripts/check-open-prs.sh
+	@bash .scripts/check-open-prs.sh
 
 strip-cursor-coauthor-from-history:
 	@chmod +x .scripts/strip-cursor-coauthor-from-history.sh

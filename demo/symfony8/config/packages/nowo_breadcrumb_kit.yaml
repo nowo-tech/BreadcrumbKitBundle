@@ -13,3 +13,9 @@ nowo_breadcrumb_kit:
     dashboard:
         enabled: true
         path_prefix: /breadcrumb-kit-admin
+        css_framework: bootstrap5
+        icon_set: svg_inline
+    # Demo-only: open CRUD without login. Never use allow_unauthenticated in production (REQ-UI-002).
+    security:
+        access_roles: []
+        allow_unauthenticated: true

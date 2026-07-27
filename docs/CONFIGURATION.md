@@ -27,6 +27,8 @@ Configuration root key: `nowo_breadcrumb_kit` (see `Nowo\BreadcrumbKitBundle\Dep
 | `dashboard.enabled` | `bool` | `false` | When `true`, registers CRUD controllers (requires `symfony/form` + `symfony/framework-bundle`; import routing as below). |
 | `dashboard.path_prefix` | `string` | `/breadcrumb-kit-admin` | URL prefix for dashboard routes (leading slash, no trailing slash). Must match the `prefix` used when importing bundle routes. |
 | `dashboard.layout_template` | `string` | `@NowoBreadcrumbKitBundle/dashboard/layout.html.twig` | Twig layout extended by dashboard pages (override in the app like DashboardMenuBundle). Must define block `nowo_breadcrumb_kit_content`. |
+| `dashboard.css_framework` | `string` | `bootstrap5` | CSS stack for dashboard markup (`bootstrap`/`bootstrap5`, `bootstrap4`, `tailwind`, `foundation`, `custom`, `tabler`, `none`). Exposed as Twig global `nowo_breadcrumb_kit_css_framework`. |
+| `dashboard.icon_set` | `string` | `bootstrap-icons` | Icon set for dashboard actions (`bootstrap-icons`, `tabler-icons`, `ux_icon`, `svg_inline`, `none`). Exposed as Twig global `nowo_breadcrumb_kit_icon_set`. |
 | `dashboard.import_max_bytes` | `int` | `2097152` | Maximum JSON upload size for dashboard import (default 2 MiB). |
 | `dashboard.pagination.enabled` | `bool` | `true` | When `true`, the collections list in the dashboard is paginated. |
 | `dashboard.pagination.per_page` | `int` | `20` | Number of collections per page (1–500). |
@@ -34,6 +36,9 @@ Configuration root key: `nowo_breadcrumb_kit` (see `Nowo\BreadcrumbKitBundle\Dep
 | `dashboard.modals.item_form` | `string` | `lg` | Modal size for item create/edit. |
 | `dashboard.modals.import` | `string` | `normal` | Modal size for JSON import. |
 | `dashboard.modals.delete` | `string` | `normal` | Modal size for delete confirmation. |
+| `security.access_roles` | `string[]` | `['ROLE_ADMIN']` | User must be granted **at least one** role for dashboard routes (REQ-UI-002). Empty list disables bundle-level role checks. |
+| `security.access_checker` | `string\|null` | `null` | Optional service id implementing `BreadcrumbKitAccessCheckerInterface`. `null` = built-in role checker. |
+| `security.allow_unauthenticated` | `bool` | `false` | **DEV/DEMO only.** Skip SecurityBundle requirement and dashboard access subscriber. Never `true` in production. |
 | `inline_edit.query_param` | `string\|null` | `null` | When non-empty, a truthy value for this query key (`1`, `true`, `yes`, `on`) enables the optional inline editor UI in `breadcrumb_render()` (requires `dashboard.enabled`, a collection `inline_edit_access_key`, and a passing access checker). |
 | `inline_edit.access_services` | `array<string,string>` | `[]` | Map of **logical keys** to **service ids** implementing `BreadcrumbInlineEditAccessCheckerInterface`. Each collection selects one key in the dashboard; the service receives the current `Request` and `?UserInterface` (or `null` if anonymous / no Security). |
 
@@ -61,12 +66,34 @@ nowo_breadcrumb_kit_dashboard:
     prefix: '%nowo_breadcrumb_kit.dashboard.path_prefix%'
 ```
 
-3. Protect the prefix in production (`access_control`, firewall, or IP allowlist). The bundle does not enforce authentication by default.
+3. **Secure the dashboard (REQ-UI-002)** — production defaults require `symfony/security-bundle` and at least one of `security.access_roles` (default `ROLE_ADMIN`):
+
+```yaml
+# config/packages/nowo_breadcrumb_kit.yaml
+nowo_breadcrumb_kit:
+    dashboard:
+        enabled: true
+        path_prefix: /admin/breadcrumbs
+        layout_template: 'base.html.twig'   # host layout
+        css_framework: bootstrap5
+    security:
+        access_roles: [ROLE_ADMIN]
+        # access_checker: App\Security\BreadcrumbKitAccessChecker
+        allow_unauthenticated: false
+
+# config/packages/security.yaml (host firewall layer)
+security:
+    access_control:
+        - { path: ^/admin/breadcrumbs, roles: ROLE_ADMIN }
+```
+
+   The demo sets `security.allow_unauthenticated: true` and empty `access_roles` so the CRUD UI works without login — **never copy that into production**.
+
 4. Forms and delete actions need **CSRF**. With `symfony/security-bundle`, this is usually automatic. Without it, enable `framework.csrf_protection: true` (see Symfony docs).
 
 After changes from the UI, clear or wait out the PSR-6 item-list cache if enabled (`cache.pool`).
 
-The dashboard UI aligns visually with [DashboardMenuBundle](https://github.com/nowo-tech/DashboardMenuBundle): Bootstrap 5 list/table views, fetch-loaded modals (`?_partial=1`), search on collections and items, optional pagination on the collections index, and export/import JSON.
+The dashboard UI aligns visually with [DashboardMenuBundle](https://github.com/nowo-tech/DashboardMenuBundle): Bootstrap 5 list/table views, fetch-loaded modals (`?_partial=1`), search on collections and items, optional pagination on the collections index, and export/import JSON. Twig globals: `nowo_breadcrumb_kit_layout_template`, `nowo_breadcrumb_kit_css_framework`, `nowo_breadcrumb_kit_icon_set`.
 
 ### Twig helper
 

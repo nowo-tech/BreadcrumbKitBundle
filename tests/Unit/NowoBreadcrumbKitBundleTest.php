@@ -6,6 +6,7 @@ namespace Nowo\BreadcrumbKitBundle\Tests\Unit;
 
 use Nowo\BreadcrumbKitBundle\DependencyInjection\BreadcrumbKitExtension;
 use Nowo\BreadcrumbKitBundle\DependencyInjection\Compiler\BreadcrumbInlineEditAccessLocatorPass;
+use Nowo\BreadcrumbKitBundle\DependencyInjection\Compiler\DashboardSecurityPass;
 use Nowo\BreadcrumbKitBundle\DependencyInjection\Compiler\TwigPathsPass;
 use Nowo\BreadcrumbKitBundle\NowoBreadcrumbKitBundle;
 use PHPUnit\Framework\TestCase;
@@ -22,6 +23,7 @@ final class NowoBreadcrumbKitBundleTest extends TestCase
 
         self::assertContains(TwigPathsPass::class, $classNames);
         self::assertContains(BreadcrumbInlineEditAccessLocatorPass::class, $classNames);
+        self::assertContains(DashboardSecurityPass::class, $classNames);
     }
 
     /**

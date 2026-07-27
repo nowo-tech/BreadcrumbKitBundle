@@ -3,6 +3,15 @@
 Thank you for helping improve **Breadcrumb Kit Bundle**.
 
 
+## Table of contents
+
+- [Code of Conduct](#code-of-conduct)
+- [Workflow](#workflow)
+- [Standards](#standards)
+- [Reporting issues](#reporting-issues)
+- [Coverage exclusions](#coverage-exclusions)
+- [Git hooks (REQ-GIT-001)](#git-hooks-req-git-001)
+
 ## Code of Conduct
 
 This project follows the [Contributor Covenant Code of Conduct](../CODE_OF_CONDUCT.md). By participating, you are expected to uphold it. Please report unacceptable behavior to **hectorfranco@nowo.tech**.

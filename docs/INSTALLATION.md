@@ -82,7 +82,14 @@ nowo_breadcrumb_kit_dashboard:
     prefix: '%nowo_breadcrumb_kit.dashboard.path_prefix%'
 ```
 
-Protect the prefix in production (`access_control`, firewall, or VPN). The bundle does not enforce authentication by default. Forms and deletes require CSRF (`framework.csrf_protection: true` or SecurityBundle).
+Protect the prefix in production with Symfony `security.access_control` **and** bundle `security.access_roles` (default `ROLE_ADMIN`; see [CONFIGURATION.md](CONFIGURATION.md) / [SECURITY.md](SECURITY.md), REQ-UI-002). Do **not** set `security.allow_unauthenticated: true` outside local demos. Forms and deletes require CSRF (`framework.csrf_protection: true` or SecurityBundle).
+
+```yaml
+# Host firewall (example)
+security:
+    access_control:
+        - { path: ^/breadcrumb-kit-admin, roles: ROLE_ADMIN }
+```
 
 ## Verify
 

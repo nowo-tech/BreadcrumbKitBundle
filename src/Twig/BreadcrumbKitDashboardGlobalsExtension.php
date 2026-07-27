@@ -8,13 +8,14 @@ use Twig\Extension\AbstractExtension;
 use Twig\Extension\GlobalsInterface;
 
 /**
- * @author Héctor Franco Aceituno <hectorfranco@nowo.tech>
- * @copyright 2026 Nowo.tech
+ * Twig globals for dashboard layout / CSS framework (REQ-UI-001).
  */
 final class BreadcrumbKitDashboardGlobalsExtension extends AbstractExtension implements GlobalsInterface
 {
     public function __construct(
         private readonly string $layoutTemplate,
+        private readonly string $cssFramework = 'bootstrap5',
+        private readonly string $iconSet = 'bootstrap-icons',
     ) {
     }
 
@@ -22,6 +23,8 @@ final class BreadcrumbKitDashboardGlobalsExtension extends AbstractExtension imp
     {
         return [
             'nowo_breadcrumb_kit_layout_template' => $this->layoutTemplate,
+            'nowo_breadcrumb_kit_css_framework' => $this->cssFramework,
+            'nowo_breadcrumb_kit_icon_set' => $this->iconSet,
         ];
     }
 }

@@ -8,6 +8,17 @@ This bundle ships a FrankenPHP demo aligned with [DashboardMenuBundle](https://g
 
 Use it to validate compatibility with the current Symfony 8 maintenance line. The FrankenPHP image uses the **newest PHP minor** available for Symfony 8 demos (REQ-DEMO-010): currently **PHP 8.5**.
 
+
+## Table of contents
+
+- [Contents](#contents)
+- [Overview](#overview)
+  - [Demo use-case map](#demo-use-case-map)
+- [Quick start](#quick-start)
+- [Development vs production](#development-vs-production)
+- [Switching classic vs worker (`FRANKENPHP_MODE`)](#switching-classic-vs-worker-frankenphp_mode)
+- [Troubleshooting](#troubleshooting)
+
 ## Contents
 
 - [Overview](#overview)

@@ -87,6 +87,8 @@ final class BreadcrumbKitExtensionTest extends TestCase
         self::assertSame('/admin/breadcrumbs', $container->getParameter('nowo_breadcrumb_kit.dashboard.path_prefix'));
         self::assertTrue($container->getParameter('nowo_breadcrumb_kit.dashboard.enabled'));
         self::assertSame('@App/custom_layout.html.twig', $container->getParameter('nowo_breadcrumb_kit.dashboard.layout_template'));
+        self::assertSame('bootstrap5', $container->getParameter('nowo_breadcrumb_kit.dashboard.css_framework'));
+        self::assertSame('bootstrap-icons', $container->getParameter('nowo_breadcrumb_kit.dashboard.icon_set'));
         self::assertSame(4096, $container->getParameter('nowo_breadcrumb_kit.dashboard.import_max_bytes'));
         self::assertFalse($container->getParameter('nowo_breadcrumb_kit.dashboard.pagination.enabled'));
         self::assertSame(50, $container->getParameter('nowo_breadcrumb_kit.dashboard.pagination.per_page'));
@@ -96,9 +98,51 @@ final class BreadcrumbKitExtensionTest extends TestCase
             'import' => 'lg',
             'delete' => 'normal',
         ], $container->getParameter('nowo_breadcrumb_kit.dashboard.modals'));
+        self::assertSame(['ROLE_ADMIN'], $container->getParameter('nowo_breadcrumb_kit.security.access_roles'));
+        self::assertFalse($container->getParameter('nowo_breadcrumb_kit.security.allow_unauthenticated'));
+        self::assertTrue($container->hasAlias(\Nowo\BreadcrumbKitBundle\Security\BreadcrumbKitAccessCheckerInterface::class));
         self::assertSame('edit_breadcrumbs', $container->getParameter('nowo_breadcrumb_kit.inline_edit.query_param'));
         self::assertSame(['demo' => 'app.checker'], $container->getParameter('nowo_breadcrumb_kit.inline_edit.access_services'));
         self::assertSame('es', $container->getParameter('nowo_breadcrumb_kit.default_locale_resolved'));
+    }
+
+    public function testLoadRegistersSecurityAllowUnauthenticatedForDemos(): void
+    {
+        $container = new ContainerBuilder();
+        (new BreadcrumbKitExtension())->load([
+            [
+                'dashboard' => ['enabled' => true],
+                'security' => [
+                    'access_roles' => [],
+                    'allow_unauthenticated' => true,
+                ],
+            ],
+        ], $container);
+
+        self::assertSame([], $container->getParameter('nowo_breadcrumb_kit.security.access_roles'));
+        self::assertTrue($container->getParameter('nowo_breadcrumb_kit.security.allow_unauthenticated'));
+    }
+
+    public function testLoadAliasesBootstrapCssFrameworkToBootstrap5(): void
+    {
+        $container = new ContainerBuilder();
+        (new BreadcrumbKitExtension())->load([
+            [
+                'dashboard' => [
+                    'enabled' => true,
+                    'css_framework' => 'bootstrap',
+                    'icon_set' => 'svg_inline',
+                    'layout_template' => '',
+                ],
+            ],
+        ], $container);
+
+        self::assertSame('bootstrap5', $container->getParameter('nowo_breadcrumb_kit.dashboard.css_framework'));
+        self::assertSame('svg_inline', $container->getParameter('nowo_breadcrumb_kit.dashboard.icon_set'));
+        self::assertSame(
+            '@NowoBreadcrumbKitBundle/dashboard/layout.html.twig',
+            $container->getParameter('nowo_breadcrumb_kit.dashboard.layout_template'),
+        );
     }
 
     public function testLoadNormalizesInvalidDashboardPathPrefix(): void
