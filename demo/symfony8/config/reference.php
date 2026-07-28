@@ -954,10 +954,10 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *         enabled?: bool|Param, // Registers CRUD controllers and forms; import bundle routing with path_prefix (see docs). // Default: false
  *         path_prefix?: scalar|Param|null, // URL prefix for dashboard routes (leading slash, no trailing slash). Use the same value when importing routing in your app. // Default: "/breadcrumb-kit-admin"
  *         layout_template?: scalar|Param|null, // Twig layout extended by dashboard pages (override in app like DashboardMenuBundle). // Default: "@NowoBreadcrumbKitBundle/dashboard/layout.html.twig"
- *         css_framework?: scalar|Param|null, // CSS stack for dashboard markup (REQ-UI-001): bootstrap/bootstrap5, bootstrap4, tailwind, foundation, custom, tabler, none. // Default: "bootstrap5"
- *         icon_set?: scalar|Param|null, // Icon set for dashboard row actions (REQ-UI-001): bootstrap-icons, tabler-icons, ux_icon, svg_inline, none. // Default: "bootstrap-icons"
+ *         css_framework?: scalar|Param|null, // CSS stack for dashboard markup (REQ-UI-001): see Nowo\BreadcrumbKitBundle\Enum\CssFramework. // Default: "bootstrap5"
+ *         icon_set?: scalar|Param|null, // Icon set for dashboard row actions (REQ-UI-001): see Nowo\BreadcrumbKitBundle\Enum\IconSet. // Default: "bootstrap-icons"
  *         import_max_bytes?: int|Param, // Max JSON upload size for dashboard import (default 2 MiB). // Default: 2097152
- *         pagination?: array{ // Pagination for the collections list in the dashboard.
+ *         pagination?: array{ // Pagination for collections and items lists in the dashboard.
  *             enabled?: bool|Param, // Default: true
  *             per_page?: int|Param, // Default: 20
  *         },

@@ -87,8 +87,8 @@ demo-smoke:
 	@PORT=$$(grep "^PORT=" demo/symfony8/.env 2>/dev/null | cut -d= -f2 | tr -d '\r'); \
 	[ -z "$$PORT" ] && PORT=$$(grep "^PORT=" demo/symfony8/.env.example 2>/dev/null | cut -d= -f2 | tr -d '\r'); \
 	[ -z "$$PORT" ] && PORT=8021; \
-	echo "Smoke GET http://localhost:$$PORT/"; \
-	code=$$(curl -fsS -o /dev/null -w "%{http_code}" --max-time 60 "http://localhost:$$PORT/" || true); \
+	echo "Smoke GET http://localhost:$$PORT/ (follow redirects)"; \
+	code=$$(curl -fsSL -o /dev/null -w "%{http_code}" --max-time 60 "http://localhost:$$PORT/" || true); \
 	if [ "$$code" != "200" ]; then echo "demo-smoke failed: HTTP $$code"; exit 1; fi; \
 	echo "demo-smoke OK (HTTP 200)"
 
