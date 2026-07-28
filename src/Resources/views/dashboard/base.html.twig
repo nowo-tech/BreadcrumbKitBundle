@@ -13,14 +13,14 @@
 {% block stylesheets %}
     {{ parent() }}
     {% block nowo_ui_styles %}
-        <link href="{{ asset('bundles/nowobreadcrumbkit/css/nowo-ui.css') }}" rel="stylesheet">
+        <link href="{{ asset('css/nowo-ui.css', 'nowo_breadcrumb_kit') }}" rel="stylesheet">
     {% endblock %}
 {% endblock %}
 
 {% block javascripts %}
     {{ parent() }}
     {% block nowo_ui_scripts %}{% endblock %}
-    <script src="{{ asset('bundles/nowobreadcrumbkit/js/dashboard.js') }}" defer></script>
+    <script src="{{ asset('js/dashboard.js', 'nowo_breadcrumb_kit') }}" defer></script>
 {% endblock %}
 
 {% block nowo_breadcrumb_kit_content %}

@@ -35,6 +35,8 @@ final class ItemCrudController extends AbstractController
         private readonly EntityManagerInterface $entityManager,
         private readonly FormFactoryInterface $formFactory,
         private readonly TranslatorInterface $translator,
+        private readonly bool $paginationEnabled,
+        private readonly int $paginationPerPage,
         private readonly array $modalSizes,
     ) {
     }
@@ -57,10 +59,26 @@ final class ItemCrudController extends AbstractController
     {
         $collection = $this->getCollectionOr404($collectionId);
         $searchQuery = trim((string) $request->query->get('q', ''));
-        $items = $this->itemRepository->findForDashboardList(
-            $collection,
-            '' !== $searchQuery ? $searchQuery : null,
-        );
+        $search = '' !== $searchQuery ? $searchQuery : null;
+        $page = max(1, (int) $request->query->get('page', 1));
+
+        if ($this->paginationEnabled) {
+            $perPage = $this->paginationPerPage;
+            $total = $this->itemRepository->countForDashboardList($collection, $search);
+            $totalPages = $total > 0 ? (int) ceil($total / $perPage) : 1;
+            $page = max(1, min($page, $totalPages > 0 ? $totalPages : 1));
+            $offset = ($page - 1) * $perPage;
+            $items = $this->itemRepository->findForDashboardList($collection, $search, $offset, $perPage);
+            $pagination = [
+                'current_page' => $page,
+                'per_page' => $perPage,
+                'total' => $total,
+                'total_pages' => $totalPages,
+            ];
+        } else {
+            $items = $this->itemRepository->findForDashboardList($collection, $search);
+            $pagination = null;
+        }
 
         $searchForm = $this->createForm(DashboardGetSearchType::class, ['q' => $searchQuery], [
             'action' => $this->generateUrl('nowo_breadcrumb_kit_dashboard_items_index', ['collectionId' => $collectionId]),
@@ -73,6 +91,7 @@ final class ItemCrudController extends AbstractController
             'items' => $items,
             'search_query' => $searchQuery,
             'search_form' => $searchForm,
+            'pagination' => $pagination,
             'dashboard_nav' => 'items',
             'dashboard_routes' => $this->dashboardRoutes(),
             'modal_classes' => self::resolveModalClasses($this->modalSizes),

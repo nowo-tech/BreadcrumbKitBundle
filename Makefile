@@ -6,7 +6,7 @@ export COMPOSER_ALLOW_SUPERUSER ?= 1
 .PHONY: help ensure-up up down down-dev build shell install assets test test-coverage \
 	check-no-cursor-coauthor check-open-prs strip-cursor-coauthor-from-history setup-hooks \
 	cs-check cs-fix rector rector-dry phpstan qa release-check composer-sync \
-	clean update validate
+	clean update validate demo-smoke
 
 help:
 	@echo "Usage: make <target>"
@@ -14,7 +14,7 @@ help:
 	@echo "Container: up, down, down-dev, build, shell"
 	@echo "Dependencies: install, update, update-deps, validate, validate-translations"
 	@echo "Assets: assets"
-	@echo "Tests: test, test-coverage, coverage-check"
+	@echo "Tests: test, test-coverage, coverage-check, demo-smoke"
 	@echo "Quality: cs-check, cs-fix, rector, rector-dry, phpstan, qa"
 	@echo "Release: release-check, composer-sync, check-open-prs"
 	@echo "Demos: make -C demo/symfony8 up (8021) — see docs/DEMO-FRANKENPHP.md"
@@ -80,6 +80,17 @@ composer-sync: ensure-up
 
 release-check: ensure-up check-no-cursor-coauthor check-open-prs composer-sync cs-fix cs-check rector-dry phpstan coverage-check
 	@if [ -d demo ]; then $(MAKE) -C demo release-check; fi
+
+# REQ-TEST-011 — boot demo stack and assert one HTTP 200
+demo-smoke:
+	@$(MAKE) -C demo/symfony8 up
+	@PORT=$$(grep "^PORT=" demo/symfony8/.env 2>/dev/null | cut -d= -f2 | tr -d '\r'); \
+	[ -z "$$PORT" ] && PORT=$$(grep "^PORT=" demo/symfony8/.env.example 2>/dev/null | cut -d= -f2 | tr -d '\r'); \
+	[ -z "$$PORT" ] && PORT=8021; \
+	echo "Smoke GET http://localhost:$$PORT/"; \
+	code=$$(curl -fsS -o /dev/null -w "%{http_code}" --max-time 60 "http://localhost:$$PORT/" || true); \
+	if [ "$$code" != "200" ]; then echo "demo-smoke failed: HTTP $$code"; exit 1; fi; \
+	echo "demo-smoke OK (HTTP 200)"
 
 clean:
 	rm -rf vendor coverage .phpunit.cache coverage-php.txt coverage.xml

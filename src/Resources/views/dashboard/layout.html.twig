@@ -18,7 +18,7 @@
             {% elseif _bk_fw == 'foundation' %}
                 <link href="https://cdn.jsdelivr.net/npm/foundation-sites@6.8.1/dist/css/foundation.min.css" rel="stylesheet">
             {% endif %}
-            <link href="{{ asset('bundles/nowobreadcrumbkit/css/nowo-ui.css') }}" rel="stylesheet">
+            <link href="{{ asset('css/nowo-ui.css', 'nowo_breadcrumb_kit') }}" rel="stylesheet">
         {% endblock %}
         {% block dashboard_head %}
         <style>
@@ -56,7 +56,7 @@
             {% endif %}
         {% endblock %}
         {% block dashboard_scripts %}{% endblock %}
-        <script src="{{ asset('bundles/nowobreadcrumbkit/js/dashboard.js') }}" defer></script>
+        <script src="{{ asset('js/dashboard.js', 'nowo_breadcrumb_kit') }}" defer></script>
         <script>
         window.breadcrumbKitI18n = {
             loading: {{ 'dashboard.loading'|trans|json_encode|raw }},

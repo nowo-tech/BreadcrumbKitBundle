@@ -7,6 +7,8 @@ Configuration root key: `nowo_breadcrumb_kit` (see `Nowo\BreadcrumbKitBundle\Dep
 - [Reference](#reference)
 - [Inline edit (modal)](#inline-edit-modal)
 - [Dashboard (CRUD)](#dashboard-crud)
+  - [CSS framework (REQ-UI-001)](#css-framework-req-ui-001)
+  - [Twig helper](#twig-helper)
 - [Example](#example)
 
 ## Reference
@@ -30,8 +32,8 @@ Configuration root key: `nowo_breadcrumb_kit` (see `Nowo\BreadcrumbKitBundle\Dep
 | `dashboard.css_framework` | `string` | `bootstrap5` | CSS stack for dashboard markup (`bootstrap`/`bootstrap5`, `bootstrap4`, `tailwind`, `foundation`, `custom`, `tabler`, `none`). Exposed as Twig global `nowo_breadcrumb_kit_css_framework`. |
 | `dashboard.icon_set` | `string` | `bootstrap-icons` | Icon set for dashboard actions (`bootstrap-icons`, `tabler-icons`, `ux_icon`, `svg_inline`, `none`). Exposed as Twig global `nowo_breadcrumb_kit_icon_set`. |
 | `dashboard.import_max_bytes` | `int` | `2097152` | Maximum JSON upload size for dashboard import (default 2 MiB). |
-| `dashboard.pagination.enabled` | `bool` | `true` | When `true`, the collections list in the dashboard is paginated. |
-| `dashboard.pagination.per_page` | `int` | `20` | Number of collections per page (1–500). |
+| `dashboard.pagination.enabled` | `bool` | `true` | When `true`, collections and items lists in the dashboard are paginated. |
+| `dashboard.pagination.per_page` | `int` | `20` | Number of rows per page for collections and items (1–500). |
 | `dashboard.modals.collection_form` | `string` | `lg` | Bootstrap modal size for collection create/edit: `normal`, `lg`, or `xl`. |
 | `dashboard.modals.item_form` | `string` | `lg` | Modal size for item create/edit. |
 | `dashboard.modals.import` | `string` | `normal` | Modal size for JSON import. |
@@ -107,7 +109,14 @@ Set `dashboard.css_framework` to switch look-and-feel **without forking page tem
 | `foundation` | Foundation classes + CDN |
 | `custom` / `none` | Semantic `nowo-ui-*` only (host CSS / `nowo-ui.css`) |
 
-When `layout_template` points at the **project layout**, the demo CDN is skipped; the host layout must expose `stylesheets` / `javascripts` blocks. Bundle pages call `{{ parent() }}` then add `nowo-ui.css` and `dashboard.js`. Override nested blocks `nowo_ui_styles` / `nowo_ui_scripts` if needed.
+When `layout_template` points at the **project layout**, the demo CDN is skipped; the host layout must expose `stylesheets` / `javascripts` blocks. Bundle pages call `{{ parent() }}` then add assets via the named package `nowo_breadcrumb_kit` (REQ-ASSETS-004):
+
+```twig
+<link href="{{ asset('css/nowo-ui.css', 'nowo_breadcrumb_kit') }}" rel="stylesheet">
+<script src="{{ asset('js/dashboard.js', 'nowo_breadcrumb_kit') }}" defer></script>
+```
+
+Override nested blocks `nowo_ui_styles` / `nowo_ui_scripts` if needed.
 
 Stable content block: `nowo_breadcrumb_kit_content` (also aliased as `nowo_ui_content` in the demo layout). Overridable Twig paths: `dashboard/*.html.twig`, `dashboard/collection/*`, `dashboard/item/*`, `breadcrumb.html.twig` (see [USAGE.md](USAGE.md) / REQ-TWIG-001).
 

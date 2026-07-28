@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Nowo\BreadcrumbKitBundle\Repository;
 
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\ORM\QueryBuilder;
 use Doctrine\Persistence\ManagerRegistry;
 use Nowo\BreadcrumbKitBundle\Entity\BreadcrumbCollection;
 use Nowo\BreadcrumbKitBundle\Entity\BreadcrumbItem;
@@ -33,16 +34,41 @@ class BreadcrumbItemRepository extends ServiceEntityRepository
     }
 
     /**
-     * Lista para el panel (orden por id). Si {@see $search} no es vacío, filtra por ruta, etiqueta o id numérico.
+     * Dashboard list (ordered by id). Optional search by route, label, or numeric id.
      *
      * @return list<BreadcrumbItem>
      */
-    public function findForDashboardList(BreadcrumbCollection $collection, ?string $search): array
+    public function findForDashboardList(
+        BreadcrumbCollection $collection,
+        ?string $search,
+        int $offset = 0,
+        ?int $limit = null,
+    ): array {
+        $qb = $this->createDashboardListQueryBuilder($collection, $search)
+            ->orderBy('i.id', 'ASC')
+            ->setFirstResult(max(0, $offset));
+
+        if (null !== $limit) {
+            $qb->setMaxResults(max(1, $limit));
+        }
+
+        /* @var list<BreadcrumbItem> */
+        return $qb->getQuery()->getResult();
+    }
+
+    public function countForDashboardList(BreadcrumbCollection $collection, ?string $search): int
+    {
+        return (int) $this->createDashboardListQueryBuilder($collection, $search)
+            ->select('COUNT(i.id)')
+            ->getQuery()
+            ->getSingleScalarResult();
+    }
+
+    private function createDashboardListQueryBuilder(BreadcrumbCollection $collection, ?string $search): QueryBuilder
     {
         $qb = $this->createQueryBuilder('i')
             ->where('i.collection = :c')
-            ->setParameter('c', $collection)
-            ->orderBy('i.id', 'ASC');
+            ->setParameter('c', $collection);
 
         $search = null !== $search ? trim($search) : '';
         if ('' !== $search) {
@@ -60,8 +86,7 @@ class BreadcrumbItemRepository extends ServiceEntityRepository
             $qb->andWhere($orX);
         }
 
-        /* @var list<BreadcrumbItem> */
-        return $qb->getQuery()->getResult();
+        return $qb;
     }
 
     /**

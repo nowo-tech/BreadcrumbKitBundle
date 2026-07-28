@@ -11,6 +11,7 @@
 - [Logging](#logging)
 - [Dependencies](#dependencies)
 - [Release security checklist (12.4.1)](#release-security-checklist-1241)
+- [AI security audit](#ai-security-audit)
 
 ## Scope
 
@@ -85,5 +86,16 @@ Before tagging a release, confirm:
 | 10 | Permissions for changing breadcrumb data are appropriate | [ ] |
 | 11 | Public exposure of admin routes (if any) reviewed in the app | [ ] |
 | 12 | Rate limits / DoS considerations for DB-heavy pages (app-level) | [ ] |
+| — | **AI security audit (REQ-SEC-004)** | Grade **Pass (conditional)** / risk **Medium** (2026-07-28). Recorded in the Nowo monorepo `BUNDLES_SECURITY_ANALYSIS.md`. |
 
 For responsible disclosure, see [`.github/SECURITY.md`](../.github/SECURITY.md).
+
+## AI security audit
+
+| Field | Value |
+| ----- | ----- |
+| Date | 2026-07-28 |
+| Grade | Pass (conditional) |
+| Risk | Medium |
+| Method | Cursor campaign static pass (`src/`, dashboard security, recipe, demo, SECURITY docs) |
+| Open residuals | Host must keep `access_control` on `dashboard.path_prefix`; never ship `allow_unauthenticated: true` in production; Twig auto-escape must stay on for DB labels; JSON import size/rate limits remain app-owned. |

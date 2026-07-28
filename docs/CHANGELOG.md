@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## Table of contents
 
 - [[Unreleased]](#unreleased)
+- [[2.0.8] - 2026-07-28](#208---2026-07-28)
+  - [Added](#added)
+  - [Changed](#changed)
+  - [Documentation](#documentation)
 - [[2.0.7] - 2026-07-27](#207---2026-07-27)
   - [Added](#added)
   - [Documentation](#documentation)
@@ -53,6 +57,27 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - [Documentation](#documentation)
 
 ## [Unreleased]
+
+## [2.0.8] - 2026-07-28
+
+### Added
+
+- **REQ-PHP-001:** backed enums `CssFramework`, `IconSet`, `ModalSize` for dashboard config closed sets.
+- **REQ-PERF-001:** dashboard **items** list uses the same `dashboard.pagination` settings as collections.
+- **REQ-ASSETS-004:** named Symfony asset package `nowo_breadcrumb_kit` (`base_path` `/bundles/nowobreadcrumbkit`).
+- **REQ-TEST-011:** `make demo-smoke` + `.github/workflows/demo-smoke.yml`.
+
+### Changed
+
+- Twig dashboard assets load via `asset('…', 'nowo_breadcrumb_kit')` instead of hard-coded `/bundles/…` paths.
+- `.github/SECURITY.md` Supported Versions updated to **2.x**.
+- Spec Kit baseline inventory remapped to **76/76** `src/` files (Security, enums, CSS, UI macros).
+
+### Documentation
+
+- README Documentation order (REQ-DOCS-002), Symfony/stars badges (REQ-DOCS-004), TOC fixes (REQ-DOCS-005).
+- `docs/SECURITY.md`: REQ-SEC-004 **Pass (conditional)** / Medium (2026-07-28).
+- [UPGRADING.md](UPGRADING.md): 2.0.7 → 2.0.8 (named asset package; items pagination).
 
 ## [2.0.7] - 2026-07-27
 

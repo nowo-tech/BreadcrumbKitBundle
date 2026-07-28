@@ -23,6 +23,7 @@ dashboard:
   previous: Vorige
   next: Volgende
   pagination_collections: Collectiepaginering
+  pagination_items: Itempaginering
   showing_from_to_of_total: 'Weergave %from%-%to% van %total%'
   open_form_full_page: Formulier als volledige pagina openen
   table_id: ID

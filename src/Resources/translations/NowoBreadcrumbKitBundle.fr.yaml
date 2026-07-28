@@ -23,6 +23,7 @@ dashboard:
   previous: Précédent
   next: Suivant
   pagination_collections: Pagination des collections
+  pagination_items: Pagination des éléments
   showing_from_to_of_total: 'Affichage de %from% à %to% sur %total%'
   open_form_full_page: Ouvrir le formulaire en pleine page
   table_id: ID

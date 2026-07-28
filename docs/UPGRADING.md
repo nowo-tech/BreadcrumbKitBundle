@@ -5,6 +5,7 @@ This document describes breaking changes and upgrade notes between versions. Sec
 
 ## Table of contents
 
+- [From 2.0.7 to 2.0.8](#from-207-to-208)
 - [From 2.0.6 to 2.0.7](#from-206-to-207)
 - [From 2.0.5 to 2.0.6](#from-205-to-206)
 - [From 2.0.4 to 2.0.5](#from-204-to-205)
@@ -20,6 +21,24 @@ This document describes breaking changes and upgrade notes between versions. Sec
 - [From pre-release / local copies to 1.0.0](#from-pre-release-local-copies-to-100)
 - [Doctrine schema](#doctrine-schema)
 - [General upgrade steps (any version)](#general-upgrade-steps-any-version)
+
+## From 2.0.7 to 2.0.8
+
+**Assets (REQ-ASSETS-004):** templates now use the named package `nowo_breadcrumb_kit`. If you overrode dashboard Twig and hard-coded `bundles/nowobreadcrumbkit/…`, switch to:
+
+```twig
+{{ asset('css/nowo-ui.css', 'nowo_breadcrumb_kit') }}
+{{ asset('js/dashboard.js', 'nowo_breadcrumb_kit') }}
+```
+
+**Pagination:** `dashboard.pagination` also applies to the **items** list (same `enabled` / `per_page`).
+
+No Doctrine schema changes. Config string values for `css_framework` / `icon_set` / modals are unchanged (backed by enums internally).
+
+```bash
+composer update nowo-tech/breadcrumb-kit-bundle:^2.0
+php bin/console assets:install
+```
 
 ## From 2.0.6 to 2.0.7
 

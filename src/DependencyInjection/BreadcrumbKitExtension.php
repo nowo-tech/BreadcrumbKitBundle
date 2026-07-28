@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Nowo\BreadcrumbKitBundle\DependencyInjection;
 
+use Nowo\BreadcrumbKitBundle\Enum\CssFramework;
+use Nowo\BreadcrumbKitBundle\Enum\IconSet;
 use Nowo\BreadcrumbKitBundle\Security\BreadcrumbKitAccessCheckerInterface;
 use Nowo\BreadcrumbKitBundle\Security\ConfigurableBreadcrumbKitAccessChecker;
 use Nowo\BreadcrumbKitBundle\Service\BreadcrumbLoader;
@@ -30,6 +32,18 @@ final class BreadcrumbKitExtension extends Extension implements PrependExtension
 
     public function prepend(ContainerBuilder $container): void
     {
+        if ($container->hasExtension('framework')) {
+            $container->prependExtensionConfig('framework', [
+                'assets' => [
+                    'packages' => [
+                        Configuration::ALIAS => [
+                            'base_path' => '/bundles/nowobreadcrumbkit',
+                        ],
+                    ],
+                ],
+            ]);
+        }
+
         if (!$container->hasParameter(Configuration::ALIAS.'.dashboard.path_prefix')) {
             $container->setParameter(Configuration::ALIAS.'.dashboard.path_prefix', '/breadcrumb-kit-admin');
         }
@@ -88,12 +102,11 @@ final class BreadcrumbKitExtension extends Extension implements PrependExtension
             $layoutTemplate = '@NowoBreadcrumbKitBundle/dashboard/layout.html.twig';
         }
         $container->setParameter(Configuration::ALIAS.'.dashboard.layout_template', $layoutTemplate);
-        $cssFramework = (string) ($dashboard['css_framework'] ?? 'bootstrap5');
-        if ('bootstrap' === $cssFramework) {
-            $cssFramework = 'bootstrap5';
-        }
+        $cssFrameworkRaw = (string) ($dashboard['css_framework'] ?? CssFramework::Bootstrap5->value);
+        $cssFramework = CssFramework::from($cssFrameworkRaw)->normalized()->value;
         $container->setParameter(Configuration::ALIAS.'.dashboard.css_framework', $cssFramework);
-        $container->setParameter(Configuration::ALIAS.'.dashboard.icon_set', (string) ($dashboard['icon_set'] ?? 'bootstrap-icons'));
+        $iconSet = IconSet::from((string) ($dashboard['icon_set'] ?? IconSet::BootstrapIcons->value))->value;
+        $container->setParameter(Configuration::ALIAS.'.dashboard.icon_set', $iconSet);
         $container->setParameter(Configuration::ALIAS.'.dashboard.import_max_bytes', (int) ($dashboard['import_max_bytes'] ?? 2_097_152));
         $pagination = \is_array($dashboard['pagination'] ?? null) ? $dashboard['pagination'] : [];
         $container->setParameter(Configuration::ALIAS.'.dashboard.pagination.enabled', (bool) ($pagination['enabled'] ?? true));

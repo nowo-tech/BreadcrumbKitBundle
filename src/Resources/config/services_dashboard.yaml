@@ -23,6 +23,8 @@ services:
 
   Nowo\BreadcrumbKitBundle\Controller\Dashboard\ItemCrudController:
     arguments:
+      $paginationEnabled: '%nowo_breadcrumb_kit.dashboard.pagination.enabled%'
+      $paginationPerPage: '%nowo_breadcrumb_kit.dashboard.pagination.per_page%'
       $modalSizes: '%nowo_breadcrumb_kit.dashboard.modals%'
 
   Nowo\BreadcrumbKitBundle\Controller\Dashboard\ImportExportController:
