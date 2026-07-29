@@ -9,6 +9,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## Table of contents
 
 - [[Unreleased]](#unreleased)
+- [[2.0.9] - 2026-07-29](#209---2026-07-29)
+  - [Fixed](#fixed)
+  - [Changed](#changed)
 - [[2.0.8] - 2026-07-28](#208---2026-07-28)
   - [Added](#added)
   - [Changed](#changed)
@@ -57,6 +60,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - [Documentation](#documentation)
 
 ## [Unreleased]
+
+## [2.0.9] - 2026-07-29
+
+### Fixed
+
+- **REQ-TEST-011:** `make demo-smoke` follows HTTP redirects (`curl -L`) so a `302` from `/` to `/en/` still expects a final `200`.
+- Demo `config/reference.php` comments for `css_framework` / `icon_set` / pagination aligned with enums and items list.
+
+### Changed
+
+- **REQ-MAKE-009 / REQ-MAKE-010:** Makefiles detect Compose V2 vs `docker-compose`, and soft-include optional monorepo `update-deps` helpers so standalone CI checkouts do not fail.
 
 ## [2.0.8] - 2026-07-28
 

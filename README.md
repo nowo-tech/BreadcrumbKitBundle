@@ -35,11 +35,11 @@ This bundle is **FrankenPHP worker mode friendly**.
 
 ## Version information
 
-Latest release: **[v2.0.8](https://github.com/nowo-tech/BreadcrumbKitBundle/releases/tag/v2.0.8)** (2026-07-28). Requires **PHP 8.2+** and **Symfony 7+**. Tables: `dashboard_breadcrumb_*` (see [UPGRADING.md](docs/UPGRADING.md) from v1.2.x).
+Latest release: **[v2.0.9](https://github.com/nowo-tech/BreadcrumbKitBundle/releases/tag/v2.0.9)** (2026-07-29). Requires **PHP 8.2+** and **Symfony 7+**. Tables: `dashboard_breadcrumb_*` (see [UPGRADING.md](docs/UPGRADING.md) from v1.2.x).
 
 ## Status
 
-**MVP (v2.0.8):** entities (`dashboard_breadcrumb_*` tables, aligned with DashboardMenuBundle), repositories, `BreadcrumbLoader`, `BreadcrumbUrlResolver`, Twig (`breadcrumb_trail`, `breadcrumb_render`), **optional web dashboard** with **REQ-UI-001** CSS frameworks / **REQ-UI-002** access roles, named asset package `nowo_breadcrumb_kit`, **presentation options**, dashboard i18n **en/es/de/fr/it/nl/pt**. **Demo**: Symfony 8.1 / PHP 8.5 (**8021**) with FrankenPHP. **Flex recipe** in `.symfony/recipe/`. Planned: migration command, event-based enrichers.
+**MVP (v2.0.9):** entities (`dashboard_breadcrumb_*` tables, aligned with DashboardMenuBundle), repositories, `BreadcrumbLoader`, `BreadcrumbUrlResolver`, Twig (`breadcrumb_trail`, `breadcrumb_render`), **optional web dashboard** with **REQ-UI-001** CSS frameworks / **REQ-UI-002** access roles, named asset package `nowo_breadcrumb_kit`, **presentation options**, dashboard i18n **en/es/de/fr/it/nl/pt**. **Demo**: Symfony 8.1 / PHP 8.5 (**8021**) with FrankenPHP. **Flex recipe** in `.symfony/recipe/`. Planned: migration command, event-based enrichers.
 
 **FrankenPHP:** demo selects classic vs worker via **`FRANKENPHP_MODE`** (default `worker`). See [docs/DEMO-FRANKENPHP.md](docs/DEMO-FRANKENPHP.md).
 

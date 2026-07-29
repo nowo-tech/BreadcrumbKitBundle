@@ -5,6 +5,7 @@ This document describes breaking changes and upgrade notes between versions. Sec
 
 ## Table of contents
 
+- [From 2.0.8 to 2.0.9](#from-208-to-209)
 - [From 2.0.7 to 2.0.8](#from-207-to-208)
 - [From 2.0.6 to 2.0.7](#from-206-to-207)
 - [From 2.0.5 to 2.0.6](#from-205-to-206)
@@ -21,6 +22,14 @@ This document describes breaking changes and upgrade notes between versions. Sec
 - [From pre-release / local copies to 1.0.0](#from-pre-release-local-copies-to-100)
 - [Doctrine schema](#doctrine-schema)
 - [General upgrade steps (any version)](#general-upgrade-steps-any-version)
+
+## From 2.0.8 to 2.0.9
+
+No Doctrine schema or public API changes. Development Makefiles now soft-include optional monorepo `update-deps` helpers and prefer Docker Compose V2 when available.
+
+```bash
+composer update nowo-tech/breadcrumb-kit-bundle:^2.0
+```
 
 ## From 2.0.7 to 2.0.8
 
