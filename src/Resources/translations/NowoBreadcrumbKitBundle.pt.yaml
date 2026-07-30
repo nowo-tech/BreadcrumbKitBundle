@@ -20,6 +20,8 @@ dashboard:
   context: Contexto
   search_placeholder: 'Pesquisar por código, nome ou contexto…'
   clear: Limpar
+  filter: Filtrar
+  clear_filters: Limpar filtros
   previous: Anterior
   next: Seguinte
   pagination_collections: Paginação de coleções

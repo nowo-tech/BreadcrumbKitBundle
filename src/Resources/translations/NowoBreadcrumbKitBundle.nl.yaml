@@ -20,6 +20,8 @@ dashboard:
   context: Contexto
   search_placeholder: 'Zoeken op code, naam of context…'
   clear: Wissen
+  filter: Filteren
+  clear_filters: Filters wissen
   previous: Vorige
   next: Volgende
   pagination_collections: Collectiepaginering

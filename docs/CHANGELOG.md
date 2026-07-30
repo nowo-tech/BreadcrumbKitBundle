@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## Table of contents
 
 - [[Unreleased]](#unreleased)
+- [[2.0.10] - 2026-07-30](#2010---2026-07-30)
+  - [Changed](#changed)
 - [[2.0.9] - 2026-07-29](#209---2026-07-29)
   - [Fixed](#fixed)
   - [Changed](#changed)
@@ -60,6 +62,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - [Documentation](#documentation)
 
 ## [Unreleased]
+
+## [2.0.10] - 2026-07-30
+
+### Changed
+
+- Collections and items index: list filter row matches admin list UX (search input + Filter + always-visible Clear filters), separate from action toolbars.
+- Added `dashboard.filter` and `dashboard.clear_filters` translation keys (kept `dashboard.search` / `dashboard.clear` for BC).
+- Semantic CSS: `.nowo-ui-search` / `.nowo-ui-search__input`; Twig macros `search_form()` / `search_input()`.
 
 ## [2.0.9] - 2026-07-29
 

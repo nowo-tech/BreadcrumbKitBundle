@@ -5,6 +5,7 @@ This document describes breaking changes and upgrade notes between versions. Sec
 
 ## Table of contents
 
+- [From 2.0.9 to 2.0.10](#from-209-to-2010)
 - [From 2.0.8 to 2.0.9](#from-208-to-209)
 - [From 2.0.7 to 2.0.8](#from-207-to-208)
 - [From 2.0.6 to 2.0.7](#from-206-to-207)
@@ -22,6 +23,18 @@ This document describes breaking changes and upgrade notes between versions. Sec
 - [From pre-release / local copies to 1.0.0](#from-pre-release-local-copies-to-100)
 - [Doctrine schema](#doctrine-schema)
 - [General upgrade steps (any version)](#general-upgrade-steps-any-version)
+
+## From 2.0.9 to 2.0.10
+
+No Doctrine schema or public API changes.
+
+- **Dashboard list filter UX:** collections and items indexes use a dedicated filter row (Filter + always-visible Clear filters), separate from action toolbars. New keys `dashboard.filter` / `dashboard.clear_filters`; `dashboard.search` / `dashboard.clear` remain for BC.
+- **Twig / CSS:** macros `search_form()` / `search_input()` and classes `.nowo-ui-search` / `.nowo-ui-search__input`. Hosts that override those templates may want to adopt the same layout.
+
+```bash
+composer update nowo-tech/breadcrumb-kit-bundle:^2.0
+php bin/console assets:install
+```
 
 ## From 2.0.8 to 2.0.9
 

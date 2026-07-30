@@ -6,14 +6,13 @@
 {% block title %}{{ 'dashboard.collections_heading'|trans }}{% endblock %}
 
 {% block body %}
+    <form method="get" action="{{ path(dashboard_routes.index|default('nowo_breadcrumb_kit_dashboard_collections_index')) }}" class="{{ ui.search_form() }}" role="search">
+        <input type="search" name="q" value="{{ search|e('html_attr') }}" class="{{ ui.search_input() }}" placeholder="{{ 'dashboard.search_placeholder'|trans }}" aria-label="{{ 'dashboard.search'|trans }}" autocomplete="off">
+        <button type="submit" class="{{ ui.btn('secondary') }}">{{ 'dashboard.filter'|trans }}</button>
+        <a href="{{ path(dashboard_routes.index|default('nowo_breadcrumb_kit_dashboard_collections_index')) }}" class="{{ ui.btn('secondary') }}">{{ 'dashboard.clear_filters'|trans }}</a>
+    </form>
+
     <div class="{{ ui.toolbar() }}">
-        <form method="get" action="{{ path(dashboard_routes.index|default('nowo_breadcrumb_kit_dashboard_collections_index')) }}" class="d-flex gap-1 flex-grow-1" role="search" style="display:flex;gap:0.35rem;flex-grow:1;">
-            <input type="search" name="q" value="{{ search|e('html_attr') }}" class="{{ ui.input() }}" placeholder="{{ 'dashboard.search_placeholder'|trans }}" aria-label="{{ 'dashboard.search'|trans }}">
-            <button type="submit" class="{{ ui.btn('secondary') }}">{{ 'dashboard.search'|trans }}</button>
-            {% if search is not empty %}
-                <a href="{{ path(dashboard_routes.index|default('nowo_breadcrumb_kit_dashboard_collections_index')) }}" class="{{ ui.btn('secondary') }}">{{ 'dashboard.clear'|trans }}</a>
-            {% endif %}
-        </form>
         <a href="{{ path(dashboard_routes.export_all|default('nowo_breadcrumb_kit_dashboard_export_all')) }}" class="{{ ui.btn('secondary') }}" target="_blank" rel="noopener noreferrer">{{ 'dashboard.export_all'|trans }}</a>
         <button type="button" class="{{ ui.btn('secondary') }} btn-bk-import" {{ ui.modal_toggle_attrs()|raw }} {{ ui.modal_target_attr('modal-bk-import')|raw }} data-bk-import-url="{{ path(dashboard_routes.import|default('nowo_breadcrumb_kit_dashboard_import')) }}?_partial=1">{{ 'dashboard.import'|trans }}</button>
         <button type="button" class="{{ ui.btn('primary') }} btn-bk-collection-form" {{ ui.modal_toggle_attrs()|raw }} {{ ui.modal_target_attr('modal-bk-collection-form')|raw }} data-bk-url="{{ path(dashboard_routes.new|default('nowo_breadcrumb_kit_dashboard_collections_new')) }}?_partial=1" data-bk-title="{{ 'dashboard.new_collection_modal_title'|trans|e('html_attr') }}">{{ 'dashboard.new_collection'|trans }}</button>

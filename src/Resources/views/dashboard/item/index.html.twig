@@ -18,15 +18,11 @@
         </div>
     </div>
 
-    <div class="{{ ui.toolbar() }}">
-        {{ form_start(search_form, { attr: { class: 'd-flex gap-1 flex-grow-1', role: 'search', style: 'display:flex;gap:0.35rem;flex-grow:1;' } }) }}
-            {{ form_widget(search_form.q, { attr: { class: ui.input(), placeholder: 'dashboard.search_placeholder'|trans, 'aria-label': 'dashboard.search'|trans } }) }}
-            <button type="submit" class="{{ ui.btn('secondary') }}">{{ 'dashboard.search'|trans }}</button>
-            {% if search_query != '' %}
-                <a href="{{ path('nowo_breadcrumb_kit_dashboard_items_index', { collectionId: collection.id }) }}" class="{{ ui.btn('secondary') }}">{{ 'dashboard.clear'|trans }}</a>
-            {% endif %}
-        {{ form_end(search_form, { render_rest: false }) }}
-    </div>
+    {{ form_start(search_form, { attr: { class: ui.search_form(), role: 'search' } }) }}
+        {{ form_widget(search_form.q, { attr: { class: ui.search_input(), placeholder: 'dashboard.search_placeholder'|trans, 'aria-label': 'dashboard.search'|trans, autocomplete: 'off' } }) }}
+        <button type="submit" class="{{ ui.btn('secondary') }}">{{ 'dashboard.filter'|trans }}</button>
+        <a href="{{ path('nowo_breadcrumb_kit_dashboard_items_index', { collectionId: collection.id }) }}" class="{{ ui.btn('secondary') }}">{{ 'dashboard.clear_filters'|trans }}</a>
+    {{ form_end(search_form, { render_rest: false }) }}
 
     {% if search_query != '' %}
         <p class="small {{ ui.muted() }} mb-2">{{ 'dashboard.search_results'|trans({'%count%': pagination.total|default(items|length), '%query%': search_query|e}) }}</p>
