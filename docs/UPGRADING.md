@@ -5,6 +5,7 @@ This document describes breaking changes and upgrade notes between versions. Sec
 
 ## Table of contents
 
+- [From 2.0.10 to 2.0.11](#from-2010-to-2011)
 - [From 2.0.9 to 2.0.10](#from-209-to-2010)
 - [From 2.0.8 to 2.0.9](#from-208-to-209)
 - [From 2.0.7 to 2.0.8](#from-207-to-208)
@@ -23,6 +24,18 @@ This document describes breaking changes and upgrade notes between versions. Sec
 - [From pre-release / local copies to 1.0.0](#from-pre-release-local-copies-to-100)
 - [Doctrine schema](#doctrine-schema)
 - [General upgrade steps (any version)](#general-upgrade-steps-any-version)
+
+## From 2.0.10 to 2.0.11
+
+No Doctrine schema or public API changes.
+
+- **`nowo-ui.css`:** hard-coded colours replaced with `--nowo-ui-*` custom properties (defaults match the previous slate/blue look). Hosts can remap under `.kit-admin` without forking Twig.
+- Run `php bin/console assets:install` after upgrade.
+
+```bash
+composer update nowo-tech/breadcrumb-kit-bundle:^2.0
+php bin/console assets:install
+```
 
 ## From 2.0.9 to 2.0.10
 

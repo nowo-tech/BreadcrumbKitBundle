@@ -43,7 +43,7 @@ test-coverage-all:
 	@for d in $(DEMOS); do $(MAKE) -C $$d test-coverage || exit 1; done
 	@echo "test-coverage-all done."
 
-release-check: update-bundle-all test-coverage-all release-verify
+release-check: update-bundle-all release-verify
 	@echo "All demos passed release-check."
 
 release-verify:

@@ -116,6 +116,17 @@ When `layout_template` points at the **project layout**, the demo CDN is skipped
 <script src="{{ asset('js/dashboard.js', 'nowo_breadcrumb_kit') }}" defer></script>
 ```
 
+`nowo-ui.css` uses `--nowo-ui-*` custom properties (slate/blue defaults). Remap under host chrome (e.g. `.kit-admin`) without forking templates:
+
+```css
+.kit-admin {
+  --nowo-ui-primary: var(--brand-primary);
+  --nowo-ui-text: var(--brand-ink);
+  --nowo-ui-border: var(--brand-border);
+  --nowo-ui-surface: var(--brand-surface);
+}
+```
+
 Override nested blocks `nowo_ui_styles` / `nowo_ui_scripts` if needed.
 
 Stable content block: `nowo_breadcrumb_kit_content` (also aliased as `nowo_ui_content` in the demo layout). Overridable Twig paths: `dashboard/*.html.twig`, `dashboard/collection/*`, `dashboard/item/*`, `breadcrumb.html.twig` (see [USAGE.md](USAGE.md) / REQ-TWIG-001).

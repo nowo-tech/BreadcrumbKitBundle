@@ -11,6 +11,7 @@ use Nowo\BreadcrumbKitBundle\Service\BreadcrumbInlineEditResolver;
 use Nowo\BreadcrumbKitBundle\Service\BreadcrumbLoader;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
+use Symfony\Component\DependencyInjection\Extension\ExtensionInterface;
 
 /**
  * Ensures the DI extension loads services.yaml and registers core definitions.
@@ -45,6 +46,37 @@ final class BreadcrumbKitExtensionTest extends TestCase
         self::assertFalse($container->getParameter('nowo_breadcrumb_kit.dashboard.enabled'));
         self::assertNull($container->getParameter('nowo_breadcrumb_kit.inline_edit.query_param'));
         self::assertSame([], $container->getParameter('nowo_breadcrumb_kit.inline_edit.access_services'));
+    }
+
+    public function testPrependRegistersNamedAssetPackageWhenFrameworkPresent(): void
+    {
+        $container = new ContainerBuilder();
+        $container->registerExtension(new class implements ExtensionInterface {
+            public function getAlias(): string
+            {
+                return 'framework';
+            }
+
+            public function load(array $configs, ContainerBuilder $container): void
+            {
+            }
+
+            public function getNamespace(): string
+            {
+                return '';
+            }
+
+            public function getXsdValidationBasePath(): string|false
+            {
+                return false;
+            }
+        });
+
+        (new BreadcrumbKitExtension())->prepend($container);
+
+        $prepended = $container->getExtensionConfig('framework');
+        self::assertNotEmpty($prepended);
+        self::assertSame('/bundles/nowobreadcrumbkit', $prepended[0]['assets']['packages']['nowo_breadcrumb_kit']['base_path']);
     }
 
     public function testLoadWithDashboardEnabledAndInlineEditConfig(): void

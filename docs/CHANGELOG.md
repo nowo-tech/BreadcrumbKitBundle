@@ -9,6 +9,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## Table of contents
 
 - [[Unreleased]](#unreleased)
+- [[2.0.11] - 2026-07-30](#2011---2026-07-30)
+  - [Changed](#changed)
+  - [Documentation](#documentation)
 - [[2.0.10] - 2026-07-30](#2010---2026-07-30)
   - [Changed](#changed)
 - [[2.0.9] - 2026-07-29](#209---2026-07-29)
@@ -62,6 +65,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - [Documentation](#documentation)
 
 ## [Unreleased]
+
+## [2.0.11] - 2026-07-30
+
+### Changed
+
+- **`nowo-ui.css`**: colours use `--nowo-ui-*` custom properties (defaults unchanged: slate/blue). Hosts remapped under `.kit-admin` without forking templates.
+
+### Documentation
+
+- [CONFIGURATION.md](CONFIGURATION.md) — theming via `--nowo-ui-*` tokens
+- [UPGRADING.md](UPGRADING.md) — From 2.0.10 to 2.0.11
 
 ## [2.0.10] - 2026-07-30
 
