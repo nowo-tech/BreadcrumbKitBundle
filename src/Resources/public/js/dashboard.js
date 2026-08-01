@@ -1,6 +1,13 @@
 (function () {
   'use strict';
 
+  var _cfg = window.__breadcrumbKitDashboard || {};
+  var _fw = ((_cfg.cssFramework || 'bootstrap5') + '').trim().toLowerCase();
+
+  function isBootstrapFw(fw) {
+    return fw === 'bootstrap' || fw === 'bootstrap5' || fw === 'bootstrap4' || fw === 'tabler';
+  }
+
   function t(key, fallback) {
     var g = typeof window !== 'undefined' ? window.breadcrumbKitI18n : null;
     return (g && g[key]) ? g[key] : fallback;
@@ -13,9 +20,69 @@
       .then(function (r) { return r.text(); })
       .then(function (html) { bodyEl.innerHTML = html; })
       .catch(function () {
-        bodyEl.innerHTML = '<div class="alert alert-danger">' + t('errorLoadingForm', 'Could not load the form.') + '</div>';
+        bodyEl.innerHTML = '<div class="nowo-ui-flash nowo-ui-flash--error alert alert-danger">' + t('errorLoadingForm', 'Could not load the form.') + '</div>';
       });
   }
+
+  // --- Custom-framework modal helpers (non-bootstrap stacks) ---
+
+  function openModal(id, opener) {
+    var el = document.getElementById(id);
+    if (!el) return;
+    el.classList.add('nowo-ui-modal-open');
+    el.removeAttribute('hidden');
+    el.setAttribute('aria-hidden', 'false');
+    document.body.classList.add('nowo-modal-open');
+    // Dispatch synthetic show.bs.modal so existing listeners keep working.
+    var ev;
+    try {
+      ev = new CustomEvent('show.bs.modal', { bubbles: true, cancelable: true });
+    } catch (e) {
+      ev = document.createEvent('Event');
+      ev.initEvent('show.bs.modal', true, true);
+    }
+    ev.relatedTarget = opener || null;
+    el.dispatchEvent(ev);
+  }
+
+  function closeModal(id) {
+    var el = document.getElementById(id);
+    if (!el) return;
+    el.classList.remove('nowo-ui-modal-open');
+    el.setAttribute('aria-hidden', 'true');
+    if (!document.querySelector('.nowo-ui-modal-open')) {
+      document.body.classList.remove('nowo-modal-open');
+    }
+  }
+
+  function bindCustomModals() {
+    document.addEventListener('click', function (ev) {
+      var opener = ev.target.closest('[data-nowo-modal-open]');
+      if (opener) {
+        var id = opener.getAttribute('data-nowo-modal-open') || '';
+        if (!id) {
+          var target = opener.getAttribute('data-nowo-modal-target') || '';
+          id = target.replace(/^#/, '');
+        }
+        if (id) openModal(id, opener);
+        return;
+      }
+      var closer = ev.target.closest('[data-nowo-modal-close]');
+      if (closer) {
+        var modalEl = closer.closest('.nowo-ui-modal-open[id]');
+        var closeId = (modalEl && modalEl.id) || closer.getAttribute('data-nowo-modal-close') || '';
+        if (closeId) closeModal(closeId);
+      }
+    });
+    // Click directly on the overlay backdrop closes the modal.
+    document.addEventListener('click', function (ev) {
+      if (ev.target.matches && ev.target.matches('.nowo-ui-modal-open[id]')) {
+        closeModal(ev.target.id);
+      }
+    });
+  }
+
+  // --- Bootstrap-style event listeners (work for all frameworks via show.bs.modal) ---
 
   function bindDeleteModal() {
     var modalEl = document.getElementById('modal-bk-delete');
@@ -49,7 +116,7 @@
     var titleEl = document.getElementById('modal-bk-collection-form-label');
     if (!modalEl || !bodyEl) return;
 
-    var loading = '<div class="text-center py-4 text-muted">' + t('loading', 'Loading…') + '</div>';
+    var loading = '<div class="nowo-ui-muted text-center py-4">' + t('loading', 'Loading…') + '</div>';
 
     modalEl.addEventListener('show.bs.modal', function (ev) {
       var btn = ev.relatedTarget;
@@ -68,7 +135,7 @@
     var titleEl = document.getElementById('modal-bk-item-form-label');
     if (!modalEl || !bodyEl) return;
 
-    var loading = '<div class="text-center py-4 text-muted">' + t('loading', 'Loading…') + '</div>';
+    var loading = '<div class="nowo-ui-muted text-center py-4">' + t('loading', 'Loading…') + '</div>';
 
     modalEl.addEventListener('show.bs.modal', function (ev) {
       var btn = ev.relatedTarget;
@@ -86,7 +153,7 @@
     var bodyEl = document.getElementById('modal-bk-import-body');
     if (!modalEl || !bodyEl) return;
 
-    var loading = '<div class="text-center py-4 text-muted">' + t('loading', 'Loading…') + '</div>';
+    var loading = '<div class="nowo-ui-muted text-center py-4">' + t('loading', 'Loading…') + '</div>';
     var cfg = window.__breadcrumbKitDashboard || {};
 
     modalEl.addEventListener('show.bs.modal', function (ev) {
@@ -110,6 +177,14 @@
   }
 
   function init() {
+    // Re-read config at init time in case the inline script ran after this file.
+    _cfg = window.__breadcrumbKitDashboard || {};
+    _fw = ((_cfg.cssFramework || 'bootstrap5') + '').trim().toLowerCase();
+
+    if (!isBootstrapFw(_fw)) {
+      bindCustomModals();
+    }
+
     bindDeleteModal();
     bindCollectionFormModal();
     bindItemFormModal();

@@ -9,6 +9,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## Table of contents
 
 - [[Unreleased]](#unreleased)
+  - [Added](#added)
+  - [Documentation](#documentation)
+- [[2.0.12] - 2026-08-01](#2012---2026-08-01)
+  - [Added](#added)
+  - [Documentation](#documentation)
 - [[2.0.11] - 2026-07-30](#2011---2026-07-30)
   - [Changed](#changed)
   - [Documentation](#documentation)
@@ -65,6 +70,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - [Documentation](#documentation)
 
 ## [Unreleased]
+
+## [2.0.12] - 2026-08-01
+
+### Added
+
+- **`css_framework: custom` / `none` support without Bootstrap** (REQ-UI-001).
+  - `dashboard.js` now reads `window.__breadcrumbKitDashboard.cssFramework` at init time. For non-bootstrap stacks it registers lightweight `[data-nowo-modal-open]` / `[data-nowo-modal-close]` handlers and dispatches a synthetic `show.bs.modal` event (with `relatedTarget`) so all existing modal listeners (form-load, confirm-delete, import) keep working without Bootstrap JS.
+  - `nowo-ui.css` gains a self-contained modal overlay: `.nowo-ui-modal` (hidden by default), `.nowo-ui-modal.nowo-ui-modal-open` (visible), `body.nowo-modal-open` (scroll-lock), plus Bootstrap-shaped `.modal-dialog` / `.modal-content` / `.modal-header` / `.modal-body` / `.btn-close` styles scoped under `.nowo-ui-modal` so custom-framework hosts get correct modal chrome without any extra CSS.
+  - Loading and error states inside modals use `nowo-ui-muted` / `nowo-ui-flash nowo-ui-flash--error` classes (retaining `alert alert-danger` as a dual class for bootstrap stacks).
+
+### Documentation
+
+- [CONFIGURATION.md](CONFIGURATION.md) — new **"Using `css_framework: custom` without Bootstrap"** section with minimal host config, theming guide, and macro attribute notes.
 
 ## [2.0.11] - 2026-07-30
 

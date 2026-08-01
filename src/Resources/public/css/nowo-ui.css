@@ -177,8 +177,112 @@
   margin-left: 0.35rem;
 }
 
+/* Modal overlay — active when css_framework=custom/none (no Bootstrap loaded).
+ * For bootstrap* / tabler stacks Bootstrap's own .modal rules take precedence;
+ * .nowo-ui-modal-open is never added in those stacks (see dashboard.js). */
 .nowo-ui-modal {
-  /* Semantic hook; Bootstrap .modal remains for bootstrap* stacks */
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 1050;
+  overflow-x: hidden;
+  overflow-y: auto;
+  background: rgba(0, 0, 0, 0.5);
+}
+
+.nowo-ui-modal.nowo-ui-modal-open {
+  display: block;
+}
+
+body.nowo-modal-open {
+  overflow: hidden;
+}
+
+/* Bootstrap-shaped .modal-* children rendered inside custom modals */
+.nowo-ui-modal .modal-dialog {
+  position: relative;
+  margin: 1.75rem auto;
+  max-width: 500px;
+  pointer-events: none;
+}
+
+.nowo-ui-modal .modal-dialog-scrollable {
+  height: calc(100% - 3.5rem);
+}
+
+.nowo-ui-modal .modal-dialog-scrollable .modal-content {
+  max-height: 100%;
+  overflow: hidden;
+}
+
+.nowo-ui-modal .modal-dialog-scrollable .modal-body {
+  overflow-y: auto;
+}
+
+.nowo-ui-modal .modal-dialog.modal-lg {
+  max-width: 800px;
+}
+
+.nowo-ui-modal .modal-dialog.modal-xl {
+  max-width: 1140px;
+}
+
+.nowo-ui-modal .modal-content {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  pointer-events: auto;
+  background: var(--nowo-ui-surface);
+  border: 1px solid var(--nowo-ui-border);
+  border-radius: var(--nowo-ui-radius);
+  box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+}
+
+.nowo-ui-modal .modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 1.25rem;
+  border-bottom: 1px solid var(--nowo-ui-border);
+  gap: 0.5rem;
+}
+
+.nowo-ui-modal .modal-title {
+  margin: 0;
+  font-size: 1.1rem;
+  font-weight: 600;
+  line-height: 1.5;
+}
+
+.nowo-ui-modal .modal-body {
+  flex: 1 1 auto;
+  padding: 1rem 1.25rem;
+}
+
+.nowo-ui-modal .btn-close {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.5rem;
+  height: 1.5rem;
+  border: 0;
+  border-radius: var(--nowo-ui-radius);
+  background: transparent;
+  cursor: pointer;
+  opacity: 0.6;
+  font-size: 1.25rem;
+  line-height: 1;
+  color: var(--nowo-ui-text);
+  padding: 0;
+}
+
+.nowo-ui-modal .btn-close::before {
+  content: "\00D7";
+}
+
+.nowo-ui-modal .btn-close:hover {
+  opacity: 1;
 }
 
 .nowo-ui-body {
