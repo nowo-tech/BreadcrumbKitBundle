@@ -131,6 +131,54 @@ Override nested blocks `nowo_ui_styles` / `nowo_ui_scripts` if needed.
 
 Stable content block: `nowo_breadcrumb_kit_content` (also aliased as `nowo_ui_content` in the demo layout). Overridable Twig paths: `dashboard/*.html.twig`, `dashboard/collection/*`, `dashboard/item/*`, `breadcrumb.html.twig` (see [USAGE.md](USAGE.md) / REQ-TWIG-001).
 
+### Using `css_framework: custom` (or `none`) without Bootstrap
+
+Set `dashboard.css_framework: custom` (or `none`) when your host layout does **not** load Bootstrap.
+The dashboard will use only the semantic `nowo-ui-*` classes defined in `nowo-ui.css`.
+
+**What the bundle provides automatically:**
+
+- `nowo-ui.css` includes a self-contained modal overlay (`.nowo-ui-modal` + `.nowo-ui-modal-open`) so modals render correctly without Bootstrap's `.modal` CSS.
+- `dashboard.js` detects `window.__breadcrumbKitDashboard.cssFramework` at runtime:
+  - For **bootstrap / bootstrap5 / bootstrap4 / tabler** → defers to Bootstrap JS for modal management.
+  - For any other value → registers lightweight custom open/close handlers for `[data-nowo-modal-open]` / `[data-nowo-modal-close]` attributes, dispatches a synthetic `show.bs.modal` event so the existing listeners (form-load, confirm-delete, etc.) keep working.
+- Loading and error states inside modals use `nowo-ui-muted` / `nowo-ui-flash nowo-ui-flash--error` classes (no Bootstrap dependency).
+
+**Minimal host configuration:**
+
+```yaml
+# config/packages/nowo_breadcrumb_kit.yaml
+nowo_breadcrumb_kit:
+    dashboard:
+        enabled: true
+        layout_template: 'base.html.twig'   # host layout (must define nowo_breadcrumb_kit_content block)
+        css_framework: custom
+```
+
+```twig
+{# templates/base.html.twig — expose the required blocks #}
+{% block stylesheets %}
+    <link href="{{ asset('css/nowo-ui.css', 'nowo_breadcrumb_kit') }}" rel="stylesheet">
+    {# host stylesheet — remap --nowo-ui-* tokens here #}
+{% endblock %}
+{% block javascripts %}
+    <script src="{{ asset('js/dashboard.js', 'nowo_breadcrumb_kit') }}" defer></script>
+{% endblock %}
+```
+
+**Theming without Bootstrap** — remap `--nowo-ui-*` custom properties under your layout wrapper:
+
+```css
+.my-admin-layout {
+  --nowo-ui-primary: var(--brand-primary);
+  --nowo-ui-surface: var(--color-surface);
+  --nowo-ui-border: var(--color-border);
+  --nowo-ui-text: var(--color-ink);
+}
+```
+
+> The `_ui_macros.html.twig` macros automatically emit `data-nowo-modal-open` / `data-nowo-modal-target` / `data-nowo-modal-close` attributes instead of `data-bs-toggle` / `data-bs-target` / `data-bs-dismiss` when the framework is not bootstrap/tabler. No template overrides are required.
+
 ### Twig helper
 
 `breadcrumb_kit_dashboard_collections_url()` returns the collections index URL or `null` if `dashboard.enabled` is false or the route is not registered (e.g. routing import missing). Use it in templates instead of `path('nowo_breadcrumb_kit_dashboard_collections_index')` when the dashboard is optional.
