@@ -11,6 +11,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - [[Unreleased]](#unreleased)
   - [Added](#added)
   - [Documentation](#documentation)
+- [[2.0.12] - 2026-08-01](#2012---2026-08-01)
+  - [Added](#added)
+  - [Documentation](#documentation)
 - [[2.0.11] - 2026-07-30](#2011---2026-07-30)
   - [Changed](#changed)
   - [Documentation](#documentation)
@@ -67,6 +70,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - [Documentation](#documentation)
 
 ## [Unreleased]
+
+## [2.0.12] - 2026-08-01
 
 ### Added
 
