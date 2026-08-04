@@ -9,17 +9,16 @@
     export_all: 'nowo_breadcrumb_kit_dashboard_export_all',
 }) %}
 
-{# When the host sets layout_template to the project layout, stack assets via parent(). #}
+{# When the host sets layout_template to the project layout, stack assets via parent().
+   Do NOT redefine nested nowo_ui_styles / nowo_ui_scripts here — that would replace the
+   layout CDN (Bootstrap/etc.) when parent() is rendered (Twig nested-block inheritance). #}
 {% block stylesheets %}
     {{ parent() }}
-    {% block nowo_ui_styles %}
-        <link href="{{ asset('css/nowo-ui.css', 'nowo_ui_kit') }}" rel="stylesheet">
-    {% endblock %}
+    <link href="{{ asset('css/nowo-ui.css', 'nowo_ui_kit') }}" rel="stylesheet">
 {% endblock %}
 
 {% block javascripts %}
     {{ parent() }}
-    {% block nowo_ui_scripts %}{% endblock %}
     <script src="{{ asset('js/dashboard.js', 'nowo_breadcrumb_kit') }}" defer></script>
 {% endblock %}
 
@@ -37,9 +36,9 @@
         {% endfor %}
     {% endblock %}
 
-    {% block nowo_ui_content %}
-        {% block body %}{% endblock %}
-    {% endblock %}
+    {# Do not redefine nowo_ui_content here — layout nests nowo_breadcrumb_kit_content
+       inside nowo_ui_content; a child redefinition would replace that and drop modals. #}
+    {% block body %}{% endblock %}
 
     {% block nowo_ui_modals %}
         {% include '@NowoBreadcrumbKitBundle/dashboard/_dashboard_modals.html.twig' %}

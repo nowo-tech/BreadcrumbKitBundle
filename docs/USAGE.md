@@ -91,6 +91,8 @@ Collection `homeIcon` wins over `presentation.home_icon`. Override `@NowoBreadcr
 
 **Dashboard CSS / macros (REQ-UI-001-kit):** import `@NowoUiKitBundle/macros/ui.html.twig` and load `asset('css/nowo-ui.css', 'nowo_ui_kit')`. Domain CRUD stays in this bundle; look-and-feel comes from [UiKitBundle](https://github.com/nowo-tech/UiKitBundle). See [CONFIGURATION.md](CONFIGURATION.md) for `dashboard.css_framework` / `nowo_ui_kit` alignment.
 
+**Dashboard forms (FormKit):** CRUD types use [FormKitBundle](https://github.com/nowo-tech/FormKitBundle) (`FormOptionsTrait`, profile `breadcrumb_kit`). Register `NowoFormKitBundle`; optional host `nowo_form_kit` YAML — see [CONFIGURATION.md](CONFIGURATION.md).
+
 **Dashboard layout integration:** set `nowo_breadcrumb_kit.dashboard.layout_template` to your app layout if it defines block `nowo_breadcrumb_kit_content` (same pattern as [DashboardMenuBundle](https://github.com/nowo-tech/DashboardMenuBundle) `nowo_dashboard_menu_content`).
 
 ### Overriding translations (REQ-I18N-001)

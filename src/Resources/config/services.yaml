@@ -57,3 +57,9 @@ services:
   Nowo\BreadcrumbKitBundle\EventSubscriber\TablePrefixSubscriber:
     arguments:
       $tablePrefix: '%nowo_breadcrumb_kit.table_prefix%'
+
+  # Form Kit injects FormOptionsMerger into tagged form types (FormOptionsMergerInjectorCompilerPass).
+  Nowo\BreadcrumbKitBundle\Form\:
+    resource: '../../Form/'
+    exclude: '../../Form/DataTransformer/'
+    tags: ['form.type']

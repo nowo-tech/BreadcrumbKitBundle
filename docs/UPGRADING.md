@@ -5,6 +5,7 @@ This document describes breaking changes and upgrade notes between versions. Sec
 
 ## Table of contents
 
+- [From 2.0.13 to 2.0.14](#from-2013-to-2014)
 - [From 2.0.12 to 2.0.13](#from-2012-to-2013)
 - [From 2.0.10 to 2.0.11](#from-2010-to-2011)
 - [From 2.0.9 to 2.0.10](#from-209-to-2010)
@@ -25,6 +26,20 @@ This document describes breaking changes and upgrade notes between versions. Sec
 - [From pre-release / local copies to 1.0.0](#from-pre-release-local-copies-to-100)
 - [Doctrine schema](#doctrine-schema)
 - [General upgrade steps (any version)](#general-upgrade-steps-any-version)
+
+## From 2.0.13 to 2.0.14
+
+**Dashboard forms:** BreadcrumbKit now requires [FormKitBundle](https://github.com/nowo-tech/FormKitBundle) (`nowo-tech/form-kit-bundle` ^2.0).
+
+- Register `Nowo\FormKitBundle\NowoFormKitBundle` (Flex / `bundles.php`).
+- Symfony floor is **7.4+** (aligned with FormKit); Composer constraints are `^7.4 || ^8.0`.
+- Form types use profile `breadcrumb_kit` (`#[FormKitConfig]`). BreadcrumbKit prepends that profile when missing; host `default_profile` is unchanged.
+- Optional: `config/packages/nowo_form_kit.yaml` — see FormKit docs. Translation keys for dashboard forms stay under `form.breadcrumb_*` in `NowoBreadcrumbKitBundle`.
+- **Modal / form layout fixes:** do not nest `nowo_ui_styles` / `nowo_ui_scripts` / `nowo_ui_content` inside child templates that also call `parent()` (that replaced layout CDN / dropped modal markup). Form partials pass UiKit input/button classes explicitly.
+
+```bash
+composer update nowo-tech/breadcrumb-kit-bundle nowo-tech/form-kit-bundle
+```
 
 ## From 2.0.12 to 2.0.13
 

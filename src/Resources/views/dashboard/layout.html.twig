@@ -24,6 +24,14 @@
         <style>
             {# Tom Select dropdown appended to body must stack above Bootstrap 5 modals (z-index 1055). #}
             body > .ts-dropdown { z-index: 1060; }
+            {# UiKit .nowo-ui-modal { display:none } must not override Bootstrap .modal.show #}
+            .modal.nowo-ui-modal.show { display: block; }
+            {# UiKit .nowo-ui-input defaults to max-width:20rem (toolbar); modal forms need full width. #}
+            .bk-dashboard-form .nowo-ui-input,
+            .bk-dashboard-form .form-control {
+                max-width: none;
+                width: 100%;
+            }
         </style>
         {% endblock %}
     {% endblock %}
@@ -56,7 +64,7 @@
             {% endif %}
         {% endblock %}
         {% block dashboard_scripts %}{% endblock %}
-        <script src="{{ asset('js/dashboard.js', 'nowo_breadcrumb_kit') }}" defer></script>
+        {# dashboard.js is loaded from base.html.twig so host layouts that only parent() still get it. #}
         <script>
         window.breadcrumbKitI18n = {
             loading: {{ 'dashboard.loading'|trans|json_encode|raw }},

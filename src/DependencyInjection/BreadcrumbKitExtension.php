@@ -64,6 +64,79 @@ final class BreadcrumbKitExtension extends Extension implements PrependExtension
         }
 
         $this->prependUiKitDefaults($container);
+        $this->prependFormKitDefaults($container);
+    }
+
+    /**
+     * When FormKit is installed, register the {@code breadcrumb_kit} profile (labels domain +
+     * Bootstrap/UiKit-friendly field classes). Forms select it via {@code #[FormKitConfig]}.
+     * Does not change the host {@code default_profile}.
+     */
+    private function prependFormKitDefaults(ContainerBuilder $container): void
+    {
+        if (!$container->hasExtension('nowo_form_kit')) {
+            return;
+        }
+
+        $hostHasCssFramework = false;
+        $hostHasBreadcrumbProfile = false;
+        foreach ($container->getExtensionConfig('nowo_form_kit') as $cfg) {
+            if (\array_key_exists('css_framework', $cfg)) {
+                $hostHasCssFramework = true;
+            }
+            $profiles = $cfg['profiles'] ?? null;
+            if (\is_array($profiles) && \array_key_exists('breadcrumb_kit', $profiles)) {
+                $hostHasBreadcrumbProfile = true;
+            }
+        }
+
+        $seed = [];
+
+        if (!$hostHasCssFramework) {
+            $config = $this->processConfiguration(new Configuration(), $container->getExtensionConfig($this->getAlias()));
+            $dashboard = \is_array($config['dashboard'] ?? null) ? $config['dashboard'] : [];
+            $raw = (string) ($dashboard['css_framework'] ?? CssFramework::Bootstrap5->value);
+            $fw = CssFramework::from($raw)->normalized();
+            // FormKit accepts only bootstrap|tailwind|foundation|none (not bootstrap5 / tabler / …).
+            $seed['css_framework'] = match ($fw) {
+                CssFramework::Tailwind => 'tailwind',
+                CssFramework::Foundation => 'foundation',
+                CssFramework::None => 'none',
+                default => 'bootstrap',
+            };
+        }
+
+        if (!$hostHasBreadcrumbProfile) {
+            $seed['profiles'] = [
+                'breadcrumb_kit' => [
+                    'alias' => 'breadcrumb_kit',
+                    'translation_domain' => 'NowoBreadcrumbKitBundle',
+                    'defaults' => [
+                        'attr' => ['class' => 'nowo-ui-input form-control'],
+                        'row_attr' => ['class' => 'mb-2'],
+                    ],
+                    'field_types' => [
+                        'checkbox' => [
+                            'attr' => ['class' => 'form-check-input'],
+                            'row_attr' => ['class' => 'form-check mb-2'],
+                        ],
+                        'choice' => [
+                            'attr' => ['class' => 'nowo-ui-input form-control'],
+                        ],
+                        'file' => [
+                            'attr' => ['class' => 'nowo-ui-input form-control'],
+                        ],
+                        'textarea' => [
+                            'attr' => ['class' => 'nowo-ui-input form-control'],
+                        ],
+                    ],
+                ],
+            ];
+        }
+
+        if ([] !== $seed) {
+            $container->prependExtensionConfig('nowo_form_kit', $seed);
+        }
     }
 
     /**
@@ -80,9 +153,6 @@ final class BreadcrumbKitExtension extends Extension implements PrependExtension
         $hostHasCssFramework = false;
         $hostHasIconSet = false;
         foreach ($container->getExtensionConfig('nowo_ui_kit') as $cfg) {
-            if (!\is_array($cfg)) {
-                continue;
-            }
             if (\array_key_exists('css_framework', $cfg)) {
                 $hostHasCssFramework = true;
             }
@@ -101,24 +171,14 @@ final class BreadcrumbKitExtension extends Extension implements PrependExtension
 
         if (!$hostHasCssFramework) {
             $raw = (string) ($dashboard['css_framework'] ?? CssFramework::Bootstrap5->value);
-            try {
-                $defaults['css_framework'] = CssFramework::from($raw)->normalized()->value;
-            } catch (\ValueError) {
-                $defaults['css_framework'] = $raw;
-            }
+            $defaults['css_framework'] = CssFramework::from($raw)->normalized()->value;
         }
         if (!$hostHasIconSet) {
             $rawIcon = (string) ($dashboard['icon_set'] ?? IconSet::BootstrapIcons->value);
-            try {
-                $defaults['icon_set'] = IconSet::from($rawIcon)->value;
-            } catch (\ValueError) {
-                $defaults['icon_set'] = $rawIcon;
-            }
+            $defaults['icon_set'] = IconSet::from($rawIcon)->value;
         }
 
-        if ([] !== $defaults) {
-            $container->prependExtensionConfig('nowo_ui_kit', $defaults);
-        }
+        $container->prependExtensionConfig('nowo_ui_kit', $defaults);
     }
 
     public function load(array $configs, ContainerBuilder $container): void

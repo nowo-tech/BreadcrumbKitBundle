@@ -126,6 +126,10 @@ nowo_ui_kit:
 
 If `nowo_ui_kit` keys are unset, BreadcrumbKit prepends `css_framework` / `icon_set` from `dashboard.*` (defaults `bootstrap5` / `bootstrap-icons`). Explicit host `nowo_ui_kit` values win and are never overridden, so `ui.btn('primary')` resolves correctly without a framework argument.
 
+### Form Kit (`nowo_form_kit`)
+
+Dashboard CRUD forms use [FormKitBundle](https://github.com/nowo-tech/FormKitBundle) (`FormOptionsTrait` + profile `breadcrumb_kit`). When FormKit is present and the host has not defined `profiles.breadcrumb_kit`, BreadcrumbKit prepends that profile (`translation_domain: NowoBreadcrumbKitBundle`, Bootstrap/`nowo-ui-input` defaults). FormKit `css_framework` is seeded from `dashboard.css_framework` mapped to FormKit’s allowed set (`bootstrap` | `tailwind` | `foundation` | `none`). Host `default_profile` is not changed.
+
 UiKit `nowo-ui.css` uses `--nowo-ui-*` custom properties (slate/blue defaults). Remap under host chrome (e.g. `.kit-admin`) without forking templates:
 
 ```css
@@ -137,7 +141,7 @@ UiKit `nowo-ui.css` uses `--nowo-ui-*` custom properties (slate/blue defaults). 
 }
 ```
 
-Override nested blocks `nowo_ui_styles` / `nowo_ui_scripts` if needed.
+To customize CDNs, override `nowo_ui_styles` / `nowo_ui_scripts` **in the layout template**, not inside a child `stylesheets` / `javascripts` block that also calls `{{ parent() }}` (Twig would replace the layout CDN content).
 
 Stable content block: `nowo_breadcrumb_kit_content` (also aliased as `nowo_ui_content` in the demo layout). Overridable Twig paths: `dashboard/*.html.twig`, `dashboard/collection/*`, `dashboard/item/*`, `breadcrumb.html.twig` (see [USAGE.md](USAGE.md) / REQ-TWIG-001).
 

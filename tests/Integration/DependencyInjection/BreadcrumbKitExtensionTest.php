@@ -118,6 +118,189 @@ final class BreadcrumbKitExtensionTest extends TestCase
         self::assertSame('svg_inline', $uiKit[0]['icon_set']);
     }
 
+    public function testPrependSeedsFormKitProfileAndMapsCssFramework(): void
+    {
+        $container = new ContainerBuilder();
+        $container->registerExtension(new class implements ExtensionInterface {
+            public function getAlias(): string
+            {
+                return 'nowo_form_kit';
+            }
+
+            public function load(array $configs, ContainerBuilder $container): void
+            {
+            }
+
+            public function getNamespace(): string
+            {
+                return '';
+            }
+
+            public function getXsdValidationBasePath(): string|false
+            {
+                return false;
+            }
+        });
+
+        $container->prependExtensionConfig('nowo_breadcrumb_kit', [
+            'dashboard' => [
+                'css_framework' => 'tailwind',
+            ],
+        ]);
+
+        (new BreadcrumbKitExtension())->prepend($container);
+
+        $formKit = $container->getExtensionConfig('nowo_form_kit');
+        self::assertNotEmpty($formKit);
+        self::assertSame('tailwind', $formKit[0]['css_framework'] ?? null);
+        self::assertSame('breadcrumb_kit', $formKit[0]['profiles']['breadcrumb_kit']['alias'] ?? null);
+        self::assertSame(
+            'NowoBreadcrumbKitBundle',
+            $formKit[0]['profiles']['breadcrumb_kit']['translation_domain'] ?? null,
+        );
+        self::assertSame(
+            'nowo-ui-input form-control',
+            $formKit[0]['profiles']['breadcrumb_kit']['defaults']['attr']['class'] ?? null,
+        );
+    }
+
+    /**
+     * @return list<array{0: string, 1: string}>
+     */
+    public static function formKitCssFrameworkMapProvider(): array
+    {
+        return [
+            ['bootstrap5', 'bootstrap'],
+            ['bootstrap', 'bootstrap'],
+            ['foundation', 'foundation'],
+            ['none', 'none'],
+            ['tabler', 'bootstrap'],
+            ['custom', 'bootstrap'],
+        ];
+    }
+
+    /**
+     * @dataProvider formKitCssFrameworkMapProvider
+     */
+    public function testPrependMapsDashboardCssFrameworkToFormKitAllowedSet(string $dashboardFw, string $expectedFormKitFw): void
+    {
+        $container = new ContainerBuilder();
+        $container->registerExtension(new class implements ExtensionInterface {
+            public function getAlias(): string
+            {
+                return 'nowo_form_kit';
+            }
+
+            public function load(array $configs, ContainerBuilder $container): void
+            {
+            }
+
+            public function getNamespace(): string
+            {
+                return '';
+            }
+
+            public function getXsdValidationBasePath(): string|false
+            {
+                return false;
+            }
+        });
+
+        $container->prependExtensionConfig('nowo_breadcrumb_kit', [
+            'dashboard' => ['css_framework' => $dashboardFw],
+        ]);
+
+        (new BreadcrumbKitExtension())->prepend($container);
+
+        $formKit = $container->getExtensionConfig('nowo_form_kit');
+        self::assertSame($expectedFormKitFw, $formKit[0]['css_framework'] ?? null);
+    }
+
+    public function testPrependDoesNotOverrideExplicitFormKitHostConfig(): void
+    {
+        $container = new ContainerBuilder();
+        $container->registerExtension(new class implements ExtensionInterface {
+            public function getAlias(): string
+            {
+                return 'nowo_form_kit';
+            }
+
+            public function load(array $configs, ContainerBuilder $container): void
+            {
+            }
+
+            public function getNamespace(): string
+            {
+                return '';
+            }
+
+            public function getXsdValidationBasePath(): string|false
+            {
+                return false;
+            }
+        });
+
+        $container->prependExtensionConfig('nowo_form_kit', [
+            'css_framework' => 'foundation',
+            'profiles' => [
+                'breadcrumb_kit' => [
+                    'alias' => 'host_override',
+                    'translation_domain' => 'messages',
+                ],
+            ],
+        ]);
+        $container->prependExtensionConfig('nowo_breadcrumb_kit', [
+            'dashboard' => ['css_framework' => 'tailwind'],
+        ]);
+
+        (new BreadcrumbKitExtension())->prepend($container);
+
+        $formKitConfigs = $container->getExtensionConfig('nowo_form_kit');
+        foreach ($formKitConfigs as $cfg) {
+            if (($cfg['css_framework'] ?? null) === 'tailwind') {
+                self::fail('Dashboard must not prepend FormKit css_framework when host set it explicitly.');
+            }
+            $profile = $cfg['profiles']['breadcrumb_kit'] ?? null;
+            if (\is_array($profile) && ($profile['alias'] ?? null) === 'breadcrumb_kit') {
+                self::fail('Dashboard must not prepend breadcrumb_kit profile when host already defined it.');
+            }
+        }
+        self::assertSame('foundation', $formKitConfigs[0]['css_framework'] ?? null);
+        self::assertSame('host_override', $formKitConfigs[0]['profiles']['breadcrumb_kit']['alias'] ?? null);
+    }
+
+    public function testPrependSeedsFormKitDefaultsWhenDashboardKeysAbsent(): void
+    {
+        $container = new ContainerBuilder();
+        $container->registerExtension(new class implements ExtensionInterface {
+            public function getAlias(): string
+            {
+                return 'nowo_form_kit';
+            }
+
+            public function load(array $configs, ContainerBuilder $container): void
+            {
+            }
+
+            public function getNamespace(): string
+            {
+                return '';
+            }
+
+            public function getXsdValidationBasePath(): string|false
+            {
+                return false;
+            }
+        });
+
+        (new BreadcrumbKitExtension())->prepend($container);
+
+        $formKit = $container->getExtensionConfig('nowo_form_kit');
+        self::assertNotEmpty($formKit);
+        self::assertSame('bootstrap', $formKit[0]['css_framework'] ?? null);
+        self::assertArrayHasKey('breadcrumb_kit', $formKit[0]['profiles'] ?? []);
+    }
+
     public function testPrependSeedsUiKitDefaultsWhenDashboardKeysAbsent(): void
     {
         $container = new ContainerBuilder();

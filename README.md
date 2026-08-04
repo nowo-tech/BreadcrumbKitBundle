@@ -24,13 +24,13 @@ This bundle is **FrankenPHP worker mode friendly**.
 
 ## Status
 
-**MVP (v2.0.13):** entities (`dashboard_breadcrumb_*` tables, aligned with DashboardMenuBundle), repositories, `BreadcrumbLoader`, `BreadcrumbUrlResolver`, Twig (`breadcrumb_trail`, `breadcrumb_render`), **optional web dashboard** with **UiKitBundle** look-and-feel (**REQ-UI-001-kit**) / **REQ-UI-002** access roles, named asset package `nowo_breadcrumb_kit`, **presentation options**, dashboard i18n **en/es/de/fr/it/nl/pt**. **Demo**: Symfony 8.1 / PHP 8.5 (**8021**) with FrankenPHP. **Flex recipe** in `.symfony/recipe/`. Planned: migration command, event-based enrichers.
+**MVP (v2.0.14):** entities (`dashboard_breadcrumb_*` tables, aligned with DashboardMenuBundle), repositories, `BreadcrumbLoader`, `BreadcrumbUrlResolver`, Twig (`breadcrumb_trail`, `breadcrumb_render`), **optional web dashboard** with **UiKitBundle** look-and-feel (**REQ-UI-001-kit**), **FormKitBundle** forms, **REQ-UI-002** access roles, named asset package `nowo_breadcrumb_kit`, **presentation options**, dashboard i18n **en/es/de/fr/it/nl/pt**. **Demo**: Symfony 8.1 / PHP 8.5 (**8021**) with FrankenPHP. **Flex recipe** in `.symfony/recipe/`. Planned: migration command, event-based enrichers.
 
 **FrankenPHP:** demo selects classic vs worker via **`FRANKENPHP_MODE`** (default `worker`). See [docs/DEMO-FRANKENPHP.md](docs/DEMO-FRANKENPHP.md).
 
 ## Version information
 
-Latest release: **[v2.0.13](https://github.com/nowo-tech/BreadcrumbKitBundle/releases/tag/v2.0.13)** (2026-08-04). Requires **PHP 8.2+** and **Symfony 7+**. Tables: `dashboard_breadcrumb_*` (see [UPGRADING.md](docs/UPGRADING.md) from v1.2.x).
+Latest release: **[v2.0.14](https://github.com/nowo-tech/BreadcrumbKitBundle/releases/tag/v2.0.14)** (2026-08-04). Requires **PHP 8.2+** and **Symfony 7.4+**. Tables: `dashboard_breadcrumb_*` (see [UPGRADING.md](docs/UPGRADING.md) from v1.2.x).
 
 ## Quick start
 
@@ -61,8 +61,9 @@ nowo_breadcrumb_kit:
 ## Requirements
 
 - PHP `>=8.2 <8.6`
-- Symfony 7.x or 8.x (see `composer.json`)
+- Symfony 7.4+ or 8.x (`^7.4 || ^8.0`; see `composer.json`)
 - Doctrine ORM
+- UiKitBundle + FormKitBundle (transitive; register both for the dashboard)
 
 ## Development
 

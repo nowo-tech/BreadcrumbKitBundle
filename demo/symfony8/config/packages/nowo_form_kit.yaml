@@ -1,0 +1,14 @@
+# Form Kit — profile `breadcrumb_kit` is prepended by BreadcrumbKitExtension.
+# Host can override here; keep NowoFormKitBundle registered in bundles.php.
+nowo_form_kit:
+    # css_framework is seeded from nowo_breadcrumb_kit.dashboard.css_framework when omitted.
+    default_profile: default
+    profiles:
+        default:
+            alias: default
+            translation_domain: messages
+            defaults:
+                attr:
+                    class: form-control
+                row_attr:
+                    class: mb-3

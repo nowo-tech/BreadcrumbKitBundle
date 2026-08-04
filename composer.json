@@ -17,7 +17,7 @@
     },
     "authors": [
         {
-            "name": "Héctor Franco Aceituno",
+            "name": "H\u00e9ctor Franco Aceituno",
             "email": "hectorfranco@nowo.tech",
             "homepage": "https://github.com/HecFranco",
             "role": "Developer"
@@ -27,21 +27,22 @@
         "php": ">=8.2 <8.6",
         "doctrine/doctrine-bundle": "^2.8 || ^3.0",
         "doctrine/orm": "^2.13 || ^3.0",
+        "nowo-tech/form-kit-bundle": "^2.0",
         "nowo-tech/ui-kit-bundle": "^1.4",
         "psr/cache": "^3.0",
-        "symfony/asset": "^7.0 || ^8.0",
-        "symfony/config": "^7.0 || ^8.0",
-        "symfony/dependency-injection": "^7.0 || ^8.0",
-        "symfony/form": "^7.0 || ^8.0",
-        "symfony/framework-bundle": "^7.0 || ^8.0",
-        "symfony/http-foundation": "^7.0 || ^8.0",
-        "symfony/http-kernel": "^7.0 || ^8.0",
-        "symfony/routing": "^7.0 || ^8.0",
-        "symfony/security-core": "^7.0 || ^8.0",
-        "symfony/security-csrf": "^7.0 || ^8.0",
-        "symfony/twig-bundle": "^7.0 || ^8.0",
-        "symfony/validator": "^7.0 || ^8.0",
-        "symfony/yaml": "^7.0 || ^8.0"
+        "symfony/asset": "^7.4 || ^8.0",
+        "symfony/config": "^7.4 || ^8.0",
+        "symfony/dependency-injection": "^7.4 || ^8.0",
+        "symfony/form": "^7.4 || ^8.0",
+        "symfony/framework-bundle": "^7.4 || ^8.0",
+        "symfony/http-foundation": "^7.4 || ^8.0",
+        "symfony/http-kernel": "^7.4 || ^8.0",
+        "symfony/routing": "^7.4 || ^8.0",
+        "symfony/security-core": "^7.4 || ^8.0",
+        "symfony/security-csrf": "^7.4 || ^8.0",
+        "symfony/twig-bundle": "^7.4 || ^8.0",
+        "symfony/validator": "^7.4 || ^8.0",
+        "symfony/yaml": "^7.4 || ^8.0"
     },
     "suggest": {
         "symfony/framework-bundle": "Profiler data collector (Symfony 7.2+): TemplateAwareDataCollectorInterface lives here.",
@@ -83,7 +84,10 @@
     "minimum-stability": "stable",
     "prefer-stable": true,
     "archive": {
-        "exclude": ["/demo", "/.cursor"]
+        "exclude": [
+            "/demo",
+            "/.cursor"
+        ]
     },
     "scripts": {
         "test": "phpunit --colors=always",

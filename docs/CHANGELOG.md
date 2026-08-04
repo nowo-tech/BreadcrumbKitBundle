@@ -9,6 +9,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## Table of contents
 
 - [[Unreleased]](#unreleased)
+- [[2.0.14] - 2026-08-04](#2014---2026-08-04)
+  - [Added](#added)
+  - [Fixed](#fixed)
+  - [Changed](#changed)
+  - [Documentation](#documentation)
 - [[2.0.13] - 2026-08-04](#2013---2026-08-04)
   - [Changed](#changed)
   - [Fixed](#fixed)
@@ -72,6 +77,27 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - [Documentation](#documentation)
 
 ## [Unreleased]
+
+## [2.0.14] - 2026-08-04
+
+### Added
+
+- **FormKitBundle:** depend on [`nowo-tech/form-kit-bundle`](https://github.com/nowo-tech/FormKitBundle) ^2.0. Dashboard form types (`BreadcrumbItemType`, `BreadcrumbCollectionType`, `ImportBreadcrumbType`) use `FormOptionsTrait` + profile `breadcrumb_kit` (`#[FormKitConfig]`). Extension prepends that profile (and maps `dashboard.css_framework` → FormKit `css_framework`) without changing the host `default_profile`. Form types are registered as `form.type` services so `FormOptionsMerger` is injected.
+
+### Fixed
+
+- **Dashboard modals:** `base.html.twig` no longer redefines nested `nowo_ui_styles` / `nowo_ui_scripts` when calling `parent()`, which had replaced the layout Bootstrap CDN and left `data-bs-toggle="modal"` without Bootstrap JS. CSS guard `.modal.nowo-ui-modal.show { display: block; }` keeps UiKit’s `.nowo-ui-modal { display: none }` from hiding open Bootstrap modals.
+- **Dashboard modals (DOM):** stop redefining nested `nowo_ui_content` inside `nowo_breadcrumb_kit_content` — Twig replaced the layout wrapper and dropped `_dashboard_modals.html.twig` from the page (Bootstrap then threw `Cannot read properties of undefined (reading 'backdrop')` for missing `#modal-bk-*` targets).
+- **Dashboard forms:** apply UiKit `ui.input()` / `ui.btn()` / `ui.modal_dismiss_attrs()` on collection/item/import partials (UiKit is not a Symfony form theme — widgets need explicit classes). Modal forms force full-width inputs (override `.nowo-ui-input` max-width).
+
+### Changed
+
+- Symfony package constraints raised to **`^7.4 || ^8.0`** (aligned with FormKitBundle).
+
+### Documentation
+
+- INSTALLATION / CONFIGURATION / UPGRADING updated for FormKit composition and Symfony 7.4+.
+- [UPGRADING.md](UPGRADING.md): 2.0.13 → 2.0.14.
 
 ## [2.0.13] - 2026-08-04
 
