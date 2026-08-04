@@ -68,6 +68,8 @@ php bin/console nowo_breadcrumb_kit:generate-migration --update
 ```
 
 In development only you may use `doctrine:schema:update --force` instead.
+
+After upgrading to **2.1.0+**, if the dashboard errors with `Unknown column '…path_pattern'`, run `--update` (or `schema:update` in demos) — the entity gained `path_pattern` / `match_attributes`.
 3. Seed at least one `BreadcrumbCollection` whose `code` matches `default_collection`, then add `BreadcrumbItem` rows (`routeName`, `staticRouteParams`, optional `pathPattern` / `matchAttributes`, optional `parent` chain).
 
 See the demo fixtures in `demo/symfony8/src/DataFixtures/BreadcrumbDemoFixtures.php` for an example.

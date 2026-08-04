@@ -5,6 +5,7 @@ This document describes breaking changes and upgrade notes between versions. Sec
 
 ## Table of contents
 
+- [From 2.1.1 to 2.1.2](#from-211-to-212)
 - [From 2.1.0 to 2.1.1](#from-210-to-211)
 - [From 2.0.14 to 2.1.0](#from-2014-to-210)
 - [From 2.0.13 to 2.0.14](#from-2013-to-2014)
@@ -29,6 +30,14 @@ This document describes breaking changes and upgrade notes between versions. Sec
 - [Doctrine schema](#doctrine-schema)
 - [General upgrade steps (any version)](#general-upgrade-steps-any-version)
 
+## From 2.1.1 to 2.1.2
+
+Documentation-only. No schema or PHP API changes.
+
+```bash
+composer update nowo-tech/breadcrumb-kit-bundle
+```
+
 ## From 2.1.0 to 2.1.1
 
 No schema or PHP API changes.
@@ -43,7 +52,8 @@ composer update nowo-tech/breadcrumb-kit-bundle
 
 Additive release (CLI, enricher event, path/attribute matching). No intentional BC breaks.
 
-- **Schema:** new nullable columns on `dashboard_breadcrumb_item`: `path_pattern`, `match_attributes`. Run `php bin/console nowo_breadcrumb_kit:generate-migration --update` (or full generate on greenfield).
+- **Schema:** new nullable columns on `dashboard_breadcrumb_item`: `path_pattern`, `match_attributes`. Run `php bin/console nowo_breadcrumb_kit:generate-migration --update` (or full generate on greenfield), then migrate.
+- If Twig fails with `Unknown column '…path_pattern'` / `SQLSTATE[42S22]`, the entity mapping is ahead of the database — apply the migration (or, **development/demo only**, `php bin/console doctrine:schema:update --force`).
 - **CLI:** `nowo_breadcrumb_kit:export|import|preview|generate-migration`.
 - **Enrichers:** subscribe to `Nowo\BreadcrumbKitBundle\Event\BreadcrumbTrailBuiltEvent` and call `setView()`.
 - **Matching:** optional path PCRE + request attributes; route `*` only when path/attributes constrain the match.
@@ -52,6 +62,8 @@ Additive release (CLI, enricher event, path/attribute matching). No intentional 
 ```bash
 composer update nowo-tech/breadcrumb-kit-bundle
 php bin/console nowo_breadcrumb_kit:generate-migration --update
+# then: php bin/console doctrine:migrations:migrate
+# demo/dev alternative: php bin/console doctrine:schema:update --force
 ```
 
 ## From 2.0.13 to 2.0.14

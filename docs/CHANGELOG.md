@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## Table of contents
 
 - [[Unreleased]](#unreleased)
+- [[2.1.2] - 2026-08-04](#212---2026-08-04)
+  - [Documentation](#documentation)
 - [[2.1.1] - 2026-08-04](#211---2026-08-04)
   - [Fixed](#fixed)
   - [Changed](#changed)
@@ -84,6 +86,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - [Documentation](#documentation)
 
 ## [Unreleased]
+
+## [2.1.2] - 2026-08-04
+
+### Documentation
+
+- [UPGRADING.md](UPGRADING.md) / [INSTALLATION.md](INSTALLATION.md): clarify 2.1.0 schema (`path_pattern`, `match_attributes`) — `Unknown column … path_pattern` means the host DB was not migrated; prefer `nowo_breadcrumb_kit:generate-migration --update`, or in demos/dev `doctrine:schema:update --force`.
 
 ## [2.1.1] - 2026-08-04
 
