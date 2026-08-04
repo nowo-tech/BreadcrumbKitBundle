@@ -21,6 +21,7 @@ This guide covers installing Breadcrumb Kit Bundle in a Symfony application.
 - **Symfony** 7.x or 8.x (`^7.0 || ^8.0` in `composer.json`)
 - **Doctrine ORM** ^2.13 || ^3.0
 - **Doctrine Bundle** ^2.8 || ^3.0 — on **Symfony 8** with **PHP >= 8.4**, Composer resolves **`doctrine/doctrine-bundle` ^3.0** (2.x supports Symfony up to 7.x only).
+- **UiKitBundle** (`nowo-tech/ui-kit-bundle` ^1.4) — pulled in transitively for dashboard macros / `nowo-ui.css` (REQ-UI-001-kit). Ensure `NowoUiKitBundle` is registered and run `assets:install` so package `nowo_ui_kit` is available.
 
 **Note:** Symfony **8.0+** requires **PHP >= 8.4**. Symfony **8.1+** requires **PHP >= 8.4.1**. With PHP 8.2 or 8.3, Composer resolves Symfony **7.x** only.
 

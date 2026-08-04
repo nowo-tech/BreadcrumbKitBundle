@@ -99,7 +99,7 @@ The dashboard UI aligns visually with [DashboardMenuBundle](https://github.com/n
 
 ### CSS framework (REQ-UI-001)
 
-Set `dashboard.css_framework` to switch look-and-feel **without forking page templates** (macros in `dashboard/_ui_macros.html.twig` + semantic `nowo-ui-*` classes in `public/css/nowo-ui.css`):
+Set `dashboard.css_framework` to switch look-and-feel **without forking page templates**. Markup uses [UiKitBundle](https://github.com/nowo-tech/UiKitBundle) macros (`@NowoUiKitBundle/macros/ui.html.twig`) and semantic `nowo-ui-*` classes from UiKit’s `nowo-ui.css`:
 
 | Value | Markup / CDN (demo layout) |
 | ----- | -------------------------- |
@@ -107,16 +107,26 @@ Set `dashboard.css_framework` to switch look-and-feel **without forking page tem
 | `bootstrap4` | Bootstrap 4 classes + CDN |
 | `tailwind` | Tailwind utilities + CDN script |
 | `foundation` | Foundation classes + CDN |
-| `custom` / `none` | Semantic `nowo-ui-*` only (host CSS / `nowo-ui.css`) |
+| `custom` / `none` | Semantic `nowo-ui-*` only (host CSS / UiKit `nowo-ui.css`) |
 
-When `layout_template` points at the **project layout**, the demo CDN is skipped; the host layout must expose `stylesheets` / `javascripts` blocks. Bundle pages call `{{ parent() }}` then add assets via the named package `nowo_breadcrumb_kit` (REQ-ASSETS-004):
+When `layout_template` points at the **project layout**, the demo CDN is skipped; the host layout must expose `stylesheets` / `javascripts` blocks. Bundle pages call `{{ parent() }}` then add assets (REQ-ASSETS-004):
 
 ```twig
-<link href="{{ asset('css/nowo-ui.css', 'nowo_breadcrumb_kit') }}" rel="stylesheet">
+<link href="{{ asset('css/nowo-ui.css', 'nowo_ui_kit') }}" rel="stylesheet">
 <script src="{{ asset('js/dashboard.js', 'nowo_breadcrumb_kit') }}" defer></script>
 ```
 
-`nowo-ui.css` uses `--nowo-ui-*` custom properties (slate/blue defaults). Remap under host chrome (e.g. `.kit-admin`) without forking templates:
+Prefer a single host setting for the shared kit:
+
+```yaml
+nowo_ui_kit:
+    css_framework: custom
+    icon_set: ux_icon
+```
+
+If `nowo_ui_kit` keys are unset, BreadcrumbKit prepends `css_framework` / `icon_set` from `dashboard.*` (defaults `bootstrap5` / `bootstrap-icons`). Explicit host `nowo_ui_kit` values win and are never overridden, so `ui.btn('primary')` resolves correctly without a framework argument.
+
+UiKit `nowo-ui.css` uses `--nowo-ui-*` custom properties (slate/blue defaults). Remap under host chrome (e.g. `.kit-admin`) without forking templates:
 
 ```css
 .kit-admin {
@@ -134,11 +144,11 @@ Stable content block: `nowo_breadcrumb_kit_content` (also aliased as `nowo_ui_co
 ### Using `css_framework: custom` (or `none`) without Bootstrap
 
 Set `dashboard.css_framework: custom` (or `none`) when your host layout does **not** load Bootstrap.
-The dashboard will use only the semantic `nowo-ui-*` classes defined in `nowo-ui.css`.
+The dashboard will use only the semantic `nowo-ui-*` classes defined in UiKit’s `nowo-ui.css`.
 
-**What the bundle provides automatically:**
+**What the stack provides automatically:**
 
-- `nowo-ui.css` includes a self-contained modal overlay (`.nowo-ui-modal` + `.nowo-ui-modal-open`) so modals render correctly without Bootstrap's `.modal` CSS.
+- UiKit `nowo-ui.css` includes a self-contained modal overlay (`.nowo-ui-modal` + `.nowo-ui-modal-open`) so modals render correctly without Bootstrap's `.modal` CSS.
 - `dashboard.js` detects `window.__breadcrumbKitDashboard.cssFramework` at runtime:
   - For **bootstrap / bootstrap5 / bootstrap4 / tabler** → defers to Bootstrap JS for modal management.
   - For any other value → registers lightweight custom open/close handlers for `[data-nowo-modal-open]` / `[data-nowo-modal-close]` attributes, dispatches a synthetic `show.bs.modal` event so the existing listeners (form-load, confirm-delete, etc.) keep working.
@@ -153,12 +163,16 @@ nowo_breadcrumb_kit:
         enabled: true
         layout_template: 'base.html.twig'   # host layout (must define nowo_breadcrumb_kit_content block)
         css_framework: custom
+
+# optional — or let BreadcrumbKit prepend from dashboard.* above
+nowo_ui_kit:
+    css_framework: custom
 ```
 
 ```twig
 {# templates/base.html.twig — expose the required blocks #}
 {% block stylesheets %}
-    <link href="{{ asset('css/nowo-ui.css', 'nowo_breadcrumb_kit') }}" rel="stylesheet">
+    <link href="{{ asset('css/nowo-ui.css', 'nowo_ui_kit') }}" rel="stylesheet">
     {# host stylesheet — remap --nowo-ui-* tokens here #}
 {% endblock %}
 {% block javascripts %}
@@ -177,7 +191,7 @@ nowo_breadcrumb_kit:
 }
 ```
 
-> The `_ui_macros.html.twig` macros automatically emit `data-nowo-modal-open` / `data-nowo-modal-target` / `data-nowo-modal-close` attributes instead of `data-bs-toggle` / `data-bs-target` / `data-bs-dismiss` when the framework is not bootstrap/tabler. No template overrides are required.
+> UiKit macros automatically emit `data-nowo-modal-open` / `data-nowo-modal-target` / `data-nowo-modal-close` attributes instead of `data-bs-toggle` / `data-bs-target` / `data-bs-dismiss` when the framework is not bootstrap/tabler. No template overrides are required.
 
 ### Twig helper
 

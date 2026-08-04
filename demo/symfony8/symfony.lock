@@ -40,6 +40,9 @@
     "nowo-tech/twig-inspector-bundle": {
         "version": "v1.0.33"
     },
+    "nowo-tech/ui-kit-bundle": {
+        "version": "v1.4.0"
+    },
     "symfony/console": {
         "version": "8.1",
         "recipe": {

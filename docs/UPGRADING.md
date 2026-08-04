@@ -5,6 +5,7 @@ This document describes breaking changes and upgrade notes between versions. Sec
 
 ## Table of contents
 
+- [From 2.0.12 to 2.0.13](#from-2012-to-2013)
 - [From 2.0.10 to 2.0.11](#from-2010-to-2011)
 - [From 2.0.9 to 2.0.10](#from-209-to-2010)
 - [From 2.0.8 to 2.0.9](#from-208-to-209)
@@ -24,6 +25,21 @@ This document describes breaking changes and upgrade notes between versions. Sec
 - [From pre-release / local copies to 1.0.0](#from-pre-release-local-copies-to-100)
 - [Doctrine schema](#doctrine-schema)
 - [General upgrade steps (any version)](#general-upgrade-steps-any-version)
+
+## From 2.0.12 to 2.0.13
+
+**Dashboard look-and-feel (REQ-UI-001-kit):** the dashboard now depends on [UiKitBundle](https://github.com/nowo-tech/UiKitBundle) (`nowo-tech/ui-kit-bundle` ^1.4) for macros and `nowo-ui.css`.
+
+- Replace Twig imports of `@NowoBreadcrumbKitBundle/dashboard/_ui_macros.html.twig` with `@NowoUiKitBundle/macros/ui.html.twig`.
+- Load CSS via `asset('css/nowo-ui.css', 'nowo_ui_kit')` (not `nowo_breadcrumb_kit`). Keep `dashboard.js` on `nowo_breadcrumb_kit`.
+- Remap `--nowo-ui-*` tokens under host chrome as before; the stylesheet now ships from UiKit (`/bundles/nowouikit/…`).
+- Optional: set `nowo_ui_kit.css_framework` / `icon_set` in the host. If unset, BreadcrumbKit prepends from `dashboard.css_framework` / `dashboard.icon_set` (defaults `bootstrap5` / `bootstrap-icons`). Explicit host keys are never overridden.
+- Ensure `NowoUiKitBundle` is registered (Symfony Flex usually does this via the Composer dependency).
+
+```bash
+composer update nowo-tech/breadcrumb-kit-bundle nowo-tech/ui-kit-bundle
+php bin/console assets:install
+```
 
 ## From 2.0.10 to 2.0.11
 

@@ -1,6 +1,6 @@
 {% extends nowo_breadcrumb_kit_layout_template|default('@NowoBreadcrumbKitBundle/dashboard/layout.html.twig') %}
 {% trans_default_domain 'NowoBreadcrumbKitBundle' %}
-{% import '@NowoBreadcrumbKitBundle/dashboard/_ui_macros.html.twig' as ui %}
+{% import '@NowoUiKitBundle/macros/ui.html.twig' as ui %}
 
 {% set dashboard_routes = dashboard_routes|default({
     collections_index: 'nowo_breadcrumb_kit_dashboard_collections_index',
@@ -13,7 +13,7 @@
 {% block stylesheets %}
     {{ parent() }}
     {% block nowo_ui_styles %}
-        <link href="{{ asset('css/nowo-ui.css', 'nowo_breadcrumb_kit') }}" rel="stylesheet">
+        <link href="{{ asset('css/nowo-ui.css', 'nowo_ui_kit') }}" rel="stylesheet">
     {% endblock %}
 {% endblock %}
 

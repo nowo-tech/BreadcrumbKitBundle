@@ -79,6 +79,126 @@ final class BreadcrumbKitExtensionTest extends TestCase
         self::assertSame('/bundles/nowobreadcrumbkit', $prepended[0]['assets']['packages']['nowo_breadcrumb_kit']['base_path']);
     }
 
+    public function testPrependAlignsUiKitFromDashboardConfigWhenUiKitPresent(): void
+    {
+        $container = new ContainerBuilder();
+        $container->registerExtension(new class implements ExtensionInterface {
+            public function getAlias(): string
+            {
+                return 'nowo_ui_kit';
+            }
+
+            public function load(array $configs, ContainerBuilder $container): void
+            {
+            }
+
+            public function getNamespace(): string
+            {
+                return '';
+            }
+
+            public function getXsdValidationBasePath(): string|false
+            {
+                return false;
+            }
+        });
+
+        $container->prependExtensionConfig('nowo_breadcrumb_kit', [
+            'dashboard' => [
+                'css_framework' => 'bootstrap',
+                'icon_set' => 'svg_inline',
+            ],
+        ]);
+
+        (new BreadcrumbKitExtension())->prepend($container);
+
+        $uiKit = $container->getExtensionConfig('nowo_ui_kit');
+        self::assertNotEmpty($uiKit);
+        self::assertSame('bootstrap5', $uiKit[0]['css_framework']);
+        self::assertSame('svg_inline', $uiKit[0]['icon_set']);
+    }
+
+    public function testPrependSeedsUiKitDefaultsWhenDashboardKeysAbsent(): void
+    {
+        $container = new ContainerBuilder();
+        $container->registerExtension(new class implements ExtensionInterface {
+            public function getAlias(): string
+            {
+                return 'nowo_ui_kit';
+            }
+
+            public function load(array $configs, ContainerBuilder $container): void
+            {
+            }
+
+            public function getNamespace(): string
+            {
+                return '';
+            }
+
+            public function getXsdValidationBasePath(): string|false
+            {
+                return false;
+            }
+        });
+
+        (new BreadcrumbKitExtension())->prepend($container);
+
+        $uiKit = $container->getExtensionConfig('nowo_ui_kit');
+        self::assertNotEmpty($uiKit);
+        self::assertSame('bootstrap5', $uiKit[0]['css_framework']);
+        self::assertSame('bootstrap-icons', $uiKit[0]['icon_set']);
+    }
+
+    public function testPrependDoesNotOverrideExplicitUiKitHostConfig(): void
+    {
+        $container = new ContainerBuilder();
+        $container->registerExtension(new class implements ExtensionInterface {
+            public function getAlias(): string
+            {
+                return 'nowo_ui_kit';
+            }
+
+            public function load(array $configs, ContainerBuilder $container): void
+            {
+            }
+
+            public function getNamespace(): string
+            {
+                return '';
+            }
+
+            public function getXsdValidationBasePath(): string|false
+            {
+                return false;
+            }
+        });
+
+        $container->prependExtensionConfig('nowo_ui_kit', [
+            'css_framework' => 'custom',
+            'icon_set' => 'ux_icon',
+        ]);
+        $container->prependExtensionConfig('nowo_breadcrumb_kit', [
+            'dashboard' => [
+                'css_framework' => 'tailwind',
+                'icon_set' => 'tabler-icons',
+            ],
+        ]);
+
+        (new BreadcrumbKitExtension())->prepend($container);
+
+        $uiKitConfigs = $container->getExtensionConfig('nowo_ui_kit');
+        foreach ($uiKitConfigs as $cfg) {
+            if (($cfg['css_framework'] ?? null) === 'tailwind'
+                || ($cfg['icon_set'] ?? null) === 'tabler-icons'
+            ) {
+                self::fail('Dashboard must not prepend UiKit defaults when host set nowo_ui_kit explicitly.');
+            }
+        }
+        self::assertSame('custom', $uiKitConfigs[0]['css_framework'] ?? null);
+        self::assertSame('ux_icon', $uiKitConfigs[0]['icon_set'] ?? null);
+    }
+
     public function testLoadWithDashboardEnabledAndInlineEditConfig(): void
     {
         $container = new ContainerBuilder();

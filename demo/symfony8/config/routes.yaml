@@ -11,10 +11,22 @@ app_root:
     methods: [GET]
     controller: App\Controller\RootController
 
+app_favicon:
+    path: /favicon.ico
+    methods: [GET]
+    controller: App\Controller\SystemController::favicon
+
+app_well_known_chrome:
+    path: /.well-known/appspecific/com.chrome.devtools.json
+    methods: [GET]
+    controller: App\Controller\SystemController::wellKnownChrome
+
 controllers:
     resource:
         path: ../src/Controller/
-        exclude: ../src/Controller/RootController.php
+        exclude:
+            - ../src/Controller/RootController.php
+            - ../src/Controller/SystemController.php
         namespace: App\Controller
     type: attribute
     prefix: /{_locale}

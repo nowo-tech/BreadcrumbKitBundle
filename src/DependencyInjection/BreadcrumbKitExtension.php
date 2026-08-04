@@ -62,6 +62,63 @@ final class BreadcrumbKitExtension extends Extension implements PrependExtension
         if (!$container->hasParameter(Configuration::ALIAS.'.dashboard.import_max_bytes')) {
             $container->setParameter(Configuration::ALIAS.'.dashboard.import_max_bytes', 2_097_152);
         }
+
+        $this->prependUiKitDefaults($container);
+    }
+
+    /**
+     * When UiKit is installed, seed nowo_ui_kit.css_framework / icon_set from dashboard
+     * config so kit macros (ui.btn, …) resolve the same stack without editing every call.
+     * Does not override keys the host already set under nowo_ui_kit.
+     */
+    private function prependUiKitDefaults(ContainerBuilder $container): void
+    {
+        if (!$container->hasExtension('nowo_ui_kit')) {
+            return;
+        }
+
+        $hostHasCssFramework = false;
+        $hostHasIconSet = false;
+        foreach ($container->getExtensionConfig('nowo_ui_kit') as $cfg) {
+            if (!\is_array($cfg)) {
+                continue;
+            }
+            if (\array_key_exists('css_framework', $cfg)) {
+                $hostHasCssFramework = true;
+            }
+            if (\array_key_exists('icon_set', $cfg)) {
+                $hostHasIconSet = true;
+            }
+        }
+
+        if ($hostHasCssFramework && $hostHasIconSet) {
+            return;
+        }
+
+        $config = $this->processConfiguration(new Configuration(), $container->getExtensionConfig($this->getAlias()));
+        $dashboard = \is_array($config['dashboard'] ?? null) ? $config['dashboard'] : [];
+        $defaults = [];
+
+        if (!$hostHasCssFramework) {
+            $raw = (string) ($dashboard['css_framework'] ?? CssFramework::Bootstrap5->value);
+            try {
+                $defaults['css_framework'] = CssFramework::from($raw)->normalized()->value;
+            } catch (\ValueError) {
+                $defaults['css_framework'] = $raw;
+            }
+        }
+        if (!$hostHasIconSet) {
+            $rawIcon = (string) ($dashboard['icon_set'] ?? IconSet::BootstrapIcons->value);
+            try {
+                $defaults['icon_set'] = IconSet::from($rawIcon)->value;
+            } catch (\ValueError) {
+                $defaults['icon_set'] = $rawIcon;
+            }
+        }
+
+        if ([] !== $defaults) {
+            $container->prependExtensionConfig('nowo_ui_kit', $defaults);
+        }
     }
 
     public function load(array $configs, ContainerBuilder $container): void

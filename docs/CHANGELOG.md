@@ -9,7 +9,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## Table of contents
 
 - [[Unreleased]](#unreleased)
-  - [Added](#added)
+- [[2.0.13] - 2026-08-04](#2013---2026-08-04)
+  - [Changed](#changed)
+  - [Fixed](#fixed)
   - [Documentation](#documentation)
 - [[2.0.12] - 2026-08-01](#2012---2026-08-01)
   - [Added](#added)
@@ -70,6 +72,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - [Documentation](#documentation)
 
 ## [Unreleased]
+
+## [2.0.13] - 2026-08-04
+
+### Changed
+
+- **REQ-UI-001-kit:** dashboard UI composes [UiKitBundle](https://github.com/nowo-tech/UiKitBundle) (`nowo-tech/ui-kit-bundle` ^1.4) instead of a private `_ui_macros.html.twig` / vendored `nowo-ui.css`.
+  - Twig imports use `@NowoUiKitBundle/macros/ui.html.twig`.
+  - Stylesheet loads via asset package `nowo_ui_kit` (`css/nowo-ui.css`); `js/dashboard.js` remains on `nowo_breadcrumb_kit`.
+  - When the host has not configured `nowo_ui_kit`, the extension prepends `css_framework` / `icon_set` from `dashboard.*` (defaults `bootstrap5` / `bootstrap-icons`) so `ui.btn()` resolves without a framework argument. Explicit host `nowo_ui_kit` keys are never overridden.
+  - Host apps that still reference `asset('css/nowo-ui.css', 'nowo_breadcrumb_kit')` must switch to package `nowo_ui_kit` and re-run `assets:install`.
+
+### Fixed
+
+- **Demo:** `GET /favicon.ico` and Chrome DevTools well-known probe return **204** (no locale prefix), avoiding noisy `NotFoundHttpException` in FrankenPHP logs.
+
+### Documentation
+
+- CONFIGURATION / USAGE / UPGRADING / INSTALLATION updated for UiKit composition.
+- Spec Kit baseline inventory remapped to **74/74** `src/` files (UiKit owns macros/`nowo-ui.css`).
+- [UPGRADING.md](UPGRADING.md): 2.0.12 → 2.0.13.
 
 ## [2.0.12] - 2026-08-01
 

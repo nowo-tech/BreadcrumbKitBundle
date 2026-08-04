@@ -75,7 +75,7 @@ Collection `homeIcon` wins over `presentation.home_icon`. Override `@NowoBreadcr
 | `breadcrumb.html.twig` | Default breadcrumb markup (and optional inline-edit UI). |
 | `_breadcrumb_crumb.html.twig` | Single crumb (icon, link, current page). |
 | `dashboard/layout.html.twig` | Dashboard shell (Bootstrap navbar, main block). |
-| `dashboard/base.html.twig` | Extends configurable layout; flashes + body block. |
+| `dashboard/base.html.twig` | Extends configurable layout; flashes + body block; loads UiKit CSS + `dashboard.js`. |
 | `dashboard/collection/index.html.twig` | Collections list. |
 | `dashboard/collection/form.html.twig` | Collection create/edit. |
 | `dashboard/item/index.html.twig` | Items list for a collection. |
@@ -88,6 +88,8 @@ Collection `homeIcon` wins over `presentation.home_icon`. Override `@NowoBreadcr
 | `dashboard/_icons.html.twig` | Inline SVG action icons. |
 | `Collector/breadcrumb.html.twig` | Web Profiler / toolbar panel. |
 | `Collector/_icon.svg.twig` | Profiler icon fragment. |
+
+**Dashboard CSS / macros (REQ-UI-001-kit):** import `@NowoUiKitBundle/macros/ui.html.twig` and load `asset('css/nowo-ui.css', 'nowo_ui_kit')`. Domain CRUD stays in this bundle; look-and-feel comes from [UiKitBundle](https://github.com/nowo-tech/UiKitBundle). See [CONFIGURATION.md](CONFIGURATION.md) for `dashboard.css_framework` / `nowo_ui_kit` alignment.
 
 **Dashboard layout integration:** set `nowo_breadcrumb_kit.dashboard.layout_template` to your app layout if it defines block `nowo_breadcrumb_kit_content` (same pattern as [DashboardMenuBundle](https://github.com/nowo-tech/DashboardMenuBundle) `nowo_dashboard_menu_content`).
 

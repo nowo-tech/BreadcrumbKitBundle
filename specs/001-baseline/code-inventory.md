@@ -2,7 +2,7 @@
 
 **Baseline spec**: [`spec.md`](spec.md)  
 **Package**: `nowo-tech/breadcrumb-kit-bundle`  
-**Last audited**: 2026-07-28
+**Last audited**: 2026-08-04
 
 ## Symfony config
 
@@ -113,8 +113,9 @@
 
 | Source file | Spec section | Requirement IDs |
 | --- | --- | --- |
-| `Resources/public/css/nowo-ui.css` | Public assets | FR-ASSET-001 |
 | `Resources/public/js/dashboard.js` | Public assets | FR-ASSET-001 |
+
+Semantic `nowo-ui.css` and Twig UI macros ship from **UiKitBundle** (`asset(..., 'nowo_ui_kit')`, `@NowoUiKitBundle/macros/ui.html.twig`) — REQ-UI-001-kit.
 
 ## Translations
 
@@ -151,7 +152,6 @@
 | `Resources/views/dashboard/_icons.html.twig` | Twig views — dashboard | FR-TWIG-002 |
 | `Resources/views/dashboard/_import_partial.html.twig` | Twig views — dashboard | FR-TWIG-002 |
 | `Resources/views/dashboard/_item_form_partial.html.twig` | Twig views — dashboard | FR-TWIG-002 |
-| `Resources/views/dashboard/_ui_macros.html.twig` | Twig views — dashboard | FR-TWIG-002 |
 | `Resources/views/dashboard/base.html.twig` | Twig views — dashboard | FR-TWIG-002 |
 | `Resources/views/dashboard/collection/form.html.twig` | Twig views — dashboard | FR-TWIG-002 |
 | `Resources/views/dashboard/collection/index.html.twig` | Twig views — dashboard | FR-TWIG-002 |
@@ -175,9 +175,9 @@
 | Forms | 7 | 7 |
 | Twig PHP | 3 | 3 |
 | Profiler | 3 | 3 |
-| Public assets | 2 | 2 |
+| Public assets | 1 | 1 |
 | Translations | 7 | 7 |
 | Twig views — public | 2 | 2 |
 | Twig views — profiler | 2 | 2 |
-| Twig views — dashboard | 13 | 13 |
-| **Total production sources** | **76** | **76** |
+| Twig views — dashboard | 12 | 12 |
+| **Total production sources** | **74** | **74** |

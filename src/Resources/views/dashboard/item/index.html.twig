@@ -1,7 +1,7 @@
 {% extends '@NowoBreadcrumbKitBundle/dashboard/base.html.twig' %}
 {% trans_default_domain 'NowoBreadcrumbKitBundle' %}
 {% import '@NowoBreadcrumbKitBundle/dashboard/_icons.html.twig' as bk_icon %}
-{% import '@NowoBreadcrumbKitBundle/dashboard/_ui_macros.html.twig' as ui %}
+{% import '@NowoUiKitBundle/macros/ui.html.twig' as ui %}
 
 {% block title %}{{ 'dashboard.items_title_with_code'|trans({'%code%': collection.code}) }}{% endblock %}
 
