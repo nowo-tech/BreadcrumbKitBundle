@@ -5,6 +5,8 @@ This document describes breaking changes and upgrade notes between versions. Sec
 
 ## Table of contents
 
+- [Unreleased](#unreleased)
+- [From 2.1.2 to 2.1.3](#from-212-to-213)
 - [From 2.1.1 to 2.1.2](#from-211-to-212)
 - [From 2.1.0 to 2.1.1](#from-210-to-211)
 - [From 2.0.14 to 2.1.0](#from-2014-to-210)
@@ -29,6 +31,31 @@ This document describes breaking changes and upgrade notes between versions. Sec
 - [From pre-release / local copies to 1.0.0](#from-pre-release-local-copies-to-100)
 - [Doctrine schema](#doctrine-schema)
 - [General upgrade steps (any version)](#general-upgrade-steps-any-version)
+
+
+## Unreleased
+
+## From 2.1.2 to 2.1.3
+
+Additive (REQ-TWIG-004). No schema or PHP API changes.
+
+### Twig Extra Bundle (REQ-TWIG-004)
+
+Hosts that render this bundle's Twig templates must install:
+
+```bash
+composer require twig/extra-bundle twig/string-extra
+```
+
+and enable `Twig\Extra\TwigExtraBundle\TwigExtraBundle`. Flex recipes usually register it automatically. Updating the package also pulls these as Composer dependencies.
+
+### Twig-CS-Fixer (maintainers)
+
+Package maintainers: `composer twig:lint` / `composer twig:fix` use `.twig-cs-fixer.php` over `src/` (and `templates/` when present).
+
+```bash
+composer update nowo-tech/breadcrumb-kit-bundle
+```
 
 ## From 2.1.1 to 2.1.2
 

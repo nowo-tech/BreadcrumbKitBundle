@@ -5,9 +5,9 @@ SERVICE_PHP ?= php
 export COMPOSER_ALLOW_SUPERUSER ?= 1
 
 .PHONY: help ensure-up up down down-dev build shell install assets test test-coverage \
-	check-no-cursor-coauthor check-open-prs strip-cursor-coauthor-from-history setup-hooks \
+	check-twig-extra check-no-cursor-coauthor check-open-prs strip-cursor-coauthor-from-history setup-hooks \
 	cs-check cs-fix rector rector-dry phpstan qa release-check composer-sync \
-	clean update validate demo-smoke
+	clean update validate demo-smoke twig-lint
 
 help:
 	@echo "Usage: make <target>"
@@ -79,7 +79,11 @@ composer-sync: ensure-up
 	@$(COMPOSE) exec -T $(SERVICE_PHP) composer validate --strict
 	@$(COMPOSE) exec -T $(SERVICE_PHP) composer install --no-interaction --prefer-dist
 
-release-check: ensure-up check-no-cursor-coauthor check-open-prs composer-sync cs-fix cs-check rector-dry phpstan coverage-check
+
+check-twig-extra:
+	@chmod +x .scripts/check-twig-extra.sh
+	@./.scripts/check-twig-extra.sh
+release-check: ensure-up check-no-cursor-coauthor check-open-prs check-twig-extra composer-sync cs-fix cs-check rector-dry phpstan coverage-check
 	@if [ -d demo ]; then $(MAKE) -C demo release-check; fi
 
 # REQ-TEST-011 — boot demo stack and assert one HTTP 200
@@ -129,3 +133,6 @@ check-open-prs:
 strip-cursor-coauthor-from-history:
 	@chmod +x .scripts/strip-cursor-coauthor-from-history.sh
 	@./.scripts/strip-cursor-coauthor-from-history.sh main
+
+twig-lint: ensure-up
+	@$(COMPOSE) exec -T $(SERVICE_PHP) composer twig:lint || $(COMPOSE) exec -T $(SERVICE_PHP) ./vendor/bin/twig-cs-fixer lint --config=.twig-cs-fixer.php

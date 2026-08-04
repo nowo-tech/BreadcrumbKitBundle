@@ -9,6 +9,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## Table of contents
 
 - [[Unreleased]](#unreleased)
+- [[2.1.3] - 2026-08-04](#213---2026-08-04)
+  - [Added](#added)
+  - [Documentation](#documentation)
 - [[2.1.2] - 2026-08-04](#212---2026-08-04)
   - [Documentation](#documentation)
 - [[2.1.1] - 2026-08-04](#211---2026-08-04)
@@ -86,6 +89,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - [Documentation](#documentation)
 
 ## [Unreleased]
+
+## [2.1.3] - 2026-08-04
+
+### Added
+
+- **REQ-TWIG-004:** require `twig/extra-bundle` + `twig/string-extra`; `make check-twig-extra` in `release-check`; demos register `TwigExtraBundle`.
+- **Twig-CS-Fixer:** `vincentlanglet/twig-cs-fixer`, `.twig-cs-fixer.php`, `composer twig:lint` / `twig:fix`.
+
+### Documentation
+
+- [INSTALLATION.md](INSTALLATION.md) / [UPGRADING.md](UPGRADING.md): host Twig Extra Bundle contract; maintainer Twig-CS-Fixer scripts.
 
 ## [2.1.2] - 2026-08-04
 
