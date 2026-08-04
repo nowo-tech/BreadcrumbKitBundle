@@ -3,20 +3,11 @@
 <div id="modal-bk-collection-form-container">
 {{ form_start(form, { attr: { class: 'bk-dashboard-form' } }) }}
     <input type="hidden" name="_modal" value="1">
-    {{ form_row(form.code) }}
-    {{ form_row(form.contextKey) }}
-    {{ form_row(form.name) }}
-    {{ form_row(form.homeIcon) }}
-    {{ form_row(form.separatorIcon) }}
-    {{ form_row(form.classList) }}
-    {{ form_row(form.classItem) }}
-    {{ form_row(form.classSeparator) }}
-    {{ form_row(form.classCurrent) }}
-    {{ form_row(form.responsiveConfigJson) }}
-    {% if form.inlineEditAccessKey is defined %}
-        {{ form_row(form.inlineEditAccessKey) }}
-    {% endif %}
-    {{ form_rest(form) }}
+    {% for child in form %}
+        {% if not child.rendered %}
+            {{ form_row(child) }}
+        {% endif %}
+    {% endfor %}
     <div class="{{ ui.row_actions() }}" style="justify-content:flex-start;margin-top:1rem;">
         <button type="submit" class="{{ ui.btn('primary') }}">{{ is_edit|default(false) ? ('dashboard.form_update'|trans) : ('dashboard.form_create'|trans) }}</button>
         <button type="button" class="{{ ui.btn('secondary') }}" {{ ui.modal_dismiss_attrs()|raw }}>{{ 'dashboard.cancel'|trans }}</button>

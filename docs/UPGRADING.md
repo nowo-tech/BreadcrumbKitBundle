@@ -5,6 +5,7 @@ This document describes breaking changes and upgrade notes between versions. Sec
 
 ## Table of contents
 
+- [From 2.1.0 to 2.1.1](#from-210-to-211)
 - [From 2.0.14 to 2.1.0](#from-2014-to-210)
 - [From 2.0.13 to 2.0.14](#from-2013-to-2014)
 - [From 2.0.12 to 2.0.13](#from-2012-to-2013)
@@ -27,6 +28,16 @@ This document describes breaking changes and upgrade notes between versions. Sec
 - [From pre-release / local copies to 1.0.0](#from-pre-release-local-copies-to-100)
 - [Doctrine schema](#doctrine-schema)
 - [General upgrade steps (any version)](#general-upgrade-steps-any-version)
+
+## From 2.1.0 to 2.1.1
+
+No schema or PHP API changes.
+
+- **Twig overrides:** if you copied dashboard form templates (`_item_form_partial`, `_collection_form_partial`, `_import_partial`, `item/form`, `collection/form`) with explicit `form_row` lists, prefer iterating unrendered children so new FormKit fields keep type order (or re-copy from the bundle).
+
+```bash
+composer update nowo-tech/breadcrumb-kit-bundle
+```
 
 ## From 2.0.14 to 2.1.0
 

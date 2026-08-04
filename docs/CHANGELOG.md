@@ -9,6 +9,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## Table of contents
 
 - [[Unreleased]](#unreleased)
+- [[2.1.1] - 2026-08-04](#211---2026-08-04)
+  - [Fixed](#fixed)
+  - [Changed](#changed)
 - [[2.1.0] - 2026-08-04](#210---2026-08-04)
   - [Added](#added)
   - [Changed](#changed)
@@ -81,6 +84,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - [Documentation](#documentation)
 
 ## [Unreleased]
+
+## [2.1.1] - 2026-08-04
+
+### Fixed
+
+- **Dashboard item form (full page):** render all FormKit fields in type order. Explicit `form_row` lists skipped `pathPattern` / `matchAttributes`, so those fields appeared after `parent` via `form_rest`.
+
+### Changed
+
+- Dashboard collection/item/import Twig (partials + full-page forms) iterate unrendered children (`{% for child in form %}` / `not child.rendered`) instead of listing each field + `form_rest`.
 
 ## [2.1.0] - 2026-08-04
 
