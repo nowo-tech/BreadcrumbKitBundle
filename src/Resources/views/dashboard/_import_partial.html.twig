@@ -1,6 +1,5 @@
 {% trans_default_domain 'NowoBreadcrumbKitBundle' %}
 {% import '@NowoUiKitBundle/macros/ui.html.twig' as ui %}
-{% set _input = ui.input() %}
 <div id="modal-bk-import-container">
     {% for msg in app.flashes('danger') %}
         <div class="{{ ui.flash('danger') }}">{{ msg }}</div>
@@ -11,8 +10,8 @@
     <p class="{{ ui.muted() }} small">{{ 'dashboard.import_partial_hint'|trans|raw }}</p>
     {{ form_start(form, { attr: { enctype: 'multipart/form-data', class: 'import-form bk-dashboard-form', 'data-import-form': '1' } }) }}
         <input type="hidden" name="_modal" value="1">
-        {{ form_row(form.file, { row_attr: { class: 'mb-2' }, label_attr: { class: 'form-label' }, attr: { class: _input } }) }}
-        {{ form_row(form.strategy, { row_attr: { class: 'mb-2' }, label_attr: { class: 'form-label' }, attr: { class: _input } }) }}
+        {{ form_row(form.file) }}
+        {{ form_row(form.strategy) }}
         {{ form_rest(form) }}
         <div class="{{ ui.row_actions() }}" style="justify-content:flex-start;margin-top:1rem;">
             <button type="submit" class="{{ ui.btn('primary') }}">{{ 'dashboard.import_submit'|trans }}</button>

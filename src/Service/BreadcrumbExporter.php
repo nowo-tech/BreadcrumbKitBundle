@@ -115,6 +115,8 @@ final readonly class BreadcrumbExporter
     {
         $data = [
             'routeName' => $item->getRouteName(),
+            'pathPattern' => $item->getPathPattern(),
+            'matchAttributes' => $item->getMatchAttributes(),
             'staticRouteParams' => $item->getStaticRouteParams() ?? [],
             'dynamicParamKeys' => $item->getDynamicParamKeys() ?? [],
             'linkEnabled' => $item->isLinkEnabled(),

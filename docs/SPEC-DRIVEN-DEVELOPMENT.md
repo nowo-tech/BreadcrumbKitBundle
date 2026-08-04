@@ -47,6 +47,7 @@ The sections below state **behavior**; this subsection states **intent** in back
 - Documented integration (see root `README.md` and `docs/`).
 - Configuration and runtime behavior described in [`CONFIGURATION.md`](CONFIGURATION.md) and [`USAGE.md`](USAGE.md).
 - Consumer-facing change notes in [`CHANGELOG.md`](CHANGELOG.md) and [`UPGRADING.md`](UPGRADING.md) when applicable.
+- Baseline Spec Kit map: [`specs/001-baseline/`](../specs/001-baseline/) (**74/74** `src/` files; UiKit + FormKit as composed kits).
 
 **Explicit non-goals**
 
@@ -72,6 +73,8 @@ The sections below state **behavior**; this subsection states **intent** in back
 | REQ-MAKE-008 | Root `Makefile` (via `../.scripts/Makefile.update-deps.mk`) | `update-deps`: run `composer update` in the bundle and each demo. |
 | REQ-DEMO-005 | `demo/symfony8/Makefile` | Canonical demo `up` flow (`.env`, compose, install, URL from `PORT`). |
 | REQ-RECIPE-001 | `.symfony/recipe/nowo-tech/breadcrumb-kit-bundle/1.0/` | Flex recipe: bundle registration, default YAML config, dashboard routes stub. |
+| REQ-UI-001-kit | Dashboard Twig + `composer.json` | Compose UiKitBundle macros/`nowo-ui.css` (`FR-UI-001`); no private `_ui_macros` / vendored `nowo-ui.css` in this package. |
+| REQ-FORM-001-kit | Dashboard form types + Extension prepend | Compose FormKitBundle (`FR-FORM-003`, profile `breadcrumb_kit`); Symfony `^7.4 \|\| ^8.0`. |
 
 When you change scripted behavior, **update the existing `REQ-*` comment** if the ID still matches the rule, or **add a new `REQ-*`** and document it here and in the PR description.
 

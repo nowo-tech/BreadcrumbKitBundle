@@ -934,7 +934,7 @@
             "dist": {
                 "type": "path",
                 "url": "/var/breadcrumb-kit-bundle",
-                "reference": "45937b0637fbf8ceaf2c82910b465dbad161ef66"
+                "reference": "f19b27454aa3eed605b7238167264f63da909f1d"
             },
             "require": {
                 "doctrine/doctrine-bundle": "^2.8 || ^3.0",
@@ -945,7 +945,10 @@
                 "psr/cache": "^3.0",
                 "symfony/asset": "^7.4 || ^8.0",
                 "symfony/config": "^7.4 || ^8.0",
+                "symfony/console": "^7.4 || ^8.0",
                 "symfony/dependency-injection": "^7.4 || ^8.0",
+                "symfony/event-dispatcher": "^7.4 || ^8.0",
+                "symfony/filesystem": "^7.4 || ^8.0",
                 "symfony/form": "^7.4 || ^8.0",
                 "symfony/framework-bundle": "^7.4 || ^8.0",
                 "symfony/http-foundation": "^7.4 || ^8.0",

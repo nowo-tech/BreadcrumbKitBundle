@@ -17,7 +17,10 @@ GitHub Spec Kit is initialized with **Cursor Agent** (`cursor-agent`). Skills li
 ### V. Symfony compatibility
 Follow declared PHP/Symfony ranges in `composer.json` and README badges.
 
+### VI. Nowo kit composition (dashboard)
+Optional dashboard UI composes **UiKitBundle** (macros / `nowo-ui.css`) and **FormKitBundle** (form options / profile `breadcrumb_kit`). This package owns breadcrumb domain behavior; shared chrome/forms stay in the kits. Baseline IDs: `FR-UI-001`, `FR-FORM-003`, `FR-DEP-001`.
+
 ## Governance
 Amendments update this file, baseline spec when principles affect behavior, and `CHANGELOG.md` when consumer-visible.
 
-**Version**: 1.0.0 | **Ratified**: 2026-07-07 | **Last Amended**: 2026-07-07
+**Version**: 1.1.0 | **Ratified**: 2026-07-07 | **Last Amended**: 2026-08-04

@@ -42,6 +42,23 @@ services:
 
   Nowo\BreadcrumbKitBundle\Service\BreadcrumbImporter: ~
 
+  Nowo\BreadcrumbKitBundle\Service\BreadcrumbTrailPreview: ~
+
+  Nowo\BreadcrumbKitBundle\Command\GenerateBreadcrumbKitMigrationCommand:
+    arguments:
+      $connectionName: '%nowo_breadcrumb_kit.doctrine.connection%'
+      $tablePrefix: '%nowo_breadcrumb_kit.table_prefix%'
+    tags: ['console.command']
+
+  Nowo\BreadcrumbKitBundle\Command\ExportBreadcrumbsCommand:
+    tags: ['console.command']
+
+  Nowo\BreadcrumbKitBundle\Command\ImportBreadcrumbsCommand:
+    tags: ['console.command']
+
+  Nowo\BreadcrumbKitBundle\Command\PreviewBreadcrumbTrailCommand:
+    tags: ['console.command']
+
   Nowo\BreadcrumbKitBundle\Twig\BreadcrumbExtension:
     arguments:
       $defaultCollection: '%nowo_breadcrumb_kit.default_collection%'

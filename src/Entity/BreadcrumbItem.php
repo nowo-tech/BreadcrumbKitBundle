@@ -9,7 +9,8 @@ use Doctrine\ORM\Mapping as ORM;
 use Nowo\BreadcrumbKitBundle\Repository\BreadcrumbItemRepository;
 
 /**
- * One crumb: matches a route name + static param subset; parent links form the trail order (no sibling ordering field).
+ * One crumb: matches a route name (+ optional path / request attributes) and static param subset;
+ * parent links form the trail order (no sibling ordering field).
  */
 #[ORM\Entity(repositoryClass: BreadcrumbItemRepository::class)]
 #[ORM\Table(name: 'dashboard_breadcrumb_item')]
@@ -29,8 +30,25 @@ class BreadcrumbItem
     #[ORM\JoinColumn(onDelete: 'SET NULL')]
     private ?BreadcrumbItem $parent = null;
 
+    /**
+     * Symfony route name, or {@code *} when matching via {@see $pathPattern} / {@see $matchAttributes}.
+     */
     #[ORM\Column(length: 255)]
     private string $routeName = '';
+
+    /**
+     * Optional PCRE body (no delimiters) matched against {@see Request::getPathInfo()}.
+     */
+    #[ORM\Column(length: 512, nullable: true)]
+    private ?string $pathPattern = null;
+
+    /**
+     * Extra request attributes that must equal these values (beyond {@code _route_params}).
+     *
+     * @var array<string, scalar|null>|null
+     */
+    #[ORM\Column(type: Types::JSON, nullable: true)]
+    private ?array $matchAttributes = null;
 
     /**
      * Params that must match the current request for this row to apply (exact values).
@@ -102,6 +120,32 @@ class BreadcrumbItem
     public function setRouteName(string $routeName): self
     {
         $this->routeName = $routeName;
+
+        return $this;
+    }
+
+    public function getPathPattern(): ?string
+    {
+        return $this->pathPattern;
+    }
+
+    public function setPathPattern(?string $pathPattern): self
+    {
+        $this->pathPattern = $pathPattern;
+
+        return $this;
+    }
+
+    /** @return array<string, scalar|null>|null */
+    public function getMatchAttributes(): ?array
+    {
+        return $this->matchAttributes;
+    }
+
+    /** @param array<string, scalar|null>|null $matchAttributes */
+    public function setMatchAttributes(?array $matchAttributes): self
+    {
+        $this->matchAttributes = $matchAttributes;
 
         return $this;
     }

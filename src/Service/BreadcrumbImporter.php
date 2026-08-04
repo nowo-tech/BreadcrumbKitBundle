@@ -199,6 +199,8 @@ final readonly class BreadcrumbImporter
             $item->setParent($parent);
             $item->setRouteName($routeName);
             $item->setStaticRouteParams($this->staticParamsFromRow($row));
+            $item->setPathPattern($this->stringOrNull($row['pathPattern'] ?? null));
+            $item->setMatchAttributes($this->matchAttributesFromRow($row));
             $item->setDynamicParamKeys($this->dynamicKeysFromRow($row));
             $item->setLinkEnabled(!isset($row['linkEnabled']) ? true : (bool) $row['linkEnabled']);
             $item->setLabel($this->stringOrNull($row['label'] ?? null));
@@ -234,6 +236,29 @@ final readonly class BreadcrumbImporter
         }
 
         return $out;
+    }
+
+    /**
+     * @param array<string, mixed> $row
+     *
+     * @return array<string, scalar|null>|null
+     */
+    private function matchAttributesFromRow(array $row): ?array
+    {
+        if (!isset($row['matchAttributes']) || !\is_array($row['matchAttributes'])) {
+            return null;
+        }
+        $out = [];
+        foreach ($row['matchAttributes'] as $k => $v) {
+            if (!\is_string($k)) {
+                continue;
+            }
+            if (null === $v || \is_scalar($v)) {
+                $out[$k] = $v;
+            }
+        }
+
+        return [] === $out ? null : $out;
     }
 
     /**

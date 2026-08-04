@@ -8,12 +8,14 @@ use Nowo\BreadcrumbKitBundle\Dto\BreadcrumbNode;
 use Nowo\BreadcrumbKitBundle\Dto\BreadcrumbTrailView;
 use Nowo\BreadcrumbKitBundle\Entity\BreadcrumbCollection;
 use Nowo\BreadcrumbKitBundle\Entity\BreadcrumbItem;
+use Nowo\BreadcrumbKitBundle\Event\BreadcrumbTrailBuiltEvent;
 use Nowo\BreadcrumbKitBundle\Profiler\BreadcrumbProfilerRecorder;
 use Nowo\BreadcrumbKitBundle\Repository\BreadcrumbCollectionRepository;
 use Nowo\BreadcrumbKitBundle\Repository\BreadcrumbItemRepository;
 use Psr\Cache\CacheItemPoolInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
  * Loads item definitions (optional cache), picks the best route match, walks parents, resolves labels/URLs.
@@ -34,6 +36,7 @@ final readonly class BreadcrumbLoader
         private bool $hideWhenSingleRoot = false,
         private bool $homeIconReplacesLabel = true,
         private ?string $defaultHomeIcon = null,
+        private ?EventDispatcherInterface $eventDispatcher = null,
     ) {
     }
 
@@ -43,40 +46,45 @@ final readonly class BreadcrumbLoader
 
         $collection = $this->collectionRepository->findOneByCodeAndContextKey($collectionCode, $contextKey);
         if (!$collection instanceof BreadcrumbCollection) {
-            $empty = new BreadcrumbTrailView([]);
-            $this->profile($collectionCode, $contextKey, $empty, 'collection_not_found', $request, null);
-
-            return $empty;
+            return $this->finishTrail(
+                new BreadcrumbTrailView([]),
+                $collectionCode,
+                $contextKey,
+                'collection_not_found',
+                $request,
+                null,
+            );
         }
 
         if (!$request instanceof Request) {
-            $view = $this->emptyView($collection);
-            $this->profile($collectionCode, $contextKey, $view, 'no_http_request', null, null);
-
-            return $view;
+            return $this->finishTrail(
+                $this->emptyView($collection),
+                $collectionCode,
+                $contextKey,
+                'no_http_request',
+                null,
+                null,
+            );
         }
 
         $locale = $request->getLocale();
         $rows = $this->loadItemRows($collection);
 
         $currentRoute = $request->attributes->get('_route');
-        if (!\is_scalar($currentRoute) || '' === (string) $currentRoute) {
-            $view = $this->emptyView($collection);
-            $this->profile($collectionCode, $contextKey, $view, 'no_route', $request, null);
-
-            return $view;
-        }
-
-        $routeName = (string) $currentRoute;
+        $routeName = \is_scalar($currentRoute) && '' !== (string) $currentRoute ? (string) $currentRoute : '';
         /** @var array<string, scalar|null> $routeParams */
         $routeParams = (array) $request->attributes->get('_route_params', []);
 
-        $best = $this->pickBestMatch($rows, $routeName, $routeParams);
+        $best = $this->pickBestMatch($rows, $routeName, $routeParams, $request);
         if (null === $best) {
-            $view = $this->emptyView($collection);
-            $this->profile($collectionCode, $contextKey, $view, 'no_item_match', $request, null);
-
-            return $view;
+            return $this->finishTrail(
+                $this->emptyView($collection),
+                $collectionCode,
+                $contextKey,
+                '' === $routeName ? 'no_route' : 'no_item_match',
+                $request,
+                null,
+            );
         }
 
         $chain = $this->walkParentChain($rows, $best);
@@ -88,11 +96,14 @@ final readonly class BreadcrumbLoader
             $merged = [];
             $url = null;
             if ($row['link_enabled']) {
-                [$url, $merged] = $this->urlResolver->resolve(
-                    (string) $row['route_name'],
-                    \is_array($row['static_params']) ? $row['static_params'] : [],
-                    $this->castDynamicKeys($row['dynamic_keys'] ?? null),
-                );
+                $rowRoute = (string) ($row['route_name'] ?? '');
+                if ('*' !== $rowRoute && '' !== $rowRoute) {
+                    [$url, $merged] = $this->urlResolver->resolve(
+                        $rowRoute,
+                        \is_array($row['static_params']) ? $row['static_params'] : [],
+                        $this->castDynamicKeys($row['dynamic_keys'] ?? null),
+                    );
+                }
                 if ($isLast) {
                     $url = null;
                 }
@@ -123,16 +134,15 @@ final readonly class BreadcrumbLoader
             responsiveConfig: \is_array($responsive) ? $responsive : [],
             homeIconReplacesLabel: $this->homeIconReplacesLabel,
         );
-        $this->profile(
+
+        return $this->finishTrail(
+            $view,
             $collectionCode,
             $contextKey,
-            $view,
             'ok',
             $request,
             isset($best['route_name']) ? (string) $best['route_name'] : null,
         );
-
-        return $view;
     }
 
     /**
@@ -157,15 +167,11 @@ final readonly class BreadcrumbLoader
 
         $rows = $this->loadItemRows($collection);
         $currentRoute = $request->attributes->get('_route');
-        if (!\is_scalar($currentRoute) || '' === (string) $currentRoute) {
-            return null;
-        }
-
-        $routeName = (string) $currentRoute;
+        $routeName = \is_scalar($currentRoute) && '' !== (string) $currentRoute ? (string) $currentRoute : '';
         /** @var array<string, scalar|null> $routeParams */
         $routeParams = (array) $request->attributes->get('_route_params', []);
 
-        $best = $this->pickBestMatch($rows, $routeName, $routeParams);
+        $best = $this->pickBestMatch($rows, $routeName, $routeParams, $request);
         if (null === $best || !isset($best['id'])) {
             return null;
         }
@@ -233,6 +239,29 @@ final readonly class BreadcrumbLoader
         }
 
         return $this->hideWhenSingleRoot;
+    }
+
+    /**
+     * @param 'collection_not_found'|'no_http_request'|'no_route'|'no_item_match'|'ok' $status
+     */
+    private function finishTrail(
+        BreadcrumbTrailView $view,
+        string $collectionCode,
+        string $contextKey,
+        string $status,
+        ?Request $request,
+        ?string $matchedItemRoute,
+    ): BreadcrumbTrailView {
+        $this->profile($collectionCode, $contextKey, $view, $status, $request, $matchedItemRoute);
+
+        if (null === $this->eventDispatcher) {
+            return $view;
+        }
+
+        $event = new BreadcrumbTrailBuiltEvent($view, $collectionCode, $contextKey, $status, $request, $matchedItemRoute);
+        $this->eventDispatcher->dispatch($event);
+
+        return $event->getView();
     }
 
     /**
@@ -309,6 +338,8 @@ final readonly class BreadcrumbLoader
             'id' => $item->getId(),
             'parent_id' => $item->getParent()?->getId(),
             'route_name' => $item->getRouteName(),
+            'path_pattern' => $item->getPathPattern(),
+            'match_attributes' => $item->getMatchAttributes() ?? [],
             'static_params' => $item->getStaticRouteParams() ?? [],
             'dynamic_keys' => $item->getDynamicParamKeys(),
             'link_enabled' => $item->isLinkEnabled(),
@@ -324,18 +355,17 @@ final readonly class BreadcrumbLoader
      *
      * @return array<string, mixed>|null
      */
-    private function pickBestMatch(array $rows, string $routeName, array $routeParams): ?array
+    private function pickBestMatch(array $rows, string $routeName, array $routeParams, Request $request): ?array
     {
         $candidates = [];
         foreach ($rows as $row) {
-            if (($row['route_name'] ?? '') !== $routeName) {
-                continue;
-            }
-            if (!$this->staticParamsMatch($row['static_params'] ?? [], $routeParams)) {
+            if (!$this->rowMatchesRequest($row, $routeName, $routeParams, $request)) {
                 continue;
             }
             $static = \is_array($row['static_params'] ?? null) ? $row['static_params'] : [];
-            $score = \count($static);
+            $matchAttrs = \is_array($row['match_attributes'] ?? null) ? $row['match_attributes'] : [];
+            $pathPattern = isset($row['path_pattern']) && \is_string($row['path_pattern']) ? $row['path_pattern'] : '';
+            $score = \count($static) + \count($matchAttrs) + ('' !== $pathPattern ? 10 : 0);
             $candidates[] = ['row' => $row, 'score' => $score];
         }
 
@@ -346,6 +376,74 @@ final readonly class BreadcrumbLoader
         usort($candidates, static fn (array $a, array $b): int => $b['score'] <=> $a['score']);
 
         return $candidates[0]['row'];
+    }
+
+    /**
+     * @param array<string, mixed>       $row
+     * @param array<string, scalar|null> $routeParams
+     */
+    private function rowMatchesRequest(array $row, string $routeName, array $routeParams, Request $request): bool
+    {
+        $rowRoute = (string) ($row['route_name'] ?? '');
+        $pathPatternRaw = $row['path_pattern'] ?? null;
+        $pathPattern = \is_string($pathPatternRaw) ? trim($pathPatternRaw) : '';
+        $matchAttrs = \is_array($row['match_attributes'] ?? null) ? $row['match_attributes'] : [];
+
+        $wildcard = '*' === $rowRoute;
+        if ($wildcard && '' === $pathPattern && [] === $matchAttrs) {
+            return false;
+        }
+
+        if (!$wildcard) {
+            if ('' === $rowRoute || $rowRoute !== $routeName) {
+                return false;
+            }
+        }
+
+        if ('' !== $pathPattern && !$this->pathPatternMatches($pathPattern, $request->getPathInfo())) {
+            return false;
+        }
+
+        if (!$this->staticParamsMatch(\is_array($row['static_params'] ?? null) ? $row['static_params'] : [], $routeParams)) {
+            return false;
+        }
+
+        return $this->requestAttributesMatch($matchAttrs, $request);
+    }
+
+    private function pathPatternMatches(string $pattern, string $pathInfo): bool
+    {
+        $delimited = '#'.$pattern.'#u';
+        $result = @preg_match($delimited, $pathInfo);
+        if (false === $result) {
+            return false;
+        }
+
+        return 1 === $result;
+    }
+
+    /**
+     * @param array<string, scalar|null> $expected
+     */
+    private function requestAttributesMatch(array $expected, Request $request): bool
+    {
+        foreach ($expected as $key => $value) {
+            if ('' === $key) {
+                return false;
+            }
+            if (!$request->attributes->has($key)) {
+                return false;
+            }
+            $actual = $request->attributes->get($key);
+            if (!\is_scalar($actual) && null !== $actual) {
+                return false;
+            }
+            if ((string) $actual !== (string) $value) {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     /**

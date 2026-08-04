@@ -59,8 +59,16 @@ Nowo\BreadcrumbKitBundle\NowoBreadcrumbKitBundle::class => ['all' => true],
 ## Doctrine mapping and schema
 
 1. Map entities under `Nowo\BreadcrumbKitBundle\Entity` in your Doctrine configuration (attribute mapping).
-2. Create tables `dashboard_breadcrumb_collection` and `dashboard_breadcrumb_item` (respecting `doctrine.table_prefix` if set) via a migration or, in development only, `doctrine:schema:update --force`.
-3. Seed at least one `BreadcrumbCollection` whose `code` matches `default_collection`, then add `BreadcrumbItem` rows (`routeName`, `staticRouteParams`, optional `parent` chain).
+2. Create tables `dashboard_breadcrumb_collection` and `dashboard_breadcrumb_item` (respecting `doctrine.table_prefix` if set):
+
+```bash
+php bin/console nowo_breadcrumb_kit:generate-migration
+# or for additive columns after an upgrade:
+php bin/console nowo_breadcrumb_kit:generate-migration --update
+```
+
+In development only you may use `doctrine:schema:update --force` instead.
+3. Seed at least one `BreadcrumbCollection` whose `code` matches `default_collection`, then add `BreadcrumbItem` rows (`routeName`, `staticRouteParams`, optional `pathPattern` / `matchAttributes`, optional `parent` chain).
 
 See the demo fixtures in `demo/symfony8/src/DataFixtures/BreadcrumbDemoFixtures.php` for an example.
 
@@ -97,10 +105,11 @@ security:
 
 ```bash
 php bin/console debug:config nowo_breadcrumb_kit
+php bin/console list nowo_breadcrumb_kit
 php bin/console cache:clear
 ```
 
-Render a trail in Twig — see [USAGE.md](USAGE.md).
+Render a trail in Twig — see [USAGE.md](USAGE.md). Preview without HTTP: `php bin/console nowo_breadcrumb_kit:preview --path=/ --route=app_home`.
 
 ## Docker (bundle development)
 

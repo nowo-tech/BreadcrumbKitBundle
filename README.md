@@ -1,6 +1,6 @@
 # Breadcrumb Kit Bundle
 
-[![CI](https://github.com/nowo-tech/BreadcrumbKitBundle/actions/workflows/ci.yml/badge.svg)](https://github.com/nowo-tech/BreadcrumbKitBundle/actions/workflows/ci.yml) [![Packagist Version](https://img.shields.io/packagist/v/nowo-tech/breadcrumb-kit-bundle.svg?style=flat)](https://packagist.org/packages/nowo-tech/breadcrumb-kit-bundle) [![Packagist Downloads](https://img.shields.io/packagist/dt/nowo-tech/breadcrumb-kit-bundle.svg)](https://packagist.org/packages/nowo-tech/breadcrumb-kit-bundle) [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE) [![PHP](https://img.shields.io/badge/PHP-8.2%2B-777BB4?logo=php)](https://php.net) [![Symfony](https://img.shields.io/badge/Symfony-7.4%20%7C%208.0%20%7C%208.1%2B-000000?logo=symfony)](https://symfony.com) [![GitHub stars](https://img.shields.io/github/stars/nowo-tech/breadcrumb-kit-bundle.svg?style=social&label=Star)](https://github.com/nowo-tech/BreadcrumbKitBundle) [![Coverage](https://img.shields.io/badge/Coverage-98.98%25-brightgreen)](#tests-and-coverage)
+[![CI](https://github.com/nowo-tech/BreadcrumbKitBundle/actions/workflows/ci.yml/badge.svg)](https://github.com/nowo-tech/BreadcrumbKitBundle/actions/workflows/ci.yml) [![Packagist Version](https://img.shields.io/packagist/v/nowo-tech/breadcrumb-kit-bundle.svg?style=flat)](https://packagist.org/packages/nowo-tech/breadcrumb-kit-bundle) [![Packagist Downloads](https://img.shields.io/packagist/dt/nowo-tech/breadcrumb-kit-bundle.svg)](https://packagist.org/packages/nowo-tech/breadcrumb-kit-bundle) [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE) [![PHP](https://img.shields.io/badge/PHP-8.2%2B-777BB4?logo=php)](https://php.net) [![Symfony](https://img.shields.io/badge/Symfony-7.4%20%7C%208.0%20%7C%208.1%2B-000000?logo=symfony)](https://symfony.com) [![GitHub stars](https://img.shields.io/github/stars/nowo-tech/breadcrumb-kit-bundle.svg?style=social&label=Star)](https://github.com/nowo-tech/BreadcrumbKitBundle) [![Coverage](https://img.shields.io/badge/Coverage-99.26%25-brightgreen)](#tests-and-coverage)
 
 > ⭐ **Found this useful?** Install from [Packagist](https://packagist.org/packages/nowo-tech/breadcrumb-kit-bundle) and consider starring the [GitHub repository](https://github.com/nowo-tech/BreadcrumbKitBundle).
 
@@ -24,13 +24,13 @@ This bundle is **FrankenPHP worker mode friendly**.
 
 ## Status
 
-**MVP (v2.0.14):** entities (`dashboard_breadcrumb_*` tables, aligned with DashboardMenuBundle), repositories, `BreadcrumbLoader`, `BreadcrumbUrlResolver`, Twig (`breadcrumb_trail`, `breadcrumb_render`), **optional web dashboard** with **UiKitBundle** look-and-feel (**REQ-UI-001-kit**), **FormKitBundle** forms, **REQ-UI-002** access roles, named asset package `nowo_breadcrumb_kit`, **presentation options**, dashboard i18n **en/es/de/fr/it/nl/pt**. **Demo**: Symfony 8.1 / PHP 8.5 (**8021**) with FrankenPHP. **Flex recipe** in `.symfony/recipe/`. Planned: migration command, event-based enrichers.
+**MVP (v2.1.0):** entities (`dashboard_breadcrumb_*` tables, aligned with DashboardMenuBundle), repositories, `BreadcrumbLoader`, `BreadcrumbUrlResolver`, Twig (`breadcrumb_trail`, `breadcrumb_render`), **CLI** (migration / export / import / preview), **`BreadcrumbTrailBuiltEvent`** enrichers, path/attribute matching, **optional web dashboard** with **UiKitBundle** look-and-feel (**REQ-UI-001-kit**), **FormKitBundle** forms, **REQ-UI-002** access roles, named asset package `nowo_breadcrumb_kit`, **presentation options**, dashboard i18n **en/es/de/fr/it/nl/pt**. **Demo**: Symfony 8.1 / PHP 8.5 (**8021**) with FrankenPHP. **Flex recipe** in `.symfony/recipe/`.
 
 **FrankenPHP:** demo selects classic vs worker via **`FRANKENPHP_MODE`** (default `worker`). See [docs/DEMO-FRANKENPHP.md](docs/DEMO-FRANKENPHP.md).
 
 ## Version information
 
-Latest release: **[v2.0.14](https://github.com/nowo-tech/BreadcrumbKitBundle/releases/tag/v2.0.14)** (2026-08-04). Requires **PHP 8.2+** and **Symfony 7.4+**. Tables: `dashboard_breadcrumb_*` (see [UPGRADING.md](docs/UPGRADING.md) from v1.2.x).
+Latest release: **[v2.1.0](https://github.com/nowo-tech/BreadcrumbKitBundle/releases/tag/v2.1.0)** (2026-08-04). Requires **PHP 8.2+** and **Symfony 7.4+**. Tables: `dashboard_breadcrumb_*` (see [UPGRADING.md](docs/UPGRADING.md) from v1.2.x / 2.0.14→2.1.0).
 
 ## Quick start
 
@@ -116,7 +116,7 @@ Opens at `http://localhost:8021` by default; the app redirects `/` to `/en/`.
 
 | Language | Coverage (Lines / notes) |
 |----------|---------------------------|
-| PHP      | **98.98%** (Lines, PHPUnit + PCOV; run `make test-coverage` to refresh) |
+| PHP      | **99.26%** (Lines, PHPUnit + PCOV; run `make test-coverage` to refresh) |
 | TS/JS    | N/A |
 | Python   | N/A |
 

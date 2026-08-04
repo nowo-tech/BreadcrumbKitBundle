@@ -106,6 +106,45 @@ final class BreadcrumbImporterTest extends TestCase
         self::assertSame(1, $result['skipped']);
     }
 
+    public function testImportPersistsPathPatternAndMatchAttributes(): void
+    {
+        $colRepo = $this->createMock(BreadcrumbCollectionRepository::class);
+        $colRepo->method('findOneByCodeAndContextKey')->willReturn(null);
+
+        $persisted = null;
+        $em = $this->createMock(EntityManagerInterface::class);
+        $em->expects(self::atLeastOnce())->method('persist')->willReturnCallback(
+            static function (object $entity) use (&$persisted): void {
+                if ($entity instanceof BreadcrumbItem) {
+                    $persisted = $entity;
+                }
+            },
+        );
+        $em->expects(self::atLeastOnce())->method('flush');
+
+        $importer = new BreadcrumbImporter(
+            $colRepo,
+            $this->createMock(BreadcrumbItemRepository::class),
+            $em,
+            $this->translator(),
+        );
+
+        $result = $importer->import([
+            'collection' => ['code' => 'demo'],
+            'items' => [[
+                'routeName' => '*',
+                'pathPattern' => '^/shop',
+                'matchAttributes' => ['tenant' => 'a', 1 => 'skip', 'x' => ['bad']],
+                'label' => 'Shop',
+            ]],
+        ]);
+
+        self::assertSame(1, $result['created']);
+        self::assertInstanceOf(BreadcrumbItem::class, $persisted);
+        self::assertSame('^/shop', $persisted->getPathPattern());
+        self::assertSame(['tenant' => 'a'], $persisted->getMatchAttributes());
+    }
+
     public function testImportReplacesExistingCollectionAndRemovesOldItems(): void
     {
         $existing = new BreadcrumbCollection();

@@ -155,6 +155,10 @@ form:
     route_name.not_blank: Geben Sie einen Routennamen ein.
     static_params.label: Statische Parameter (JSON)
     static_params.help: 'z. B. {"section":"sales"} — muss mit _route_params übereinstimmen.'
+    path_pattern.label: Path pattern (PCRE)
+    path_pattern.help: Optional regex against request path; use route * for path-only matches.
+    match_attributes.label: Request attributes (JSON)
+    match_attributes.help: Extra request attributes that must match.
     dynamic_keys.label: Dynamische Schlüssel (JSON-Array)
     dynamic_keys.help: 'z. B. ["id"] aus der Anfrage beim Generieren des Links kopiert.'
     link_enabled.label: Link aktiviert

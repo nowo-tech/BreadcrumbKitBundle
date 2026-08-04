@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Nowo\BreadcrumbKitBundle\Form\Dashboard;
 
+use Nowo\FormKitBundle\Attribute\FormKitConfig;
+use Nowo\FormKitBundle\Form\FormOptionsTrait;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\SearchType;
 use Symfony\Component\Form\FormBuilderInterface;
@@ -14,20 +16,27 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
  *
  * @extends AbstractType<array{q?: string|null}>
  */
+#[FormKitConfig('breadcrumb_kit')]
 final class DashboardGetSearchType extends AbstractType
 {
+    use FormOptionsTrait;
+
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
-        $builder->add('q', SearchType::class, [
-            'label' => false,
-            'required' => false,
-            'attr' => [
-                'placeholder' => $options['search_placeholder'],
-                'autocomplete' => 'off',
-                'class' => 'form-control dash-search-input',
-                'style' => 'max-width: 20rem;',
-            ],
-        ]);
+        $this->withBuilder($builder, function () use ($options): void {
+            $this->addWithDefaults($this->boundBuilder(), 'q', SearchType::class, [
+                'label' => false,
+                'placeholder' => false,
+                'help' => false,
+                'required' => false,
+                'attr' => [
+                    'placeholder' => $options['search_placeholder'],
+                    'autocomplete' => 'off',
+                    'class' => 'dash-search-input',
+                    'style' => 'max-width: 20rem;',
+                ],
+            ]);
+        });
     }
 
     public function configureOptions(OptionsResolver $resolver): void

@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## Table of contents
 
 - [[Unreleased]](#unreleased)
+- [[2.1.0] - 2026-08-04](#210---2026-08-04)
+  - [Added](#added)
+  - [Changed](#changed)
+  - [Documentation](#documentation)
 - [[2.0.14] - 2026-08-04](#2014---2026-08-04)
   - [Added](#added)
   - [Fixed](#fixed)
@@ -77,6 +81,28 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - [Documentation](#documentation)
 
 ## [Unreleased]
+
+## [2.1.0] - 2026-08-04
+
+### Added
+
+- **CLI:** `nowo_breadcrumb_kit:generate-migration`, `:export`, `:import`, `:preview`.
+- **Events:** `BreadcrumbTrailBuiltEvent` for trail enrichers after load.
+- **Matching:** item `pathPattern` (PCRE) + `matchAttributes` JSON; route name `*` when constrained by path/attributes.
+- **Preview service:** `BreadcrumbTrailPreview` for synthetic requests.
+- Spec Kit feature [`002-enhancements`](../specs/002-enhancements/spec.md); baseline inventory **80/80**.
+
+### Changed
+
+- Dashboard form partials rely on FormKit field classes (no duplicate `ui.input()` overrides).
+- `DashboardGetSearchType` uses FormKit; Flex recipe registers UiKit + FormKit and ships `nowo_form_kit.yaml` stub.
+- Composer requires `symfony/console`, `symfony/event-dispatcher`, and `symfony/filesystem` explicitly (CLI / events / migration writer).
+
+### Documentation
+
+- Spec Kit baseline (`specs/001-baseline/`): SC-001 **80/80**; FormKit/UiKit as `FR-FORM-003` / `FR-UI-001` / `FR-DEP-001`; inventory external-kit table; constitution principle VI; SPEC-DRIVEN `REQ-UI-001-kit` / `REQ-FORM-001-kit`.
+- FR-DEP-002: UiKit/FormKit remain hard requires in 2.x (optional packaging deferred).
+- [UPGRADING.md](UPGRADING.md): 2.0.14 → 2.1.0; USAGE / INSTALLATION cover CLI, events, and matching.
 
 ## [2.0.14] - 2026-08-04
 

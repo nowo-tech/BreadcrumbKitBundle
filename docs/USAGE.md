@@ -4,6 +4,8 @@
 
 - [Twig functions](#twig-functions)
 - [Presentation (home icon, hide on home)](#presentation-home-icon-hide-on-home)
+- [Console commands](#console-commands)
+- [Trail enrichers (events)](#trail-enrichers-events)
 - [Overriding templates and translations](#overriding-templates-and-translations)
   - [Twig templates (REQ-TWIG-001)](#twig-templates-req-twig-001)
   - [Overriding translations (REQ-I18N-001)](#overriding-translations-req-i18n-001)
@@ -55,6 +57,42 @@ Per collection, set `homeIcon` in the dashboard and optionally `hide_when_single
 ```
 
 Collection `homeIcon` wins over `presentation.home_icon`. Override `@NowoBreadcrumbKitBundle/_breadcrumb_crumb.html.twig` in your app for custom first-crumb markup.
+
+## Console commands
+
+| Command | Purpose |
+|---------|---------|
+| `nowo_breadcrumb_kit:generate-migration` | Write a Doctrine migration for breadcrumb tables (`--update` for additive columns such as `path_pattern` / `match_attributes`). |
+| `nowo_breadcrumb_kit:export` | Export collections to JSON (`--file`, optional `--code` / `--context-key`). |
+| `nowo_breadcrumb_kit:import` | Import JSON (`--file`, `--strategy=skip_existing\|replace`). |
+| `nowo_breadcrumb_kit:preview` | Resolve a trail for a synthetic request (`--collection`, `--path`, `--route`, `--route-params`, `--attributes`, `--locale`). |
+
+```bash
+php bin/console nowo_breadcrumb_kit:generate-migration --update
+php bin/console nowo_breadcrumb_kit:preview --path=/shop/item --route='*' --attributes='{}'
+```
+
+## Trail enrichers (events)
+
+After `BreadcrumbLoader` builds a view, it dispatches `Nowo\BreadcrumbKitBundle\Event\BreadcrumbTrailBuiltEvent`. Subscribers may call `setView()` to replace labels, URLs, or inject nodes.
+
+```php
+use Nowo\BreadcrumbKitBundle\Event\BreadcrumbTrailBuiltEvent;
+use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+
+final class EnrichBreadcrumbsSubscriber implements EventSubscriberInterface
+{
+    public static function getSubscribedEvents(): array
+    {
+        return [BreadcrumbTrailBuiltEvent::class => 'onTrail'];
+    }
+
+    public function onTrail(BreadcrumbTrailBuiltEvent $event): void
+    {
+        // $event->getView() / $event->setView(...)
+    }
+}
+```
 
 ## Overriding templates and translations
 
@@ -125,7 +163,7 @@ You only need the keys you want to change; missing keys fall back to the bundle 
 
 ## Data model (summary)
 
-Breadcrumb definitions are stored with Doctrine (`BreadcrumbCollection`, `BreadcrumbItem`). Items reference a Symfony route name, optional static route parameters (for matching the current request), optional `parent` for trail order (root → leaf), JSON translations per locale, and optional URL generation via `dynamicParamKeys`. See the bundle `README.md` for the conceptual model.
+Breadcrumb definitions are stored with Doctrine (`BreadcrumbCollection`, `BreadcrumbItem`). Items reference a Symfony route name (or `*` when constrained by path/attributes), optional static route parameters, optional `pathPattern` (PCRE against the request path) and `matchAttributes` (JSON map of request attributes), optional `parent` for trail order (root → leaf), JSON translations per locale, and optional URL generation via `dynamicParamKeys`. See the bundle `README.md` for the conceptual model.
 
 ## Caching
 

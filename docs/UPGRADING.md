@@ -5,6 +5,7 @@ This document describes breaking changes and upgrade notes between versions. Sec
 
 ## Table of contents
 
+- [From 2.0.14 to 2.1.0](#from-2014-to-210)
 - [From 2.0.13 to 2.0.14](#from-2013-to-2014)
 - [From 2.0.12 to 2.0.13](#from-2012-to-2013)
 - [From 2.0.10 to 2.0.11](#from-2010-to-2011)
@@ -26,6 +27,21 @@ This document describes breaking changes and upgrade notes between versions. Sec
 - [From pre-release / local copies to 1.0.0](#from-pre-release-local-copies-to-100)
 - [Doctrine schema](#doctrine-schema)
 - [General upgrade steps (any version)](#general-upgrade-steps-any-version)
+
+## From 2.0.14 to 2.1.0
+
+Additive release (CLI, enricher event, path/attribute matching). No intentional BC breaks.
+
+- **Schema:** new nullable columns on `dashboard_breadcrumb_item`: `path_pattern`, `match_attributes`. Run `php bin/console nowo_breadcrumb_kit:generate-migration --update` (or full generate on greenfield).
+- **CLI:** `nowo_breadcrumb_kit:export|import|preview|generate-migration`.
+- **Enrichers:** subscribe to `Nowo\BreadcrumbKitBundle\Event\BreadcrumbTrailBuiltEvent` and call `setView()`.
+- **Matching:** optional path PCRE + request attributes; route `*` only when path/attributes constrain the match.
+- Form partials no longer force UiKit input classes (FormKit profile supplies them).
+
+```bash
+composer update nowo-tech/breadcrumb-kit-bundle
+php bin/console nowo_breadcrumb_kit:generate-migration --update
+```
 
 ## From 2.0.13 to 2.0.14
 
@@ -247,9 +263,16 @@ If you integrated the bundle before v1.0.0:
 
 ## Doctrine schema
 
-When entity mappings or table names change in a future release, generate and run a migration (or apply documented SQL) before deploying.
+When entity mappings or table names change, generate and run a migration (or apply documented SQL) before deploying.
 
-There is no bundle-provided migration command yet; use Doctrine migrations or `doctrine:schema:update` in development only.
+Prefer the bundle CLI:
+
+```bash
+php bin/console nowo_breadcrumb_kit:generate-migration          # greenfield tables
+php bin/console nowo_breadcrumb_kit:generate-migration --update # additive columns (e.g. 2.1.0)
+```
+
+You can still use Doctrine migrations manually or, in development only, `doctrine:schema:update`.
 
 ## General upgrade steps (any version)
 

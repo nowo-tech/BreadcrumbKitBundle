@@ -206,7 +206,7 @@ find src -type f ! -path '*/assets/dist/*' ! -name '*.test.ts' | wc -l
 
 The **Total production sources** row in `code-inventory.md` must match this count.
 
-In **BreadcrumbKitBundle**, the baseline inventory covers **74/74** production files under `src/` — see [`specs/001-baseline/code-inventory.md`](../specs/001-baseline/code-inventory.md). Dashboard look-and-feel CSS/macros come from **UiKitBundle** (not counted in this tree).
+In **BreadcrumbKitBundle**, the baseline inventory covers **80/80** production files under `src/` — see [`specs/001-baseline/code-inventory.md`](../specs/001-baseline/code-inventory.md). Dashboard look-and-feel CSS/macros come from **UiKitBundle**; form option merging from **FormKitBundle** (neither counted in this tree). Baseline `FR-*` IDs: `FR-UI-001`, `FR-FORM-003`, `FR-DEP-001` in [`spec.md`](../specs/001-baseline/spec.md). Follow-ups: [`specs/002-enhancements/spec.md`](../specs/002-enhancements/spec.md).
 
 ---
 

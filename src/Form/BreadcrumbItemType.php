@@ -50,6 +50,21 @@ final class BreadcrumbItemType extends AbstractType
                 'required' => false,
                 'attr' => ['rows' => 3, 'class' => 'font-monospace', 'spellcheck' => 'false'],
             ]);
+            $this->addTextField('pathPattern', [
+                'label' => 'form.breadcrumb_item.path_pattern.label',
+                'placeholder' => false,
+                'help' => 'form.breadcrumb_item.path_pattern.help',
+                'required' => false,
+                'constraints' => [new Length(max: 512)],
+                'attr' => ['placeholder' => '^/shop/.+', 'class' => 'font-monospace'],
+            ]);
+            $this->addTextareaField('matchAttributes', [
+                'label' => 'form.breadcrumb_item.match_attributes.label',
+                'placeholder' => false,
+                'help' => 'form.breadcrumb_item.match_attributes.help',
+                'required' => false,
+                'attr' => ['rows' => 2, 'class' => 'font-monospace', 'spellcheck' => 'false'],
+            ]);
             $this->addTextareaField('dynamicParamKeys', [
                 'label' => 'form.breadcrumb_item.dynamic_keys.label',
                 'placeholder' => false,
@@ -110,6 +125,7 @@ final class BreadcrumbItemType extends AbstractType
         });
 
         $builder->get('staticRouteParams')->addModelTransformer(new JsonObjectTransformer());
+        $builder->get('matchAttributes')->addModelTransformer(new JsonObjectTransformer());
         $builder->get('dynamicParamKeys')->addModelTransformer(new JsonStringListTransformer());
         $builder->get('translations')->addModelTransformer(new JsonObjectTransformer());
     }

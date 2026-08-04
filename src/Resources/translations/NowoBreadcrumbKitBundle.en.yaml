@@ -151,10 +151,14 @@ form:
     inline_edit_access.help: 'Only applies when the URL includes the configured `nowo_breadcrumb_kit.inline_edit.query_param` (truthy) and the dashboard is enabled.'
 
   breadcrumb_item:
-    route_name.label: Symfony route name
+    route_name.label: Symfony route name (* = wildcard with path/attributes)
     route_name.not_blank: Enter a route name.
     static_params.label: Static parameters (JSON)
     static_params.help: 'e.g. {"section":"sales"} — must match _route_params.'
+    path_pattern.label: Path pattern (PCRE)
+    path_pattern.help: 'Optional regex body matched against the request path (e.g. ^/shop/.+). Use with route * for path-only matches.'
+    match_attributes.label: Request attributes (JSON)
+    match_attributes.help: 'Optional map of request attributes that must match (beyond _route_params).'
     dynamic_keys.label: Dynamic keys (JSON array)
     dynamic_keys.help: 'e.g. ["id"] copied from the request when generating the link.'
     link_enabled.label: Link enabled
