@@ -80,4 +80,3 @@ final class DashboardControllerTraitTest extends TestCase
         self::assertSame('_token', $view['_token']->vars['full_name']);
     }
 }
-
