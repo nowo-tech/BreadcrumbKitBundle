@@ -9,7 +9,6 @@ use Nowo\BreadcrumbKitBundle\Entity\BreadcrumbCollection;
 use Nowo\BreadcrumbKitBundle\Entity\BreadcrumbItem;
 use Nowo\BreadcrumbKitBundle\Form\BreadcrumbItemType;
 use Nowo\BreadcrumbKitBundle\Form\Dashboard\DashboardGetSearchType;
-use Nowo\BreadcrumbKitBundle\Form\Dashboard\DashboardPostDeleteType;
 use Nowo\BreadcrumbKitBundle\NowoBreadcrumbKitBundle;
 use Nowo\BreadcrumbKitBundle\Repository\BreadcrumbCollectionRepository;
 use Nowo\BreadcrumbKitBundle\Repository\BreadcrumbItemRepository;
@@ -91,6 +90,7 @@ final class ItemCrudController extends AbstractController
             'items' => $items,
             'search_query' => $searchQuery,
             'search_form' => $searchForm,
+            'delete_form' => $this->createDeletePostForm('', 'delete_confirm'),
             'pagination' => $pagination,
             'dashboard_nav' => 'items',
             'dashboard_routes' => $this->dashboardRoutes(),
@@ -227,11 +227,10 @@ final class ItemCrudController extends AbstractController
             throw $this->createNotFoundException($this->translator->trans('dashboard.item_not_found', [], NowoBreadcrumbKitBundle::TRANSLATION_DOMAIN));
         }
 
-        $form = $this->formFactory->createNamedBuilder('delete_item_'.$id, DashboardPostDeleteType::class, null, [
-            'action' => $this->generateUrl('nowo_breadcrumb_kit_dashboard_items_delete', ['collectionId' => $collectionId, 'id' => $id]),
-            'method' => 'POST',
-            'csrf_token_id' => 'delete_item_'.$id,
-        ])->getForm();
+        $form = $this->createDeletePostForm(
+            $this->generateUrl('nowo_breadcrumb_kit_dashboard_items_delete', ['collectionId' => $collectionId, 'id' => $id]),
+            'delete_item_'.$id,
+        );
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
