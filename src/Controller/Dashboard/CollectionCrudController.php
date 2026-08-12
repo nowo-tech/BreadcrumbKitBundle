@@ -8,7 +8,7 @@ use Doctrine\DBAL\Exception\UniqueConstraintViolationException as DbalUniqueCons
 use Doctrine\ORM\EntityManagerInterface;
 use Nowo\BreadcrumbKitBundle\Entity\BreadcrumbCollection;
 use Nowo\BreadcrumbKitBundle\Form\BreadcrumbCollectionType;
-use Nowo\BreadcrumbKitBundle\Form\Dashboard\DashboardPostDeleteType;
+use Nowo\BreadcrumbKitBundle\Form\Dashboard\DashboardGetSearchType;
 use Nowo\BreadcrumbKitBundle\NowoBreadcrumbKitBundle;
 use Nowo\BreadcrumbKitBundle\Repository\BreadcrumbCollectionRepository;
 use Nowo\BreadcrumbKitBundle\Repository\BreadcrumbItemRepository;
@@ -93,11 +93,18 @@ final class CollectionCrudController extends AbstractController
             }
         }
         $collectionItemCounts = $this->itemRepository->countForCollections($collectionIds);
+        $searchForm = $this->createForm(DashboardGetSearchType::class, ['q' => $search], [
+            'action' => $this->generateUrl('nowo_breadcrumb_kit_dashboard_collections_index'),
+            'method' => 'GET',
+            'search_placeholder' => $this->translator->trans('dashboard.search_placeholder', [], NowoBreadcrumbKitBundle::TRANSLATION_DOMAIN),
+        ]);
 
         return $this->render('@NowoBreadcrumbKitBundle/dashboard/collection/index.html.twig', [
             'collections' => $collections,
             'collection_item_counts' => $collectionItemCounts,
             'search' => $search,
+            'search_form' => $searchForm,
+            'delete_form' => $this->createDeletePostForm('', 'delete_confirm'),
             'pagination' => $pagination,
             'dashboard_nav' => 'collections',
             'dashboard_routes' => $this->dashboardRoutes(),
@@ -265,11 +272,10 @@ final class CollectionCrudController extends AbstractController
             throw $this->createNotFoundException($this->translator->trans('dashboard.collection_not_found', [], NowoBreadcrumbKitBundle::TRANSLATION_DOMAIN));
         }
 
-        $form = $this->formFactory->createNamedBuilder('delete_collection_'.$id, DashboardPostDeleteType::class, null, [
-            'action' => $this->generateUrl('nowo_breadcrumb_kit_dashboard_collections_delete', ['id' => $id]),
-            'method' => 'POST',
-            'csrf_token_id' => 'delete_collection_'.$id,
-        ])->getForm();
+        $form = $this->createDeletePostForm(
+            $this->generateUrl('nowo_breadcrumb_kit_dashboard_collections_delete', ['id' => $id]),
+            'delete_collection_'.$id,
+        );
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {

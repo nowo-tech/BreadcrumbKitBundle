@@ -43,6 +43,7 @@
     </div>
 </div>
 
+{% if delete_form is defined %}
 <div class="modal fade nowo-ui-modal" id="modal-bk-delete" tabindex="-1" aria-labelledby="modal-bk-delete-label" aria-hidden="true">
     <div class="modal-dialog {{ modal_classes.delete|default('') }}">
         <div class="modal-content">
@@ -52,14 +53,15 @@
             </div>
             <div class="modal-body">
                 <p id="modal-bk-delete-message">{{ 'dashboard.delete_confirm_message'|trans }}</p>
-                <form id="form-bk-delete-confirm" method="post" action="">
-                    <input type="hidden" name="_token" value="">
+                {{ form_start(delete_form, { attr: { id: 'form-bk-delete-confirm' } }) }}
+                    {{ form_widget(delete_form) }}
                     <div class="{{ ui.row_actions() }}" style="justify-content:flex-end;">
                         <button type="button" class="{{ ui.btn('secondary') }}" {{ ui.modal_dismiss_attrs()|raw }}>{{ 'dashboard.cancel'|trans }}</button>
                         <button type="submit" class="{{ ui.btn('danger') }}">{{ 'dashboard.delete'|trans }}</button>
                     </div>
-                </form>
+                {{ form_end(delete_form, { render_rest: false }) }}
             </div>
         </div>
     </div>
 </div>
+{% endif %}

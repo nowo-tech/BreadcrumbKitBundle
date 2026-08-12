@@ -6,11 +6,11 @@
 {% block title %}{{ 'dashboard.collections_heading'|trans }}{% endblock %}
 
 {% block body %}
-    <form method="get" action="{{ path(dashboard_routes.index|default('nowo_breadcrumb_kit_dashboard_collections_index')) }}" class="{{ ui.search_form() }}" role="search">
-        <input type="search" name="q" value="{{ search|e('html_attr') }}" class="{{ ui.search_input() }}" placeholder="{{ 'dashboard.search_placeholder'|trans }}" aria-label="{{ 'dashboard.search'|trans }}" autocomplete="off">
+    {{ form_start(search_form, { attr: { class: ui.search_form(), role: 'search' } }) }}
+        {{ form_widget(search_form.q, { attr: { class: ui.search_input(), placeholder: 'dashboard.search_placeholder'|trans, 'aria-label': 'dashboard.search'|trans, autocomplete: 'off' } }) }}
         <button type="submit" class="{{ ui.btn('secondary') }}">{{ 'dashboard.filter'|trans }}</button>
         <a href="{{ path(dashboard_routes.index|default('nowo_breadcrumb_kit_dashboard_collections_index')) }}" class="{{ ui.btn('secondary') }}">{{ 'dashboard.clear_filters'|trans }}</a>
-    </form>
+    {{ form_end(search_form, { render_rest: false }) }}
 
     <div class="{{ ui.toolbar() }}">
         <a href="{{ path(dashboard_routes.export_all|default('nowo_breadcrumb_kit_dashboard_export_all')) }}" class="{{ ui.btn('secondary') }}" target="_blank" rel="noopener noreferrer">{{ 'dashboard.export_all'|trans }}</a>
