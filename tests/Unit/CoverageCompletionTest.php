@@ -9,6 +9,7 @@ use Nowo\BreadcrumbKitBundle\Contract\BreadcrumbInlineEditAccessCheckerInterface
 use Nowo\BreadcrumbKitBundle\DataCollector\BreadcrumbDataCollector;
 use Nowo\BreadcrumbKitBundle\DependencyInjection\BreadcrumbKitExtension;
 use Nowo\BreadcrumbKitBundle\DependencyInjection\Compiler\TwigPathsPass;
+use Nowo\BreadcrumbKitBundle\Dto\BreadcrumbNode;
 use Nowo\BreadcrumbKitBundle\Dto\BreadcrumbTrailView;
 use Nowo\BreadcrumbKitBundle\Entity\BreadcrumbCollection;
 use Nowo\BreadcrumbKitBundle\Entity\BreadcrumbItem;
@@ -26,6 +27,7 @@ use PHPUnit\Framework\TestCase;
 use Psr\Cache\CacheItemInterface;
 use Psr\Cache\CacheItemPoolInterface;
 use Psr\Container\ContainerInterface;
+use Symfony\Bundle\WebProfilerBundle\WebProfilerBundle;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Definition;
 use Symfony\Component\DependencyInjection\Reference;
@@ -659,6 +661,128 @@ final class CoverageCompletionTest extends TestCase
         );
 
         self::assertSame([], $loader->loadTrailView('default', '')->nodes);
+    }
+
+    public function testLoaderRequestAttributesMatchEdgeCases(): void
+    {
+        $loader = $this->minimalLoaderInstance();
+        $request = Request::create('/');
+
+        self::assertFalse($this->invokeLoaderMethod($loader, 'requestAttributesMatch', [['' => 'x'], $request]));
+        self::assertFalse($this->invokeLoaderMethod($loader, 'requestAttributesMatch', [['id' => '1'], $request]));
+
+        $request->attributes->set('meta', ['nested']);
+        self::assertFalse($this->invokeLoaderMethod($loader, 'requestAttributesMatch', [['meta' => '1'], $request]));
+    }
+
+    public function testLoaderIsItemRowListRejectsNonArrayCachePayload(): void
+    {
+        $loader = $this->minimalLoaderInstance();
+
+        self::assertFalse($this->invokeLoaderMethod($loader, 'isItemRowList', ['invalid']));
+    }
+
+    public function testLoaderHideSingleRootUsesResponsiveConfig(): void
+    {
+        $collection = $this->collectionWithId(1);
+        $collection->setResponsiveConfig(['hide_when_single_root' => true]);
+
+        $nodes = [new BreadcrumbNode('Home', '/', true, true)];
+        self::assertTrue($this->invokeLoaderMethod($loader = $this->minimalLoaderInstance(), 'shouldHideSingleRoot', [$nodes, $collection]));
+
+        $nodes = [new BreadcrumbNode('Home', '/', true, false)];
+        self::assertFalse($this->invokeLoaderMethod($loader, 'shouldHideSingleRoot', [$nodes, $collection]));
+    }
+
+    public function testLoaderFindMatchingItemReturnsNullForInvalidCachedId(): void
+    {
+        $collection = $this->collectionWithId(1);
+        $colRepo = $this->collectionRepo($collection);
+
+        $cacheItem = $this->createMock(CacheItemInterface::class);
+        $cacheItem->method('isHit')->willReturn(true);
+        $cacheItem->method('get')->willReturn([[
+            'id' => 1.5,
+            'route_name' => 'home',
+            'static_route_params' => [],
+            'dynamic_route_param_keys' => [],
+            'request_attribute_match' => [],
+            'label' => 'Home',
+            'translations' => [],
+            'parent_id' => null,
+        ]]);
+
+        $pool = $this->createMock(CacheItemPoolInterface::class);
+        $pool->method('getItem')->willReturn($cacheItem);
+
+        $request = Request::create('/');
+        $request->attributes->set('_route', 'home');
+        $request->attributes->set('_route_params', []);
+        $stack = new RequestStack();
+        $stack->push($request);
+
+        $loader = new BreadcrumbLoader(
+            $colRepo,
+            $this->createMock(BreadcrumbItemRepository::class),
+            $this->createMock(BreadcrumbUrlResolverInterface::class),
+            $stack,
+            'en',
+            $pool,
+            60,
+        );
+
+        self::assertNull($loader->findMatchingItemForCurrentRequest('default'));
+    }
+
+    public function testInlineEditResolverRejectsArrayQueryParam(): void
+    {
+        $request = Request::create('/?edit[]=1');
+        $resolver = new BreadcrumbInlineEditResolver(
+            new RequestStack(),
+            $this->createMock(BreadcrumbCollectionRepository::class),
+            $this->minimalLoaderInstance(),
+            $this->createMock(ContainerInterface::class),
+            $this->createMock(UrlGeneratorInterface::class),
+            $this->createMock(TranslatorInterface::class),
+            null,
+            'edit',
+            true,
+        );
+
+        self::assertFalse($this->invokeIsQueryParamTruthy($resolver, $request, 'edit'));
+    }
+
+    public function testExtensionLoadsProfilerServicesWhenWebProfilerBundlePresent(): void
+    {
+        if (!class_exists(WebProfilerBundle::class, false)) {
+            require_once __DIR__.'/../fixtures/WebProfilerBundleStub.php';
+        }
+
+        $container = new ContainerBuilder();
+        (new BreadcrumbKitExtension())->load([[]], $container);
+
+        self::assertTrue($container->hasDefinition(BreadcrumbDataCollector::class));
+    }
+
+    private function minimalLoaderInstance(): BreadcrumbLoader
+    {
+        return new BreadcrumbLoader(
+            $this->createMock(BreadcrumbCollectionRepository::class),
+            $this->createMock(BreadcrumbItemRepository::class),
+            $this->createMock(BreadcrumbUrlResolverInterface::class),
+            new RequestStack(),
+            'en',
+        );
+    }
+
+    /**
+     * @param list<mixed> $args
+     */
+    private function invokeLoaderMethod(BreadcrumbLoader $loader, string $method, array $args): mixed
+    {
+        $reflection = new \ReflectionMethod(BreadcrumbLoader::class, $method);
+
+        return $reflection->invoke($loader, ...$args);
     }
 
     private function collectionRepo(BreadcrumbCollection $collection): BreadcrumbCollectionRepository
