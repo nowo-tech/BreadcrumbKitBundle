@@ -35,6 +35,22 @@ This document describes breaking changes and upgrade notes between versions. Sec
 
 ## Unreleased
 
+## From 2.1.4 to 2.1.5
+
+Review Flex recipe `security_nowo_breadcrumb_kit.yaml` access rules after install/update.
+
+```bash
+composer update nowo-tech/breadcrumb-kit-bundle
+```
+
+## From 2.1.3 to 2.1.4
+
+No application upgrade steps.
+
+```bash
+composer update nowo-tech/breadcrumb-kit-bundle
+```
+
 ## From 2.1.2 to 2.1.3
 
 Additive (REQ-TWIG-004). No schema or PHP API changes.
