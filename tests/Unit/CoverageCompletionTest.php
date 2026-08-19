@@ -27,6 +27,7 @@ use PHPUnit\Framework\TestCase;
 use Psr\Cache\CacheItemInterface;
 use Psr\Cache\CacheItemPoolInterface;
 use Psr\Container\ContainerInterface;
+use Symfony\Bundle\WebProfilerBundle\WebProfilerBundle;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Definition;
 use Symfony\Component\DependencyInjection\Reference;
@@ -41,7 +42,6 @@ use Symfony\Component\Routing\RouteCollection;
 use Symfony\Component\Routing\RouterInterface;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
-use Symfony\Bundle\WebProfilerBundle\WebProfilerBundle;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 final class CoverageCompletionTest extends TestCase
@@ -761,7 +761,7 @@ final class CoverageCompletionTest extends TestCase
         $container = new ContainerBuilder();
         (new BreadcrumbKitExtension())->load([[]], $container);
 
-        self::assertTrue($container->hasDefinition(\Nowo\BreadcrumbKitBundle\DataCollector\BreadcrumbDataCollector::class));
+        self::assertTrue($container->hasDefinition(BreadcrumbDataCollector::class));
     }
 
     private function minimalLoaderInstance(): BreadcrumbLoader
