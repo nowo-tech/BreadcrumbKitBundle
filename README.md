@@ -1,6 +1,6 @@
 # Breadcrumb Kit Bundle
 
-[![CI](https://github.com/nowo-tech/BreadcrumbKitBundle/actions/workflows/ci.yml/badge.svg)](https://github.com/nowo-tech/BreadcrumbKitBundle/actions/workflows/ci.yml) [![Packagist Version](https://img.shields.io/packagist/v/nowo-tech/breadcrumb-kit-bundle.svg?style=flat)](https://packagist.org/packages/nowo-tech/breadcrumb-kit-bundle) [![Packagist Downloads](https://img.shields.io/packagist/dt/nowo-tech/breadcrumb-kit-bundle.svg)](https://packagist.org/packages/nowo-tech/breadcrumb-kit-bundle) [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE) [![PHP](https://img.shields.io/badge/PHP-8.2%2B-777BB4?logo=php)](https://php.net) [![Symfony](https://img.shields.io/badge/Symfony-7.4%20%7C%208.0%20%7C%208.1%2B-000000?logo=symfony)](https://symfony.com) [![GitHub stars](https://img.shields.io/github/stars/nowo-tech/breadcrumb-kit-bundle.svg?style=social&label=Star)](https://github.com/nowo-tech/BreadcrumbKitBundle) [![Coverage](https://img.shields.io/badge/Coverage-99.26%25-brightgreen)](#tests-and-coverage)
+[![CI](https://github.com/nowo-tech/BreadcrumbKitBundle/actions/workflows/ci.yml/badge.svg)](https://github.com/nowo-tech/BreadcrumbKitBundle/actions/workflows/ci.yml) [![Packagist Version](https://img.shields.io/packagist/v/nowo-tech/breadcrumb-kit-bundle.svg?style=flat)](https://packagist.org/packages/nowo-tech/breadcrumb-kit-bundle) [![Packagist Downloads](https://img.shields.io/packagist/dt/nowo-tech/breadcrumb-kit-bundle.svg)](https://packagist.org/packages/nowo-tech/breadcrumb-kit-bundle) [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE) [![PHP](https://img.shields.io/badge/PHP-8.2%2B-777BB4?logo=php)](https://php.net) [![Symfony](https://img.shields.io/badge/Symfony-7.4%20%7C%208.0%20%7C%208.1%2B-000000?logo=symfony)](https://symfony.com) [![GitHub stars](https://img.shields.io/github/stars/nowo-tech/breadcrumb-kit-bundle.svg?style=social&label=Star)](https://github.com/nowo-tech/BreadcrumbKitBundle) [![Coverage](https://img.shields.io/badge/Coverage-100%25-brightgreen)](#tests-and-coverage)
 
 > ⭐ **Found this useful?** Install from [Packagist](https://packagist.org/packages/nowo-tech/breadcrumb-kit-bundle) and consider starring the [GitHub repository](https://github.com/nowo-tech/BreadcrumbKitBundle).
 
@@ -117,7 +117,7 @@ Opens at `http://localhost:8021` by default; the app redirects `/` to `/en/`.
 
 | Language | Coverage (Lines / notes) |
 |----------|---------------------------|
-| PHP      | **99.26%** (Lines, PHPUnit + PCOV; run `make test-coverage` to refresh) |
+| PHP      | **100%** (Lines, PHPUnit + PCOV; run `make test-coverage` to refresh) |
 | TS/JS    | N/A |
 | Python   | N/A |
 
