@@ -6,6 +6,9 @@ This document describes breaking changes and upgrade notes between versions. Sec
 ## Table of contents
 
 - [Unreleased](#unreleased)
+- [From 2.1.5 to 2.1.6](#from-215-to-216)
+- [From 2.1.4 to 2.1.5](#from-214-to-215)
+- [From 2.1.3 to 2.1.4](#from-213-to-214)
 - [From 2.1.2 to 2.1.3](#from-212-to-213)
 - [From 2.1.1 to 2.1.2](#from-211-to-212)
 - [From 2.1.0 to 2.1.1](#from-210-to-211)
@@ -34,6 +37,14 @@ This document describes breaking changes and upgrade notes between versions. Sec
 
 
 ## Unreleased
+
+## From 2.1.5 to 2.1.6
+
+Prefer **`^2.1.6`** so Flex copies `security_nowo_breadcrumb_kit.yaml`. Review `access_control` if you changed `dashboard.path_prefix`.
+
+```bash
+composer update nowo-tech/breadcrumb-kit-bundle
+```
 
 ## From 2.1.4 to 2.1.5
 

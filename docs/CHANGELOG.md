@@ -9,6 +9,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## Table of contents
 
 - [[Unreleased]](#unreleased)
+- [[2.1.6] - 2026-08-20](#216---2026-08-20)
+- [[2.1.5] - 2026-08-19](#215---2026-08-19)
+- [[2.1.4] - 2026-08-19](#214---2026-08-19)
 - [[2.1.3] - 2026-08-04](#213---2026-08-04)
   - [Added](#added)
   - [Documentation](#documentation)
@@ -89,6 +92,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - [Documentation](#documentation)
 
 ## [Unreleased]
+
+## [2.1.6] - 2026-08-20
+
+### Security
+
+- **Flex recipe:** ship `security_nowo_breadcrumb_kit.yaml` (`access_control` for `/breadcrumb-kit-admin`). Prefer **`^2.1.6`** so Flex installs the file (noted in 2.1.5; landed on `main` after that tag).
+
+[2.1.6]: https://github.com/nowo-tech/BreadcrumbKitBundle/releases/tag/v2.1.6
 
 ## [2.1.5] - 2026-08-19
 
