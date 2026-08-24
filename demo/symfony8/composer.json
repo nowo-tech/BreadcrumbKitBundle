@@ -26,6 +26,7 @@
     },
     "require-dev": {
         "doctrine/doctrine-fixtures-bundle": "^4.0",
+        "nowo-tech/hot-reload-bundle": "^1.4",
         "nowo-tech/twig-inspector-bundle": "^1.0",
         "symfony/debug-bundle": "^8.0",
         "symfony/web-profiler-bundle": "^8.0"

@@ -1,11 +1,25 @@
 {
+	order mercure after encode
 	skip_install_trust
 }
 
+# Worker mode (FRANKENPHP_MODE=worker). Hot Reload + scoped watch (REQ-DEMO-001 / REQ-DEMO-002).
 :80 {
 	root * /app/public
 	encode zstd br gzip
+	mercure {
+		anonymous
+	}
+
 	php_server {
-		worker /app/public/index.php 2
+		hot_reload
+		worker {
+			file /app/public/index.php
+			watch /app/config/**/*.{php,yaml,yml,env}
+			watch /app/src/**/*.php
+			watch /app/templates/**/*.twig
+			watch /app/translations/**/*.{php,yaml,yml}
+			watch /var/breadcrumb-kit-bundle/src/**/*.{php,twig,yaml,yml}
+		}
 	}
 }
