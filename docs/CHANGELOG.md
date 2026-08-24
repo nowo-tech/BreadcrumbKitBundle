@@ -93,6 +93,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+
+## [2.1.7] - 2026-08-24
+
+### Changed
+
+- **Demos:** MySQL env policy in FrankenPHP stack (REQ-DEMO-011).
+- **QA:** add `phpstan-frankenphp` extension (REQ-CS-005).
+- **Demos:** wire Hot Reload bundle in FrankenPHP demo (REQ-DEMO-001).
+- **Docs:** PHP-FIG PSR evaluation (REQ-CS-007).
+
+### Notes
+
+- **No API or configuration changes** for integrators unless noted above.
+
+[2.1.7]: https://github.com/nowo-tech/BreadcrumbKitBundle/releases/tag/v2.1.7
+
 ## [2.1.6] - 2026-08-20
 
 ### Security

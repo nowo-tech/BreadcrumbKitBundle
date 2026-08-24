@@ -5,6 +5,8 @@ This document describes breaking changes and upgrade notes between versions. Sec
 
 ## Table of contents
 
+
+- [From 2.1.6 to 2.1.7](#from-216-to-217)
 - [Unreleased](#unreleased)
 - [From 2.1.5 to 2.1.6](#from-215-to-216)
 - [From 2.1.4 to 2.1.5](#from-214-to-215)
@@ -34,6 +36,22 @@ This document describes breaking changes and upgrade notes between versions. Sec
 - [From pre-release / local copies to 1.0.0](#from-pre-release-local-copies-to-100)
 - [Doctrine schema](#doctrine-schema)
 - [General upgrade steps (any version)](#general-upgrade-steps-any-version)
+
+## From 2.1.6 to 2.1.7
+
+No breaking changes. **No application upgrade steps.**
+
+```bash
+composer update nowo-tech/breadcrumb-kit-bundle
+```
+
+## From 2.1.6 to 2.1.7
+
+No breaking changes. **No application upgrade steps.**
+
+```bash
+composer update nowo-tech/breadcrumb-kit-bundle
+```
 
 
 ## Unreleased
