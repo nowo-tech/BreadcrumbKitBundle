@@ -33,6 +33,9 @@ trait DashboardControllerTrait
         ];
     }
 
+    /**
+     * @return FormInterface<null>
+     */
     private function createDeletePostForm(string $action, string $csrfTokenId): FormInterface
     {
         return $this->formFactory->createNamedBuilder('', DashboardPostDeleteType::class, null, [

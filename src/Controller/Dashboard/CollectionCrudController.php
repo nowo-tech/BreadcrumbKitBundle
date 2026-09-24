@@ -12,6 +12,7 @@ use Nowo\BreadcrumbKitBundle\Form\Dashboard\DashboardGetSearchType;
 use Nowo\BreadcrumbKitBundle\NowoBreadcrumbKitBundle;
 use Nowo\BreadcrumbKitBundle\Repository\BreadcrumbCollectionRepository;
 use Nowo\BreadcrumbKitBundle\Repository\BreadcrumbItemRepository;
+use Nowo\BreadcrumbKitBundle\Service\BreadcrumbEntityManagerResetter;
 use Nowo\BreadcrumbKitBundle\Service\BreadcrumbExporter;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
@@ -42,6 +43,7 @@ final class CollectionCrudController extends AbstractController
         private readonly bool $paginationEnabled,
         private readonly int $paginationPerPage,
         private readonly array $modalSizes,
+        private readonly ?BreadcrumbEntityManagerResetter $entityManagerResetter = null,
     ) {
     }
 
@@ -143,6 +145,7 @@ final class CollectionCrudController extends AbstractController
                 return $this->redirectToRefererOr($request, 'nowo_breadcrumb_kit_dashboard_collections_edit', ['id' => $collection->getId()]);
             } catch (\Throwable $e) {
                 if ($this->isUniqueConstraintViolation($e)) {
+                    $this->entityManagerResetter?->resetIfClosed();
                     $this->addFlash('danger', $this->translator->trans('dashboard.flash.collection_duplicate', [], NowoBreadcrumbKitBundle::TRANSLATION_DOMAIN));
                     if ($fromModal) {
                         return $this->render('@NowoBreadcrumbKitBundle/dashboard/_collection_form_partial.html.twig', [
@@ -208,6 +211,7 @@ final class CollectionCrudController extends AbstractController
                 return $this->redirectToRefererOr($request, 'nowo_breadcrumb_kit_dashboard_collections_edit', ['id' => $collection->getId()]);
             } catch (\Throwable $e) {
                 if ($this->isUniqueConstraintViolation($e)) {
+                    $this->entityManagerResetter?->resetIfClosed();
                     $this->addFlash('danger', $this->translator->trans('dashboard.flash.collection_duplicate', [], NowoBreadcrumbKitBundle::TRANSLATION_DOMAIN));
                     if ($fromModal) {
                         return $this->render('@NowoBreadcrumbKitBundle/dashboard/_collection_form_partial.html.twig', [

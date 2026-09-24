@@ -121,6 +121,11 @@ final readonly class BreadcrumbInlineEditResolver
             return null;
         }
 
+        // Worker mode without kernel reset keeps the previous request's token when no firewall ran
+        if (true !== $this->requestStack->getMainRequest()?->attributes->has('_firewall_context')) {
+            return null;
+        }
+
         $token = $this->tokenStorage->getToken();
         if (null === $token) {
             return null;

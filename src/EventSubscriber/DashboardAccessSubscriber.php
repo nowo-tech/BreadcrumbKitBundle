@@ -38,7 +38,10 @@ final readonly class DashboardAccessSubscriber implements EventSubscriberInterfa
             return;
         }
 
-        $token = $this->tokenStorage?->getToken();
+        // Worker mode without kernel reset keeps the previous request's token when no firewall ran
+        $token = $event->isMainRequest() && !$event->getRequest()->attributes->has('_firewall_context')
+            ? null
+            : $this->tokenStorage?->getToken();
         $user = $token?->getUser();
         if (!\is_object($user) || !$this->accessChecker->canAccess($user)) {
             throw new AccessDeniedException(\sprintf('Breadcrumb Kit dashboard requires an authenticated user allowed by %s.', BreadcrumbKitAccessCheckerInterface::class));

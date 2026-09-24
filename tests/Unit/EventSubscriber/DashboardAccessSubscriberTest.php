@@ -47,6 +47,39 @@ final class DashboardAccessSubscriberTest extends TestCase
         $subscriber->onKernelController($this->controllerEvent('nowo_breadcrumb_kit_dashboard_collections_index'));
     }
 
+    public function testStaleTokenFromPreviousRequestIsIgnoredWhenNoFirewallRan(): void
+    {
+        $admin = $this->createMock(UserInterface::class);
+        $checker = $this->createMock(BreadcrumbKitAccessCheckerInterface::class);
+        $checker->expects(self::once())->method('canAccess')->with($admin)->willReturn(true);
+
+        $token = $this->createMock(TokenInterface::class);
+        $token->method('getUser')->willReturn($admin);
+        $storage = $this->createMock(TokenStorageInterface::class);
+        $storage->method('getToken')->willReturn($token);
+
+        $subscriber = new DashboardAccessSubscriber($checker, $storage);
+        $subscriber->onKernelController($this->controllerEvent('nowo_breadcrumb_kit_dashboard_collections_index'));
+
+        $this->expectException(AccessDeniedException::class);
+        $subscriber->onKernelController($this->controllerEvent('nowo_breadcrumb_kit_dashboard_collections_index', firewall: false));
+    }
+
+    public function testSubRequestUsesTheTokenOfTheMainRequest(): void
+    {
+        $user = $this->createMock(UserInterface::class);
+        $checker = $this->createMock(BreadcrumbKitAccessCheckerInterface::class);
+        $checker->expects(self::once())->method('canAccess')->with($user)->willReturn(true);
+
+        $token = $this->createMock(TokenInterface::class);
+        $token->method('getUser')->willReturn($user);
+        $storage = $this->createMock(TokenStorageInterface::class);
+        $storage->method('getToken')->willReturn($token);
+
+        $subscriber = new DashboardAccessSubscriber($checker, $storage);
+        $subscriber->onKernelController($this->controllerEvent('nowo_breadcrumb_kit_dashboard_collections_index', firewall: false, type: HttpKernelInterface::SUB_REQUEST));
+    }
+
     public function testDeniesAnonymousUser(): void
     {
         $checker = $this->createMock(BreadcrumbKitAccessCheckerInterface::class);
@@ -61,12 +94,15 @@ final class DashboardAccessSubscriberTest extends TestCase
         $subscriber->onKernelController($this->controllerEvent('nowo_breadcrumb_kit_dashboard_collections_index'));
     }
 
-    private function controllerEvent(string $route): ControllerEvent
+    private function controllerEvent(string $route, bool $firewall = true, int $type = HttpKernelInterface::MAIN_REQUEST): ControllerEvent
     {
         $kernel = $this->createMock(HttpKernelInterface::class);
         $request = new Request();
         $request->attributes->set('_route', $route);
+        if ($firewall) {
+            $request->attributes->set('_firewall_context', 'security.firewall.map.context.main');
+        }
 
-        return new ControllerEvent($kernel, static fn () => null, $request, HttpKernelInterface::MAIN_REQUEST);
+        return new ControllerEvent($kernel, static fn () => null, $request, $type);
     }
 }

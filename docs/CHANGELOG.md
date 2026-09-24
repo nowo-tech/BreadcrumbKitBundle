@@ -9,6 +9,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## Table of contents
 
 - [[Unreleased]](#unreleased)
+- [[2.1.8] - 2026-09-24](#218---2026-09-24)
+  - [Fixed](#fixed)
+  - [Documentation](#documentation)
+- [[2.1.7] - 2026-08-24](#217---2026-08-24)
+  - [Changed](#changed)
+  - [Notes](#notes)
 - [[2.1.6] - 2026-08-20](#216---2026-08-20)
 - [[2.1.5] - 2026-08-19](#215---2026-08-19)
 - [[2.1.4] - 2026-08-19](#214---2026-08-19)
@@ -93,6 +99,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.1.8] - 2026-09-24
+
+### Fixed
+
+- **Worker mode (FrankenPHP, no kernel reset):** a caught unique-constraint violation in the collection dashboard no longer leaves the EntityManager closed for later requests. New `BreadcrumbEntityManagerResetter` and `DashboardEntityManagerSubscriber` reset a closed manager through `ManagerRegistry::resetManager()` on **every main request** and main-request exception (so public `breadcrumb_render()` recovers too); `CollectionCrudController` resets it right after catching the violation.
+- **Worker mode:** `BreadcrumbCollectionRepository::findOneByCodeAndContextKey()` and `BreadcrumbItemRepository::findAllForCollection()` use `Query::HINT_REFRESH`, so edits made by another worker or process are visible even when the identity map is not cleared between requests.
+- **Worker mode:** `DashboardAccessSubscriber` and `BreadcrumbInlineEditResolver` ignore the security token when no firewall handled the main request (no `_firewall_context`), so a token left in `TokenStorage` by a previous request is not trusted.
+
+### Documentation
+
+- [`docs/FRANKENPHP-WORKER-AUDIT.md`](FRANKENPHP-WORKER-AUDIT.md): full audit for worker mode without kernel / `services_resetter` reset (scenario B). Spec Kit: `FR-WORKER-001`, inventory **82/82**.
+- [UPGRADING.md](UPGRADING.md): 2.1.7 → 2.1.8.
+
+[2.1.8]: https://github.com/nowo-tech/BreadcrumbKitBundle/releases/tag/v2.1.8
 
 ## [2.1.7] - 2026-08-24
 

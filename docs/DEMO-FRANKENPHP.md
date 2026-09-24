@@ -108,6 +108,13 @@ Demos select the FrankenPHP runtime via **`FRANKENPHP_MODE`** in `.env` / `.env.
 
 Compose passes `FRANKENPHP_MODE=${FRANKENPHP_MODE:-worker}` into the PHP service. After changing `.env`, run `docker compose up -d` (or `make up`) so the container is **recreated** — a plain `restart` does not reload env. No image rebuild is required.
 
+## Worker mode without kernel reset
+
+The demo Caddyfile runs FrankenPHP **worker** mode. Symfony may keep the same kernel / container across requests (no reboot). BreadcrumbKit is audited for that strict case (also when `services_resetter` does not run):
+
+- See [FRANKENPHP-WORKER-AUDIT.md](FRANKENPHP-WORKER-AUDIT.md) (scenario B).
+- Spec requirement **FR-WORKER-001** in `specs/001-baseline/spec.md`.
+
 ## Troubleshooting
 
 - **Empty breadcrumb after changing fixtures or routes**: the loader may cache the item list per collection (`nowo_breadcrumb_kit.cache.pool`). In the demo, `config/packages/dev/nowo_breadcrumb_kit.yaml` disables that pool in `dev`. If you use another environment or pool, run `php bin/console cache:clear` (or `make cache-clear`) after `doctrine:fixtures:load`.

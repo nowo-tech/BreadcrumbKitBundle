@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Nowo\BreadcrumbKitBundle\Repository;
 
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\ORM\Query;
 use Doctrine\ORM\QueryBuilder;
 use Doctrine\Persistence\ManagerRegistry;
 use Nowo\BreadcrumbKitBundle\Entity\BreadcrumbCollection;
@@ -21,6 +22,8 @@ class BreadcrumbItemRepository extends ServiceEntityRepository
     }
 
     /**
+     * Refreshes already managed items (see BreadcrumbCollectionRepository::findOneByCodeAndContextKey()).
+     *
      * @return list<BreadcrumbItem>
      */
     public function findAllForCollection(BreadcrumbCollection $collection): array
@@ -30,6 +33,7 @@ class BreadcrumbItemRepository extends ServiceEntityRepository
             ->setParameter('c', $collection)
             ->orderBy('i.id', 'ASC')
             ->getQuery()
+            ->setHint(Query::HINT_REFRESH, true)
             ->getResult();
     }
 

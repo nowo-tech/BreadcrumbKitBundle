@@ -516,6 +516,7 @@ final class CoverageCompletionTest extends TestCase
         self::assertTrue($this->invokeIsQueryParamTruthy($resolver, $boolRequest, 'edit'));
 
         $request2 = Request::create('/?edit=1');
+        $request2->attributes->set('_firewall_context', 'security.firewall.map.context.main');
         $stack2 = new RequestStack();
         $stack2->push($request2);
 

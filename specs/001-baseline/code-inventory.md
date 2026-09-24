@@ -38,7 +38,8 @@
 | Source file | Spec section | Requirement IDs |
 | --- | --- | --- |
 | `Contract/BreadcrumbInlineEditAccessCheckerInterface.php` | Security & contracts | FR-SVC-003 |
-| `EventSubscriber/DashboardAccessSubscriber.php` | Security & contracts | FR-SEC-001 |
+| `EventSubscriber/DashboardAccessSubscriber.php` | Security & contracts | FR-SEC-001, FR-WORKER-001 |
+| `EventSubscriber/DashboardEntityManagerSubscriber.php` | Security & contracts | FR-WORKER-001 |
 | `Security/BreadcrumbKitAccessCheckerInterface.php` | Security & contracts | FR-SEC-001 |
 | `Security/ConfigurableBreadcrumbKitAccessChecker.php` | Security & contracts | FR-SEC-001 |
 
@@ -69,6 +70,7 @@
 | `Service/BreadcrumbInlineEditResolver.php` | Services | FR-SVC-003 |
 | `Service/BreadcrumbLoader.php` | Services | FR-SVC-001, FR-SVC-005, FR-EVT-002 |
 | `Service/BreadcrumbTrailPreview.php` | Services | FR-SVC-006 |
+| `Service/BreadcrumbEntityManagerResetter.php` | Services | FR-WORKER-001 |
 | `Service/BreadcrumbUrlResolver.php` | Services | FR-SVC-002 |
 | `Service/BreadcrumbUrlResolverInterface.php` | Services | FR-SVC-002 |
 
@@ -191,10 +193,10 @@ BreadcrumbKit prepends FormKit profile `breadcrumb_kit` and may seed FormKit/UiK
 | Symfony config | 4 | 4 |
 | Bundle & DI | 6 | 6 |
 | Enums | 3 | 3 |
-| Security & contracts | 4 | 4 |
+| Security & contracts | 5 | 5 |
 | Entities & persistence | 5 | 5 |
 | DTOs | 3 | 3 |
-| Services | 7 | 7 |
+| Services | 8 | 8 |
 | Controllers — dashboard | 6 | 6 |
 | Commands | 4 | 4 |
 | Events | 1 | 1 |
@@ -206,4 +208,4 @@ BreadcrumbKit prepends FormKit profile `breadcrumb_kit` and may seed FormKit/UiK
 | Twig views — public | 2 | 2 |
 | Twig views — profiler | 2 | 2 |
 | Twig views — dashboard | 12 | 12 |
-| **Total production sources** | **80** | **80** |
+| **Total production sources** | **82** | **82** |

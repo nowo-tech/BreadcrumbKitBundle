@@ -305,7 +305,7 @@ final class BreadcrumbInlineEditResolverTest extends TestCase
         $resolver = $this->makeResolver(
             dashboardEnabled: true,
             queryParamName: 'edit',
-            requestStack: $this->requestWithEditParam('yes'),
+            requestStack: $this->requestWithEditParam('yes', firewall: true),
             collectionRepository: $this->collectionRepo($collection),
             locator: $this->locatorWithChecker('admin', $checker),
             urlGenerator: $urlGenerator,
@@ -313,6 +313,46 @@ final class BreadcrumbInlineEditResolverTest extends TestCase
         );
 
         self::assertTrue($resolver->resolve('default')->show);
+    }
+
+    public function testStaleTokenIsNotPassedToCheckerWhenNoFirewallRanForTheRequest(): void
+    {
+        $collection = $this->collectionWithId(3);
+        $collection->setInlineEditAccessKey('admin');
+
+        $user = $this->createMock(UserInterface::class);
+        $token = $this->createMock(TokenInterface::class);
+        $token->method('getUser')->willReturn($user);
+        $tokenStorage = $this->createMock(TokenStorageInterface::class);
+        $tokenStorage->method('getToken')->willReturn($token);
+
+        $seenUsers = [];
+        $checker = $this->createMock(BreadcrumbInlineEditAccessCheckerInterface::class);
+        $checker->method('canUseInlineBreadcrumbEditor')
+            ->willReturnCallback(static function (Request $request, ?UserInterface $user) use (&$seenUsers): bool {
+                $seenUsers[] = $user;
+
+                return null !== $user;
+            });
+
+        $urlGenerator = $this->createMock(UrlGeneratorInterface::class);
+        $urlGenerator->method('generate')->willReturn('/new');
+
+        foreach ([true, false] as $firewall) {
+            $resolver = $this->makeResolver(
+                dashboardEnabled: true,
+                queryParamName: 'edit',
+                requestStack: $this->requestWithEditParam('yes', firewall: $firewall),
+                collectionRepository: $this->collectionRepo($collection),
+                locator: $this->locatorWithChecker('admin', $checker),
+                urlGenerator: $urlGenerator,
+                tokenStorage: $tokenStorage,
+            );
+
+            self::assertSame($firewall, $resolver->resolve('default')->show);
+        }
+
+        self::assertSame([$user, null], $seenUsers);
     }
 
     private function makeResolver(
@@ -369,9 +409,12 @@ final class BreadcrumbInlineEditResolverTest extends TestCase
         return $item;
     }
 
-    private function requestWithEditParam(string $value = '1'): RequestStack
+    private function requestWithEditParam(string $value = '1', bool $firewall = false): RequestStack
     {
         $request = Request::create('/?edit='.$value);
+        if ($firewall) {
+            $request->attributes->set('_firewall_context', 'security.firewall.map.context.main');
+        }
         $stack = new RequestStack();
         $stack->push($request);
 

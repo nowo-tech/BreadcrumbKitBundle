@@ -40,6 +40,10 @@ services:
 
   Nowo\BreadcrumbKitBundle\Service\BreadcrumbExporter: ~
 
+  Nowo\BreadcrumbKitBundle\Service\BreadcrumbEntityManagerResetter: ~
+
+  Nowo\BreadcrumbKitBundle\EventSubscriber\DashboardEntityManagerSubscriber: ~
+
   Nowo\BreadcrumbKitBundle\Service\BreadcrumbImporter: ~
 
   Nowo\BreadcrumbKitBundle\Service\BreadcrumbTrailPreview: ~

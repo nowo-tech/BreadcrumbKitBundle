@@ -2,7 +2,7 @@
 
 **Feature Branch**: `001-baseline`  
 **Status**: Active  
-**Last updated**: 2026-08-04 (v2.0.14)
+**Last updated**: 2026-09-24 (v2.1.8)
 
 **Package**: `nowo-tech/breadcrumb-kit-bundle`  
 **Configuration root**: `nowo_breadcrumb_kit`  
@@ -77,6 +77,10 @@ Dashboard look-and-feel composes **UiKitBundle**; dashboard Symfony forms compos
 - **FR-CTRL-001**: Collection/item CRUD, index, import/export controllers; shared dashboard traits.
 - **FR-SEC-001**: Dashboard access via `security.access_roles` / optional `access_checker` / `allow_unauthenticated` (demo); `DashboardAccessSubscriber` + `DashboardSecurityPass`.
 
+### FrankenPHP worker (kernel not reset)
+
+- **FR-WORKER-001**: Safe under FrankenPHP worker with no kernel / `services_resetter` between requests: shared services stay stateless; closed EntityManager is replaced via `BreadcrumbEntityManagerResetter` on every main request/exception; collection/item lookups use `Query::HINT_REFRESH`; security token is ignored when the main request has no `_firewall_context`. Identity-map `clear()` between requests remains the host application's responsibility. See [`docs/FRANKENPHP-WORKER-AUDIT.md`](../../docs/FRANKENPHP-WORKER-AUDIT.md).
+
 ### Forms
 
 - **FR-FORM-001**: Collection/item types, dashboard search/delete/import forms.
@@ -109,7 +113,7 @@ Dashboard look-and-feel composes **UiKitBundle**; dashboard Symfony forms compos
 
 ## Success Criteria
 
-- **SC-001**: **80/80** production files under `src/` mapped in [`code-inventory.md`](code-inventory.md).
+- **SC-001**: **82/82** production files under `src/` mapped in [`code-inventory.md`](code-inventory.md).
 - **SC-002**: Config keys match `docs/CONFIGURATION.md` (incl. UiKit / FormKit prepend notes).
 - **SC-003**: QA/CI green (`make release-check` / PHPUnit / PHPStan / coverage floor).
 - **SC-004**: Hosts registering the dashboard can resolve UiKit macros/CSS and FormKit profile `breadcrumb_kit` without forking BreadcrumbKit form PHP for basic field chrome.

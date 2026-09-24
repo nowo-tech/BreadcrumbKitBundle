@@ -5,9 +5,8 @@ This document describes breaking changes and upgrade notes between versions. Sec
 
 ## Table of contents
 
-
+- [From 2.1.7 to 2.1.8](#from-217-to-218)
 - [From 2.1.6 to 2.1.7](#from-216-to-217)
-- [Unreleased](#unreleased)
 - [From 2.1.5 to 2.1.6](#from-215-to-216)
 - [From 2.1.4 to 2.1.5](#from-214-to-215)
 - [From 2.1.3 to 2.1.4](#from-213-to-214)
@@ -37,9 +36,16 @@ This document describes breaking changes and upgrade notes between versions. Sec
 - [Doctrine schema](#doctrine-schema)
 - [General upgrade steps (any version)](#general-upgrade-steps-any-version)
 
-## From 2.1.6 to 2.1.7
+## From 2.1.7 to 2.1.8
 
-No breaking changes. **No application upgrade steps.**
+No configuration change is required. Behaviour changes relevant to FrankenPHP worker mode (kernel **not** reset / no `services_resetter` between requests):
+
+- The collection and item lookups used by the loader and the dashboard now refresh already-managed entities from the database (`Query::HINT_REFRESH`). Unflushed in-memory changes to those entities are overwritten when they are loaded again.
+- The dashboard access check and the inline editor only read the user from `TokenStorage` when a firewall handled the main request. Routes outside every firewall are evaluated with a `null` user, as they already were on a freshly booted kernel.
+- `CollectionCrudController` accepts a new optional `BreadcrumbEntityManagerResetter` constructor argument (wired automatically).
+- A closed breadcrumb EntityManager is replaced on **every** main HTTP request (and main-request exception), so public trail rendering recovers after a failed dashboard flush on the same worker.
+- The bundle never calls `EntityManager::clear()`. Under worker mode without `services_resetter`, clearing the identity map between requests remains the application's responsibility.
+- Full write-up: [FRANKENPHP-WORKER-AUDIT.md](FRANKENPHP-WORKER-AUDIT.md).
 
 ```bash
 composer update nowo-tech/breadcrumb-kit-bundle
@@ -52,9 +58,6 @@ No breaking changes. **No application upgrade steps.**
 ```bash
 composer update nowo-tech/breadcrumb-kit-bundle
 ```
-
-
-## Unreleased
 
 ## From 2.1.5 to 2.1.6
 

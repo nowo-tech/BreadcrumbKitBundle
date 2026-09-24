@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Nowo\BreadcrumbKitBundle\Repository;
 
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\ORM\Query;
 use Doctrine\ORM\QueryBuilder;
 use Doctrine\Persistence\ManagerRegistry;
 use Nowo\BreadcrumbKitBundle\Entity\BreadcrumbCollection;
@@ -19,9 +20,24 @@ class BreadcrumbCollectionRepository extends ServiceEntityRepository
         parent::__construct($registry, BreadcrumbCollection::class);
     }
 
+    /**
+     * Refreshes an already managed collection so edits made by another worker or process are
+     * visible when the identity map survives between requests (worker mode without kernel reset).
+     */
     public function findOneByCodeAndContextKey(string $code, string $contextKey = ''): ?BreadcrumbCollection
     {
-        return $this->findOneBy(['code' => $code, 'contextKey' => $contextKey]);
+        /** @var BreadcrumbCollection|null $collection */
+        $collection = $this->createQueryBuilder('c')
+            ->andWhere('c.code = :code')
+            ->andWhere('c.contextKey = :contextKey')
+            ->setParameter('code', $code)
+            ->setParameter('contextKey', $contextKey)
+            ->setMaxResults(1)
+            ->getQuery()
+            ->setHint(Query::HINT_REFRESH, true)
+            ->getOneOrNullResult();
+
+        return $collection;
     }
 
     public function createSearchQueryBuilder(string $search = ''): QueryBuilder
