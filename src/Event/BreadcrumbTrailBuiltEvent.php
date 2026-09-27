@@ -32,6 +32,7 @@ final class BreadcrumbTrailBuiltEvent extends Event
 
     public function setView(BreadcrumbTrailView $view): void
     {
+        // @igor-ignore - Request-scoped Event DTO; not a shared worker service.
         $this->view = $view;
     }
 }

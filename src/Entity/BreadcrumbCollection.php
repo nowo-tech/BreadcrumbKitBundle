@@ -87,6 +87,7 @@ class BreadcrumbCollection
 
     public function setCode(string $code): self
     {
+        // @igor-ignore - Doctrine entity field; instance-scoped, not a shared service.
         $this->code = $code;
 
         return $this;
@@ -99,6 +100,7 @@ class BreadcrumbCollection
 
     public function setContextKey(string $contextKey): self
     {
+        // @igor-ignore - Doctrine entity field; instance-scoped, not a shared service.
         $this->contextKey = $contextKey;
 
         return $this;
@@ -111,6 +113,7 @@ class BreadcrumbCollection
 
     public function setName(?string $name): self
     {
+        // @igor-ignore - Doctrine entity field; instance-scoped, not a shared service.
         $this->name = $name;
 
         return $this;
@@ -123,6 +126,7 @@ class BreadcrumbCollection
 
     public function setHomeIcon(?string $homeIcon): self
     {
+        // @igor-ignore - Doctrine entity field; instance-scoped, not a shared service.
         $this->homeIcon = $homeIcon;
 
         return $this;
@@ -135,6 +139,7 @@ class BreadcrumbCollection
 
     public function setSeparatorIcon(?string $separatorIcon): self
     {
+        // @igor-ignore - Doctrine entity field; instance-scoped, not a shared service.
         $this->separatorIcon = $separatorIcon;
 
         return $this;
@@ -149,6 +154,7 @@ class BreadcrumbCollection
     /** @param array<string, mixed>|null $responsiveConfig */
     public function setResponsiveConfig(?array $responsiveConfig): self
     {
+        // @igor-ignore - Doctrine entity field; instance-scoped, not a shared service.
         $this->responsiveConfig = $responsiveConfig;
 
         return $this;
@@ -161,6 +167,7 @@ class BreadcrumbCollection
 
     public function setClassList(?string $classList): self
     {
+        // @igor-ignore - Doctrine entity field; instance-scoped, not a shared service.
         $this->classList = $classList;
 
         return $this;
@@ -173,6 +180,7 @@ class BreadcrumbCollection
 
     public function setClassItem(?string $classItem): self
     {
+        // @igor-ignore - Doctrine entity field; instance-scoped, not a shared service.
         $this->classItem = $classItem;
 
         return $this;
@@ -185,6 +193,7 @@ class BreadcrumbCollection
 
     public function setClassSeparator(?string $classSeparator): self
     {
+        // @igor-ignore - Doctrine entity field; instance-scoped, not a shared service.
         $this->classSeparator = $classSeparator;
 
         return $this;
@@ -197,6 +206,7 @@ class BreadcrumbCollection
 
     public function setClassCurrent(?string $classCurrent): self
     {
+        // @igor-ignore - Doctrine entity field; instance-scoped, not a shared service.
         $this->classCurrent = $classCurrent;
 
         return $this;
@@ -209,6 +219,7 @@ class BreadcrumbCollection
 
     public function setInlineEditAccessKey(?string $inlineEditAccessKey): self
     {
+        // @igor-ignore - Doctrine entity field; instance-scoped, not a shared service.
         $this->inlineEditAccessKey = $inlineEditAccessKey;
 
         return $this;

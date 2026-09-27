@@ -72,6 +72,7 @@ nowo_breadcrumb_kit:
 composer install
 composer test
 composer phpstan
+composer igor
 ```
 
 With Docker from the bundle root:

@@ -95,6 +95,7 @@ class BreadcrumbItem
 
     public function setCollection(?BreadcrumbCollection $collection): self
     {
+        // @igor-ignore - Doctrine entity field; instance-scoped, not a shared service.
         $this->collection = $collection;
 
         return $this;
@@ -107,6 +108,7 @@ class BreadcrumbItem
 
     public function setParent(?self $parent): self
     {
+        // @igor-ignore - Doctrine entity field; instance-scoped, not a shared service.
         $this->parent = $parent;
 
         return $this;
@@ -119,6 +121,7 @@ class BreadcrumbItem
 
     public function setRouteName(string $routeName): self
     {
+        // @igor-ignore - Doctrine entity field; instance-scoped, not a shared service.
         $this->routeName = $routeName;
 
         return $this;
@@ -131,6 +134,7 @@ class BreadcrumbItem
 
     public function setPathPattern(?string $pathPattern): self
     {
+        // @igor-ignore - Doctrine entity field; instance-scoped, not a shared service.
         $this->pathPattern = $pathPattern;
 
         return $this;
@@ -145,6 +149,7 @@ class BreadcrumbItem
     /** @param array<string, scalar|null>|null $matchAttributes */
     public function setMatchAttributes(?array $matchAttributes): self
     {
+        // @igor-ignore - Doctrine entity field; instance-scoped, not a shared service.
         $this->matchAttributes = $matchAttributes;
 
         return $this;
@@ -159,6 +164,7 @@ class BreadcrumbItem
     /** @param array<string, scalar|null>|null $staticRouteParams */
     public function setStaticRouteParams(?array $staticRouteParams): self
     {
+        // @igor-ignore - Doctrine entity field; instance-scoped, not a shared service.
         $this->staticRouteParams = $staticRouteParams;
 
         return $this;
@@ -173,6 +179,7 @@ class BreadcrumbItem
     /** @param list<string>|null $dynamicParamKeys */
     public function setDynamicParamKeys(?array $dynamicParamKeys): self
     {
+        // @igor-ignore - Doctrine entity field; instance-scoped, not a shared service.
         $this->dynamicParamKeys = $dynamicParamKeys;
 
         return $this;
@@ -185,6 +192,7 @@ class BreadcrumbItem
 
     public function setLinkEnabled(bool $linkEnabled): self
     {
+        // @igor-ignore - Doctrine entity field; instance-scoped, not a shared service.
         $this->linkEnabled = $linkEnabled;
 
         return $this;
@@ -197,6 +205,7 @@ class BreadcrumbItem
 
     public function setLabel(?string $label): self
     {
+        // @igor-ignore - Doctrine entity field; instance-scoped, not a shared service.
         $this->label = $label;
 
         return $this;
@@ -211,6 +220,7 @@ class BreadcrumbItem
     /** @param array<string, string>|null $translations */
     public function setTranslations(?array $translations): self
     {
+        // @igor-ignore - Doctrine entity field; instance-scoped, not a shared service.
         $this->translations = $translations;
 
         return $this;
@@ -223,6 +233,7 @@ class BreadcrumbItem
 
     public function setIcon(?string $icon): self
     {
+        // @igor-ignore - Doctrine entity field; instance-scoped, not a shared service.
         $this->icon = $icon;
 
         return $this;

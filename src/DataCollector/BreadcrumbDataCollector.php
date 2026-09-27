@@ -21,6 +21,7 @@ final class BreadcrumbDataCollector extends DataCollector implements TemplateAwa
         /** @var list<array<string, mixed>> $trails */
         $trails = \is_array($rawTrails) ? array_values($rawTrails) : [];
 
+        // @igor-ignore - Not shared worker service state.
         $this->data = [
             'trails' => $trails,
             'snapshot_count' => \count($trails),

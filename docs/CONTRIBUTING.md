@@ -26,6 +26,7 @@ This project follows the [Contributor Covenant Code of Conduct](../CODE_OF_CONDU
 ```bash
 composer cs-check
 composer phpstan
+composer igor
 composer test
 ```
 

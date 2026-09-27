@@ -62,6 +62,7 @@ final readonly class BreadcrumbProfilerRecorder
         /** @var list<array<string, mixed>> $log */
         $log = \is_array($rawLog) ? array_values($rawLog) : [];
         $log[] = $snapshot;
+        // @igor-ignore - Not shared worker service state.
         $request->attributes->set(self::REQUEST_ATTRIBUTE, $log);
     }
 
