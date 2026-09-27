@@ -9,7 +9,6 @@ use Doctrine\ORM\Query;
 use Doctrine\ORM\QueryBuilder;
 use Doctrine\Persistence\ManagerRegistry;
 use Nowo\BreadcrumbKitBundle\Entity\BreadcrumbCollection;
-use SortDirection;
 
 /**
  * @extends ServiceEntityRepository<BreadcrumbCollection>
@@ -44,8 +43,8 @@ class BreadcrumbCollectionRepository extends ServiceEntityRepository
     public function createSearchQueryBuilder(string $search = ''): QueryBuilder
     {
         $qb = $this->createQueryBuilder('c')
-            ->orderBy('c.code', SortDirection::Ascending)
-            ->addOrderBy('c.contextKey', SortDirection::Ascending);
+            ->orderBy('c.code', \SortDirection::Ascending)
+            ->addOrderBy('c.contextKey', \SortDirection::Ascending);
 
         if ('' !== $search) {
             $term = '%'.addcslashes($search, '%_').'%';

@@ -9,7 +9,6 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Nowo\BreadcrumbKitBundle\Repository\BreadcrumbCollectionRepository;
-use SortDirection;
 
 /**
  * A named set of breadcrumb items (e.g. "admin", "public") with shared presentation options.
@@ -68,7 +67,7 @@ class BreadcrumbCollection
 
     /** @var Collection<int, BreadcrumbItem> */
     #[ORM\OneToMany(targetEntity: BreadcrumbItem::class, mappedBy: 'collection', cascade: ['persist', 'remove'], orphanRemoval: true)]
-    #[ORM\OrderBy(['id' => SortDirection::Ascending])]
+    #[ORM\OrderBy(['id' => \SortDirection::Ascending])]
     private Collection $items;
 
     public function __construct()
