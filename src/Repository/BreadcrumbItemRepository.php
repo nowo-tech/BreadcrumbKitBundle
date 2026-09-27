@@ -10,6 +10,7 @@ use Doctrine\ORM\QueryBuilder;
 use Doctrine\Persistence\ManagerRegistry;
 use Nowo\BreadcrumbKitBundle\Entity\BreadcrumbCollection;
 use Nowo\BreadcrumbKitBundle\Entity\BreadcrumbItem;
+use SortDirection;
 
 /**
  * @extends ServiceEntityRepository<BreadcrumbItem>
@@ -31,7 +32,7 @@ class BreadcrumbItemRepository extends ServiceEntityRepository
         return $this->createQueryBuilder('i')
             ->where('i.collection = :c')
             ->setParameter('c', $collection)
-            ->orderBy('i.id', 'ASC')
+            ->orderBy('i.id', SortDirection::Ascending)
             ->getQuery()
             ->setHint(Query::HINT_REFRESH, true)
             ->getResult();
@@ -49,7 +50,7 @@ class BreadcrumbItemRepository extends ServiceEntityRepository
         ?int $limit = null,
     ): array {
         $qb = $this->createDashboardListQueryBuilder($collection, $search)
-            ->orderBy('i.id', 'ASC')
+            ->orderBy('i.id', SortDirection::Ascending)
             ->setFirstResult(max(0, $offset));
 
         if (null !== $limit) {

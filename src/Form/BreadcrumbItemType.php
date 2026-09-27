@@ -18,6 +18,7 @@ use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Validator\Constraints\Length;
 use Symfony\Component\Validator\Constraints\NotBlank;
+use SortDirection;
 
 /**
  * @extends AbstractType<BreadcrumbItem>
@@ -114,7 +115,7 @@ final class BreadcrumbItemType extends AbstractType
                     $qb = $repository->createQueryBuilder('i')
                         ->andWhere('i.collection = :c')
                         ->setParameter('c', $collection)
-                        ->orderBy('i.id', 'ASC');
+                        ->orderBy('i.id', SortDirection::Ascending);
                     if ($excludeItem instanceof BreadcrumbItem && null !== $excludeItem->getId()) {
                         $qb->andWhere('i.id != :xid')->setParameter('xid', $excludeItem->getId());
                     }
