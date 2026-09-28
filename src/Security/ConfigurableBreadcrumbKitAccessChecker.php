@@ -23,7 +23,7 @@ final readonly class ConfigurableBreadcrumbKitAccessChecker implements Breadcrum
     public function canAccess(object $user): bool
     {
         // Empty access_roles = deny (fail-closed). Use allow_unauthenticated or AllowAll* for demos.
-        if ($this->accessRoles === []) {
+        if ([] === $this->accessRoles) {
             return false;
         }
 
