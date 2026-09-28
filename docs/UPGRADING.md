@@ -3,6 +3,18 @@
 
 ## Unreleased
 
+## To 2.2.0
+
+From **2.1.9** — dashboard `access_roles` fail-closed; Doctrine `SortDirection`.
+
+```bash
+composer update nowo-tech/breadcrumb-kit-bundle
+php bin/console cache:clear
+```
+
+- Empty `security.access_roles` no longer allows dashboard access. Set at least one role, a custom `access_checker`, or (demo only) `allow_unauthenticated: true`.
+- Ensure `doctrine/orm` is `^3.7` (SortDirection).
+
 ## To 2.1.9
 
 From **2.1.8** — REQ-CS-008 Igor FrankenPHP worker audit (igor-php require-dev, igor.json, make igor).

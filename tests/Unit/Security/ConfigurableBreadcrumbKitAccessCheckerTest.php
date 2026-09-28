@@ -10,14 +10,14 @@ use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 
 final class ConfigurableBreadcrumbKitAccessCheckerTest extends TestCase
 {
-    public function testAllowsAccessWhenNoRolesConfigured(): void
+    public function testDeniesAccessWhenNoRolesConfigured(): void
     {
         $checker = new ConfigurableBreadcrumbKitAccessChecker(
             $this->createMock(AuthorizationCheckerInterface::class),
             [],
         );
 
-        self::assertTrue($checker->canAccess(new \stdClass()));
+        self::assertFalse($checker->canAccess(new \stdClass()));
     }
 
     public function testAllowsAccessWhenUserHasConfiguredRole(): void

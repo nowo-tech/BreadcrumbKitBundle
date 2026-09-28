@@ -78,7 +78,7 @@ final class DashboardSecurityPassTest extends TestCase
         self::assertFalse($container->hasDefinition(DashboardAccessSubscriber::class));
     }
 
-    public function testNoOpWhenAccessRolesEmptyWithoutCustomChecker(): void
+    public function testRegistersSubscriberWhenAccessRolesEmpty(): void
     {
         $container = new ContainerBuilder();
         $container->setParameter(Configuration::ALIAS.'.dashboard.enabled', true);
@@ -89,7 +89,7 @@ final class DashboardSecurityPassTest extends TestCase
 
         (new DashboardSecurityPass())->process($container);
 
-        self::assertFalse($container->hasDefinition(DashboardAccessSubscriber::class));
+        self::assertTrue($container->hasDefinition(DashboardAccessSubscriber::class));
     }
 
     public function testNoOpWhenSubscriberAlreadyRegistered(): void

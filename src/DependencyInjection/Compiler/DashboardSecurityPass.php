@@ -38,14 +38,7 @@ final class DashboardSecurityPass implements CompilerPassInterface
             return;
         }
 
-        /** @var list<string> $accessRoles */
-        $accessRoles = $container->getParameter(Configuration::ALIAS.'.security.access_roles');
-        $customChecker = (bool) $container->getParameter(Configuration::ALIAS.'.security.custom_access_checker');
-        // Empty access_roles with the default checker = no bundle-level enforcement (firewall only).
-        if ([] === $accessRoles && !$customChecker) {
-            return;
-        }
-
+        // Always register when !allow_unauthenticated. Empty access_roles is fail-closed via the checker.
         if ($container->hasDefinition(DashboardAccessSubscriber::class)) {
             return;
         }

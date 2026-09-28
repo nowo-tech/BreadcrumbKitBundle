@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## Table of contents
 
 - [[Unreleased]](#unreleased)
+- [[2.2.0] - 2026-09-28](#220---2026-09-28)
 - [[2.1.9] - 2026-09-27](#219---2026-09-27)
 - [[2.1.8] - 2026-09-24](#218---2026-09-24)
   - [Fixed](#fixed)
@@ -100,6 +101,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.2.0] - 2026-09-28
+
+### Security
+
+- Empty `security.access_roles` is fail-closed (deny). `DashboardAccessSubscriber` is always registered when `allow_unauthenticated` is false.
+
 ### Changed
 
 - **Doctrine ORM SortDirection:** replace string `'ASC'`/`'DESC'` in `#[ORM\OrderBy]` and QueryBuilder `orderBy`/`addOrderBy` with `SortDirection::Ascending`/`Descending` (doctrine/orm deprecation, https://github.com/doctrine/orm/issues/11313); require `doctrine/orm` `^3.7` where applicable.
@@ -114,6 +121,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - **Worker safety (Igor):** justified `// @igor-ignore` annotations and/or `ResetInterface` / request-scoped fixes so `make igor` passes on package `src/`.
 
+[2.2.0]: https://github.com/nowo-tech/BreadcrumbKitBundle/releases/tag/v2.2.0
 [2.1.9]: https://github.com/nowo-tech/BreadcrumbKitBundle/releases/tag/v2.1.9
 
 ## [2.1.8] - 2026-09-24
