@@ -153,7 +153,7 @@ The dashboard will use only the semantic `nowo-ui-*` classes defined in UiKit’
 **What the stack provides automatically:**
 
 - UiKit `nowo-ui.css` includes a self-contained modal overlay (`.nowo-ui-modal` + `.nowo-ui-modal-open`) so modals render correctly without Bootstrap's `.modal` CSS.
-- `dashboard.js` detects `window.__breadcrumbKitDashboard.cssFramework` at runtime:
+- `dashboard.js` detects `cssFramework` from the CSP-safe JSON island (`<script type="application/json" id="nowo-breadcrumb-kit-dashboard">`; legacy `window.__breadcrumbKitDashboard` is a deprecated fallback until 2.4.0) at runtime:
   - For **bootstrap / bootstrap5 / bootstrap4 / tabler** → defers to Bootstrap JS for modal management.
   - For any other value → registers lightweight custom open/close handlers for `[data-nowo-modal-open]` / `[data-nowo-modal-close]` attributes, dispatches a synthetic `show.bs.modal` event so the existing listeners (form-load, confirm-delete, etc.) keep working.
 - Loading and error states inside modals use `nowo-ui-muted` / `nowo-ui-flash nowo-ui-flash--error` classes (no Bootstrap dependency).

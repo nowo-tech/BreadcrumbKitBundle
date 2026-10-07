@@ -3,6 +3,21 @@
 
 ## Unreleased
 
+## To 2.3.0
+
+From **2.2.0** — CSP-safe JSON config islands (no inline JS in dashboard templates).
+
+```bash
+composer update nowo-tech/breadcrumb-kit-bundle
+php bin/console assets:install public
+php bin/console cache:clear
+```
+
+- Dashboard config is now a JSON island: `<script type="application/json" id="nowo-breadcrumb-kit-dashboard">`. Page templates add `id="nowo-breadcrumb-kit-dashboard-page"`. `dashboard.js` reads both.
+- `window.__breadcrumbKitDashboard` / `window.breadcrumbKitI18n` are still honoured as a **deprecated fallback** in `dashboard.js` for this minor; they will be removed in 2.4.0. If you override `dashboard/layout.html.twig`, switch to the island.
+- Inline breadcrumb editor: the inline `<script>` is gone; the template loads `js/breadcrumb-inline.js` (run `assets:install`). If you override `breadcrumb.html.twig`, drop your inline IIFE, include the script via `asset('js/breadcrumb-inline.js', 'nowo_breadcrumb_kit')` and use `data-breadcrumb-kit-inline-wrap` (no value needed), `data-bk-inline-open`, `data-bk-inline-dialog`, `data-bk-inline-close`.
+- Allow the island with CSP: JSON islands are non-executable and need no nonce. The inline `<style>` in `breadcrumb.html.twig` still needs `style-src` nonce/`unsafe-inline` or an override.
+
 ## To 2.2.0
 
 From **2.1.9** — dashboard `access_roles` fail-closed; Doctrine `SortDirection`.

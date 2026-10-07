@@ -6,7 +6,7 @@
 {% trans_default_domain 'NowoBreadcrumbKitBundle' %}
 {% set has_trail = trail.nodes is not empty %}
 {% if has_trail or breadcrumb_inline_edit.show %}
-<div class="breadcrumb-kit"{% if breadcrumb_inline_edit.show %} data-breadcrumb-kit-inline-wrap="1"{% endif %}>
+<div class="breadcrumb-kit"{% if breadcrumb_inline_edit.show %} data-breadcrumb-kit-inline-wrap{% endif %}>
   {% if has_trail %}
   <nav class="{{ trail.classList|default('breadcrumb') }}" aria-label="{{ 'breadcrumb.aria_label'|trans }}"{% if trail.responsiveConfig.breakpoint is defined %} data-breadcrumb-breakpoint="{{ trail.responsiveConfig.breakpoint }}"{% endif %}>
     <ol class="breadcrumb-list">
@@ -48,18 +48,7 @@
     .breadcrumb-kit__iframe { display: block; width: 100%; height: min(72vh, 640px); border: 0; background: #fff; }
     .breadcrumb-icon { display: inline-flex; align-items: center; }
   </style>
-  <script>
-    (function () {
-      var wrap = document.querySelector('[data-breadcrumb-kit-inline-wrap="1"]');
-      if (!wrap) return;
-      var openBtn = wrap.querySelector('[data-bk-inline-open]');
-      var dlg = wrap.querySelector('[data-bk-inline-dialog]');
-      var closeBtn = wrap.querySelector('[data-bk-inline-close]');
-      if (!openBtn || !dlg) return;
-      openBtn.addEventListener('click', function () { if (dlg.showModal) dlg.showModal(); });
-      closeBtn && closeBtn.addEventListener('click', function () { dlg.close(); });
-    })();
-  </script>
+  <script src="{{ asset('js/breadcrumb-inline.js', 'nowo_breadcrumb_kit') }}" defer></script>
   {% endif %}
 </div>
 {% endif %}

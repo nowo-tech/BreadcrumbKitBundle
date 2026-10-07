@@ -70,7 +70,5 @@
 {% endblock %}
 
 {% block dashboard_scripts %}
-<script>
-window.__breadcrumbKitDashboard = Object.assign({}, window.__breadcrumbKitDashboard || {}, { page: 'collections_index' });
-</script>
+<script type="application/json" id="nowo-breadcrumb-kit-dashboard-page">{"page":"collections_index"}</script>
 {% endblock %}

@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## Table of contents
 
 - [[Unreleased]](#unreleased)
+- [[2.3.0] - 2026-10-07](#230---2026-10-07)
 - [[2.2.0] - 2026-09-28](#220---2026-09-28)
 - [[2.1.9] - 2026-09-27](#219---2026-09-27)
 - [[2.1.8] - 2026-09-24](#218---2026-09-24)
@@ -100,6 +101,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - [Documentation](#documentation)
 
 ## [Unreleased]
+
+## [2.3.0] - 2026-10-07
+
+### Changed
+
+- **CSP-safe config islands:** `dashboard/layout.html.twig` now emits `<script type="application/json" id="nowo-breadcrumb-kit-dashboard">` (cssFramework, importPartialUrl, dashboardBase, i18n) instead of inline `window.__breadcrumbKitDashboard` / `window.breadcrumbKitI18n` assignments. Dashboard page templates emit `<script type="application/json" id="nowo-breadcrumb-kit-dashboard-page">{"page":"…"}</script>`.
+- `dashboard.js` parses the islands and merges them; falls back to `window.__breadcrumbKitDashboard` / `window.breadcrumbKitI18n` for one minor (removal planned in 2.4.0).
+- Inline breadcrumb editor: the inline IIFE in `breadcrumb.html.twig` is replaced by the external `js/breadcrumb-inline.js` (delegated `data-*` hooks only). `data-breadcrumb-kit-inline-wrap` no longer carries a `="1"` value.
+
+### Deprecated
+
+- `window.__breadcrumbKitDashboard` global config (read-only fallback in `dashboard.js`).
+
+### Added
+
+- `tests/Unit/Resources/CspSafeTemplatesTest.php` guarding the no-inline-script contract.
 
 ## [2.2.0] - 2026-09-28
 

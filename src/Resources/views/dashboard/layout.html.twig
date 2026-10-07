@@ -65,20 +65,20 @@
         {% endblock %}
         {% block dashboard_scripts %}{% endblock %}
         {# dashboard.js is loaded from base.html.twig so host layouts that only parent() still get it. #}
-        <script>
-        window.breadcrumbKitI18n = {
-            loading: {{ 'dashboard.loading'|trans|json_encode|raw }},
-            errorLoadingForm: {{ 'dashboard.error_loading_form'|trans|json_encode|raw }},
-            defaultCollectionModalTitle: {{ 'dashboard.collection_modal_title'|trans|json_encode|raw }},
-            defaultItemModalTitle: {{ 'dashboard.item_modal_title'|trans|json_encode|raw }},
-            deleteCollectionConfirm: {{ 'dashboard.delete_collection_confirm'|trans|json_encode|raw }},
-            deleteItemConfirm: {{ 'dashboard.delete_item_confirm'|trans|json_encode|raw }}
-        };
-        window.__breadcrumbKitDashboard = window.__breadcrumbKitDashboard || {};
-        window.__breadcrumbKitDashboard.cssFramework = {{ _bk_fw|json_encode|raw }};
-        window.__breadcrumbKitDashboard.importPartialUrl = {{ (path(_bk_dr.import|default('nowo_breadcrumb_kit_dashboard_import')) ~ '?_partial=1')|json_encode|raw }};
-        window.__breadcrumbKitDashboard.dashboardBase = {{ path(_bk_dr.collections_index|default('nowo_breadcrumb_kit_dashboard_collections_index'))|json_encode|raw }};
-        </script>
+        {# CSP-safe JSON config island (no inline JS). Read by dashboard.js. #}
+        <script type="application/json" id="nowo-breadcrumb-kit-dashboard">{{ {
+            cssFramework: _bk_fw,
+            importPartialUrl: path(_bk_dr.import|default('nowo_breadcrumb_kit_dashboard_import')) ~ '?_partial=1',
+            dashboardBase: path(_bk_dr.collections_index|default('nowo_breadcrumb_kit_dashboard_collections_index')),
+            i18n: {
+                loading: 'dashboard.loading'|trans,
+                errorLoadingForm: 'dashboard.error_loading_form'|trans,
+                defaultCollectionModalTitle: 'dashboard.collection_modal_title'|trans,
+                defaultItemModalTitle: 'dashboard.item_modal_title'|trans,
+                deleteCollectionConfirm: 'dashboard.delete_collection_confirm'|trans,
+                deleteItemConfirm: 'dashboard.delete_item_confirm'|trans
+            }
+        }|json_encode(constant('JSON_HEX_TAG') b-or constant('JSON_HEX_AMP') b-or constant('JSON_HEX_APOS') b-or constant('JSON_HEX_QUOT'))|raw }}</script>
     {% endblock %}
 </body>
 </html>

@@ -1,7 +1,39 @@
 (function () {
   'use strict';
 
-  var _cfg = window.__breadcrumbKitDashboard || {};
+  var ISLAND_IDS = ['nowo-breadcrumb-kit-dashboard', 'nowo-breadcrumb-kit-dashboard-page'];
+
+  function readIsland(id) {
+    var el = document.getElementById(id);
+    if (!el) return null;
+    try {
+      var data = JSON.parse(el.textContent || '{}');
+      return data && typeof data === 'object' ? data : null;
+    } catch (e) {
+      return null;
+    }
+  }
+
+  /**
+   * Reads CSP-safe JSON config islands (<script type="application/json">).
+   * Falls back to the legacy window.__breadcrumbKitDashboard global (deprecated since 2.3.0).
+   */
+  function readConfig() {
+    var cfg = {};
+    var legacy = window.__breadcrumbKitDashboard;
+    if (legacy && typeof legacy === 'object') {
+      Object.keys(legacy).forEach(function (k) { cfg[k] = legacy[k]; });
+    }
+    ISLAND_IDS.forEach(function (id) {
+      var data = readIsland(id);
+      if (data) {
+        Object.keys(data).forEach(function (k) { cfg[k] = data[k]; });
+      }
+    });
+    return cfg;
+  }
+
+  var _cfg = readConfig();
   var _fw = ((_cfg.cssFramework || 'bootstrap5') + '').trim().toLowerCase();
 
   function isBootstrapFw(fw) {
@@ -9,7 +41,7 @@
   }
 
   function t(key, fallback) {
-    var g = typeof window !== 'undefined' ? window.breadcrumbKitI18n : null;
+    var g = _cfg.i18n || (typeof window !== 'undefined' ? window.breadcrumbKitI18n : null);
     return (g && g[key]) ? g[key] : fallback;
   }
 
@@ -154,7 +186,7 @@
     if (!modalEl || !bodyEl) return;
 
     var loading = '<div class="nowo-ui-muted text-center py-4">' + t('loading', 'Loading…') + '</div>';
-    var cfg = window.__breadcrumbKitDashboard || {};
+    var cfg = _cfg;
 
     modalEl.addEventListener('show.bs.modal', function (ev) {
       var btn = ev.relatedTarget;
@@ -177,8 +209,8 @@
   }
 
   function init() {
-    // Re-read config at init time in case the inline script ran after this file.
-    _cfg = window.__breadcrumbKitDashboard || {};
+    // Re-read config at init time (islands may be parsed after this file).
+    _cfg = readConfig();
     _fw = ((_cfg.cssFramework || 'bootstrap5') + '').trim().toLowerCase();
 
     if (!isBootstrapFw(_fw)) {
