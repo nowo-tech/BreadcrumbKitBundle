@@ -91,6 +91,7 @@ Dashboard look-and-feel composes **UiKitBundle**; dashboard Symfony forms compos
 
 - **FR-TWIG-001**: `BreadcrumbExtension`, dashboard globals/link extensions; `TwigPathsPass`.
 - **FR-TWIG-002**: Public breadcrumb + dashboard Twig templates (overridable under host `templates/bundles/NowoBreadcrumbKitBundle/`).
+- **FR-TWIG-003**: CSP — inline `<script>`/`<style>` in bundle templates emit `nonce` from request attribute `csp_nonce` when set; no inline event handlers (enforced by `InlineBlocksDeclareNonceTest`).
 - **FR-UI-001**: Dashboard markup imports `@NowoUiKitBundle/macros/ui.html.twig` and loads `asset('css/nowo-ui.css', 'nowo_ui_kit')`; `dashboard.js` remains on package `nowo_breadcrumb_kit` (REQ-UI-001-kit). Child templates must not nest/replace layout `nowo_ui_styles` / `nowo_ui_scripts` / content wrappers in a way that drops CDN or modal DOM.
 
 ### Profiler

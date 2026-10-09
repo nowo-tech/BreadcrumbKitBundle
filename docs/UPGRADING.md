@@ -1,7 +1,9 @@
 # Upgrading
 
 
-## Unreleased
+## To 2.3.2
+
+No action required. Inline `<style>` blocks now emit `nonce` from the request attribute `csp_nonce` (see [Security — CSP](SECURITY.md#content-security-policy-csp)). If you overrode `breadcrumb.html.twig` or the `dashboard_head` block, add the nonce to your own inline `<style>` (`{% set _csp_nonce = app.request ? app.request.attributes.get('csp_nonce')|default('') : '' %}` then `<style{% if _csp_nonce %} nonce="{{ _csp_nonce }}"{% endif %}>`) (or drop the override if it only added the nonce).
 
 ## To 2.3.1
 

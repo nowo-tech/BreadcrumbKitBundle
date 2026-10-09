@@ -32,7 +32,8 @@
       <iframe class="breadcrumb-kit__iframe" src="{{ breadcrumb_inline_edit.iframe_url }}" title="{{ breadcrumb_inline_edit.modal_title }}"></iframe>
     </dialog>
   </div>
-  <style>
+  {% set _csp_nonce = app.request is defined and app.request ? app.request.attributes.get('csp_nonce')|default('') : '' %}
+  <style{% if _csp_nonce %} nonce="{{ _csp_nonce }}"{% endif %}>
     .breadcrumb-kit { display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem 0.75rem; }
     .breadcrumb-kit__inline-toolbar { flex: 0 0 auto; }
     .breadcrumb-kit__inline-open {

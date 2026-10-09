@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## Table of contents
 
 - [[Unreleased]](#unreleased)
+
+- [[2.3.2] - 2026-10-09](#232---2026-10-09)
 - [[2.3.1] - 2026-10-09](#231---2026-10-09)
   - [Dependencies](#dependencies)
 - [[2.3.0] - 2026-10-07](#230---2026-10-07)
@@ -104,6 +106,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.3.2] - 2026-10-09
+
+### Changed
+
+- CSP: the inline `<style>` blocks in `breadcrumb.html.twig` (inline-edit toolbar) and `dashboard/layout.html.twig` (`dashboard_head`) now carry `nonce="…"` from the request attribute `csp_nonce` when it is set. Added a template scan test (inline blocks must declare the nonce; no inline event handlers).
+
 ## [2.3.1] - 2026-10-09
 
 ### Dependencies
@@ -111,6 +119,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Composer refresh: `doctrine/orm` 3.7.4, `doctrine/dbal` 4.5.0, `nowo-tech/form-kit-bundle` 2.6.0, `nowo-tech/ui-kit-bundle` 1.9.1, Symfony 7.4.20 components (lockfile); dev tooling `phpstan/phpstan` 2.3.1, `phpstan/phpstan-phpunit` 2.1.1, `phpstan/phpstan-symfony` 2.1.0, `rector/rector` 2.7.0, `igor-php/igor-php` 0.10.1.
 - Demo: Symfony 8.1.8, `twig/twig` 3.30.0; regenerated `config/reference.php`.
 
+[2.3.2]: https://github.com/nowo-tech/BreadcrumbKitBundle/releases/tag/v2.3.2
 [2.3.1]: https://github.com/nowo-tech/BreadcrumbKitBundle/releases/tag/v2.3.1
 
 ## [2.3.0] - 2026-10-07

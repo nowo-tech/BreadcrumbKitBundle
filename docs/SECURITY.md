@@ -7,6 +7,7 @@
 - [Attack surface](#attack-surface)
 - [Threat model](#threat-model)
 - [Mitigations](#mitigations)
+- [Content Security Policy (CSP)](#content-security-policy-csp)
 - [Secrets and cryptography](#secrets-and-cryptography)
 - [Logging](#logging)
 - [Dependencies](#dependencies)
@@ -54,6 +55,12 @@ When the dashboard is enabled, HTTP endpoints are registered; protect `dashboard
 - Never enable `security.allow_unauthenticated` outside local demos.
 - Use a dedicated cache pool with appropriate TTL for production.
 - Prefer least-privilege DB credentials for the application.
+
+## Content Security Policy (CSP)
+
+Every inline `<script>` / `<style>` rendered by the bundle templates carries `nonce="…"` taken from the request attribute **`csp_nonce`** when it is present (nothing is emitted otherwise). Your CSP listener should set it before rendering, e.g. `$request->attributes->set('csp_nonce', $nonce)`, and send the same value in `script-src 'nonce-…'` / `style-src 'nonce-…'`. External scripts (`src=…`) and JSON islands need no nonce, and templates use no inline event handlers (`onclick`, `onsubmit`, …). `tests/Unit/Templates/InlineBlocksDeclareNonceTest.php` enforces this.
+
+The dashboard layout's `tailwind` option loads the Tailwind Play CDN, which injects `<style>` at runtime without a nonce; use a prebuilt stylesheet under a strict `style-src`.
 
 ## Secrets and cryptography
 
