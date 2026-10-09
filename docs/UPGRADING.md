@@ -3,6 +3,16 @@
 
 ## Unreleased
 
+## To 2.3.1
+
+From **2.3.0** — dependency refresh only.
+
+```bash
+composer update nowo-tech/breadcrumb-kit-bundle
+```
+
+- No breaking changes. No application upgrade steps.
+
 ## To 2.3.0
 
 From **2.2.0** — CSP-safe JSON config islands (no inline JS in dashboard templates).
