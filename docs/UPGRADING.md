@@ -1,5 +1,48 @@
 # Upgrading
 
+## Table of contents
+
+- [To 2.5.0](#to-250)
+- [To 2.4.1](#to-241)
+- [To 2.4.0](#to-240)
+- [To 2.3.2](#to-232)
+- [To 2.3.1](#to-231)
+- [To 2.3.0](#to-230)
+- [To 2.2.0](#to-220)
+- [To 2.1.9](#to-219)
+- [From 2.1.7 to 2.1.8](#from-217-to-218)
+- [From 2.1.6 to 2.1.7](#from-216-to-217)
+- [From 2.1.5 to 2.1.6](#from-215-to-216)
+- [From 2.1.4 to 2.1.5](#from-214-to-215)
+- [From 2.1.3 to 2.1.4](#from-213-to-214)
+- [From 2.1.2 to 2.1.3](#from-212-to-213)
+  - [Twig Extra Bundle (REQ-TWIG-004)](#twig-extra-bundle-req-twig-004)
+  - [Twig-CS-Fixer (maintainers)](#twig-cs-fixer-maintainers)
+- [From 2.1.1 to 2.1.2](#from-211-to-212)
+- [From 2.1.0 to 2.1.1](#from-210-to-211)
+- [From 2.0.14 to 2.1.0](#from-2014-to-210)
+- [From 2.0.13 to 2.0.14](#from-2013-to-2014)
+- [From 2.0.12 to 2.0.13](#from-2012-to-2013)
+- [From 2.0.10 to 2.0.11](#from-2010-to-2011)
+- [From 2.0.9 to 2.0.10](#from-209-to-2010)
+- [From 2.0.8 to 2.0.9](#from-208-to-209)
+- [From 2.0.7 to 2.0.8](#from-207-to-208)
+- [From 2.0.6 to 2.0.7](#from-206-to-207)
+- [From 2.0.5 to 2.0.6](#from-205-to-206)
+- [From 2.0.4 to 2.0.5](#from-204-to-205)
+- [From 2.0.3 to 2.0.4](#from-203-to-204)
+- [From 2.0.2 to 2.0.3](#from-202-to-203)
+- [From 2.0.1 to 2.0.2](#from-201-to-202)
+- [From 2.0.0 to 2.0.1](#from-200-to-201)
+- [From 1.2.x to 2.0.0](#from-12x-to-200)
+- [From 1.2.0 to 1.2.1](#from-120-to-121)
+- [From 1.1.0 to 1.2.0](#from-110-to-120)
+- [From 1.0.0 to 1.1.0](#from-100-to-110)
+- [Initial install (v1.1.0+)](#initial-install-v110)
+- [From pre-release / local copies to 1.0.0](#from-pre-release--local-copies-to-100)
+- [Doctrine schema](#doctrine-schema)
+- [General upgrade steps (any version)](#general-upgrade-steps-any-version)
+
 ## To 2.5.0
 
 From **2.4.1** — fixes - item-list cache wired and invalidated on writes, atomic replace import.
@@ -88,39 +131,6 @@ php bin/console cache:clear
 - No application upgrade steps for require-dev Igor tooling (REQ-CS-008). Consumers do not pull `igor-php/igor-php` transitively.
 
 This document describes breaking changes and upgrade notes between versions. Sections are ordered from newest to oldest.
-
-## Table of contents
-
-- [From 2.1.7 to 2.1.8](#from-217-to-218)
-- [From 2.1.6 to 2.1.7](#from-216-to-217)
-- [From 2.1.5 to 2.1.6](#from-215-to-216)
-- [From 2.1.4 to 2.1.5](#from-214-to-215)
-- [From 2.1.3 to 2.1.4](#from-213-to-214)
-- [From 2.1.2 to 2.1.3](#from-212-to-213)
-- [From 2.1.1 to 2.1.2](#from-211-to-212)
-- [From 2.1.0 to 2.1.1](#from-210-to-211)
-- [From 2.0.14 to 2.1.0](#from-2014-to-210)
-- [From 2.0.13 to 2.0.14](#from-2013-to-2014)
-- [From 2.0.12 to 2.0.13](#from-2012-to-2013)
-- [From 2.0.10 to 2.0.11](#from-2010-to-2011)
-- [From 2.0.9 to 2.0.10](#from-209-to-2010)
-- [From 2.0.8 to 2.0.9](#from-208-to-209)
-- [From 2.0.7 to 2.0.8](#from-207-to-208)
-- [From 2.0.6 to 2.0.7](#from-206-to-207)
-- [From 2.0.5 to 2.0.6](#from-205-to-206)
-- [From 2.0.4 to 2.0.5](#from-204-to-205)
-- [From 2.0.3 to 2.0.4](#from-203-to-204)
-- [From 2.0.2 to 2.0.3](#from-202-to-203)
-- [From 2.0.1 to 2.0.2](#from-201-to-202)
-- [From 2.0.0 to 2.0.1](#from-200-to-201)
-- [From 1.2.x to 2.0.0](#from-12x-to-200)
-- [From 1.2.0 to 1.2.1](#from-120-to-121)
-- [From 1.1.0 to 1.2.0](#from-110-to-120)
-- [From 1.0.0 to 1.1.0](#from-100-to-110)
-- [Initial install (v1.1.0+)](#initial-install-v110)
-- [From pre-release / local copies to 1.0.0](#from-pre-release-local-copies-to-100)
-- [Doctrine schema](#doctrine-schema)
-- [General upgrade steps (any version)](#general-upgrade-steps-any-version)
 
 ## From 2.1.7 to 2.1.8
 
