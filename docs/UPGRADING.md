@@ -1,5 +1,14 @@
 # Upgrading
 
+## To 2.4.1
+
+From **2.4.0** — dependency refresh and repository maintenance.
+
+```bash
+composer update nowo-tech/breadcrumb-kit-bundle
+```
+
+- No breaking changes. No application upgrade steps.
 
 ## To 2.4.0
 
@@ -14,7 +23,6 @@ php bin/console cache:clear
 - A remaining override can now extend the original: `{% extends '@!NowoBreadcrumbKitBundle/dashboard/collection/index.html.twig' %}` and redefine blocks only.
 - Copies of `_dashboard_modals.html.twig` keep working; the stock file now renders `dashboard/_modal_shell.html.twig` (same markup).
 - The deprecated `window.__breadcrumbKitDashboard` / `window.breadcrumbKitI18n` fallback in `dashboard.js` is still honoured in 2.4.0 (minor release); it will be removed in the next major.
-
 
 ## To 2.3.2
 
@@ -69,7 +77,6 @@ php bin/console cache:clear
 - No application upgrade steps for require-dev Igor tooling (REQ-CS-008). Consumers do not pull `igor-php/igor-php` transitively.
 
 This document describes breaking changes and upgrade notes between versions. Sections are ordered from newest to oldest.
-
 
 ## Table of contents
 

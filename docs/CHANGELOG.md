@@ -5,11 +5,11 @@ All notable changes to this project are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-
 ## Table of contents
 
 - [[Unreleased]](#unreleased)
 
+- [[2.4.1] - 2026-10-13](#241---2026-10-13)
 - [[2.4.0] - 2026-10-13](#240---2026-10-13)
   - [Added](#added)
   - [Changed](#changed)
@@ -109,6 +109,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.4.1] - 2026-10-13
+
+### Changed
+
+- CI: GitHub Actions aligned with the org baseline (`actions/checkout` v7, `codecov/codecov-action` v7, `actions/cache` v6).
+- Repository: `.twig-cs-fixer.cache` is now git-ignored.
+
+### Dependencies
+
+- `nowo-tech/form-kit-bundle` 2.6.0 → 2.7.1 (development lock; #51).
+- `doctrine/orm` 3.7.4 → 3.7.5 (development lock; #52).
+- `nowo-tech/ui-kit-bundle` 1.9.1 → 1.11.0 (development lock; #53).
+
 ## [2.4.0] - 2026-10-13
 
 Admin chrome hooks (spec [`003-admin-chrome-hooks`](../specs/003-admin-chrome-hooks/spec.md)): hosts can theme the dashboard without copying pages. Default output is unchanged (snapshot-tested).
@@ -142,6 +155,7 @@ Admin chrome hooks (spec [`003-admin-chrome-hooks`](../specs/003-admin-chrome-ho
 - Composer refresh: `doctrine/orm` 3.7.4, `doctrine/dbal` 4.5.0, `nowo-tech/form-kit-bundle` 2.6.0, `nowo-tech/ui-kit-bundle` 1.9.1, Symfony 7.4.20 components (lockfile); dev tooling `phpstan/phpstan` 2.3.1, `phpstan/phpstan-phpunit` 2.1.1, `phpstan/phpstan-symfony` 2.1.0, `rector/rector` 2.7.0, `igor-php/igor-php` 0.10.1.
 - Demo: Symfony 8.1.8, `twig/twig` 3.30.0; regenerated `config/reference.php`.
 
+[2.4.1]: https://github.com/nowo-tech/BreadcrumbKitBundle/releases/tag/v2.4.1
 [2.4.0]: https://github.com/nowo-tech/BreadcrumbKitBundle/releases/tag/v2.4.0
 [2.3.2]: https://github.com/nowo-tech/BreadcrumbKitBundle/releases/tag/v2.3.2
 [2.3.1]: https://github.com/nowo-tech/BreadcrumbKitBundle/releases/tag/v2.3.1
