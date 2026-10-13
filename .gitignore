@@ -16,6 +16,7 @@
 
 # Tooling caches
 /.php-cs-fixer.cache
+/.twig-cs-fixer.cache
 
 # Local environment
 .env
