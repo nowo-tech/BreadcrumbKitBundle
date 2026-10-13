@@ -109,6 +109,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- The PSR-6 item-list cache (`cache.pool`, default `cache.app`) is now actually used: the pool was never injected because the extension looked it up on the isolated container used during `load()`. A pool id that does not exist still disables the cache.
+- Cached item lists are invalidated when collections or items are created, updated, moved, deleted or imported through Doctrine (dashboard CRUD, `import`), so trails no longer stay stale after an edit.
+- A `replace` import now runs in a transaction per collection: a failure while re-creating the tree rolls back and keeps the previous items.
+
 ## [2.4.1] - 2026-10-13
 
 ### Changed

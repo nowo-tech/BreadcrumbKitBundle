@@ -18,6 +18,7 @@ use Nowo\BreadcrumbKitBundle\Form\DataTransformer\JsonStringListTransformer;
 use Nowo\BreadcrumbKitBundle\Profiler\BreadcrumbProfilerRecorder;
 use Nowo\BreadcrumbKitBundle\Repository\BreadcrumbCollectionRepository;
 use Nowo\BreadcrumbKitBundle\Repository\BreadcrumbItemRepository;
+use Nowo\BreadcrumbKitBundle\Service\BreadcrumbCacheInvalidator;
 use Nowo\BreadcrumbKitBundle\Service\BreadcrumbImporter;
 use Nowo\BreadcrumbKitBundle\Service\BreadcrumbInlineEditResolver;
 use Nowo\BreadcrumbKitBundle\Service\BreadcrumbLoader;
@@ -146,8 +147,6 @@ final class CoverageCompletionTest extends TestCase
     public function testExtensionLoadUsesEmptyLayoutFallbackAndCachePool(): void
     {
         $container = new ContainerBuilder();
-        $container->register('cache.app', Definition::class)->setPublic(true);
-
         (new BreadcrumbKitExtension())->load([
             [
                 'dashboard' => ['layout_template' => '   '],
@@ -162,6 +161,9 @@ final class CoverageCompletionTest extends TestCase
         $cachePool = $container->getDefinition(BreadcrumbLoader::class)->getArgument('$cachePool');
         self::assertInstanceOf(Reference::class, $cachePool);
         self::assertSame('cache.app', (string) $cachePool);
+        self::assertSame(\Symfony\Component\DependencyInjection\ContainerInterface::NULL_ON_INVALID_REFERENCE, $cachePool->getInvalidBehavior());
+        self::assertSame(90, $container->getDefinition(BreadcrumbLoader::class)->getArgument('$cacheTtl'));
+        self::assertEquals($cachePool, $container->getDefinition(BreadcrumbCacheInvalidator::class)->getArgument('$cachePool'));
     }
 
     public function testLoaderSkipsInvalidCachePayload(): void

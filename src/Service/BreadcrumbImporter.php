@@ -124,25 +124,51 @@ final readonly class BreadcrumbImporter
         $ctxKey = $this->contextKeyFromData($colData);
         $existing = $this->collectionRepository->findOneByCodeAndContextKey($code, $ctxKey);
 
-        if ($existing instanceof BreadcrumbCollection) {
-            if (self::STRATEGY_SKIP_EXISTING === $strategy) {
-                ++$result['skipped'];
+        if ($existing instanceof BreadcrumbCollection && self::STRATEGY_SKIP_EXISTING === $strategy) {
+            ++$result['skipped'];
 
-                return;
-            }
+            return;
+        }
+
+        // One transaction per collection: a failure while re-creating the tree must not leave a "replace"
+        // import with its old items deleted and the new ones missing.
+        $this->entityManager->beginTransaction();
+        try {
+            $this->writeCollection($existing, $colData, $itemsData);
+            $this->entityManager->commit();
+        } catch (\Throwable $e) {
+            $this->entityManager->rollback();
+            // Same as EntityManager::wrapInTransaction(): the unit of work is no longer consistent.
+            $this->entityManager->close();
+
+            throw $e;
+        }
+
+        if ($existing instanceof BreadcrumbCollection) {
+            ++$result['updated'];
+        } else {
+            ++$result['created'];
+        }
+    }
+
+    /**
+     * @param array<string, mixed>       $colData
+     * @param list<array<string, mixed>> $itemsData
+     */
+    private function writeCollection(?BreadcrumbCollection $existing, array $colData, array $itemsData): void
+    {
+        if ($existing instanceof BreadcrumbCollection) {
             foreach ($this->itemRepository->findAllForCollection($existing) as $item) {
                 $this->entityManager->remove($item);
             }
             $this->entityManager->flush();
             $this->applyCollectionData($existing, $colData);
-            ++$result['updated'];
             $collection = $existing;
         } else {
             $collection = new BreadcrumbCollection();
             $this->applyCollectionData($collection, $colData);
             $this->entityManager->persist($collection);
             $this->entityManager->flush();
-            ++$result['created'];
         }
 
         $this->persistItemTree($itemsData, $collection, null);

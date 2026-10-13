@@ -81,7 +81,7 @@ Entities (`BreadcrumbCollection`, `BreadcrumbItem`), DTOs (`BreadcrumbNode`, `Br
 - **Where:** `src/Service/BreadcrumbLoader.php:302-325`; pool wired in `src/DependencyInjection/BreadcrumbKitExtension.php:282-287` (default `cache.app`, TTL 60 s from `src/DependencyInjection/Configuration.php`).
 - **Worker impact:** none specific to worker mode. The cache is keyed by collection id and holds route definitions that are the same for all users, so it cannot leak user data. After a dashboard edit or import, trails can stay stale for up to `cache.ttl` seconds, exactly as under PHP-FPM.
 - **Recommendation:** no change needed for worker mode. Lower `nowo_breadcrumb_kit.cache.ttl` if editors need instant feedback.
-- **Status:** Not a bug — confirmed as behaviour identical to PHP-FPM; no change.
+- **Status:** Resolved. The pool was in fact never injected (the extension checked `has()` on the isolated container used by `load()`); it is now wired through an optional reference, and `BreadcrumbCacheInvalidator` (Doctrine `onFlush`/`postFlush` listener, `ResetInterface`) deletes the cached item list of every collection touched by a flush (dashboard CRUD, import, custom code). Only writes that bypass Doctrine (raw SQL) still wait for `cache.ttl`.
 
 ### W-04 — Stale security token trusted when no firewall ran (Medium)
 

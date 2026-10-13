@@ -40,6 +40,14 @@ final readonly class BreadcrumbLoader
     ) {
     }
 
+    /**
+     * PSR-6 key of the cached item list for a collection (shared with {@see BreadcrumbCacheInvalidator}).
+     */
+    public static function cacheKey(int $collectionId): string
+    {
+        return md5(self::CACHE_PREFIX.$collectionId);
+    }
+
     public function loadTrailView(string $collectionCode, string $contextKey = ''): BreadcrumbTrailView
     {
         $request = $this->requestStack->getCurrentRequest();
@@ -298,9 +306,9 @@ final readonly class BreadcrumbLoader
             return [];
         }
 
-        $cacheKey = self::CACHE_PREFIX.$cid;
+        $cacheKey = self::cacheKey($cid);
         if ($this->cachePool instanceof CacheItemPoolInterface) {
-            $item = $this->cachePool->getItem(md5($cacheKey));
+            $item = $this->cachePool->getItem($cacheKey);
             if ($item->isHit()) {
                 $raw = $item->get();
                 if ($this->isItemRowList($raw)) {
@@ -318,7 +326,7 @@ final readonly class BreadcrumbLoader
         }
 
         if ($this->cachePool instanceof CacheItemPoolInterface) {
-            $cacheItem = $this->cachePool->getItem(md5($cacheKey));
+            $cacheItem = $this->cachePool->getItem($cacheKey);
             $cacheItem->set($rows);
             $cacheItem->expiresAfter($this->cacheTtl);
             $this->cachePool->save($cacheItem);

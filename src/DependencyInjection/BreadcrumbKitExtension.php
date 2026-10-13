@@ -9,11 +9,13 @@ use Nowo\BreadcrumbKitBundle\Enum\CssFramework;
 use Nowo\BreadcrumbKitBundle\Enum\IconSet;
 use Nowo\BreadcrumbKitBundle\Security\BreadcrumbKitAccessCheckerInterface;
 use Nowo\BreadcrumbKitBundle\Security\ConfigurableBreadcrumbKitAccessChecker;
+use Nowo\BreadcrumbKitBundle\Service\BreadcrumbCacheInvalidator;
 use Nowo\BreadcrumbKitBundle\Service\BreadcrumbLoader;
 use Nowo\BreadcrumbKitBundle\Twig\BreadcrumbExtension;
 use Symfony\Bundle\WebProfilerBundle\WebProfilerBundle;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\DependencyInjection\Definition;
 use Symfony\Component\DependencyInjection\Extension\Extension;
 use Symfony\Component\DependencyInjection\Extension\PrependExtensionInterface;
@@ -287,11 +289,16 @@ final class BreadcrumbKitExtension extends Extension implements PrependExtension
             $loader->load('services_profiler.yaml');
         }
 
+        // load() runs on an isolated container (MergeExtensionConfigurationPass): has() cannot see pools such as
+        // cache.app registered by FrameworkBundle, so wire an optional reference resolved at compile time.
         $poolId = trim((string) ($config['cache']['pool'] ?? ''));
-        if ('' !== $poolId && $container->has($poolId)) {
+        if ('' !== $poolId) {
+            $poolReference = new Reference($poolId, ContainerInterface::NULL_ON_INVALID_REFERENCE);
             $container->getDefinition(BreadcrumbLoader::class)
-                ->setArgument('$cachePool', new Reference($poolId))
+                ->setArgument('$cachePool', $poolReference)
                 ->setArgument('$cacheTtl', (int) $config['cache']['ttl']);
+            $container->getDefinition(BreadcrumbCacheInvalidator::class)
+                ->setArgument('$cachePool', $poolReference);
         }
 
         $container->getDefinition(BreadcrumbLoader::class)
