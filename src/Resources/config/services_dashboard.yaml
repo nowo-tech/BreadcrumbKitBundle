@@ -13,6 +13,12 @@ services:
       $layoutTemplate: '%nowo_breadcrumb_kit.dashboard.layout_template%'
       $cssFramework: '%nowo_breadcrumb_kit.dashboard.css_framework%'
       $iconSet: '%nowo_breadcrumb_kit.dashboard.icon_set%'
+      $classes: '%nowo_breadcrumb_kit.dashboard.classes%'
+      $partials: '%nowo_breadcrumb_kit.dashboard.partials%'
+      $uiKitStylesheet: '%nowo_breadcrumb_kit.dashboard.ui_kit_stylesheet%'
+      $collectionsView: '%nowo_breadcrumb_kit.dashboard.collections_view%'
+      $rowActionsPosition: '%nowo_breadcrumb_kit.dashboard.row_actions_position%'
+      $cancelFirst: '%nowo_breadcrumb_kit.dashboard.cancel_first%'
     tags: ['twig.extension']
 
   Nowo\BreadcrumbKitBundle\Controller\Dashboard\CollectionCrudController:

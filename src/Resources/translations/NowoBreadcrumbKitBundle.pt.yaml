@@ -32,6 +32,7 @@ dashboard:
   table_code: Código
   table_context: Contexto
   table_name: Nome
+  table_items: Itens
   table_actions: Ações
   link_items: Itens
   link_export_json: JSON

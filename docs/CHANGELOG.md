@@ -10,6 +10,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - [[Unreleased]](#unreleased)
 
+- [[2.4.0] - 2026-10-13](#240---2026-10-13)
+  - [Added](#added)
+  - [Changed](#changed)
 - [[2.3.2] - 2026-10-09](#232---2026-10-09)
 - [[2.3.1] - 2026-10-09](#231---2026-10-09)
   - [Dependencies](#dependencies)
@@ -106,6 +109,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.4.0] - 2026-10-13
+
+Admin chrome hooks (spec [`003-admin-chrome-hooks`](../specs/003-admin-chrome-hooks/spec.md)): hosts can theme the dashboard without copying pages. Default output is unchanged (snapshot-tested).
+
+### Added
+
+- `dashboard.classes`: class map (allow-listed keys: buttons, row actions, toolbar, search, list/table cells, empty state, badges, page/modal forms, modal actions…). Unset keys keep the UiKit macro / legacy classes. Twig global `nowo_breadcrumb_kit_classes`.
+- `dashboard.partials`: `modals`, `modal_shell` (one shell embedded by every modal; ids and `*-body` targets preserved), `pagination` (receives `pagination`, `item_count`, `route`, `route_params`, `query`, `nav_label`, `nav_trans_domain`), `action_inner` (e.g. `@NowoUiKitBundle/partials/_action_inner.html.twig` for `row_actions_display`). Twig global `nowo_breadcrumb_kit_partials`.
+- `dashboard.ui_kit_stylesheet` (default `true`), `dashboard.collections_view` (`list`|`table`), `dashboard.row_actions_position` (`start`|`end`), `dashboard.cancel_first` (modal forms).
+- Twig blocks on every dashboard page and partial: slot blocks `bk_page_title`, `bk_page_intro`, `bk_page_actions`, `bk_back_link` (host layouts pull them with `block()`), page blocks (`bk_page_header`, `bk_search`, `bk_toolbar`, `bk_results`, `bk_empty_state`, `bk_collections_list`, `bk_collection_row`, `bk_collection_table_row`, `bk_collection_row_actions`, `bk_items_table`, `bk_item_row`, `bk_item_link_cell`, `bk_item_row_actions`, `bk_pagination`, `bk_breadcrumb`, `bk_page_heading`, `bk_form`, `bk_form_fields`, `bk_form_actions`…) and modal blocks (`bk_modal_*`).
+- Layout contract variables: `bk_page_actions_in_layout`, `bk_page_title_in_layout`, `bk_title_suffix`.
+- `@!NowoBreadcrumbKitBundle/...` Twig namespace (always the bundle copy) so an app override can extend the original page and redefine blocks only.
+- New default partials `dashboard/_pagination.html.twig` and `dashboard/_modal_shell.html.twig` (markup extracted from the pages, unchanged).
+- Translation key `dashboard.table_items` (all 7 locales); catalogue parity + template key tests; render tests for the default output and every hook.
+
+### Changed
+
+- `dashboard.js` script tag carries `nonce` from the request attribute `csp_nonce` when set.
+- Full-page collection/item forms use `ui.btn()` / `ui.row_actions()` when `css_framework` is not Bootstrap (Bootstrap output unchanged).
+
 ## [2.3.2] - 2026-10-09
 
 ### Changed
@@ -119,6 +142,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Composer refresh: `doctrine/orm` 3.7.4, `doctrine/dbal` 4.5.0, `nowo-tech/form-kit-bundle` 2.6.0, `nowo-tech/ui-kit-bundle` 1.9.1, Symfony 7.4.20 components (lockfile); dev tooling `phpstan/phpstan` 2.3.1, `phpstan/phpstan-phpunit` 2.1.1, `phpstan/phpstan-symfony` 2.1.0, `rector/rector` 2.7.0, `igor-php/igor-php` 0.10.1.
 - Demo: Symfony 8.1.8, `twig/twig` 3.30.0; regenerated `config/reference.php`.
 
+[2.4.0]: https://github.com/nowo-tech/BreadcrumbKitBundle/releases/tag/v2.4.0
 [2.3.2]: https://github.com/nowo-tech/BreadcrumbKitBundle/releases/tag/v2.3.2
 [2.3.1]: https://github.com/nowo-tech/BreadcrumbKitBundle/releases/tag/v2.3.1
 

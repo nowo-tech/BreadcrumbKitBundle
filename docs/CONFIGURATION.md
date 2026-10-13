@@ -38,6 +38,12 @@ Configuration root key: `nowo_breadcrumb_kit` (see `Nowo\BreadcrumbKitBundle\Dep
 | `dashboard.modals.item_form` | `string` | `lg` | Modal size for item create/edit. |
 | `dashboard.modals.import` | `string` | `normal` | Modal size for JSON import. |
 | `dashboard.modals.delete` | `string` | `normal` | Modal size for delete confirmation. |
+| `dashboard.classes` | `array<string,string>` | `{}` | Admin chrome class map (allow-listed keys, see [USAGE](USAGE.md#customising-the-admin-chrome)). Each key replaces the classes the templates compute; unset keys keep the default. Unknown keys fail at container build. Twig global `nowo_breadcrumb_kit_classes`. |
+| `dashboard.partials` | `array<string,string>` | `{}` | Partial paths: `modals`, `modal_shell`, `pagination`, `action_inner`. Twig global `nowo_breadcrumb_kit_partials`. |
+| `dashboard.ui_kit_stylesheet` | `bool` | `true` | `false` when the host layout already loads `nowo-ui.css` before its theme (avoids re-asserting UiKit tokens last). |
+| `dashboard.collections_view` | `string` | `list` | Collections index markup: `list` or `table` (code, name, items, context, actions). |
+| `dashboard.row_actions_position` | `string` | `start` | Actions column position in dashboard tables: `start` or `end`. |
+| `dashboard.cancel_first` | `bool` | `false` | Render Cancel before the submit button in modal forms. |
 | `security.access_roles` | `string[]` | `['ROLE_ADMIN']` | User must be granted **at least one** role for dashboard routes (REQ-UI-002). Empty list disables bundle-level role checks. |
 | `security.access_checker` | `string\|null` | `null` | Optional service id implementing `BreadcrumbKitAccessCheckerInterface`. `null` = built-in role checker. |
 | `security.allow_unauthenticated` | `bool` | `false` | **DEV/DEMO only.** Skip SecurityBundle requirement and dashboard access subscriber. Never `true` in production. |

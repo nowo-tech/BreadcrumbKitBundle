@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Nowo\BreadcrumbKitBundle\DependencyInjection;
 
+use Nowo\BreadcrumbKitBundle\Dashboard\DashboardChrome;
 use Nowo\BreadcrumbKitBundle\Enum\CssFramework;
 use Nowo\BreadcrumbKitBundle\Enum\IconSet;
 use Nowo\BreadcrumbKitBundle\Enum\ModalSize;
@@ -158,6 +159,48 @@ final class Configuration implements ConfigurationInterface
                                     ->end()
                                 ->end()
                             ->end()
+                        ->end()
+                        ->arrayNode('classes')
+                            ->info('Admin chrome class map (spec 003): key => class list replacing the default UiKit/legacy classes. Keys: '.implode(', ', DashboardChrome::CLASS_KEYS).'. Unset keys keep the default markup.')
+                            ->normalizeKeys(false)
+                            ->useAttributeAsKey('name')
+                            ->scalarPrototype()->end()
+                            ->validate()
+                                ->ifTrue(static fn (array $v): bool => [] !== DashboardChrome::unknownKeys($v, DashboardChrome::CLASS_KEYS))
+                                ->then(static function (array $v): array {
+                                    throw new \InvalidArgumentException(\sprintf('Unknown nowo_breadcrumb_kit.dashboard.classes key(s): %s. Allowed: %s.', implode(', ', DashboardChrome::unknownKeys($v, DashboardChrome::CLASS_KEYS)), implode(', ', DashboardChrome::CLASS_KEYS)));
+                                })
+                            ->end()
+                        ->end()
+                        ->arrayNode('partials')
+                            ->info('Admin chrome partial paths (spec 003): modals, modal_shell, pagination, action_inner (e.g. @NowoUiKitBundle/partials/_action_inner.html.twig).')
+                            ->normalizeKeys(false)
+                            ->useAttributeAsKey('name')
+                            ->scalarPrototype()->end()
+                            ->validate()
+                                ->ifTrue(static fn (array $v): bool => [] !== DashboardChrome::unknownKeys($v, DashboardChrome::PARTIAL_KEYS))
+                                ->then(static function (array $v): array {
+                                    throw new \InvalidArgumentException(\sprintf('Unknown nowo_breadcrumb_kit.dashboard.partials key(s): %s. Allowed: %s.', implode(', ', DashboardChrome::unknownKeys($v, DashboardChrome::PARTIAL_KEYS)), implode(', ', DashboardChrome::PARTIAL_KEYS)));
+                                })
+                            ->end()
+                        ->end()
+                        ->booleanNode('ui_kit_stylesheet')
+                            ->defaultTrue()
+                            ->info('Append nowo-ui.css from dashboard/base.html.twig. Set false when the host layout already loads it before its own theme.')
+                        ->end()
+                        ->enumNode('collections_view')
+                            ->values(['list', 'table'])
+                            ->defaultValue('list')
+                            ->info('Collections index markup: list (default) or table (code, name, items, context, actions columns).')
+                        ->end()
+                        ->enumNode('row_actions_position')
+                            ->values(['start', 'end'])
+                            ->defaultValue('start')
+                            ->info('Actions column position in dashboard tables.')
+                        ->end()
+                        ->booleanNode('cancel_first')
+                            ->defaultFalse()
+                            ->info('Render Cancel before the submit button in modal forms.')
                         ->end()
                     ->end()
                 ->end()

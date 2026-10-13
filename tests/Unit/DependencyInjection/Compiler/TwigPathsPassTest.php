@@ -52,6 +52,23 @@ final class TwigPathsPassTest extends TestCase
         self::assertTrue($found, 'Expected addPath call for NowoBreadcrumbKitBundle namespace.');
     }
 
+    public function testProcessRegistersTheBangNamespaceForTheBundleCopy(): void
+    {
+        $container = new ContainerBuilder();
+        $container->setParameter('kernel.project_dir', '/nonexistent/project/nowo_breadcrumb_kit_no_overrides');
+        $loaderDef = new Definition();
+        $container->setDefinition('twig.loader.native_filesystem', $loaderDef);
+
+        (new TwigPathsPass())->process($container);
+
+        $bang = array_values(array_filter(
+            $loaderDef->getMethodCalls(),
+            static fn (array $c): bool => 'addPath' === $c[0] && '!NowoBreadcrumbKitBundle' === ($c[1][1] ?? null),
+        ));
+        self::assertCount(1, $bang);
+        self::assertStringEndsWith('/Resources/views', (string) $bang[0][1][0]);
+    }
+
     public function testProcessPrependsOverrideDirectoryWhenItExists(): void
     {
         $this->tempProjectDir = sys_get_temp_dir().'/nowo_bk_twig_'.bin2hex(random_bytes(4));

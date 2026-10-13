@@ -4,12 +4,14 @@ declare(strict_types=1);
 
 namespace Nowo\BreadcrumbKitBundle\DependencyInjection;
 
+use Nowo\BreadcrumbKitBundle\Dashboard\DashboardChrome;
 use Nowo\BreadcrumbKitBundle\Enum\CssFramework;
 use Nowo\BreadcrumbKitBundle\Enum\IconSet;
 use Nowo\BreadcrumbKitBundle\Security\BreadcrumbKitAccessCheckerInterface;
 use Nowo\BreadcrumbKitBundle\Security\ConfigurableBreadcrumbKitAccessChecker;
 use Nowo\BreadcrumbKitBundle\Service\BreadcrumbLoader;
 use Nowo\BreadcrumbKitBundle\Twig\BreadcrumbExtension;
+use Symfony\Bundle\WebProfilerBundle\WebProfilerBundle;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Definition;
@@ -234,6 +236,12 @@ final class BreadcrumbKitExtension extends Extension implements PrependExtension
             'import' => 'normal',
             'delete' => 'normal',
         ]);
+        $container->setParameter(Configuration::ALIAS.'.dashboard.classes', DashboardChrome::clean(\is_array($dashboard['classes'] ?? null) ? $dashboard['classes'] : []));
+        $container->setParameter(Configuration::ALIAS.'.dashboard.partials', DashboardChrome::clean(\is_array($dashboard['partials'] ?? null) ? $dashboard['partials'] : []));
+        $container->setParameter(Configuration::ALIAS.'.dashboard.ui_kit_stylesheet', (bool) ($dashboard['ui_kit_stylesheet'] ?? true));
+        $container->setParameter(Configuration::ALIAS.'.dashboard.collections_view', (string) ($dashboard['collections_view'] ?? 'list'));
+        $container->setParameter(Configuration::ALIAS.'.dashboard.row_actions_position', (string) ($dashboard['row_actions_position'] ?? 'start'));
+        $container->setParameter(Configuration::ALIAS.'.dashboard.cancel_first', (bool) ($dashboard['cancel_first'] ?? false));
 
         $security = \is_array($config['security'] ?? null) ? $config['security'] : [];
         /** @var list<string> $accessRoles */
@@ -275,7 +283,7 @@ final class BreadcrumbKitExtension extends Extension implements PrependExtension
             $this->registerAccessChecker($container, $accessRoles, $customAccessChecker ? (string) $accessCheckerId : null);
         }
 
-        if (class_exists('Symfony\\Bundle\\WebProfilerBundle\\WebProfilerBundle')) {
+        if (class_exists(WebProfilerBundle::class)) {
             $loader->load('services_profiler.yaml');
         }
 

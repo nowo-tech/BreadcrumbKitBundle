@@ -70,7 +70,6 @@ final class DashboardControllerTraitTest extends TestCase
         );
 
         $method = new \ReflectionMethod($controller, 'createDeletePostForm');
-        $method->setAccessible(true);
         $form = $method->invoke($controller, '/delete/42', 'delete_collection_42');
         $view = $form->createView();
 

@@ -1,6 +1,21 @@
 # Upgrading
 
 
+## To 2.4.0
+
+From **2.3.x** — admin chrome hooks. No breaking changes; with no new options the dashboard renders as before.
+
+```bash
+composer update nowo-tech/breadcrumb-kit-bundle
+php bin/console cache:clear
+```
+
+- If you copied dashboard pages under `templates/bundles/NowoBreadcrumbKitBundle/` only to change classes, modal markup, pagination or button order, replace them with `dashboard.classes`, `dashboard.partials`, `dashboard.collections_view`, `dashboard.row_actions_position`, `dashboard.cancel_first`, `dashboard.ui_kit_stylesheet` and a layout that pulls `block('bk_page_actions')` (see [USAGE — Customising the admin chrome](USAGE.md#customising-the-admin-chrome)).
+- A remaining override can now extend the original: `{% extends '@!NowoBreadcrumbKitBundle/dashboard/collection/index.html.twig' %}` and redefine blocks only.
+- Copies of `_dashboard_modals.html.twig` keep working; the stock file now renders `dashboard/_modal_shell.html.twig` (same markup).
+- The deprecated `window.__breadcrumbKitDashboard` / `window.breadcrumbKitI18n` fallback in `dashboard.js` is still honoured in 2.4.0 (minor release); it will be removed in the next major.
+
+
 ## To 2.3.2
 
 No action required. Inline `<style>` blocks now emit `nonce` from the request attribute `csp_nonce` (see [Security — CSP](SECURITY.md#content-security-policy-csp)). If you overrode `breadcrumb.html.twig` or the `dashboard_head` block, add the nonce to your own inline `<style>` (`{% set _csp_nonce = app.request ? app.request.attributes.get('csp_nonce')|default('') : '' %}` then `<style{% if _csp_nonce %} nonce="{{ _csp_nonce }}"{% endif %}>`) (or drop the override if it only added the nonce).

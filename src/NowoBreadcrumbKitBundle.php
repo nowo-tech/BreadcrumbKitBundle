@@ -28,10 +28,8 @@ final class NowoBreadcrumbKitBundle extends Bundle
 
     public function getContainerExtension(): ExtensionInterface
     {
-        if (null === $this->extension) {
-            // @igor-ignore - Boot-time Symfony Bundle extension cache (not request state).
-            $this->extension = new BreadcrumbKitExtension();
-        }
+        // @igor-ignore - Boot-time Symfony Bundle extension cache (not request state).
+        $this->extension ??= new BreadcrumbKitExtension();
 
         /** @var ExtensionInterface $extension */
         $extension = $this->extension;

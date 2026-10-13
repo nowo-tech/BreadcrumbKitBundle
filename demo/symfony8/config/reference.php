@@ -1021,6 +1021,12 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *             import?: scalar|Param|null, // Default: "normal"
  *             delete?: scalar|Param|null, // Default: "normal"
  *         },
+ *         classes?: array<string, scalar|Param|null>,
+ *         partials?: array<string, scalar|Param|null>,
+ *         ui_kit_stylesheet?: bool|Param, // Append nowo-ui.css from dashboard/base.html.twig. Set false when the host layout already loads it before its own theme. // Default: true
+ *         collections_view?: "list"|"table"|Param, // Collections index markup: list (default) or table (code, name, items, context, actions columns). // Default: "list"
+ *         row_actions_position?: "start"|"end"|Param, // Actions column position in dashboard tables. // Default: "start"
+ *         cancel_first?: bool|Param, // Render Cancel before the submit button in modal forms. // Default: false
  *     },
  *     security?: array{ // Private dashboard access (REQ-UI-002). Defaults to ROLE_ADMIN; demos may set allow_unauthenticated.
  *         access_checker?: scalar|Param|null, // Service id implementing BreadcrumbKitAccessCheckerInterface. null = built-in role checker. // Default: null

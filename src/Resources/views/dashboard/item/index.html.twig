@@ -2,97 +2,155 @@
 {% trans_default_domain 'NowoBreadcrumbKitBundle' %}
 {% import '@NowoBreadcrumbKitBundle/dashboard/_icons.html.twig' as bk_icon %}
 {% import '@NowoUiKitBundle/macros/ui.html.twig' as ui %}
+{#
+  Admin chrome hooks (docs/USAGE.md § Customising the admin chrome):
+  - slot blocks (definition only; host layouts pull them with block()): bk_page_title, bk_page_intro,
+    bk_back_link, bk_page_actions
+  - page blocks: bk_page_header, bk_toolbar, bk_page_heading, bk_search, bk_search_summary, bk_results,
+    bk_empty_state, bk_items_table, bk_items_table_head, bk_item_row, bk_item_link_cell, bk_item_row_actions,
+    bk_pagination
+  - layout contract: bk_page_actions_in_layout (bool), bk_title_suffix (string)
+#}
+{% set _bk_c = nowo_breadcrumb_kit_classes|default({}) %}
+{% set _bk_p = nowo_breadcrumb_kit_partials|default({}) %}
+{% set _bk_actions_end = nowo_breadcrumb_kit_row_actions_position|default('start') == 'end' %}
+{% set _bk_display = nowo_ui_kit_row_actions_display|default('icon') %}
 
-{% block title %}{{ 'dashboard.items_title_with_code'|trans({'%code%': collection.code}) }}{% endblock %}
+{% block title %}{{ block('bk_page_title') }}{{ bk_title_suffix|default('') }}{% endblock %}
+
+{% block bk_page_title %}{{ 'dashboard.items_title_with_code'|trans({'%code%': collection.code}) }}{% endblock %}
+{% block bk_page_intro %}{% if collection.name %}<code>{{ collection.code }}</code> — {{ collection.name }}{% endif %}{% endblock %}
+
+{% block bk_back_link %}
+    <a href="{{ path(dashboard_routes.collections_index|default('nowo_breadcrumb_kit_dashboard_collections_index')) }}" class="{{ _bk_c.btn_link ?? ui.btn('link') }}">{{ 'dashboard.back_collections'|trans }}</a>
+{% endblock %}
+
+{% block bk_page_actions %}
+    {% set _l_styles = 'dashboard.collection_styles'|trans %}
+    <a href="{{ path(dashboard_routes.export|default('nowo_breadcrumb_kit_dashboard_collections_export'), { id: collection.id }) }}" class="{{ _bk_c.btn_secondary ?? ui.btn('secondary') }}" target="_blank" rel="noopener noreferrer">{{ 'dashboard.export_collection'|trans }}</a>
+    <button type="button" class="{{ _bk_c.action_edit ?? ui.action('edit') }} btn-bk-collection-form" {{ ui.modal_toggle_attrs()|raw }} {{ ui.modal_target_attr('modal-bk-collection-form')|raw }} data-bk-url="{{ path(dashboard_routes.collections_edit|default('nowo_breadcrumb_kit_dashboard_collections_edit'), { id: collection.id }) }}?_partial=1" data-bk-title="{{ 'dashboard.collection_styles_modal_title'|trans({'%code%': collection.code})|e('html_attr') }}" title="{{ _l_styles }}" aria-label="{{ _l_styles }}">{% if _bk_p.action_inner is defined %}{% include _bk_p.action_inner with { display: _bk_display, icon_name: 'config', label: _l_styles } only %}{% else %}{{ bk_icon.config() }}{% endif %}</button>
+    <button type="button" class="{{ _bk_c.btn_primary ?? ui.btn('primary') }} btn-bk-item-form" {{ ui.modal_toggle_attrs()|raw }} {{ ui.modal_target_attr('modal-bk-item-form')|raw }} data-bk-url="{{ path('nowo_breadcrumb_kit_dashboard_items_new', { collectionId: collection.id }) }}?_partial=1" data-bk-title="{{ 'dashboard.new_item_modal_title'|trans|e('html_attr') }}">{{ 'dashboard.new_item'|trans }}</button>
+{% endblock %}
 
 {% block body %}
-    <div class="{{ ui.toolbar() }}" style="justify-content:space-between;">
-        <div class="{{ ui.row_actions() }}" style="align-items:center;">
-            <a href="{{ path(dashboard_routes.collections_index|default('nowo_breadcrumb_kit_dashboard_collections_index')) }}" class="{{ ui.btn('link') }}">{{ 'dashboard.back_collections'|trans }}</a>
-            <h1 class="h3 d-inline nowo-ui-page-title" style="margin:0;font-size:1.25rem;"><code>{{ collection.code }}</code>{% if collection.name %} <span class="{{ ui.muted() }}">({{ collection.name }})</span>{% endif %}</h1>
-        </div>
-        <div class="{{ ui.row_actions() }}">
-            <a href="{{ path(dashboard_routes.export|default('nowo_breadcrumb_kit_dashboard_collections_export'), { id: collection.id }) }}" class="{{ ui.btn('secondary') }}" target="_blank" rel="noopener noreferrer">{{ 'dashboard.export_collection'|trans }}</a>
-            <button type="button" class="{{ ui.action('edit') }} btn-bk-collection-form" {{ ui.modal_toggle_attrs()|raw }} {{ ui.modal_target_attr('modal-bk-collection-form')|raw }} data-bk-url="{{ path(dashboard_routes.collections_edit|default('nowo_breadcrumb_kit_dashboard_collections_edit'), { id: collection.id }) }}?_partial=1" data-bk-title="{{ 'dashboard.collection_styles_modal_title'|trans({'%code%': collection.code})|e('html_attr') }}" title="{{ 'dashboard.collection_styles'|trans }}" aria-label="{{ 'dashboard.collection_styles'|trans }}">{{ bk_icon.config() }}</button>
-            <button type="button" class="{{ ui.btn('primary') }} btn-bk-item-form" {{ ui.modal_toggle_attrs()|raw }} {{ ui.modal_target_attr('modal-bk-item-form')|raw }} data-bk-url="{{ path('nowo_breadcrumb_kit_dashboard_items_new', { collectionId: collection.id }) }}?_partial=1" data-bk-title="{{ 'dashboard.new_item_modal_title'|trans|e('html_attr') }}">{{ 'dashboard.new_item'|trans }}</button>
-        </div>
-    </div>
+    {% block bk_page_header %}{% endblock %}
 
-    {{ form_start(search_form, { attr: { class: ui.search_form(), role: 'search' } }) }}
-        {{ form_widget(search_form.q, { attr: { class: ui.search_input(), placeholder: 'dashboard.search_placeholder'|trans, 'aria-label': 'dashboard.search'|trans, autocomplete: 'off' } }) }}
-        <button type="submit" class="{{ ui.btn('secondary') }}">{{ 'dashboard.filter'|trans }}</button>
-        <a href="{{ path('nowo_breadcrumb_kit_dashboard_items_index', { collectionId: collection.id }) }}" class="{{ ui.btn('secondary') }}">{{ 'dashboard.clear_filters'|trans }}</a>
-    {{ form_end(search_form, { render_rest: false }) }}
-
-    {% if search_query != '' %}
-        <p class="small {{ ui.muted() }} mb-2">{{ 'dashboard.search_results'|trans({'%count%': pagination.total|default(items|length), '%query%': search_query|e}) }}</p>
-    {% endif %}
-
-    {% if items is empty %}
-        <p class="{{ ui.empty() }}">
-            {% if search_query != '' %}
-                {{ 'dashboard.empty_items_search'|trans }} <a href="{{ path('nowo_breadcrumb_kit_dashboard_items_index', { collectionId: collection.id }) }}">{{ 'dashboard.view_all_link'|trans }}</a>.
-            {% else %}
-                {{ 'dashboard.empty_items_none'|trans }}
-                <button type="button" class="{{ ui.btn('link') }} btn-bk-item-form" {{ ui.modal_toggle_attrs()|raw }} {{ ui.modal_target_attr('modal-bk-item-form')|raw }} data-bk-url="{{ path('nowo_breadcrumb_kit_dashboard_items_new', { collectionId: collection.id }) }}?_partial=1" data-bk-title="{{ 'dashboard.new_item_modal_title'|trans|e('html_attr') }}">{{ 'dashboard.add_item_button'|trans }}</button>.
-            {% endif %}
-        </p>
-    {% else %}
-        <div class="{{ ui.table_wrap() }}">
-            <table class="{{ ui.table() }}">
-                <thead>
-                    <tr>
-                        <th style="width:1%;white-space:nowrap;">{{ 'dashboard.table_actions'|trans }}</th>
-                        <th>{{ 'dashboard.table_route'|trans }}</th>
-                        <th>{{ 'dashboard.table_label'|trans }}</th>
-                        <th>{{ 'dashboard.table_parent'|trans }}</th>
-                        <th>{{ 'dashboard.table_link'|trans }}</th>
-                    </tr>
-                </thead>
-                <tbody>
-                {% for it in items %}
-                    <tr>
-                        <td>
-                            <div class="{{ ui.row_actions() }}">
-                                <a href="{{ path('nowo_breadcrumb_kit_dashboard_items_index', { collectionId: collection.id, q: it.routeName }) }}" class="{{ ui.action('view') }}" title="{{ 'dashboard.filter_by_route'|trans }}" aria-label="{{ 'dashboard.filter_by_route'|trans }}">{{ bk_icon.filter() }}</a>
-                                <button type="button" class="{{ ui.action('edit') }} btn-bk-item-form" {{ ui.modal_toggle_attrs()|raw }} {{ ui.modal_target_attr('modal-bk-item-form')|raw }} data-bk-url="{{ path('nowo_breadcrumb_kit_dashboard_items_edit', { collectionId: collection.id, id: it.id }) }}?_partial=1" data-bk-title="{{ 'dashboard.edit_item_modal_title'|trans({'%id%': it.id})|e('html_attr') }}" title="{{ 'dashboard.link_edit'|trans }}" aria-label="{{ 'dashboard.link_edit'|trans }}">{{ bk_icon.edit() }}</button>
-                                <button type="button" class="{{ ui.action('delete') }} btn-bk-delete" data-id="{{ it.id }}" data-route="{{ it.routeName|e('html_attr') }}" data-url="{{ path('nowo_breadcrumb_kit_dashboard_items_delete', { collectionId: collection.id, id: it.id }) }}" data-token="{{ csrf_token('delete_item_' ~ it.id) }}" {{ ui.modal_toggle_attrs()|raw }} {{ ui.modal_target_attr('modal-bk-delete')|raw }} title="{{ 'dashboard.delete'|trans }}" aria-label="{{ 'dashboard.delete'|trans }}">{{ bk_icon.trash() }}</button>
-                            </div>
-                        </td>
-                        <td><code>{{ it.routeName }}</code></td>
-                        <td>{{ it.label ?? '—' }}</td>
-                        <td>{% if it.parent %}<code>{{ it.parent.routeName }}</code> <small class="{{ ui.muted() }}">#{{ it.parent.id }}</small>{% else %}—{% endif %}</td>
-                        <td>{{ it.linkEnabled ? ('dashboard.link_yes'|trans) : ('dashboard.link_no'|trans) }}</td>
-                    </tr>
-                {% endfor %}
-                </tbody>
-            </table>
-        </div>
-        {% if pagination is not null and pagination.total_pages > 1 %}
-            <nav aria-label="{{ 'dashboard.pagination_items'|trans }}" class="mt-3 nowo-ui-pagination">
-                <ul class="pagination pagination-sm flex-wrap">
-                    {% set indexRoute = 'nowo_breadcrumb_kit_dashboard_items_index' %}
-                    {% set queryParams = { collectionId: collection.id }|merge(search_query != '' ? { q: search_query } : {}) %}
-                    <li class="page-item{% if pagination.current_page <= 1 %} disabled{% endif %}">
-                        <a class="page-link" href="{% if pagination.current_page > 1 %}{{ path(indexRoute, queryParams|merge({ page: pagination.current_page - 1 })) }}{% else %}#{% endif %}" aria-label="{{ 'dashboard.previous'|trans }}">«</a>
-                    </li>
-                    {% for p in 1..pagination.total_pages %}
-                        <li class="page-item{% if p == pagination.current_page %} active{% endif %}">
-                            <a class="page-link" href="{{ path(indexRoute, queryParams|merge({ page: p })) }}">{{ p }}</a>
-                        </li>
-                    {% endfor %}
-                    <li class="page-item{% if pagination.current_page >= pagination.total_pages %} disabled{% endif %}">
-                        <a class="page-link" href="{% if pagination.current_page < pagination.total_pages %}{{ path(indexRoute, queryParams|merge({ page: pagination.current_page + 1 })) }}{% else %}#{% endif %}" aria-label="{{ 'dashboard.next'|trans }}">»</a>
-                    </li>
-                </ul>
-                <p class="small {{ ui.muted() }} mt-1">
-                    {% set from = items|length > 0 ? (pagination.current_page - 1) * pagination.per_page + 1 : 0 %}
-                    {% set to = (pagination.current_page - 1) * pagination.per_page + items|length %}
-                    {{ 'dashboard.showing_from_to_of_total'|trans({ '%from%': from, '%to%': to, '%total%': pagination.total }) }}
-                </p>
-            </nav>
+    {% block bk_toolbar %}
+        {% if not bk_page_actions_in_layout|default(false) %}
+            <div class="{{ _bk_c.toolbar ?? ui.toolbar() }}"{% if _bk_c.toolbar is not defined %} style="justify-content:space-between;"{% endif %}>
+                <div class="{{ _bk_c.row_actions ?? ui.row_actions() }}" style="align-items:center;">
+                    {% block bk_page_heading %}
+                        {{ block('bk_back_link') }}
+                        <h1 class="{{ _bk_c.page_title ?? 'h3 d-inline nowo-ui-page-title' }}"{% if _bk_c.page_title is not defined %} style="margin:0;font-size:1.25rem;"{% endif %}><code>{{ collection.code }}</code>{% if collection.name %} <span class="{{ _bk_c.muted ?? ui.muted() }}">({{ collection.name }})</span>{% endif %}</h1>
+                    {% endblock %}
+                </div>
+                <div class="{{ _bk_c.row_actions ?? ui.row_actions() }}">
+                    {{ block('bk_page_actions') }}
+                </div>
+            </div>
+        {% elseif collection.name %}
+            <p class="{{ _bk_c.page_intro ?? ('small ' ~ ui.muted()) }}">{{ block('bk_page_intro') }}</p>
         {% endif %}
-    {% endif %}
+    {% endblock %}
+
+    {% block bk_search %}
+        {{ form_start(search_form, { attr: { class: _bk_c.search_form ?? ui.search_form(), role: 'search' } }) }}
+            {{ form_widget(search_form.q, { attr: { class: _bk_c.search_input ?? ui.search_input(), placeholder: 'dashboard.search_placeholder'|trans, 'aria-label': 'dashboard.search'|trans, autocomplete: 'off' } }) }}
+            <button type="submit" class="{{ _bk_c.btn_secondary ?? ui.btn('secondary') }}">{{ 'dashboard.filter'|trans }}</button>
+            <a href="{{ path('nowo_breadcrumb_kit_dashboard_items_index', { collectionId: collection.id }) }}" class="{{ _bk_c.btn_secondary ?? ui.btn('secondary') }}">{{ 'dashboard.clear_filters'|trans }}</a>
+        {{ form_end(search_form, { render_rest: false }) }}
+    {% endblock %}
+
+    {% block bk_search_summary %}
+        {% if search_query != '' %}
+            <p class="{{ _bk_c.search_summary ?? ('small ' ~ ui.muted() ~ ' mb-2') }}">{{ 'dashboard.search_results'|trans({'%count%': pagination.total|default(items|length), '%query%': search_query|e}) }}</p>
+        {% endif %}
+    {% endblock %}
+
+    {% block bk_results %}
+        {% if _bk_c.results is defined %}<section class="{{ _bk_c.results }}" data-testid="breadcrumb-kit-items-table">{% endif %}
+        {% if items is empty %}
+            {% block bk_empty_state %}
+                <p class="{{ _bk_c.empty ?? ui.empty() }}">
+                    {% if search_query != '' %}
+                        {{ 'dashboard.empty_items_search'|trans }} <a href="{{ path('nowo_breadcrumb_kit_dashboard_items_index', { collectionId: collection.id }) }}">{{ 'dashboard.view_all_link'|trans }}</a>.
+                    {% else %}
+                        {{ 'dashboard.empty_items_none'|trans }}
+                        <button type="button" class="{{ _bk_c.btn_link ?? ui.btn('link') }} btn-bk-item-form" {{ ui.modal_toggle_attrs()|raw }} {{ ui.modal_target_attr('modal-bk-item-form')|raw }} data-bk-url="{{ path('nowo_breadcrumb_kit_dashboard_items_new', { collectionId: collection.id }) }}?_partial=1" data-bk-title="{{ 'dashboard.new_item_modal_title'|trans|e('html_attr') }}">{{ 'dashboard.add_item_button'|trans }}</button>.
+                    {% endif %}
+                </p>
+            {% endblock %}
+        {% else %}
+            {% block bk_items_table %}
+                <div class="{{ _bk_c.table_wrap ?? ui.table_wrap() }}">
+                    <table class="{{ _bk_c.table ?? ui.table() }}">
+                        <thead>
+                            {% block bk_items_table_head %}
+                                <tr{% if _bk_c.thead_row is defined %} class="{{ _bk_c.thead_row }}"{% endif %}>
+                                    {% if not _bk_actions_end %}<th{% if _bk_c.th_actions is defined %} class="{{ _bk_c.th_actions }}"{% else %} style="width:1%;white-space:nowrap;"{% endif %}>{{ 'dashboard.table_actions'|trans }}</th>{% endif %}
+                                    <th{% if _bk_c.th is defined %} class="{{ _bk_c.th }}"{% endif %}>{{ 'dashboard.table_route'|trans }}</th>
+                                    <th{% if _bk_c.th is defined %} class="{{ _bk_c.th }}"{% endif %}>{{ 'dashboard.table_label'|trans }}</th>
+                                    <th{% if _bk_c.th is defined %} class="{{ _bk_c.th }}"{% endif %}>{{ 'dashboard.table_parent'|trans }}</th>
+                                    <th{% if _bk_c.th is defined %} class="{{ _bk_c.th }}"{% endif %}>{{ 'dashboard.table_link'|trans }}</th>
+                                    {% if _bk_actions_end %}<th{% if _bk_c.th_actions is defined %} class="{{ _bk_c.th_actions }}"{% else %} style="width:1%;white-space:nowrap;"{% endif %}>{{ 'dashboard.table_actions'|trans }}</th>{% endif %}
+                                </tr>
+                            {% endblock %}
+                        </thead>
+                        <tbody>
+                        {% for it in items %}
+                            {% block bk_item_row %}
+                                <tr{% if _bk_c.row is defined %} class="{{ _bk_c.row }}"{% endif %}>
+                                    {% if not _bk_actions_end %}
+                                        <td{% if _bk_c.td_actions is defined %} class="{{ _bk_c.td_actions }}"{% endif %}>
+                                            <div class="{{ _bk_c.row_actions ?? ui.row_actions() }}">
+                                                {{ block('bk_item_row_actions') }}
+                                            </div>
+                                        </td>
+                                    {% endif %}
+                                    <td{% if _bk_c.td is defined %} class="{{ _bk_c.td }}"{% endif %}><code>{{ it.routeName }}</code></td>
+                                    <td{% if _bk_c.td is defined %} class="{{ _bk_c.td }}"{% endif %}>{{ it.label ?? '—' }}</td>
+                                    <td{% if _bk_c.td is defined %} class="{{ _bk_c.td }}"{% endif %}>{% if it.parent %}<code>{{ it.parent.routeName }}</code> <small class="{{ _bk_c.muted ?? ui.muted() }}">#{{ it.parent.id }}</small>{% else %}—{% endif %}</td>
+                                    <td{% if _bk_c.td is defined %} class="{{ _bk_c.td }}"{% endif %}>{% block bk_item_link_cell %}{% if it.linkEnabled %}{% if _bk_c.badge_yes is defined %}<span class="{{ _bk_c.badge_yes }}">{{ 'dashboard.link_yes'|trans }}</span>{% else %}{{ 'dashboard.link_yes'|trans }}{% endif %}{% else %}{% if _bk_c.badge_no is defined %}<span class="{{ _bk_c.badge_no }}">{{ 'dashboard.link_no'|trans }}</span>{% else %}{{ 'dashboard.link_no'|trans }}{% endif %}{% endif %}{% endblock %}</td>
+                                    {% if _bk_actions_end %}
+                                        <td{% if _bk_c.td_actions is defined %} class="{{ _bk_c.td_actions }}"{% endif %}>
+                                            <div class="{{ _bk_c.row_actions ?? ui.row_actions() }}">
+                                                {{ block('bk_item_row_actions') }}
+                                            </div>
+                                        </td>
+                                    {% endif %}
+                                </tr>
+                            {% endblock %}
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% endblock %}
+            {% block bk_pagination %}
+                {% if pagination is not null %}
+                    {% include _bk_p.pagination ?? '@NowoBreadcrumbKitBundle/dashboard/_pagination.html.twig' with {
+                        pagination: pagination,
+                        item_count: items|length,
+                        route: 'nowo_breadcrumb_kit_dashboard_items_index',
+                        route_params: { collectionId: collection.id },
+                        query: search_query != '' ? { q: search_query } : {},
+                        nav_label: 'dashboard.pagination_items',
+                        nav_trans_domain: 'NowoBreadcrumbKitBundle',
+                    } %}
+                {% endif %}
+            {% endblock %}
+        {% endif %}
+        {% if _bk_c.results is defined %}</section>{% endif %}
+    {% endblock %}
+{% endblock %}
+
+{# Row actions for item `it`. #}
+{% block bk_item_row_actions %}
+    {% set _l_filter = 'dashboard.filter_by_route'|trans %}
+    {% set _l_edit = 'dashboard.link_edit'|trans %}
+    {% set _l_delete = 'dashboard.delete'|trans %}
+    <a href="{{ path('nowo_breadcrumb_kit_dashboard_items_index', { collectionId: collection.id, q: it.routeName }) }}" class="{{ _bk_c.action_view ?? ui.action('view') }}" title="{{ _l_filter }}" aria-label="{{ _l_filter }}">{% if _bk_p.action_inner is defined %}{% include _bk_p.action_inner with { display: _bk_display, icon_name: 'filter', label: _l_filter } only %}{% else %}{{ bk_icon.filter() }}{% endif %}</a>
+    <button type="button" class="{{ _bk_c.action_edit ?? ui.action('edit') }} btn-bk-item-form" {{ ui.modal_toggle_attrs()|raw }} {{ ui.modal_target_attr('modal-bk-item-form')|raw }} data-bk-url="{{ path('nowo_breadcrumb_kit_dashboard_items_edit', { collectionId: collection.id, id: it.id }) }}?_partial=1" data-bk-title="{{ 'dashboard.edit_item_modal_title'|trans({'%id%': it.id})|e('html_attr') }}" title="{{ _l_edit }}" aria-label="{{ _l_edit }}">{% if _bk_p.action_inner is defined %}{% include _bk_p.action_inner with { display: _bk_display, icon_name: 'edit', label: _l_edit } only %}{% else %}{{ bk_icon.edit() }}{% endif %}</button>
+    <button type="button" class="{{ _bk_c.action_delete ?? ui.action('delete') }} btn-bk-delete" data-id="{{ it.id }}" data-route="{{ it.routeName|e('html_attr') }}" data-url="{{ path('nowo_breadcrumb_kit_dashboard_items_delete', { collectionId: collection.id, id: it.id }) }}" data-token="{{ csrf_token('delete_item_' ~ it.id) }}" {{ ui.modal_toggle_attrs()|raw }} {{ ui.modal_target_attr('modal-bk-delete')|raw }} title="{{ _l_delete }}" aria-label="{{ _l_delete }}">{% if _bk_p.action_inner is defined %}{% include _bk_p.action_inner with { display: _bk_display, icon_name: 'delete', label: _l_delete } only %}{% else %}{{ bk_icon.trash() }}{% endif %}</button>
 {% endblock %}
 
 {% block dashboard_scripts %}

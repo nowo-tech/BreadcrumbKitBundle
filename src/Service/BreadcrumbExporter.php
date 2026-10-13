@@ -83,9 +83,7 @@ final readonly class BreadcrumbExporter
         foreach ($flatItems as $item) {
             $pid = $item->getParent()?->getId();
             $key = null !== $pid ? (string) $pid : '__root';
-            if (!isset($byParent[$key])) {
-                $byParent[$key] = [];
-            }
+            $byParent[$key] ??= [];
             $byParent[$key][] = $item;
         }
 

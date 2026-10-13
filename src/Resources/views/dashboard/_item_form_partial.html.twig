@@ -1,16 +1,33 @@
 {% trans_default_domain 'NowoBreadcrumbKitBundle' %}
 {% import '@NowoUiKitBundle/macros/ui.html.twig' as ui %}
+{#
+  Item create/edit form loaded into #modal-bk-item-form-body (?_partial=1).
+  Blocks: bk_form_fields, bk_form_actions, bk_form_submit, bk_form_cancel.
+  Classes (dashboard.classes): modal_form, modal_form_body (wraps the fields), modal_actions, btn_primary,
+  btn_secondary. Option dashboard.cancel_first swaps the buttons.
+#}
+{% set _bk_c = nowo_breadcrumb_kit_classes|default({}) %}
 <div id="modal-bk-item-form-container">
-{{ form_start(form, { attr: { class: 'bk-dashboard-form' } }) }}
+{{ form_start(form, { attr: { class: 'bk-dashboard-form' ~ (_bk_c.modal_form is defined ? ' ' ~ _bk_c.modal_form : '') } }) }}
     <input type="hidden" name="_modal" value="1">
-    {% for child in form %}
-        {% if not child.rendered %}
-            {{ form_row(child) }}
-        {% endif %}
-    {% endfor %}
-    <div class="{{ ui.row_actions() }}" style="justify-content:flex-start;margin-top:1rem;">
-        <button type="submit" class="{{ ui.btn('primary') }}">{{ is_edit|default(false) ? ('dashboard.form_update'|trans) : ('dashboard.form_create'|trans) }}</button>
-        <button type="button" class="{{ ui.btn('secondary') }}" {{ ui.modal_dismiss_attrs()|raw }}>{{ 'dashboard.cancel'|trans }}</button>
+    {% if _bk_c.modal_form_body is defined %}<div class="{{ _bk_c.modal_form_body }}">{% endif %}
+    {% block bk_form_fields %}
+        {% for child in form %}
+            {% if not child.rendered %}
+                {{ form_row(child) }}
+            {% endif %}
+        {% endfor %}
+    {% endblock %}
+    {% if _bk_c.modal_form_body is defined %}</div>{% endif %}
+    <div class="{{ _bk_c.modal_actions ?? ui.row_actions() }}"{% if _bk_c.modal_actions is not defined %} style="justify-content:flex-start;margin-top:1rem;"{% endif %}>
+        {% block bk_form_actions %}
+            {% if nowo_breadcrumb_kit_cancel_first|default(false) %}{{ block('bk_form_cancel') }}{% endif %}
+            {% block bk_form_submit %}
+                <button type="submit" class="{{ _bk_c.btn_primary ?? ui.btn('primary') }}">{{ is_edit|default(false) ? ('dashboard.form_update'|trans) : ('dashboard.form_create'|trans) }}</button>
+            {% endblock %}
+            {% if not nowo_breadcrumb_kit_cancel_first|default(false) %}{{ block('bk_form_cancel') }}{% endif %}
+        {% endblock %}
     </div>
 {{ form_end(form) }}
 </div>
+{% if false %}{% block bk_form_cancel %}<button type="button" class="{{ _bk_c.btn_secondary ?? ui.btn('secondary') }}" {{ ui.modal_dismiss_attrs()|raw }}>{{ 'dashboard.cancel'|trans }}</button>{% endblock %}{% endif %}
