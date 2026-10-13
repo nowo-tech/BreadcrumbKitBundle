@@ -1,5 +1,16 @@
 # Upgrading
 
+## To 2.5.0
+
+From **2.4.1** — fixes - item-list cache wired and invalidated on writes, atomic replace import.
+
+```bash
+composer update nowo-tech/breadcrumb-kit-bundle
+```
+
+- The item-list cache (default `cache.app`, TTL 60s) is now actually enabled. Doctrine writes invalidate it automatically; changes made with raw SQL can stay stale for up to `cache.ttl` — set `cache.pool: ''` to disable it.
+- A failed replace import now rolls back (existing items survive) and closes the EntityManager.
+
 ## To 2.4.1
 
 From **2.4.0** — dependency refresh and repository maintenance.

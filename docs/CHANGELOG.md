@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - [[Unreleased]](#unreleased)
 
+- [[2.5.0] - 2026-10-13](#250---2026-10-13)
 - [[2.4.1] - 2026-10-13](#241---2026-10-13)
 - [[2.4.0] - 2026-10-13](#240---2026-10-13)
   - [Added](#added)
@@ -109,6 +110,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.5.0] - 2026-10-13
+
 ### Fixed
 
 - The PSR-6 item-list cache (`cache.pool`, default `cache.app`) is now actually used: the pool was never injected because the extension looked it up on the isolated container used during `load()`. A pool id that does not exist still disables the cache.
@@ -161,6 +164,7 @@ Admin chrome hooks (spec [`003-admin-chrome-hooks`](../specs/003-admin-chrome-ho
 - Composer refresh: `doctrine/orm` 3.7.4, `doctrine/dbal` 4.5.0, `nowo-tech/form-kit-bundle` 2.6.0, `nowo-tech/ui-kit-bundle` 1.9.1, Symfony 7.4.20 components (lockfile); dev tooling `phpstan/phpstan` 2.3.1, `phpstan/phpstan-phpunit` 2.1.1, `phpstan/phpstan-symfony` 2.1.0, `rector/rector` 2.7.0, `igor-php/igor-php` 0.10.1.
 - Demo: Symfony 8.1.8, `twig/twig` 3.30.0; regenerated `config/reference.php`.
 
+[2.5.0]: https://github.com/nowo-tech/BreadcrumbKitBundle/releases/tag/v2.5.0
 [2.4.1]: https://github.com/nowo-tech/BreadcrumbKitBundle/releases/tag/v2.4.1
 [2.4.0]: https://github.com/nowo-tech/BreadcrumbKitBundle/releases/tag/v2.4.0
 [2.3.2]: https://github.com/nowo-tech/BreadcrumbKitBundle/releases/tag/v2.3.2
