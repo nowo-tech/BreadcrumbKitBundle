@@ -63,7 +63,7 @@ PHPUnit excludes paths that are thin wiring or require a full HTTP/Doctrine stac
 Target: **~100%** on included code; CI enforces a **99%** floor via `coverage-check`.
 ## Git hooks (REQ-GIT-001)
 
-Do **not** add `Co-authored-by: Cursor` or `cursoragent@cursor.com` trailers to commit messages.
+Do **not** add `Co-authored-by: Cursor` or `cursoragent@cursor.com` trailers, nor `Co-Authored-By: Claude …` / `noreply@anthropic.com` ones, to commit messages.
 
 ```bash
 make setup-hooks
