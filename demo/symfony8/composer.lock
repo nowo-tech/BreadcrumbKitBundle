@@ -934,7 +934,7 @@
             "dist": {
                 "type": "path",
                 "url": "/var/breadcrumb-kit-bundle",
-                "reference": "aa46a1cb04c865d655e8c069be77355cf254eb38"
+                "reference": "fe210977342ec53145651a2bac554574c81a43c7"
             },
             "require": {
                 "doctrine/doctrine-bundle": "^2.8 || ^3.0",
