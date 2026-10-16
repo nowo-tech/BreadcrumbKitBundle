@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Nowo\BreadcrumbKitBundle\DependencyInjection;
 
 use Nowo\BreadcrumbKitBundle\Dashboard\DashboardChrome;
+use Nowo\BreadcrumbKitBundle\Dto\BreadcrumbCollapse;
 use Nowo\BreadcrumbKitBundle\Enum\CssFramework;
 use Nowo\BreadcrumbKitBundle\Enum\IconSet;
 use Nowo\BreadcrumbKitBundle\Enum\ModalSize;
@@ -73,6 +74,25 @@ final class Configuration implements ConfigurationInterface
                         ->booleanNode('hide_when_single_root')
                             ->info('When true, hides the trail on pages where the only crumb is the root item and it is the current page (typical home).')
                             ->defaultFalse()
+                        ->end()
+                        ->arrayNode('collapse')
+                            ->info('Opt-in GitHub-style trail on narrow screens: below the breakpoint only a "…" menu with the previous crumbs, one separator and the current crumb are shown. Collections override it with responsiveConfig.collapse (true/false or {enabled, min_items, breakpoint}).')
+                            ->canBeEnabled()
+                            ->children()
+                                ->integerNode('min_items')
+                                    ->info('Minimum number of crumbs (current included) before the trail collapses.')
+                                    ->min(BreadcrumbCollapse::MIN_ITEMS_FLOOR)
+                                    ->defaultValue(BreadcrumbCollapse::DEFAULT_MIN_ITEMS)
+                                ->end()
+                                ->scalarNode('breakpoint')
+                                    ->info('Width of the breadcrumb wrapper (container query; viewport media query fallback) below which the trail collapses: a length in px, rem or em, or an integer (pixels).')
+                                    ->defaultValue(BreadcrumbCollapse::DEFAULT_BREAKPOINT)
+                                    ->validate()
+                                        ->ifTrue(static fn (mixed $v): bool => null === BreadcrumbCollapse::normalizeBreakpoint($v))
+                                        ->thenInvalid('Invalid presentation.collapse.breakpoint %s: use a length in px, rem or em (e.g. "40rem") or an integer (pixels).')
+                                    ->end()
+                                ->end()
+                            ->end()
                         ->end()
                     ->end()
                 ->end()

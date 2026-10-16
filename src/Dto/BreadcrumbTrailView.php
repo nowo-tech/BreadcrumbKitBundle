@@ -23,6 +23,16 @@ final readonly class BreadcrumbTrailView
         public ?string $classCurrent = null,
         public array $responsiveConfig = [],
         public bool $homeIconReplacesLabel = true,
+        public BreadcrumbCollapse $collapse = new BreadcrumbCollapse(),
     ) {
+    }
+
+    /**
+     * True when the default template renders the "collapse on narrow screens" markup for this trail
+     * (option enabled and at least `min_items` crumbs). Twig: `trail.collapsible`.
+     */
+    public function isCollapsible(): bool
+    {
+        return $this->collapse->appliesTo(\count($this->nodes));
     }
 }

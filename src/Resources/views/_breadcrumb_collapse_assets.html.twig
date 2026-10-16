@@ -1,0 +1,66 @@
+{#
+  Styles + behaviour of the "collapse on narrow screens" mode (CSP: nonce-stamped <style>, external defer script).
+  Below `breakpoint` (container query on .breadcrumb-kit; viewport media query when container queries are not
+  supported) only the "…" item, the last separator and the current crumb stay visible; above it the "…" item is
+  hidden. Colours are --breadcrumb-kit-collapse-* custom properties with system-colour fallbacks (light/dark).
+  Variables: breakpoint (validated CSS length, e.g. 40rem)
+#}
+{%- set _csp_nonce = app.request is defined and app.request ? app.request.attributes.get('csp_nonce')|default('') : '' -%}
+{%- set narrow -%}
+    .breadcrumb-kit[data-breadcrumb-collapse="{{ breakpoint }}"] .breadcrumb-list { display: flex; flex-wrap: nowrap; align-items: center; min-width: 0; overflow: visible; }
+    .breadcrumb-kit[data-breadcrumb-collapse="{{ breakpoint }}"] .breadcrumb-list > li:not(.breadcrumb-collapse):not(.breadcrumb-collapse ~ li) { display: none; }
+    .breadcrumb-kit[data-breadcrumb-collapse="{{ breakpoint }}"] .breadcrumb-list > .breadcrumb-collapse { display: flex; align-items: center; flex: 0 0 auto; }
+    .breadcrumb-kit[data-breadcrumb-collapse="{{ breakpoint }}"] .breadcrumb-list > .breadcrumb-collapse ~ li { flex: 0 0 auto; }
+    .breadcrumb-kit[data-breadcrumb-collapse="{{ breakpoint }}"] .breadcrumb-list > .breadcrumb-collapse ~ li:last-child,
+    .breadcrumb-kit[data-breadcrumb-collapse="{{ breakpoint }}"] .breadcrumb-list > .breadcrumb-collapse ~ li:last-child > * { flex: 0 1 auto; min-width: 0; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+    .breadcrumb-kit[data-breadcrumb-collapse="{{ breakpoint }}"] .breadcrumb-list > .breadcrumb-collapse ~ li:last-child > * { display: block; }
+{%- endset %}
+<style{% if _csp_nonce %} nonce="{{ _csp_nonce }}"{% endif %}>
+    .breadcrumb-kit[data-breadcrumb-collapse] { container: breadcrumb-kit / inline-size; }
+    .breadcrumb-kit[data-breadcrumb-collapse]:has(.breadcrumb-collapse__details[open]) { position: relative; z-index: var(--breadcrumb-kit-collapse-z, 30); }
+    .breadcrumb-kit[data-breadcrumb-collapse] .breadcrumb-collapse { display: none; position: relative; }
+    .breadcrumb-collapse__details { position: relative; }
+    .breadcrumb-collapse__toggle {
+      display: inline-flex; align-items: center; justify-content: center; min-width: 1.9em; padding: 0 0.4em; line-height: 1.45;
+      border: 1px solid var(--breadcrumb-kit-collapse-border, color-mix(in srgb, currentColor 25%, transparent));
+      border-radius: var(--breadcrumb-kit-collapse-radius, 0.375rem);
+      background: var(--breadcrumb-kit-collapse-toggle-bg, transparent); color: var(--breadcrumb-kit-collapse-toggle-fg, inherit);
+      cursor: pointer; list-style: none; user-select: none;
+    }
+    .breadcrumb-collapse__toggle::-webkit-details-marker { display: none; }
+    .breadcrumb-collapse__toggle::marker { content: ""; }
+    .breadcrumb-collapse__toggle:hover,
+    .breadcrumb-collapse__details[open] > .breadcrumb-collapse__toggle { background: var(--breadcrumb-kit-collapse-hover-bg, color-mix(in srgb, currentColor 10%, transparent)); }
+    .breadcrumb-collapse__toggle:focus-visible,
+    .breadcrumb-collapse__link:focus-visible { outline: 2px solid var(--breadcrumb-kit-collapse-focus, Highlight); outline-offset: 2px; }
+    .breadcrumb-collapse__menu {
+      position: absolute; z-index: 1; top: calc(100% + 0.35rem); inset-inline-start: 0;
+      min-width: 12rem; max-width: var(--breadcrumb-kit-collapse-max-width, min(20rem, 90vw)); margin: 0; padding: 0.3rem; list-style: none;
+      background: var(--breadcrumb-kit-collapse-bg, Canvas); color: var(--breadcrumb-kit-collapse-fg, CanvasText);
+      border: 1px solid var(--breadcrumb-kit-collapse-border, color-mix(in srgb, currentColor 25%, transparent));
+      border-radius: var(--breadcrumb-kit-collapse-radius, 0.375rem);
+      box-shadow: var(--breadcrumb-kit-collapse-shadow, 0 10px 30px rgb(0 0 0 / 0.18));
+    }
+    .breadcrumb-collapse__entry { display: block; margin: 0; padding: 0; }
+    .breadcrumb-collapse__link,
+    .breadcrumb-collapse__text { display: flex; align-items: center; gap: 0.4em; padding: 0.4rem 0.6rem; border-radius: var(--breadcrumb-kit-collapse-radius, 0.375rem); overflow-wrap: anywhere; white-space: normal; }
+    .breadcrumb-collapse__link { color: var(--breadcrumb-kit-collapse-link, inherit); text-decoration: none; }
+    .breadcrumb-collapse__link:hover,
+    .breadcrumb-collapse__link:focus-visible { background: var(--breadcrumb-kit-collapse-hover-bg, color-mix(in srgb, currentColor 10%, transparent)); color: var(--breadcrumb-kit-collapse-link-hover, var(--breadcrumb-kit-collapse-link, inherit)); }
+    .breadcrumb-collapse__link:focus-visible { outline-offset: -2px; }
+    .breadcrumb-collapse__text { color: var(--breadcrumb-kit-collapse-muted, color-mix(in srgb, currentColor 65%, transparent)); }
+    .breadcrumb-collapse .breadcrumb-icon { display: inline-flex; align-items: center; }
+    @container breadcrumb-kit (width < {{ breakpoint }}) {
+{{ narrow }}
+    }
+    @supports not (container-type: inline-size) {
+      @media not all and (min-width: {{ breakpoint }}) {
+{{ narrow }}
+      }
+    }
+    @media (prefers-reduced-motion: no-preference) {
+      .breadcrumb-collapse__details[open] > .breadcrumb-collapse__menu { animation: breadcrumb-kit-collapse-in 120ms ease-out; }
+      @keyframes breadcrumb-kit-collapse-in { from { opacity: 0; transform: translateY(-0.25rem); } }
+    }
+  </style>
+  <script src="{{ asset('js/breadcrumb-collapse.js', 'nowo_breadcrumb_kit') }}" defer></script>

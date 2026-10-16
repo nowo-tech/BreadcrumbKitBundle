@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Nowo\BreadcrumbKitBundle\Service;
 
+use Nowo\BreadcrumbKitBundle\Dto\BreadcrumbCollapse;
 use Nowo\BreadcrumbKitBundle\Dto\BreadcrumbNode;
 use Nowo\BreadcrumbKitBundle\Dto\BreadcrumbTrailView;
 use Nowo\BreadcrumbKitBundle\Entity\BreadcrumbCollection;
@@ -37,6 +38,7 @@ final readonly class BreadcrumbLoader
         private bool $homeIconReplacesLabel = true,
         private ?string $defaultHomeIcon = null,
         private ?EventDispatcherInterface $eventDispatcher = null,
+        private BreadcrumbCollapse $defaultCollapse = new BreadcrumbCollapse(),
     ) {
     }
 
@@ -141,6 +143,7 @@ final readonly class BreadcrumbLoader
             classCurrent: $collection->getClassCurrent(),
             responsiveConfig: \is_array($responsive) ? $responsive : [],
             homeIconReplacesLabel: $this->homeIconReplacesLabel,
+            collapse: $this->resolveCollapse($responsive),
         );
 
         return $this->finishTrail(
@@ -211,7 +214,22 @@ final readonly class BreadcrumbLoader
             $collection->getClassCurrent(),
             \is_array($responsive) ? $responsive : [],
             $this->homeIconReplacesLabel,
+            $this->resolveCollapse($responsive),
         );
+    }
+
+    /**
+     * Global `presentation.collapse` merged with the collection `responsiveConfig.collapse` override.
+     *
+     * @param array<string, mixed>|null $responsive
+     */
+    private function resolveCollapse(?array $responsive): BreadcrumbCollapse
+    {
+        if (null === $responsive || !\array_key_exists('collapse', $responsive)) {
+            return $this->defaultCollapse;
+        }
+
+        return $this->defaultCollapse->withOverride($responsive['collapse']);
     }
 
     /**

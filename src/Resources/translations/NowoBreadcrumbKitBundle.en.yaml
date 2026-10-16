@@ -100,6 +100,9 @@ dashboard:
 
 breadcrumb:
   aria_label: Breadcrumb
+  collapse:
+    toggle: 'Show previous pages'
+    menu: 'Previous pages'
   inline_edit:
     open: Edit breadcrumbs
     close: Close
@@ -246,7 +249,7 @@ demo:
   deep:
     title: 'Deep trail — Breadcrumb demo'
     heading: Long breadcrumb trail
-    body_html: '<p>The deepest page has <strong>8 segments</strong> (Home + hub + 6 steps). On narrow viewports the strip uses <strong>horizontal scroll</strong> (<code>breadcrumb--many</code> in the app breadcrumb override).</p>'
+    body_html: '<p>The deepest page has <strong>8 segments</strong> (Home + hub + 6 steps). Below <code>40rem</code> the trail <strong>collapses</strong> to a <strong>…</strong> menu with the previous pages and the current page (<code>responsiveConfig.collapse</code>); between that width and 960px the strip uses horizontal scroll (<code>breadcrumb--many</code> in the app breadcrumb override).</p>'
     current_level: 'Current level'
     step_label: Step
     shortcuts: Shortcuts

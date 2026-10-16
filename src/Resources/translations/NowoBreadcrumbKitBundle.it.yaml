@@ -100,6 +100,9 @@ dashboard:
 
 breadcrumb:
   aria_label: Briciole di pane
+  collapse:
+    toggle: 'Mostra le pagine precedenti'
+    menu: 'Pagine precedenti'
   inline_edit:
     open: Modifica breadcrumb
     close: Chiudi
@@ -245,7 +248,7 @@ demo:
   deep:
     title: 'Catena profonda — Demo Breadcrumb'
     heading: Catena breadcrumb lunga
-    body_html: '<p>La pagina più profonda ha <strong>8 segmenti</strong> (Home + hub + 6 passi). Su schermi stretti la barra usa lo <strong>scroll orizzontale</strong> (<code>breadcrumb--many</code> nell''override breadcrumb dell''app).</p>'
+    body_html: '<p>La pagina più profonda ha <strong>8 segmenti</strong> (Home + hub + 6 passi). Sotto <code>40rem</code> il percorso si <strong>comprime</strong> in un menu <strong>…</strong> con le pagine precedenti e la pagina corrente (<code>responsiveConfig.collapse</code>); tra quella larghezza e 960px la barra usa lo scroll orizzontale (<code>breadcrumb--many</code> nell''override breadcrumb dell''app).</p>'
     current_level: 'Livello corrente'
     step_label: Passo
     shortcuts: Scorciatoie

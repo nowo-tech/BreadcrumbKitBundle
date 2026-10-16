@@ -1003,6 +1003,11 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *         home_icon?: scalar|Param|null, // Fallback home/root icon (HTML, emoji, or app-specific token) when the collection homeIcon is empty. // Default: null
  *         home_icon_replaces_label?: bool|Param, // When true and a home icon is set, the first crumb shows the icon instead of its text label (label stays in aria-label). // Default: true
  *         hide_when_single_root?: bool|Param, // When true, hides the trail on pages where the only crumb is the root item and it is the current page (typical home). // Default: false
+ *         collapse?: bool|array{ // Opt-in GitHub-style trail on narrow screens: below the breakpoint only a "…" menu with the previous crumbs, one separator and the current crumb are shown. Collections override it with responsiveConfig.collapse (true/false or {enabled, min_items, breakpoint}).
+ *             enabled?: bool|Param, // Default: false
+ *             min_items?: int|Param, // Minimum number of crumbs (current included) before the trail collapses. // Default: 3
+ *             breakpoint?: scalar|Param|null, // Width of the breadcrumb wrapper (container query; viewport media query fallback) below which the trail collapses: a length in px, rem or em, or an integer (pixels). // Default: "40rem"
+ *         },
  *     },
  *     dashboard?: array{
  *         enabled?: bool|Param, // Registers CRUD controllers and forms; import bundle routing with path_prefix (see docs). // Default: false

@@ -2,16 +2,20 @@
   Default breadcrumb markup + optional inline editor (modal + iframe al dashboard).
   Override: templates/bundles/NowoBreadcrumbKitBundle/breadcrumb.html.twig
   Variables: trail (BreadcrumbTrailView), breadcrumb_inline_edit { show, iframe_url, modal_title }
+  Collapse on narrow screens (opt-in, presentation.collapse / responsiveConfig.collapse): when trail.collapsible,
+  the wrapper gets data-breadcrumb-collapse="<breakpoint>", a "…" item is inserted before the last separator and
+  _breadcrumb_collapse_assets.html.twig adds its styles + js/breadcrumb-collapse.js. Output is unchanged otherwise.
 #}
 {% trans_default_domain 'NowoBreadcrumbKitBundle' %}
 {% set has_trail = trail.nodes is not empty %}
+{% set collapse = has_trail and trail.collapsible %}
 {% if has_trail or breadcrumb_inline_edit.show %}
-<div class="breadcrumb-kit"{% if breadcrumb_inline_edit.show %} data-breadcrumb-kit-inline-wrap{% endif %}>
+<div class="breadcrumb-kit"{% if breadcrumb_inline_edit.show %} data-breadcrumb-kit-inline-wrap{% endif %}{% if collapse %} data-breadcrumb-collapse="{{ trail.collapse.breakpoint }}"{% endif %}>
   {% if has_trail %}
   <nav class="{{ trail.classList|default('breadcrumb') }}" aria-label="{{ 'breadcrumb.aria_label'|trans }}"{% if trail.responsiveConfig.breakpoint is defined %} data-breadcrumb-breakpoint="{{ trail.responsiveConfig.breakpoint }}"{% endif %}>
     <ol class="breadcrumb-list">
       {% for node in trail.nodes %}
-        {% if not loop.first %}
+        {% if collapse and node.current %}{% include '@NowoBreadcrumbKitBundle/_breadcrumb_collapse.html.twig' with { trail: trail } only %}{% endif %}{% if not loop.first %}
           <li class="{{ trail.classSeparator|default('breadcrumb-separator') }}" aria-hidden="true">{% if trail.separatorIcon %}<span class="breadcrumb-sep-icon">{{ trail.separatorIcon }}</span>{% else %}<span>/</span>{% endif %}</li>
         {% endif %}
         <li class="{{ trail.classItem|default('breadcrumb-item') }}{% if node.current %} {{ trail.classCurrent|default('is-current') }}{% endif %}">
@@ -20,7 +24,7 @@
       {% endfor %}
     </ol>
   </nav>
-  {% endif %}
+  {% endif %}{% if collapse %}{% include '@NowoBreadcrumbKitBundle/_breadcrumb_collapse_assets.html.twig' with { breakpoint: trail.collapse.breakpoint } %}{% endif %}
   {% if breadcrumb_inline_edit.show %}
   <div class="breadcrumb-kit__inline-toolbar">
     <button type="button" class="breadcrumb-kit__inline-open" data-bk-inline-open aria-haspopup="dialog">{{ 'breadcrumb.inline_edit.open'|trans }}</button>

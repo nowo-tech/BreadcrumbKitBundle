@@ -4,6 +4,7 @@
 
 - [Twig functions](#twig-functions)
 - [Presentation (home icon, hide on home)](#presentation-home-icon-hide-on-home)
+- [Collapse on narrow screens](#collapse-on-narrow-screens)
 - [Console commands](#console-commands)
 - [Trail enrichers (events)](#trail-enrichers-events)
 - [Overriding templates and translations](#overriding-templates-and-translations)
@@ -59,6 +60,91 @@ Per collection, set `homeIcon` in the dashboard and optionally `hide_when_single
 
 Collection `homeIcon` wins over `presentation.home_icon`. Override `@NowoBreadcrumbKitBundle/_breadcrumb_crumb.html.twig` in your app for custom first-crumb markup.
 
+## Collapse on narrow screens
+
+Since **2.6.0** (spec [`004-collapse-narrow`](../specs/004-collapse-narrow/spec.md)), long trails can collapse GitHub-style on phones: below a width breakpoint the trail shows a **"…"** button, one separator and the **current crumb** (one line, ellipsis). The "…" button opens a dropdown listing every previous crumb in order (same labels, icons and links; non-link crumbs as text). Above the breakpoint the trail is unchanged and the "…" item is hidden. It is **opt-in**: with the option off (default), or when the trail has fewer than `min_items` crumbs, the HTML is byte-identical to 2.5.0.
+
+![Collapsed trail at phone width with the previous pages menu open](images/breadcrumb-collapse.png)
+
+**Global** (`config/packages/nowo_breadcrumb_kit.yaml`):
+
+```yaml
+nowo_breadcrumb_kit:
+    presentation:
+        collapse:
+            enabled: true      # or simply `collapse: true`
+            min_items: 3       # crumbs, current included (>= 2)
+            breakpoint: '40rem' # px / rem / em, or an integer (pixels)
+```
+
+**Per collection** — key `collapse` in the collection **Responsive (JSON)** (`responsiveConfig`), which wins over the global value:
+
+```json
+{ "collapse": true }
+{ "collapse": false }
+{ "collapse": { "enabled": true, "min_items": 4, "breakpoint": "48rem" } }
+```
+
+A boolean toggles the option and keeps the global `min_items` / `breakpoint`. In an object every key is optional and a missing key keeps the global value (so `{ "collapse": { "breakpoint": "48rem" } }` only changes the breakpoint). Invalid values in the database (a `min_items` below 2, a breakpoint such as `"50%"`) are ignored key by key; they never break rendering. The older `responsiveConfig.breakpoint` key (printed as `data-breadcrumb-breakpoint`) is unrelated and unchanged.
+
+**Markup** (only when the trail collapses; every normal item stays in the DOM):
+
+```html
+<div class="breadcrumb-kit" data-breadcrumb-collapse="40rem">
+  <nav class="…" aria-label="Breadcrumb">
+    <ol class="breadcrumb-list">
+      <li class="breadcrumb-item"><a href="/">Home</a></li>
+      … previous items and separators …
+      <li class="breadcrumb-item breadcrumb-collapse">
+        <details class="breadcrumb-collapse__details" data-bk-collapse>
+          <summary class="breadcrumb-collapse__toggle" aria-label="Show previous pages" title="Show previous pages"><span aria-hidden="true">…</span></summary>
+          <ol class="breadcrumb-collapse__menu" role="list" aria-label="Previous pages">
+            <li class="breadcrumb-collapse__entry"><a class="breadcrumb-collapse__link" href="/"><span class="breadcrumb-icon" aria-hidden="true">…</span><span class="breadcrumb-collapse__label">Home</span></a></li>
+            <li class="breadcrumb-collapse__entry"><span class="breadcrumb-collapse__text"><span class="breadcrumb-collapse__label">Shop</span></span></li>
+          </ol>
+        </details>
+      </li>
+      <li class="breadcrumb-separator" aria-hidden="true">…</li>
+      <li class="breadcrumb-item is-current"><span aria-current="page">Product</span></li>
+    </ol>
+  </nav>
+  <style nonce="…">…</style>
+  <script src="/bundles/nowobreadcrumbkit/js/breadcrumb-collapse.js" defer></script>
+</div>
+```
+
+The "…" item takes the collection `classItem` plus `breadcrumb-collapse`. In the menu the first crumb shows the home icon **and** its label (the trail may show the icon only). Labels are escaped; icons are printed raw like in the trail.
+
+**Styles and behaviour**
+
+- A nonce-stamped `<style>` (request attribute `csp_nonce`, like the inline editor) makes `.breadcrumb-kit` a size container (`container: breadcrumb-kit / inline-size`) and applies `@container breadcrumb-kit (width < <breakpoint>)`; browsers without container queries use `@media not all and (min-width: <breakpoint>)`. Below the breakpoint the list is a single non-wrapping flex row with `overflow: visible` (so the dropdown is not clipped), the current crumb truncates with an ellipsis, and the dropdown opens under the "…" button. The open animation only runs with `prefers-reduced-motion: no-preference`.
+- The size container is its own stacking context: while the dropdown is open the wrapper gets `position: relative; z-index: var(--breadcrumb-kit-collapse-z, 30)` (via `:has()`), so it stays above positioned content that follows the trail.
+- Because the wrapper is an inline-size container, it must take its width from its parent (normal block flow). If you place the trail in a shrink-to-fit context (inline-block, a flex item without `flex: 1` / `width`), give `.breadcrumb-kit` a width.
+- `js/breadcrumb-collapse.js` (external, `defer`, delegated listeners, no inline handlers): **Escape** closes the open menu and puts focus back on the "…" toggle, a click **outside** closes it, choosing a **link** closes it. Without JavaScript the native `<details>` / `<summary>` disclosure still works (keyboard: Tab to "…", Enter / Space to toggle). Run `assets:install` after upgrading.
+
+**Theming tokens** (custom properties with fallbacks; set them on `:root`, the wrapper or any ancestor — defaults use system colours, so they follow `color-scheme` light / dark):
+
+| Token | Default | Used for |
+|-------|---------|----------|
+| `--breadcrumb-kit-collapse-bg` | `Canvas` | Dropdown background |
+| `--breadcrumb-kit-collapse-fg` | `CanvasText` | Dropdown text |
+| `--breadcrumb-kit-collapse-border` | `color-mix(in srgb, currentColor 25%, transparent)` | Toggle + dropdown border |
+| `--breadcrumb-kit-collapse-hover-bg` | `color-mix(in srgb, currentColor 10%, transparent)` | Toggle hover / open, entry hover / focus |
+| `--breadcrumb-kit-collapse-toggle-bg` | `transparent` | Toggle background |
+| `--breadcrumb-kit-collapse-toggle-fg` | `inherit` | Toggle text ("…") |
+| `--breadcrumb-kit-collapse-link` | `inherit` | Link entries |
+| `--breadcrumb-kit-collapse-link-hover` | `--breadcrumb-kit-collapse-link` | Link entries on hover / focus |
+| `--breadcrumb-kit-collapse-muted` | `color-mix(in srgb, currentColor 65%, transparent)` | Non-link entries |
+| `--breadcrumb-kit-collapse-focus` | `Highlight` | Focus ring |
+| `--breadcrumb-kit-collapse-radius` | `0.375rem` | Toggle, dropdown and entry radius |
+| `--breadcrumb-kit-collapse-shadow` | `0 10px 30px rgb(0 0 0 / 0.18)` | Dropdown shadow |
+| `--breadcrumb-kit-collapse-z` | `30` | `z-index` of the `.breadcrumb-kit` wrapper while the dropdown is open (the size container is its own stacking context) |
+| `--breadcrumb-kit-collapse-max-width` | `min(20rem, 90vw)` | Dropdown max width |
+
+Host rules on links inside the trail (for example `.my-trail a { color: … }`) also reach the dropdown links, which is usually what you want.
+
+**Template overrides.** If you override `breadcrumb.html.twig`, add the three hooks of the bundle template: `data-breadcrumb-collapse="{{ trail.collapse.breakpoint }}"` on the wrapper when `trail.collapsible`, `{% include '@NowoBreadcrumbKitBundle/_breadcrumb_collapse.html.twig' with { trail: trail } only %}` right before the separator of the current crumb, and `{% include '@NowoBreadcrumbKitBundle/_breadcrumb_collapse_assets.html.twig' with { breakpoint: trail.collapse.breakpoint } %}` once inside the wrapper (the demo override shows all three). `trail.collapse` exposes `enabled`, `minItems` and `breakpoint`.
+
 ## Console commands
 
 | Command | Purpose |
@@ -113,6 +199,8 @@ final class EnrichBreadcrumbsSubscriber implements EventSubscriberInterface
 |---------|---------|
 | `breadcrumb.html.twig` | Default breadcrumb markup (and optional inline-edit UI). |
 | `_breadcrumb_crumb.html.twig` | Single crumb (icon, link, current page). |
+| `_breadcrumb_collapse.html.twig` | "…" item + previous pages menu ([collapse on narrow screens](#collapse-on-narrow-screens)). |
+| `_breadcrumb_collapse_assets.html.twig` | Nonce-stamped styles + `js/breadcrumb-collapse.js` of the collapse mode. |
 | `dashboard/layout.html.twig` | Dashboard shell (Bootstrap navbar, main block). |
 | `dashboard/base.html.twig` | Extends configurable layout; flashes + body block; loads UiKit CSS + `dashboard.js`. |
 | `dashboard/collection/index.html.twig` | Collections list. |

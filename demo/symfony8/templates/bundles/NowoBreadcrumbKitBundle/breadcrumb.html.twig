@@ -1,13 +1,15 @@
-{# Demo override: bundle default + clases de prueba (breadcrumb-app-override, --many) + modal de edición en línea. #}
+{# Demo override: bundle default + test classes (breadcrumb-app-override, --many) + inline edit modal + collapse on narrow screens (bundle partials). #}
 {% trans_default_domain 'NowoBreadcrumbKitBundle' %}
 {% set has_trail = trail.nodes is not empty %}
+{% set collapse = has_trail and trail.collapsible %}
 {% if has_trail or breadcrumb_inline_edit.show %}
-<div class="breadcrumb-kit"{% if breadcrumb_inline_edit.show %} data-breadcrumb-kit-inline-wrap{% endif %}>
+<div class="breadcrumb-kit"{% if breadcrumb_inline_edit.show %} data-breadcrumb-kit-inline-wrap{% endif %}{% if collapse %} data-breadcrumb-collapse="{{ trail.collapse.breakpoint }}"{% endif %}>
   {% if has_trail %}
   {% set many = trail.nodes|length > 5 %}
   <nav class="{{ trail.classList|default('breadcrumb') }} breadcrumb-app-override{{ many ? ' breadcrumb--many' : '' }}" aria-label="{{ 'breadcrumb.aria_label'|trans }}" data-breadcrumb-count="{{ trail.nodes|length }}"{% if trail.responsiveConfig.breakpoint is defined %} data-breadcrumb-breakpoint="{{ trail.responsiveConfig.breakpoint }}"{% endif %}>
     <ol class="breadcrumb-list">
       {% for node in trail.nodes %}
+        {% if collapse and node.current %}{% include '@NowoBreadcrumbKitBundle/_breadcrumb_collapse.html.twig' with { trail: trail } only %}{% endif %}
         {% if not loop.first %}
           <li class="{{ trail.classSeparator|default('breadcrumb-separator') }}" aria-hidden="true">{% if trail.separatorIcon %}<span class="breadcrumb-sep-icon">{{ trail.separatorIcon }}</span>{% else %}<span>/</span>{% endif %}</li>
         {% endif %}
@@ -21,6 +23,7 @@
       {% endfor %}
     </ol>
   </nav>
+  {% if collapse %}{% include '@NowoBreadcrumbKitBundle/_breadcrumb_collapse_assets.html.twig' with { breakpoint: trail.collapse.breakpoint } %}{% endif %}
   {% endif %}
   {% if breadcrumb_inline_edit.show %}
   <div class="breadcrumb-kit__inline-toolbar">

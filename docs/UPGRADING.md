@@ -2,6 +2,7 @@
 
 ## Table of contents
 
+- [To 2.6.0](#to-260)
 - [To 2.5.0](#to-250)
 - [To 2.4.1](#to-241)
 - [To 2.4.0](#to-240)
@@ -42,6 +43,21 @@
 - [From pre-release / local copies to 1.0.0](#from-pre-release--local-copies-to-100)
 - [Doctrine schema](#doctrine-schema)
 - [General upgrade steps (any version)](#general-upgrade-steps-any-version)
+
+## To 2.6.0
+
+From **2.5.0** — new opt-in feature, no breaking change.
+
+```bash
+composer update nowo-tech/breadcrumb-kit-bundle
+php bin/console assets:install
+```
+
+- Nothing changes unless you enable **collapse on narrow screens** (GitHub-style "…" menu + current crumb below a breakpoint): `nowo_breadcrumb_kit.presentation.collapse: true` (or `{ enabled: true, min_items: 3, breakpoint: '40rem' }`), or per collection `"collapse": true` in **Responsive (JSON)**. See [USAGE](USAGE.md#collapse-on-narrow-screens).
+- `assets:install` publishes the new `js/breadcrumb-collapse.js` (needed only when the option is on).
+- If you override `breadcrumb.html.twig`, the collapse needs three hooks in your copy (wrapper attribute + two includes); without them your override keeps working and simply never collapses.
+- New translation keys `breadcrumb.collapse.toggle` and `breadcrumb.collapse.menu` (7 locales); override them in `translations/NowoBreadcrumbKitBundle.<locale>.yaml` if needed.
+- Theme the dropdown with the `--breadcrumb-kit-collapse-*` custom properties (defaults follow `color-scheme`).
 
 ## To 2.5.0
 

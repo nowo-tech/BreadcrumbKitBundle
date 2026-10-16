@@ -100,6 +100,9 @@ dashboard:
 
 breadcrumb:
   aria_label: Migas de navegación
+  collapse:
+    toggle: 'Mostrar páginas anteriores'
+    menu: 'Páginas anteriores'
   inline_edit:
     open: Editar migas
     close: Cerrar
@@ -245,7 +248,7 @@ demo:
   deep:
     title: 'Cadena profunda — Breadcrumb demo'
     heading: Migas muy largas
-    body_html: '<p>Hay <strong>8 segmentos</strong> en la hoja más profunda (Inicio + demo + 6 pasos). En pantallas estrechas la barra permite <strong>desplazamiento horizontal</strong> (clase <code>breadcrumb--many</code> en la plantilla de la app).</p>'
+    body_html: '<p>Hay <strong>8 segmentos</strong> en la hoja más profunda (Inicio + demo + 6 pasos). Por debajo de <code>40rem</code> la ruta se <strong>contrae</strong> a un menú <strong>…</strong> con las páginas anteriores y la página actual (<code>responsiveConfig.collapse</code>); entre ese ancho y 960px la barra usa desplazamiento horizontal (clase <code>breadcrumb--many</code> en la plantilla de la app).</p>'
     current_level: 'Nivel actual'
     step_label: Paso
     shortcuts: 'Atajos:'

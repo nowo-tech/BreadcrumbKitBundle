@@ -100,6 +100,9 @@ dashboard:
 
 breadcrumb:
   aria_label: Fil d''Ariane
+  collapse:
+    toggle: 'Afficher les pages précédentes'
+    menu: 'Pages précédentes'
   inline_edit:
     open: Modifier le fil d''Ariane
     close: Fermer
@@ -245,7 +248,7 @@ demo:
   deep:
     title: 'Chaîne profonde — Démo Breadcrumb'
     heading: Long fil d''Ariane
-    body_html: '<p>La page la plus profonde comporte <strong>8 segments</strong> (Accueil + hub + 6 étapes). Sur les écrans étroits, la barre utilise le <strong>défilement horizontal</strong> (<code>breadcrumb--many</code> dans le remplacement breadcrumb de l''app).</p>'
+    body_html: '<p>La page la plus profonde comporte <strong>8 segments</strong> (Accueil + hub + 6 étapes). Sous <code>40rem</code>, le fil se <strong>replie</strong> en un menu <strong>…</strong> avec les pages précédentes et la page actuelle (<code>responsiveConfig.collapse</code>) ; entre cette largeur et 960px, la barre utilise le défilement horizontal (<code>breadcrumb--many</code> dans le remplacement breadcrumb de l''app).</p>'
     current_level: 'Niveau actuel'
     step_label: Étape
     shortcuts: Raccourcis

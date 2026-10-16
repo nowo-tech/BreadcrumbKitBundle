@@ -15,6 +15,13 @@ nowo_breadcrumb_kit:
 
     # default_collection: 'default'
 
+    # presentation:
+    #     # GitHub-style "…" menu + current crumb below the breakpoint (per collection: responsiveConfig.collapse).
+    #     collapse:
+    #         enabled: true
+    #         min_items: 3
+    #         breakpoint: '40rem'
+
     cache:
         ttl: 60
         pool: cache.app

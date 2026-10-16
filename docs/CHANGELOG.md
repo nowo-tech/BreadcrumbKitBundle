@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## Table of contents
 
 - [[Unreleased]](#unreleased)
+- [[2.6.0] - 2026-10-16](#260---2026-10-16)
 - [[2.5.0] - 2026-10-13](#250---2026-10-13)
 - [[2.4.1] - 2026-10-13](#241---2026-10-13)
 - [[2.4.0] - 2026-10-13](#240---2026-10-13)
@@ -46,6 +47,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - [[1.0.0] - 2026-07-03](#100---2026-07-03)
 
 ## [Unreleased]
+
+## [2.6.0] - 2026-10-16
+
+### Added
+
+- **Collapse on narrow screens** (opt-in, spec [`004-collapse-narrow`](../specs/004-collapse-narrow/spec.md)): GitHub-style trail on phones. Below a width breakpoint the trail shows a "…" button, one separator and the current crumb (one line, ellipsis); the "…" button opens a dropdown with every previous crumb (same labels, icons and links; non-link crumbs as text). Above the breakpoint the trail is unchanged. See [USAGE](USAGE.md#collapse-on-narrow-screens).
+  - Global config `presentation.collapse` (`enabled` false, `min_items` 3, `breakpoint` `40rem`; `collapse: true` shorthand; invalid breakpoints and `min_items` < 2 rejected at container build).
+  - Per collection `responsiveConfig.collapse`: `true` / `false` or `{ "enabled", "min_items", "breakpoint" }` merged key by key over the global value (invalid stored values are ignored).
+  - Markup: `data-breadcrumb-collapse` on `.breadcrumb-kit`, `li.breadcrumb-collapse` before the last separator with a `<details>` / `<summary>` disclosure (`aria-label` "Show previous pages", visible "…") and `ol.breadcrumb-collapse__menu[role=list]`. Normal items stay in the DOM.
+  - Nonce-stamped styles: container query on the wrapper (`@container breadcrumb-kit`) with a viewport media query fallback, `--breadcrumb-kit-collapse-*` theming tokens with system-colour (light / dark) fallbacks, reduced-motion aware.
+  - `js/breadcrumb-collapse.js` (external, `defer`, no inline handlers): Escape closes and returns focus to "…", outside click and choosing a link close. Works without JavaScript.
+  - Overridable partials `_breadcrumb_collapse.html.twig` and `_breadcrumb_collapse_assets.html.twig`; `BreadcrumbCollapse` DTO, `BreadcrumbTrailView::$collapse` and `isCollapsible()` (Twig `trail.collapsible`).
+  - Translations `breadcrumb.collapse.toggle` / `breadcrumb.collapse.menu` in en, es, de, fr, it, nl, pt.
+- Demo: the `default` collection enables the collapse below `40rem` (try `/en/demo/deep/s1/s2/s3/s4/s5/s6` at phone width).
+
+### Unchanged
+
+- With the option off (default), or for trails shorter than `min_items`, `breadcrumb.html.twig` renders byte-identical HTML to 2.5.0 (tested against the 2.5.0 template).
 
 ## [2.5.0] - 2026-10-13
 

@@ -100,6 +100,9 @@ dashboard:
 
 breadcrumb:
   aria_label: Migalhas de navegação
+  collapse:
+    toggle: 'Mostrar páginas anteriores'
+    menu: 'Páginas anteriores'
   inline_edit:
     open: Editar breadcrumbs
     close: Fechar
@@ -245,7 +248,7 @@ demo:
   deep:
     title: 'Cadeia profunda — Demo Breadcrumb'
     heading: Cadeia longa de breadcrumbs
-    body_html: '<p>A página mais profunda tem <strong>8 segmentos</strong> (Início + hub + 6 passos). Em ecrãs estreitos a barra usa <strong>scroll horizontal</strong> (<code>breadcrumb--many</code> no override breadcrumb da app).</p>'
+    body_html: '<p>A página mais profunda tem <strong>8 segmentos</strong> (Início + hub + 6 passos). Abaixo de <code>40rem</code> o trilho <strong>recolhe</strong> para um menu <strong>…</strong> com as páginas anteriores e a página atual (<code>responsiveConfig.collapse</code>); entre essa largura e 960px a barra usa scroll horizontal (<code>breadcrumb--many</code> no override breadcrumb da app).</p>'
     current_level: 'Nível atual'
     step_label: Passo
     shortcuts: Atalhos

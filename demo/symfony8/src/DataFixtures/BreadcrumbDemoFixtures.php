@@ -36,6 +36,8 @@ final class BreadcrumbDemoFixtures extends Fixture
         $collection->setResponsiveConfig([
             'breakpoint' => 768,
             'many_items_hint' => 'horizontal_scroll_below_breakpoint',
+            // GitHub-style trail below 40rem: "…" menu + current crumb (try /demo/deep/… at phone width).
+            'collapse' => ['enabled' => true, 'min_items' => 4, 'breakpoint' => '40rem'],
         ]);
         $collection->setInlineEditAccessKey('demo_public');
 

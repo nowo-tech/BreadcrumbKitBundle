@@ -2,7 +2,7 @@
 
 **Baseline spec**: [`spec.md`](spec.md)  
 **Package**: `nowo-tech/breadcrumb-kit-bundle`  
-**Last audited**: 2026-08-04 (enhancements + v2.0.14)  
+**Last audited**: 2026-10-16 (v2.6.0 collapse on narrow screens, spec 004)  
 **Audit**: `find src -type f | wc -l` → **80** (matches summary total)
 
 ## Symfony config
@@ -57,6 +57,7 @@
 
 | Source file | Spec section | Requirement IDs |
 | --- | --- | --- |
+| `Dto/BreadcrumbCollapse.php` | DTOs | FR-DTO-001, 004 FR-001 |
 | `Dto/BreadcrumbInlineEditContext.php` | DTOs | FR-DTO-001 |
 | `Dto/BreadcrumbNode.php` | DTOs | FR-DTO-001 |
 | `Dto/BreadcrumbTrailView.php` | DTOs | FR-DTO-001 |
@@ -132,6 +133,8 @@
 
 | Source file | Spec section | Requirement IDs |
 | --- | --- | --- |
+| `Resources/public/js/breadcrumb-collapse.js` | Public assets | FR-ASSET-001, 004 FR-005 |
+| `Resources/public/js/breadcrumb-inline.js` | Public assets | FR-ASSET-001 |
 | `Resources/public/js/dashboard.js` | Public assets | FR-ASSET-001 |
 
 ### External kit assets (not in this tree)
@@ -159,6 +162,8 @@ BreadcrumbKit prepends FormKit profile `breadcrumb_kit` and may seed FormKit/UiK
 
 | Source file | Spec section | Requirement IDs |
 | --- | --- | --- |
+| `Resources/views/_breadcrumb_collapse.html.twig` | Twig views — public | FR-TWIG-002, 004 FR-003 |
+| `Resources/views/_breadcrumb_collapse_assets.html.twig` | Twig views — public | FR-TWIG-002, 004 FR-004 |
 | `Resources/views/_breadcrumb_crumb.html.twig` | Twig views — public | FR-TWIG-002 |
 | `Resources/views/breadcrumb.html.twig` | Twig views — public | FR-TWIG-002 |
 
@@ -195,7 +200,7 @@ BreadcrumbKit prepends FormKit profile `breadcrumb_kit` and may seed FormKit/UiK
 | Enums | 3 | 3 |
 | Security & contracts | 5 | 5 |
 | Entities & persistence | 5 | 5 |
-| DTOs | 3 | 3 |
+| DTOs | 4 | 4 |
 | Services | 8 | 8 |
 | Controllers — dashboard | 6 | 6 |
 | Commands | 4 | 4 |
@@ -203,9 +208,9 @@ BreadcrumbKit prepends FormKit profile `breadcrumb_kit` and may seed FormKit/UiK
 | Forms | 7 | 7 |
 | Twig PHP | 3 | 3 |
 | Profiler | 3 | 3 |
-| Public assets | 1 | 1 |
+| Public assets | 3 | 3 |
 | Translations | 7 | 7 |
-| Twig views — public | 2 | 2 |
+| Twig views — public | 4 | 4 |
 | Twig views — profiler | 2 | 2 |
 | Twig views — dashboard | 12 | 12 |
-| **Total production sources** | **82** | **82** |
+| **Total production sources** | **87** | **87** |

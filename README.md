@@ -24,13 +24,13 @@ This bundle is **FrankenPHP worker mode friendly**.
 
 ## Status
 
-**MVP (v2.1.8):** entities (`dashboard_breadcrumb_*` tables, aligned with DashboardMenuBundle), repositories, `BreadcrumbLoader`, `BreadcrumbUrlResolver`, Twig (`breadcrumb_trail`, `breadcrumb_render`) + **Twig Extra** (**REQ-TWIG-004**), **CLI** (migration / export / import / preview), **`BreadcrumbTrailBuiltEvent`** enrichers, path/attribute matching, **optional web dashboard** with **UiKitBundle** look-and-feel (**REQ-UI-001-kit**), **FormKitBundle** forms, **REQ-UI-002** access roles, named asset package `nowo_breadcrumb_kit`, **presentation options**, dashboard i18n **en/es/de/fr/it/nl/pt**. **Demo**: Symfony 8.1 / PHP 8.5 (**8021**) with FrankenPHP. **Flex recipe** in `.symfony/recipe/`. Compatible with FrankenPHP **worker mode without kernel reset** ([audit](docs/FRANKENPHP-WORKER-AUDIT.md)).
+**Stable (v2.6.0):** entities (`dashboard_breadcrumb_*` tables, aligned with DashboardMenuBundle), repositories, `BreadcrumbLoader`, `BreadcrumbUrlResolver`, Twig (`breadcrumb_trail`, `breadcrumb_render`) + **Twig Extra** (**REQ-TWIG-004**), **CLI** (migration / export / import / preview), **`BreadcrumbTrailBuiltEvent`** enrichers, path/attribute matching, **optional web dashboard** with **UiKitBundle** look-and-feel (**REQ-UI-001-kit**), **FormKitBundle** forms, **REQ-UI-002** access roles, named asset package `nowo_breadcrumb_kit`, **presentation options**, opt-in **collapse on narrow screens** (GitHub-style "…" menu + current crumb on phones, [USAGE](docs/USAGE.md#collapse-on-narrow-screens)), dashboard i18n **en/es/de/fr/it/nl/pt**. **Demo**: Symfony 8.1 / PHP 8.5 (**8021**) with FrankenPHP. **Flex recipe** in `.symfony/recipe/`. Compatible with FrankenPHP **worker mode without kernel reset** ([audit](docs/FRANKENPHP-WORKER-AUDIT.md)).
 
 **FrankenPHP:** demo selects classic vs worker via **`FRANKENPHP_MODE`** (default `worker`). See [docs/DEMO-FRANKENPHP.md](docs/DEMO-FRANKENPHP.md) and [docs/FRANKENPHP-WORKER-AUDIT.md](docs/FRANKENPHP-WORKER-AUDIT.md).
 
 ## Version information
 
-Latest release: **[v2.1.8](https://github.com/nowo-tech/BreadcrumbKitBundle/releases/tag/v2.1.8)** (2026-09-24). Requires **PHP 8.2+** and **Symfony 7.4+**. Tables: `dashboard_breadcrumb_*` (see [UPGRADING.md](docs/UPGRADING.md) from v1.2.x / 2.0.14→2.1.0 / 2.1.7→2.1.8 worker).
+Latest release: **[v2.6.0](https://github.com/nowo-tech/BreadcrumbKitBundle/releases/tag/v2.6.0)** (2026-10-16). Requires **PHP 8.2+** and **Symfony 7.4+**. Tables: `dashboard_breadcrumb_*` (see [UPGRADING.md](docs/UPGRADING.md) from v1.2.x / 2.0.14→2.1.0 / 2.1.7→2.1.8 worker).
 
 ## Quick start
 

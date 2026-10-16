@@ -1,0 +1,32 @@
+{#
+  "Collapse on narrow screens" item: a "…" disclosure listing every crumb before the current one.
+  Rendered by breadcrumb.html.twig right before the last separator when trail.collapsible.
+  Hidden above the breakpoint by _breadcrumb_collapse_assets.html.twig; works without JS (details/summary),
+  js/breadcrumb-collapse.js adds Escape / outside click / close after choosing a link.
+  Variables: trail (BreadcrumbTrailView)
+#}
+{% trans_default_domain 'NowoBreadcrumbKitBundle' %}
+{%- set toggle_label = 'breadcrumb.collapse.toggle'|trans -%}
+<li class="{{ trail.classItem|default('breadcrumb-item') }} breadcrumb-collapse">
+          <details class="breadcrumb-collapse__details" data-bk-collapse>
+            <summary class="breadcrumb-collapse__toggle" aria-label="{{ toggle_label }}" title="{{ toggle_label }}"><span aria-hidden="true">…</span></summary>
+            <ol class="breadcrumb-collapse__menu" role="list" aria-label="{{ 'breadcrumb.collapse.menu'|trans }}">
+              {%- for node in trail.nodes|filter(n => not n.current) %}
+              {%- set entry_icon = loop.first and trail.homeIcon ? trail.homeIcon : node.icon %}
+              <li class="breadcrumb-collapse__entry">
+                {%- if node.linkEnabled and node.url -%}
+                <a class="breadcrumb-collapse__link" href="{{ node.url }}">
+                  {%- if entry_icon %}<span class="breadcrumb-icon" aria-hidden="true">{{ entry_icon|raw }}</span>{% endif -%}
+                  <span class="breadcrumb-collapse__label">{{ node.label }}</span>
+                </a>
+                {%- else -%}
+                <span class="breadcrumb-collapse__text">
+                  {%- if entry_icon %}<span class="breadcrumb-icon" aria-hidden="true">{{ entry_icon|raw }}</span>{% endif -%}
+                  <span class="breadcrumb-collapse__label">{{ node.label }}</span>
+                </span>
+                {%- endif -%}
+              </li>
+              {%- endfor %}
+            </ol>
+          </details>
+        </li>

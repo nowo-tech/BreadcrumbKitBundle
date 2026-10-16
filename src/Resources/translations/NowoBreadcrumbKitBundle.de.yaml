@@ -100,6 +100,9 @@ dashboard:
 
 breadcrumb:
   aria_label: Brotkrumen-Navigation
+  collapse:
+    toggle: 'Vorherige Seiten anzeigen'
+    menu: 'Vorherige Seiten'
   inline_edit:
     open: Breadcrumbs bearbeiten
     close: Schließen
@@ -245,7 +248,7 @@ demo:
   deep:
     title: 'Tiefer Pfad — Breadcrumb Demo'
     heading: Langer Breadcrumb-Pfad
-    body_html: '<p>Die tiefste Seite hat <strong>8 Segmente</strong> (Start + Hub + 6 Schritte). Auf schmalen Viewports nutzt die Leiste <strong>horizontales Scrollen</strong> (<code>breadcrumb--many</code> im App-Breadcrumb-Override).</p>'
+    body_html: '<p>Die tiefste Seite hat <strong>8 Segmente</strong> (Start + Hub + 6 Schritte). Unter <code>40rem</code> wird der Pfad zu einem <strong>…</strong>-Menü mit den vorherigen Seiten und der aktuellen Seite <strong>eingeklappt</strong> (<code>responsiveConfig.collapse</code>); zwischen dieser Breite und 960px nutzt die Leiste horizontales Scrollen (<code>breadcrumb--many</code> im App-Breadcrumb-Override).</p>'
     current_level: 'Aktuelle Ebene'
     step_label: Schritt
     shortcuts: Verknüpfungen

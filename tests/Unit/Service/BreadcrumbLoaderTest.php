@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Nowo\BreadcrumbKitBundle\Tests\Unit\Service;
 
+use Nowo\BreadcrumbKitBundle\Dto\BreadcrumbCollapse;
 use Nowo\BreadcrumbKitBundle\Dto\BreadcrumbNode;
 use Nowo\BreadcrumbKitBundle\Dto\BreadcrumbTrailView;
 use Nowo\BreadcrumbKitBundle\Entity\BreadcrumbCollection;
@@ -752,6 +753,103 @@ final class BreadcrumbLoaderTest extends TestCase
         );
 
         self::assertSame('Home!', $loader->loadTrailView('default', '')->nodes[0]->label);
+    }
+
+    public function testCollapseUsesGlobalDefaultWithoutCollectionOverride(): void
+    {
+        $view = $this->collapseTrail(null, new BreadcrumbCollapse(true, 4, '48rem'));
+
+        self::assertCount(4, $view->nodes);
+        self::assertEquals(new BreadcrumbCollapse(true, 4, '48rem'), $view->collapse);
+        self::assertTrue($view->isCollapsible());
+    }
+
+    public function testCollapseDefaultsToDisabledWhenNotWired(): void
+    {
+        $view = $this->collapseTrail(['breakpoint' => 768]);
+
+        self::assertEquals(new BreadcrumbCollapse(), $view->collapse);
+        self::assertFalse($view->isCollapsible());
+    }
+
+    public function testCollectionOverrideEnablesAndMerges(): void
+    {
+        $view = $this->collapseTrail(['collapse' => ['min_items' => 5, 'breakpoint' => '36em']], new BreadcrumbCollapse(true));
+
+        self::assertEquals(new BreadcrumbCollapse(true, 5, '36em'), $view->collapse);
+        self::assertFalse($view->isCollapsible(), '4 crumbs < min_items 5');
+
+        $on = $this->collapseTrail(['collapse' => true]);
+        self::assertTrue($on->collapse->enabled);
+        self::assertTrue($on->isCollapsible());
+    }
+
+    public function testCollectionOverrideDisables(): void
+    {
+        $view = $this->collapseTrail(['collapse' => false], new BreadcrumbCollapse(true));
+
+        self::assertFalse($view->collapse->enabled);
+        self::assertFalse($view->isCollapsible());
+    }
+
+    public function testEmptyViewCarriesTheCollapseSettings(): void
+    {
+        $collection = $this->collectionWithId(1);
+        $collection->setResponsiveConfig(['collapse' => true]);
+        $colRepo = $this->createMock(BreadcrumbCollectionRepository::class);
+        $colRepo->method('findOneByCodeAndContextKey')->willReturn($collection);
+
+        $loader = new BreadcrumbLoader(
+            $colRepo,
+            $this->createMock(BreadcrumbItemRepository::class),
+            $this->createMock(BreadcrumbUrlResolverInterface::class),
+            new RequestStack(),
+            'en',
+        );
+
+        $view = $loader->loadTrailView('default');
+
+        self::assertSame([], $view->nodes);
+        self::assertTrue($view->collapse->enabled);
+        self::assertFalse($view->isCollapsible());
+    }
+
+    /**
+     * Home → Section → Topic → Page (current), collection responsiveConfig as given.
+     *
+     * @param array<string, mixed>|null $responsive
+     */
+    private function collapseTrail(?array $responsive, ?BreadcrumbCollapse $global = null): BreadcrumbTrailView
+    {
+        $collection = $this->collectionWithId(1);
+        $collection->setResponsiveConfig($responsive);
+        $items = [];
+        $parent = null;
+        foreach (['home' => 'Home', 'section' => 'Section', 'topic' => 'Topic', 'page' => 'Page'] as $route => $label) {
+            $parent = $this->itemWithId(\count($items) + 1, $collection, $parent, $route, $label);
+            $items[] = $parent;
+        }
+
+        $colRepo = $this->createMock(BreadcrumbCollectionRepository::class);
+        $colRepo->method('findOneByCodeAndContextKey')->willReturn($collection);
+        $itemRepo = $this->createMock(BreadcrumbItemRepository::class);
+        $itemRepo->method('findAllForCollection')->willReturn($items);
+
+        $request = Request::create('/page');
+        $request->attributes->set('_route', 'page');
+        $request->attributes->set('_route_params', []);
+        $stack = new RequestStack();
+        $stack->push($request);
+
+        $urlResolver = $this->createMock(BreadcrumbUrlResolverInterface::class);
+        $urlResolver->method('resolve')->willReturn(['/x', []]);
+
+        $arguments = [$colRepo, $itemRepo, $urlResolver, $stack, 'en'];
+        $loader = null === $global
+            ? new BreadcrumbLoader(...$arguments)
+            : new BreadcrumbLoader(...$arguments, defaultCollapse: $global);
+
+        return $loader->loadTrailView('default');
     }
 
     private function collectionWithId(int $id): BreadcrumbCollection

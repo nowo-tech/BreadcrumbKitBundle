@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Nowo\BreadcrumbKitBundle\DependencyInjection;
 
 use Nowo\BreadcrumbKitBundle\Dashboard\DashboardChrome;
+use Nowo\BreadcrumbKitBundle\Dto\BreadcrumbCollapse;
 use Nowo\BreadcrumbKitBundle\Enum\CssFramework;
 use Nowo\BreadcrumbKitBundle\Enum\IconSet;
 use Nowo\BreadcrumbKitBundle\Security\BreadcrumbKitAccessCheckerInterface;
@@ -210,6 +211,10 @@ final class BreadcrumbKitExtension extends Extension implements PrependExtension
         $container->setParameter(Configuration::ALIAS.'.presentation.home_icon', $defaultHomeIcon);
         $container->setParameter(Configuration::ALIAS.'.presentation.home_icon_replaces_label', (bool) ($presentation['home_icon_replaces_label'] ?? true));
         $container->setParameter(Configuration::ALIAS.'.presentation.hide_when_single_root', (bool) ($presentation['hide_when_single_root'] ?? false));
+        $collapse = \is_array($presentation['collapse'] ?? null) ? $presentation['collapse'] : [];
+        $container->setParameter(Configuration::ALIAS.'.presentation.collapse.enabled', (bool) ($collapse['enabled'] ?? false));
+        $container->setParameter(Configuration::ALIAS.'.presentation.collapse.min_items', (int) ($collapse['min_items'] ?? BreadcrumbCollapse::DEFAULT_MIN_ITEMS));
+        $container->setParameter(Configuration::ALIAS.'.presentation.collapse.breakpoint', BreadcrumbCollapse::normalizeBreakpoint($collapse['breakpoint'] ?? null) ?? BreadcrumbCollapse::DEFAULT_BREAKPOINT);
 
         $dashboard = \is_array($config['dashboard'] ?? null) ? $config['dashboard'] : [];
         $pathPrefix = trim((string) ($dashboard['path_prefix'] ?? '/breadcrumb-kit-admin'));
@@ -304,7 +309,12 @@ final class BreadcrumbKitExtension extends Extension implements PrependExtension
         $container->getDefinition(BreadcrumbLoader::class)
             ->setArgument('$hideWhenSingleRoot', '%nowo_breadcrumb_kit.presentation.hide_when_single_root%')
             ->setArgument('$homeIconReplacesLabel', '%nowo_breadcrumb_kit.presentation.home_icon_replaces_label%')
-            ->setArgument('$defaultHomeIcon', '%nowo_breadcrumb_kit.presentation.home_icon%');
+            ->setArgument('$defaultHomeIcon', '%nowo_breadcrumb_kit.presentation.home_icon%')
+            ->setArgument('$defaultCollapse', new Definition(BreadcrumbCollapse::class, [
+                '%nowo_breadcrumb_kit.presentation.collapse.enabled%',
+                '%nowo_breadcrumb_kit.presentation.collapse.min_items%',
+                '%nowo_breadcrumb_kit.presentation.collapse.breakpoint%',
+            ]));
 
         $container->getDefinition(BreadcrumbExtension::class)
             ->setArgument('$defaultCollection', $config['default_collection']);

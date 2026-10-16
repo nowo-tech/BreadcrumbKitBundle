@@ -100,6 +100,9 @@ dashboard:
 
 breadcrumb:
   aria_label: Kruimelpad
+  collapse:
+    toggle: 'Vorige pagina''s tonen'
+    menu: 'Vorige pagina''s'
   inline_edit:
     open: Breadcrumbs bewerken
     close: Sluiten
@@ -245,7 +248,7 @@ demo:
   deep:
     title: 'Diep pad — Breadcrumb demo'
     heading: Lang breadcrumbpad
-    body_html: '<p>De diepste pagina heeft <strong>8 segmenten</strong> (Home + hub + 6 stappen). Op smalle viewports gebruikt de balk <strong>horizontaal scrollen</strong> (<code>breadcrumb--many</code> in de app breadcrumb override).</p>'
+    body_html: '<p>De diepste pagina heeft <strong>8 segmenten</strong> (Home + hub + 6 stappen). Onder <code>40rem</code> <strong>klapt</strong> het pad in tot een <strong>…</strong>-menu met de vorige pagina''s en de huidige pagina (<code>responsiveConfig.collapse</code>); tussen die breedte en 960px gebruikt de balk horizontaal scrollen (<code>breadcrumb--many</code> in de app breadcrumb override).</p>'
     current_level: 'Huidig niveau'
     step_label: Stap
     shortcuts: Snelkoppelingen
