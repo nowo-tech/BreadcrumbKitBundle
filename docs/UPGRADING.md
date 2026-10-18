@@ -3,6 +3,7 @@
 ## Table of contents
 
 - [Unreleased](#unreleased)
+- [To 2.7.2](#to-272)
 - [To 2.7.1](#to-271)
 - [To 2.7.0](#to-270)
   - [Template contract](#template-contract)
@@ -50,6 +51,14 @@
 - [General upgrade steps (any version)](#general-upgrade-steps-any-version)
 
 ## Unreleased
+
+## To 2.7.2
+
+From **2.7.1**:
+
+```bash
+composer update nowo-tech/breadcrumb-kit-bundle
+```
 
 ## To 2.7.1
 
