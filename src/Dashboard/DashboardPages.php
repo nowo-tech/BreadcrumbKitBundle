@@ -231,7 +231,7 @@ final readonly class DashboardPages
             layout: $this->layout(),
             attributes: ['data-testid' => 'breadcrumb-kit-collections-table'],
             actionsLabel: self::label('dashboard.table_actions'),
-            filterFields: [new FilterField('q', self::label('dashboard.search_placeholder'), 'lg', 'nowo-ui-input')],
+            filterFields: [new FilterField('q', null, 'lg', 'nowo-ui-input')],
             filtersSubmit: new Action('filter', self::label('dashboard.filter')),
             filtersClear: new Action('cancel', self::label('dashboard.clear_filters'), $this->url(self::ROUTE_COLLECTIONS)),
         );
@@ -358,7 +358,7 @@ final readonly class DashboardPages
             layout: $this->layout(),
             attributes: ['data-testid' => 'breadcrumb-kit-items-table'],
             actionsLabel: self::label('dashboard.table_actions'),
-            filterFields: [new FilterField('q', self::label('dashboard.search_placeholder'), 'lg', 'nowo-ui-input')],
+            filterFields: [new FilterField('q', null, 'lg', 'nowo-ui-input')],
             filtersSubmit: new Action('filter', self::label('dashboard.filter')),
             filtersClear: new Action('cancel', self::label('dashboard.clear_filters'), $itemsUrl),
         );

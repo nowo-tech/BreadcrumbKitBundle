@@ -116,6 +116,8 @@ final class BreadcrumbCollectionType extends AbstractType
                         'placeholder' => 'form.breadcrumb_collection.inline_edit_access.placeholder',
                         'help' => 'form.breadcrumb_collection.inline_edit_access.help',
                         'required' => false,
+                        // Access service keys are identifiers, not translation keys.
+                        'choice_translation_domain' => false,
                         'choices' => $choices,
                     ]);
                 }

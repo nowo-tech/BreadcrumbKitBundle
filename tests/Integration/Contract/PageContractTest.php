@@ -11,6 +11,9 @@ use Nowo\UiKitBundle\Test\PageContractTestCase;
 use Nowo\UiKitBundle\Test\PageFixture;
 use Nowo\UiKitBundle\Test\RenderedPage;
 use Nowo\UiKitBundle\View\ConfirmPage;
+use PHPUnit\Framework\Attributes\DataProvider;
+use Symfony\Bridge\Twig\Extension\TranslationExtension;
+use Symfony\Component\Translation\DataCollectorTranslator;
 
 /**
  * REQ-UI-003: every dashboard page extends a UiKit scaffold, fills the canonical blocks, ships no chrome of its own
@@ -37,6 +40,38 @@ final class PageContractTest extends PageContractTestCase
         yield 'item form (edit)' => new PageFixture(DashboardPages::TEMPLATES['item_form'], DashboardPageFixtures::itemForm($default, $items[1]));
         yield 'item delete (no-JS confirm)' => new PageFixture(DashboardPages::TEMPLATES['item_delete'], DashboardPageFixtures::itemDelete($default, $items[2]));
         yield 'import' => new PageFixture(DashboardPages::TEMPLATES['import'], DashboardPageFixtures::import());
+    }
+
+    /**
+     * @return iterable<string, array{PageFixture}>
+     */
+    public static function translationPages(): iterable
+    {
+        foreach (self::pageFixtures() as $name => $fixture) {
+            yield $name => [$fixture];
+        }
+    }
+
+    /**
+     * The form theme translates placeholders in the field domain: the search placeholder is a catalogue key translated
+     * once (it was translated by the controller / page model and looked up again: a profiler missing message).
+     */
+    #[DataProvider('translationPages')]
+    public function testPageLooksUpNoMissingMessage(PageFixture $fixture): void
+    {
+        $twig = $this->createTwig();
+        $collector = $twig->getExtension(TranslationExtension::class)->getTranslator();
+        \assert($collector instanceof DataCollectorTranslator);
+        $html = $twig->render($fixture->template, $fixture->context);
+
+        $missing = array_filter(
+            $collector->getCollectedMessages(),
+            static fn (array $message): bool => DataCollectorTranslator::MESSAGE_MISSING === $message['state'],
+        );
+        self::assertSame([], array_values(array_map(static fn (array $message): string => $message['domain'].': '.$message['id'], $missing)));
+        if (str_contains($html, 'name="q"')) {
+            self::assertStringContainsString('placeholder="Search by code, name or context…"', $html);
+        }
     }
 
     protected static function inlineTemplates(): array

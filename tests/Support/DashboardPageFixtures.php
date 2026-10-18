@@ -183,16 +183,16 @@ final class DashboardPageFixtures
         $field = static fn (string $key, bool $help = false): array => ['label' => 'form.breadcrumb_item.'.$key.'.label', 'required' => false] + ($help ? ['help' => 'form.breadcrumb_item.'.$key.'.help'] : []);
 
         return self::factory()->createNamedBuilder('breadcrumb_item', FormType::class, null, ['translation_domain' => NowoBreadcrumbKitBundle::TRANSLATION_DOMAIN])
-            ->add('routeName', TextType::class, ['label' => 'form.breadcrumb_item.route_name.label', 'data' => $item?->getRouteName(), 'attr' => ['placeholder' => 'app_product_show']])
+            ->add('routeName', TextType::class, ['label' => 'form.breadcrumb_item.route_name.label', 'data' => $item?->getRouteName(), 'attr' => ['placeholder' => 'form.breadcrumb_item.route_name.placeholder']])
             ->add('staticRouteParams', TextareaType::class, $field('static_params', true) + ['attr' => ['rows' => 3, 'class' => 'nowo-ui-input nowo-ui-input--full nowo-ui-code']])
-            ->add('pathPattern', TextType::class, $field('path_pattern', true) + ['attr' => ['placeholder' => '^/shop/.+', 'class' => 'nowo-ui-input nowo-ui-input--full nowo-ui-code']])
+            ->add('pathPattern', TextType::class, $field('path_pattern', true) + ['attr' => ['placeholder' => 'form.breadcrumb_item.path_pattern.placeholder', 'class' => 'nowo-ui-input nowo-ui-input--full nowo-ui-code']])
             ->add('matchAttributes', TextareaType::class, $field('match_attributes', true) + ['attr' => ['rows' => 2, 'class' => 'nowo-ui-input nowo-ui-input--full nowo-ui-code']])
             ->add('dynamicParamKeys', TextareaType::class, $field('dynamic_keys', true) + ['attr' => ['rows' => 2, 'class' => 'nowo-ui-input nowo-ui-input--full nowo-ui-code']])
             ->add('linkEnabled', CheckboxType::class, $field('link_enabled') + ['data' => $item?->isLinkEnabled() ?? true])
             ->add('label', TextType::class, $field('label') + ['data' => $item?->getLabel()])
             ->add('translations', TextareaType::class, $field('translations', true) + ['attr' => ['rows' => 4, 'class' => 'nowo-ui-input nowo-ui-input--full nowo-ui-code']])
             ->add('icon', TextType::class, $field('icon'))
-            ->add('parent', ChoiceType::class, $field('parent') + ['placeholder' => 'form.breadcrumb_item.parent.placeholder', 'choices' => ['Home (#10)' => 10, 'Shop (#11)' => 11]])
+            ->add('parent', ChoiceType::class, $field('parent') + ['placeholder' => 'form.breadcrumb_item.parent.placeholder', 'choice_translation_domain' => false, 'choices' => ['Home (#10)' => 10, 'Shop (#11)' => 11]])
             ->getForm()
             ->createView();
     }
@@ -201,7 +201,7 @@ final class DashboardPageFixtures
     {
         return self::factory()->create(DashboardGetSearchType::class, ['q' => $search], [
             'action' => $action,
-            'search_placeholder' => 'Search by code, name or context…',
+            'search_placeholder' => 'dashboard.search_placeholder',
             'search_label' => 'Search',
         ])->createView();
     }

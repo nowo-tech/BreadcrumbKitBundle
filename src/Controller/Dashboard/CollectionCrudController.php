@@ -74,7 +74,7 @@ final class CollectionCrudController extends AbstractController
         $searchForm = $this->createForm(DashboardGetSearchType::class, ['q' => $search], [
             'action' => $this->generateUrl(DashboardPages::ROUTE_COLLECTIONS),
             'method' => 'GET',
-            'search_placeholder' => $this->translator->trans('dashboard.search_placeholder', [], NowoBreadcrumbKitBundle::TRANSLATION_DOMAIN),
+            'search_placeholder' => 'dashboard.search_placeholder',
             'search_label' => $this->translator->trans('dashboard.search', [], NowoBreadcrumbKitBundle::TRANSLATION_DOMAIN),
         ]);
         $importForm = $this->createForm(ImportBreadcrumbType::class, null, [

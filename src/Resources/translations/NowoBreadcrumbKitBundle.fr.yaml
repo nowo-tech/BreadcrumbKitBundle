@@ -158,10 +158,12 @@ form:
 
   breadcrumb_item:
     route_name.label: Nom de route Symfony
+    route_name.placeholder: 'app_product_show'
     route_name.not_blank: Saisissez un nom de route.
     static_params.label: Paramètres statiques (JSON)
     static_params.help: 'Ex. {"section":"sales"} — doit correspondre à _route_params.'
     path_pattern.label: Path pattern (PCRE)
+    path_pattern.placeholder: '^/shop/.+'
     path_pattern.help: Optional regex against request path; use route * for path-only matches.
     match_attributes.label: Request attributes (JSON)
     match_attributes.help: Extra request attributes that must match.

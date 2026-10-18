@@ -40,7 +40,7 @@ final class BreadcrumbItemType extends AbstractType
                 'placeholder' => false,
                 'help' => false,
                 'constraints' => [new NotBlank(message: 'form.breadcrumb_item.route_name.not_blank'), new Length(max: 255)],
-                'attr' => ['placeholder' => 'app_product_show'],
+                'attr' => ['placeholder' => 'form.breadcrumb_item.route_name.placeholder'],
             ]);
             // Keep JsonObjectTransformer: empty → [] / null-friendly UX (FormKit JsonModelTransformer encodes null as "null").
             $this->addTextareaField('staticRouteParams', [
@@ -56,7 +56,7 @@ final class BreadcrumbItemType extends AbstractType
                 'help' => 'form.breadcrumb_item.path_pattern.help',
                 'required' => false,
                 'constraints' => [new Length(max: 512)],
-                'attr' => ['placeholder' => '^/shop/.+', 'class' => 'nowo-ui-input nowo-ui-input--full nowo-ui-code'],
+                'attr' => ['placeholder' => 'form.breadcrumb_item.path_pattern.placeholder', 'class' => 'nowo-ui-input nowo-ui-input--full nowo-ui-code'],
             ]);
             $this->addTextareaField('matchAttributes', [
                 'label' => 'form.breadcrumb_item.match_attributes.label',
@@ -105,6 +105,8 @@ final class BreadcrumbItemType extends AbstractType
                 'placeholder' => 'form.breadcrumb_item.parent.placeholder',
                 'help' => false,
                 'required' => false,
+                // Item labels / route names, not translation keys.
+                'choice_translation_domain' => false,
                 'choice_label' => static function (BreadcrumbItem $item): string {
                     $l = $item->getLabel() ?: $item->getRouteName();
 

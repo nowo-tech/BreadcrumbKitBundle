@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Nowo\BreadcrumbKitBundle\Form\Dashboard;
 
+use Nowo\BreadcrumbKitBundle\NowoBreadcrumbKitBundle;
 use Nowo\FormKitBundle\Attribute\FormKitConfig;
 use Nowo\FormKitBundle\Form\FormOptionsTrait;
 use Symfony\Component\Form\AbstractType;
@@ -12,7 +13,9 @@ use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
 /**
- * GET search form: query param {@code q} at the root (empty block prefix).
+ * GET search form: query param {@code q} at the root (empty block prefix). {@code search_placeholder} is a translation
+ * key of the form domain (the form theme translates the attribute); {@code search_label} is printed as given
+ * ({@code aria-label} is not translated by the theme).
  *
  * @extends AbstractType<array{q?: string|null}>
  */
@@ -38,6 +41,8 @@ final class DashboardGetSearchType extends AbstractType
     public function configureOptions(OptionsResolver $resolver): void
     {
         $resolver->setDefaults([
+            // search_placeholder is a message of this domain, translated once by the form theme.
+            'translation_domain' => NowoBreadcrumbKitBundle::TRANSLATION_DOMAIN,
             'method' => 'GET',
             'csrf_protection' => false,
             'allow_extra_fields' => true,

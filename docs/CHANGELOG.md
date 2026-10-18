@@ -72,6 +72,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `DashboardPages::dialogOpener()` (the `data-bk-dialog-url` / `?_partial=1` opener attributes): use
   `Action::$dialogId` with the form URL. `js/dashboard.js` still loads such openers until 3.0.
 
+### Fixed
+
+- **Missing / double translations (profiler):** the dashboard search placeholder was translated by the controllers and
+  by the page model (`FilterField`), then looked up again by the form theme in `messages`. `DashboardGetSearchType`
+  now uses the `NowoBreadcrumbKitBundle` domain and `search_placeholder` is the key `dashboard.search_placeholder`,
+  translated once by the theme (no `FilterField` placeholder). The item form's literal placeholders are catalogue keys
+  (`form.breadcrumb_item.route_name.placeholder` = `app_product_show`, `form.breadcrumb_item.path_pattern.placeholder`
+  = `^/shop/.+`, 7 locales); the parent choices (item labels) and the inline-edit access keys are not translated
+  (`choice_translation_domain: false`). A contract test renders every dashboard page with a `DataCollectorTranslator`
+  and asserts no missing message.
+
 ### Demo
 
 - The host layout prints the UiKit runtimes through the UiKit `scripts` partial (the hand-kept list lacked `modal`,
