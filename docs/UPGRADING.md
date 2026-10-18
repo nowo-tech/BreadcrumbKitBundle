@@ -3,6 +3,7 @@
 ## Table of contents
 
 - [Unreleased](#unreleased)
+- [To 2.7.1](#to-271)
 - [To 2.7.0](#to-270)
   - [Template contract](#template-contract)
   - [Deprecated configuration](#deprecated-configuration)
@@ -49,6 +50,14 @@
 - [General upgrade steps (any version)](#general-upgrade-steps-any-version)
 
 ## Unreleased
+
+## To 2.7.1
+
+From **2.7.0**:
+
+```bash
+composer update nowo-tech/breadcrumb-kit-bundle
+```
 
 Requires UiKit **^2.2** (`composer require nowo-tech/ui-kit-bundle:^2.2`). No configuration change. What hosts may
 notice:
