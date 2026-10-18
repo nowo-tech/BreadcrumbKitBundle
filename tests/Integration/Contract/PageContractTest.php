@@ -60,7 +60,10 @@ final class PageContractTest extends PageContractTestCase
         self::assertStringContainsString('Delete collection “admin” and all its items?', $html);
         self::assertStringContainsString('value="token-delete_collection_3"', $html);
         self::assertStringContainsString('nowo-ui-action__fallback" href="/breadcrumb-kit-admin/collections/3/delete"', $html);
-        self::assertStringContainsString('data-bk-dialog-url="/breadcrumb-kit-admin/collections/2/edit?_partial=1"', $html);
+        // UiKit 2.2 remote dialog: the edit link (no-JS fallback) is fetched into the collection form dialog
+        self::assertMatchesRegularExpression('#href="/breadcrumb-kit-admin/collections/2/edit"[^>]* data-nowo-ui-dialog-open="bk-collection-form-dialog" data-nowo-ui-dialog-src="/breadcrumb-kit-admin/collections/2/edit"#', $html);
+        self::assertStringNotContainsString('data-bk-dialog-url', $html);
+        self::assertStringContainsString('data-nowo-ui-dialog-body data-bk-dialog-body', $html);
         self::assertMatchesRegularExpression('/<dialog id="bk-collection-form-dialog" class="[^"]*nowo-ui-dialog--xl"/', $html);
         self::assertStringContainsString('data-nowo-ui-dialog-open="bk-import-dialog"', $html);
         self::assertMatchesRegularExpression('/<dialog id="bk-import-dialog"[^>]*data-testid="bk-import-dialog"/', $html);
@@ -83,6 +86,7 @@ final class PageContractTest extends PageContractTestCase
         self::assertStringContainsString('href="/breadcrumb-kit-admin/collections/1/items?q=app_shop"', $html);
         self::assertStringContainsString('Items · default', $html);
         self::assertStringContainsString('data-testid="bk-item-new"', $html);
+        self::assertMatchesRegularExpression('#data-testid="bk-item-new" data-nowo-ui-dialog-open="bk-item-form-dialog" data-nowo-ui-dialog-src="[^"]*/items/new"#', $html);
         self::assertStringContainsString('id="bk-item-form-dialog"', $html);
 
         $empty = $this->html(DashboardPages::TEMPLATES['items_index'], DashboardPageFixtures::itemsIndex($collection, true));
@@ -97,9 +101,13 @@ final class PageContractTest extends PageContractTestCase
     public function testFormPagesCarryErrorsBackLinkAndDangerZone(): void
     {
         $collections = DashboardPageFixtures::collections();
-        $new = $this->html(DashboardPages::TEMPLATES['collection_form'], DashboardPageFixtures::collectionForm(null, true));
+        $newContext = DashboardPageFixtures::collectionForm(null, true);
+        $new = $this->html(DashboardPages::TEMPLATES['collection_form'], $newContext);
         self::assertStringContainsString('A collection with this code and context key already exists.', $new);
-        self::assertStringContainsString('← Collections', $new);
+        // UiKit 2.2: the trail (kit, else the dashboard's own — breadcrumbsMode auto) is the way back — no "←" action
+        self::assertSame('auto', $newContext['page']->header->breadcrumbsMode);
+        self::assertSame([], $newContext['page']->header->actions);
+        self::assertStringNotContainsString('← Collections', $new);
         self::assertStringNotContainsString('data-nowo-ui-region="danger-zone"', $new);
 
         $edit = $this->html(DashboardPages::TEMPLATES['collection_form'], DashboardPageFixtures::collectionForm($collections[0]));
@@ -109,7 +117,7 @@ final class PageContractTest extends PageContractTestCase
 
         $item = $this->html(DashboardPages::TEMPLATES['item_form'], DashboardPageFixtures::itemForm($collections[0], DashboardPageFixtures::items($collections[0])[1]));
         self::assertStringContainsString('Edit item #11', $item);
-        self::assertStringContainsString('← Items', $item);
+        self::assertStringNotContainsString('← Items', $item);
         self::assertStringContainsString('class="nowo-ui-input nowo-ui-input--full nowo-ui-code"', $item);
         self::assertStringContainsString('data-nowo-ui-region="danger-zone"', $item);
 

@@ -61,6 +61,14 @@ final readonly class DashboardPages
     public const DIALOG_ITEM_FORM = 'bk-item-form-dialog';
     public const DIALOG_IMPORT = 'bk-import-dialog';
 
+    /**
+     * Breadcrumbs of the dashboard page headers (UiKit 2.2 {@see PageHeader::$breadcrumbsMode} `auto`): the
+     * BreadcrumbKit trail the host configured for the dashboard routes when there is one, else the dashboard's own
+     * trail (Collections › code › page) — UiKit 2.2 falls back to it when the kit trail is empty, so every page keeps a
+     * way back and the "←" header actions of 2.7 are gone.
+     */
+    public const BREADCRUMBS_MODE = 'auto';
+
     public const ROUTE_COLLECTIONS = 'nowo_breadcrumb_kit_dashboard_collections_index';
     public const ROUTE_COLLECTION_NEW = 'nowo_breadcrumb_kit_dashboard_collections_new';
     public const ROUTE_COLLECTION_EDIT = 'nowo_breadcrumb_kit_dashboard_collections_edit';
@@ -191,8 +199,8 @@ final readonly class DashboardPages
                 'aria-haspopup' => 'dialog',
                 'data-testid' => 'bk-import-open',
             ]),
-            new Action('create', self::label('dashboard.new_collection'), $newUrl, variant: 'primary', attributes: self::dialogOpener(self::DIALOG_COLLECTION_FORM, $newUrl, 'bk-collection-new')),
-        ], [new Crumb(self::label('dashboard.collections_heading'))]);
+            new Action('create', self::label('dashboard.new_collection'), $newUrl, variant: 'primary', attributes: ['data-testid' => 'bk-collection-new'], dialogId: self::DIALOG_COLLECTION_FORM),
+        ], [new Crumb(self::label('dashboard.collections_heading'))], breadcrumbsMode: self::BREADCRUMBS_MODE);
 
         return new ListPage(
             $header,
@@ -212,7 +220,7 @@ final readonly class DashboardPages
                 return [
                     Action::view($this->url(self::ROUTE_ITEMS, ['collectionId' => $id]), self::label('dashboard.link_items')),
                     new Action('export', self::label('dashboard.link_export_json'), $this->url(self::ROUTE_COLLECTION_EXPORT, ['id' => $id])),
-                    new Action('edit', self::label('dashboard.link_edit'), $editUrl, attributes: self::dialogOpener(self::DIALOG_COLLECTION_FORM, $editUrl)),
+                    new Action('edit', self::label('dashboard.link_edit'), $editUrl, dialogId: self::DIALOG_COLLECTION_FORM),
                     new Action('delete', self::label('dashboard.delete'), $deleteUrl, method: 'POST', confirm: $this->collectionDeleteConfirm((string) $row['code']), form: $deleteForm($id), fallbackHref: $deleteUrl),
                 ];
             },
@@ -256,7 +264,7 @@ final readonly class DashboardPages
         $crumbs[] = new Crumb($title);
 
         return new FormPage(
-            new PageHeader($title, null, [$this->backAction($indexUrl, 'dashboard.back_collections')], $crumbs),
+            new PageHeader($title, null, [], $crumbs, breadcrumbsMode: self::BREADCRUMBS_MODE),
             $form,
             self::label(null !== $id ? 'dashboard.form_update' : 'dashboard.form_create'),
             $indexUrl,
@@ -280,7 +288,7 @@ final readonly class DashboardPages
             new PageHeader(self::label('dashboard.confirm_delete'), null, [], [
                 new Crumb(self::label('dashboard.collections_heading'), $this->url(self::ROUTE_COLLECTIONS)),
                 new Crumb($collection->getCode()),
-            ]),
+            ], breadcrumbsMode: self::BREADCRUMBS_MODE),
             $this->collectionDeleteConfirm($collection->getCode()),
             new Action('delete', self::label('dashboard.delete'), $this->url(self::ROUTE_COLLECTION_DELETE, ['id' => $id]), method: 'POST', form: $deleteForm),
             $this->url(self::ROUTE_COLLECTIONS),
@@ -309,17 +317,17 @@ final readonly class DashboardPages
             self::label('dashboard.items_title_with_code', ['%code%' => $code]),
             null !== $name && '' !== $name ? $name : null,
             [
-                $this->backAction($this->url(self::ROUTE_COLLECTIONS), 'dashboard.back_collections'),
                 new Action('export', self::label('dashboard.export_collection'), $this->url(self::ROUTE_COLLECTION_EXPORT, ['id' => $collectionId])),
-                new Action('config', self::label('dashboard.collection_styles'), $editUrl, attributes: self::dialogOpener(self::DIALOG_COLLECTION_FORM, $editUrl, 'bk-collection-styles')),
-                new Action('create', self::label('dashboard.new_item'), $newUrl, variant: 'primary', attributes: self::dialogOpener(self::DIALOG_ITEM_FORM, $newUrl, 'bk-item-new')),
+                new Action('config', self::label('dashboard.collection_styles'), $editUrl, attributes: ['data-testid' => 'bk-collection-styles'], dialogId: self::DIALOG_COLLECTION_FORM),
+                new Action('create', self::label('dashboard.new_item'), $newUrl, variant: 'primary', attributes: ['data-testid' => 'bk-item-new'], dialogId: self::DIALOG_ITEM_FORM),
             ],
             [new Crumb(self::label('dashboard.collections_heading'), $this->url(self::ROUTE_COLLECTIONS)), new Crumb($code)],
+            breadcrumbsMode: self::BREADCRUMBS_MODE,
         );
 
         $empty = '' !== $search
             ? new EmptyState(message: self::label('dashboard.empty_items_search'), action: new Action('view', self::label('dashboard.view_all_link'), $itemsUrl, variant: 'link'))
-            : new EmptyState(message: self::label('dashboard.empty_items_none'), action: new Action('create', self::label('dashboard.add_item_button'), $newUrl, variant: 'primary', attributes: self::dialogOpener(self::DIALOG_ITEM_FORM, $newUrl)));
+            : new EmptyState(message: self::label('dashboard.empty_items_none'), action: new Action('create', self::label('dashboard.add_item_button'), $newUrl, variant: 'primary', dialogId: self::DIALOG_ITEM_FORM));
 
         return new ListPage(
             $header,
@@ -338,7 +346,7 @@ final readonly class DashboardPages
 
                 return [
                     new Action('filter', self::label('dashboard.filter_by_route'), $this->url(self::ROUTE_ITEMS, ['collectionId' => $collectionId, 'q' => $item->getRouteName()])),
-                    new Action('edit', self::label('dashboard.link_edit'), $editUrl, attributes: self::dialogOpener(self::DIALOG_ITEM_FORM, $editUrl)),
+                    new Action('edit', self::label('dashboard.link_edit'), $editUrl, dialogId: self::DIALOG_ITEM_FORM),
                     new Action('delete', self::label('dashboard.delete'), $deleteUrl, method: 'POST', confirm: $this->itemDeleteConfirm($item), form: $deleteForm($id), fallbackHref: $deleteUrl),
                 ];
             },
@@ -374,7 +382,7 @@ final readonly class DashboardPages
         }
 
         return new FormPage(
-            new PageHeader($title, null, [$this->backAction($itemsUrl, 'dashboard.back_items')], [
+            new PageHeader($title, null, [], breadcrumbsMode: self::BREADCRUMBS_MODE, breadcrumbs: [
                 new Crumb(self::label('dashboard.collections_heading'), $this->url(self::ROUTE_COLLECTIONS)),
                 new Crumb($collection->getCode(), $itemsUrl),
                 new Crumb($title),
@@ -404,7 +412,7 @@ final readonly class DashboardPages
                 new Crumb(self::label('dashboard.collections_heading'), $this->url(self::ROUTE_COLLECTIONS)),
                 new Crumb($collection->getCode(), $itemsUrl),
                 new Crumb('#'.(string) $item->getId()),
-            ]),
+            ], breadcrumbsMode: self::BREADCRUMBS_MODE),
             $this->itemDeleteConfirm($item),
             new Action('delete', self::label('dashboard.delete'), $this->url(self::ROUTE_ITEM_DELETE, ['collectionId' => $collectionId, 'id' => (int) $item->getId()]), method: 'POST', form: $deleteForm),
             $itemsUrl,
@@ -422,7 +430,7 @@ final readonly class DashboardPages
         $indexUrl = $this->url(self::ROUTE_COLLECTIONS);
 
         return new FormPage(
-            new PageHeader(self::label('dashboard.import_page_title'), null, [$this->backAction($indexUrl, 'dashboard.back_collections')], [
+            new PageHeader(self::label('dashboard.import_page_title'), null, [], breadcrumbsMode: self::BREADCRUMBS_MODE, breadcrumbs: [
                 new Crumb(self::label('dashboard.collections_heading'), $indexUrl),
                 new Crumb(self::label('dashboard.import')),
             ]),
@@ -439,6 +447,10 @@ final readonly class DashboardPages
     /**
      * Attributes of an action that opens a dashboard dialog and loads its form ({@code ?_partial=1}) into it
      * (js/dashboard.js); without JavaScript the link opens the full-page form.
+     *
+     * @deprecated since 2.8, the dashboard actions use the UiKit 2.2 remote dialog ({@see Action::$dialogId} with the
+     *             form URL: nowo-ui-dialog.js fetches it with X-Requested-With, the controllers answer with the form
+     *             partial); kept for host templates that still print these attributes (js/dashboard.js loads them)
      *
      * @return array<string, string>
      */
@@ -464,11 +476,6 @@ final readonly class DashboardPages
     private function itemDeleteConfirm(BreadcrumbItem $item): Confirm
     {
         return new Confirm(self::label('dashboard.confirm_delete'), self::label('dashboard.delete_item_confirm', ['%id%' => (string) $item->getId(), '%route%' => $item->getRouteName()]), self::label('dashboard.delete'));
-    }
-
-    private function backAction(string $href, string $label): Action
-    {
-        return new Action('prev', self::label($label), $href, variant: 'link');
     }
 
     /**

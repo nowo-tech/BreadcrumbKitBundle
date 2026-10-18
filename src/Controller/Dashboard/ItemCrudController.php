@@ -92,7 +92,7 @@ final class ItemCrudController extends AbstractController
             'exclude_item' => null,
         ];
 
-        if ($request->isMethod('GET') && $request->query->get('_partial')) {
+        if ($request->isMethod('GET') && ($request->query->get('_partial') || $request->isXmlHttpRequest())) {
             $form = $this->createForm(BreadcrumbItemType::class, $item, array_merge($itemFormOpts, [
                 'action' => $this->generateUrl('nowo_breadcrumb_kit_dashboard_items_new', ['collectionId' => $collectionId]),
             ]));
@@ -135,7 +135,7 @@ final class ItemCrudController extends AbstractController
         ];
         $editTitle = $this->translator->trans('dashboard.edit_item_modal_title', ['%id%' => (string) $item->getId()], NowoBreadcrumbKitBundle::TRANSLATION_DOMAIN);
 
-        if ($request->isMethod('GET') && $request->query->get('_partial')) {
+        if ($request->isMethod('GET') && ($request->query->get('_partial') || $request->isXmlHttpRequest())) {
             $form = $this->createForm(BreadcrumbItemType::class, $item, array_merge($itemFormOpts, [
                 'action' => $this->generateUrl('nowo_breadcrumb_kit_dashboard_items_edit', ['collectionId' => $collectionId, 'id' => $id]),
             ]));

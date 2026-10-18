@@ -34,7 +34,9 @@ final class CspSafeTemplatesTest extends TestCase
     {
         $js = (string) file_get_contents(self::VIEWS.'/../public/js/dashboard.js');
 
-        self::assertStringContainsString('data-bk-dialog-url', $js);
+        self::assertStringContainsString('nowo-ui:dialog-loaded', $js, 'UiKit 2.2 remote dialogs load the forms');
+        self::assertStringContainsString('data-nowo-ui-dialog-src', $js);
+        self::assertStringContainsString('data-bk-dialog-url', $js, 'deprecated openers still load');
         self::assertStringContainsString('nowoUiOpenDialog', $js);
         self::assertStringNotContainsString('bootstrap', strtolower($js));
         self::assertStringNotContainsString('eval(', $js);

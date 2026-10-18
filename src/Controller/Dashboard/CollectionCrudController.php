@@ -99,7 +99,7 @@ final class CollectionCrudController extends AbstractController
     {
         $collection = new BreadcrumbCollection();
         $opts = $this->collectionFormOptions();
-        if ($request->isMethod('GET') && $request->query->get('_partial')) {
+        if ($request->isMethod('GET') && ($request->query->get('_partial') || $request->isXmlHttpRequest())) {
             $form = $this->createForm(BreadcrumbCollectionType::class, $collection, array_merge($opts, [
                 'action' => $this->generateUrl('nowo_breadcrumb_kit_dashboard_collections_new'),
             ]));
@@ -144,7 +144,7 @@ final class CollectionCrudController extends AbstractController
 
         $opts = $this->collectionFormOptions();
         $editTitle = $this->translator->trans('dashboard.edit_collection_modal_title', ['%code%' => $collection->getCode()], NowoBreadcrumbKitBundle::TRANSLATION_DOMAIN);
-        if ($request->isMethod('GET') && $request->query->get('_partial')) {
+        if ($request->isMethod('GET') && ($request->query->get('_partial') || $request->isXmlHttpRequest())) {
             $form = $this->createForm(BreadcrumbCollectionType::class, $collection, array_merge($opts, [
                 'action' => $this->generateUrl('nowo_breadcrumb_kit_dashboard_collections_edit', ['id' => $id]),
             ]));
