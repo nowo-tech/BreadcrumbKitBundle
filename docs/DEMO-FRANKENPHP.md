@@ -59,7 +59,7 @@ Public routes use the **`/{_locale}/…`** prefix (`en`, `es`). **`/`** redirect
 | **`breadcrumb_render('default', 'breadcrumb/custom_fragment.html.twig')`** | `/en/demo/custom-template` |
 | **No matching `BreadcrumbItem`** → empty trail | `/en/demo/no-match` |
 | **PSR-6 item-list cache** (`nowo_breadcrumb_kit.cache`) | Enabled like in production apps; not visually distinct — see [USAGE.md](USAGE.md#caching) |
-| **Dashboard CRUD** (collections + items + styles) | `http://localhost:<PORT>/breadcrumb-kit-admin/` (`nowo_breadcrumb_kit.dashboard.path_prefix`; demos use `framework.csrf_protection: true` without SecurityBundle) |
+| **Dashboard CRUD** (collections + items + styles) | `http://localhost:<PORT>/breadcrumb-kit-admin/` (`nowo_breadcrumb_kit.web_ui.path_prefix`; demos use `framework.csrf_protection: true` without SecurityBundle) |
 
 Fixture source: `demo/symfony8/src/DataFixtures/BreadcrumbDemoFixtures.php`.
 

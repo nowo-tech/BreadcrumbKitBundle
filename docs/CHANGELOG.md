@@ -48,6 +48,59 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+Standard page contract (REQ-UI-003) on **UiKit 2.1** — minor: the 2.x configuration keeps working (deprecated aliases,
+theme bridge); the dashboard markup changes (see [UPGRADING](UPGRADING.md#template-contract)).
+
+### Added
+
+- Dashboard pages on the UiKit scaffolds: collections and items lists (`page/list`), collection / item / import forms
+  (`page/form`), no-JS delete confirmation pages (`page/confirm`, `GET` of the delete routes, `Action::fallbackHref`).
+  View models built by `Nowo\BreadcrumbKitBundle\Dashboard\DashboardPages`; [TEMPLATES.md](TEMPLATES.md).
+- Canonical configuration `web_ui.enabled`, `web_ui.path_prefix`, `web_ui.layout_template` (default `null` = UiKit
+  layout), `web_ui.templates.<page>`, `web_ui.import_max_bytes`, `web_ui.pagination`, `web_ui.dialog_sizes`;
+  parameters `%nowo_breadcrumb_kit.web_ui.path_prefix%` / `.web_ui.enabled`.
+- Forms open in framework-free UiKit dialogs (`js/dashboard.js` loads `?_partial=1` into them); the import dialog
+  renders its form inline. Edit pages get a danger zone (delete through the UiKit confirm contract).
+- The front trail (`breadcrumb_render()`) appends the host classes / attributes of the UiKit theme slots `breadcrumbs`,
+  `breadcrumb_link`, `breadcrumb_separator` (2.6 markup when none are set); tests cover UiKit page headers rendering the
+  trail (`nowo_ui_kit.breadcrumbs.breadcrumb_kit`).
+- Page contract test (`PageContractTestCase`, 13 fixtures + partials), BC tests for the deprecated keys and the theme
+  bridge; demo on the UiKit host layout with Playwright e2e and WebP screenshots (`docs/images/demo/`).
+- Translation keys `dashboard.back_items`, `dashboard.empty_collections_search` (7 locales).
+
+### Changed
+
+- Requires `nowo-tech/ui-kit-bundle` **^2.1** (was ^1.4).
+- Header, actions, filters, table, row actions, pagination, empty states, flashes and confirm dialogs come from UiKit and
+  its theme; invalid form submissions from a dialog render the full-page form (HTTP 422) instead of a bare fragment.
+- Deletes after a confirmation redirect to the list (the referer only when it is that list).
+- FormKit profile `breadcrumb_kit` fields get `nowo-ui-input--full`; JSON fields use `nowo-ui-code` instead of the
+  Bootstrap `font-monospace` utility; the search field has no FormKit label.
+- `nowo_ui_kit.css_framework` / `icon_set` are seeded only from an explicit (deprecated) `dashboard.css_framework` /
+  `icon_set` (the UiKit defaults are the same as the former BreadcrumbKit ones).
+
+### Deprecated
+
+- The `dashboard` configuration node: `enabled`, `path_prefix`, `layout_template`, `import_max_bytes`, `pagination`,
+  `modals` → `web_ui.*`; `css_framework`, `icon_set` → `nowo_ui_kit`; `classes` → bridged into
+  `nowo_ui_kit.theme.bundles.NowoBreadcrumbKitBundle`; `partials`, `ui_kit_stylesheet`, `collections_view`,
+  `row_actions_position`, `cancel_first` → no effect. Removed in 3.0.
+- `Nowo\BreadcrumbKitBundle\Dashboard\DashboardChrome`, `Twig\BreadcrumbKitDashboardGlobalsExtension` (Twig globals
+  `nowo_breadcrumb_kit_*`), 1.x layouts that only define `nowo_breadcrumb_kit_content` (wrapped by
+  `dashboard/_legacy_layout.html.twig`).
+
+### Removed
+
+- `dashboard/layout.html.twig` (4-framework CDN switch), `dashboard/base.html.twig`, `dashboard/_pagination.html.twig`,
+  `dashboard/_modal_shell.html.twig`, `dashboard/_dashboard_modals.html.twig`, `dashboard/_icons.html.twig`, the
+  `bk_*` page blocks and the layout slot contract (`bk_page_actions_in_layout`, `bk_page_title_in_layout`).
+
+### Fixed
+
+- Dashboard deletes: the unnamed CSRF-only delete form was never submitted (Symfony ignores the token when it looks for
+  submitted fields), so deletes redirected without deleting; `DashboardPostDeleteType` now carries a hidden `confirm`
+  field.
+
 ## [2.6.0] - 2026-10-16
 
 ### Added

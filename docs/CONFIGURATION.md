@@ -7,7 +7,9 @@ Configuration root key: `nowo_breadcrumb_kit` (see `Nowo\BreadcrumbKitBundle\Dep
 - [Reference](#reference)
 - [Inline edit (modal)](#inline-edit-modal)
 - [Dashboard (CRUD)](#dashboard-crud)
-  - [CSS framework (REQ-UI-001)](#css-framework-req-ui-001)
+  - [Look and feel (UiKit page contract)](#look-and-feel-uikit-page-contract)
+  - [Form Kit (`nowo_form_kit`)](#form-kit-nowo_form_kit)
+  - [Deprecated dashboard keys](#deprecated-dashboard-keys)
   - [Twig helper](#twig-helper)
 - [Example](#example)
 
@@ -29,28 +31,21 @@ Configuration root key: `nowo_breadcrumb_kit` (see `Nowo\BreadcrumbKitBundle\Dep
 | `presentation.collapse.enabled` | `bool` | `false` | Opt-in **collapse on narrow screens** (GitHub-style): below `breakpoint` the trail shows only a "…" menu with the previous crumbs, one separator and the current crumb. `collapse: true` is a shorthand. Off = markup identical to 2.5.0. See [USAGE](USAGE.md#collapse-on-narrow-screens). |
 | `presentation.collapse.min_items` | `int` | `3` | Minimum number of crumbs (current included) before the trail collapses; `>= 2`. Shorter trails render unchanged. |
 | `presentation.collapse.breakpoint` | `string\|int` | `40rem` | Width of the `.breadcrumb-kit` wrapper (container query; viewport media query fallback) below which the trail collapses. Length in `px`, `rem` or `em` (`'40rem'`, `'640px'`) or an integer (pixels). Anything else is rejected at container build. |
-| `dashboard.enabled` | `bool` | `false` | When `true`, registers CRUD controllers (requires `symfony/form` + `symfony/framework-bundle`; import routing as below). |
-| `dashboard.path_prefix` | `string` | `/breadcrumb-kit-admin` | URL prefix for dashboard routes (leading slash, no trailing slash). Must match the `prefix` used when importing bundle routes. |
-| `dashboard.layout_template` | `string` | `@NowoBreadcrumbKitBundle/dashboard/layout.html.twig` | Twig layout extended by dashboard pages (override in the app like DashboardMenuBundle). Must define block `nowo_breadcrumb_kit_content`. |
-| `dashboard.css_framework` | `string` | `bootstrap5` | CSS stack for dashboard markup (`bootstrap`/`bootstrap5`, `bootstrap4`, `tailwind`, `foundation`, `custom`, `tabler`, `none`). Exposed as Twig global `nowo_breadcrumb_kit_css_framework`. |
-| `dashboard.icon_set` | `string` | `bootstrap-icons` | Icon set for dashboard actions (`bootstrap-icons`, `tabler-icons`, `ux_icon`, `svg_inline`, `none`). Exposed as Twig global `nowo_breadcrumb_kit_icon_set`. |
-| `dashboard.import_max_bytes` | `int` | `2097152` | Maximum JSON upload size for dashboard import (default 2 MiB). |
-| `dashboard.pagination.enabled` | `bool` | `true` | When `true`, collections and items lists in the dashboard are paginated. |
-| `dashboard.pagination.per_page` | `int` | `20` | Number of rows per page for collections and items (1–500). |
-| `dashboard.modals.collection_form` | `string` | `lg` | Bootstrap modal size for collection create/edit: `normal`, `lg`, or `xl`. |
-| `dashboard.modals.item_form` | `string` | `lg` | Modal size for item create/edit. |
-| `dashboard.modals.import` | `string` | `normal` | Modal size for JSON import. |
-| `dashboard.modals.delete` | `string` | `normal` | Modal size for delete confirmation. |
-| `dashboard.classes` | `array<string,string>` | `{}` | Admin chrome class map (allow-listed keys, see [USAGE](USAGE.md#customising-the-admin-chrome)). Each key replaces the classes the templates compute; unset keys keep the default. Unknown keys fail at container build. Twig global `nowo_breadcrumb_kit_classes`. |
-| `dashboard.partials` | `array<string,string>` | `{}` | Partial paths: `modals`, `modal_shell`, `pagination`, `action_inner`. Twig global `nowo_breadcrumb_kit_partials`. |
-| `dashboard.ui_kit_stylesheet` | `bool` | `true` | `false` when the host layout already loads `nowo-ui.css` before its theme (avoids re-asserting UiKit tokens last). |
-| `dashboard.collections_view` | `string` | `list` | Collections index markup: `list` or `table` (code, name, items, context, actions). |
-| `dashboard.row_actions_position` | `string` | `start` | Actions column position in dashboard tables: `start` or `end`. |
-| `dashboard.cancel_first` | `bool` | `false` | Render Cancel before the submit button in modal forms. |
+| `web_ui.enabled` | `bool` | `false` | When `true`, registers the dashboard (CRUD) controllers (requires `symfony/form` + `symfony/framework-bundle`; import routing as below). |
+| `web_ui.path_prefix` | `string` | `/breadcrumb-kit-admin` | URL prefix of the dashboard routes (leading slash, no trailing slash). Parameter `%nowo_breadcrumb_kit.web_ui.path_prefix%` (also `%nowo_breadcrumb_kit.dashboard.path_prefix%`, kept for existing routing imports). |
+| `web_ui.layout_template` | `string\|null` | `null` | Per-bundle layout of the dashboard pages; `null` = `nowo_ui_kit.layouts.admin` (UiKit page contract, REQ-UI-003). The layout must render the UiKit canonical blocks; a 1.x layout that only defines `nowo_breadcrumb_kit_content` is wrapped by a deprecated bridge (see [UPGRADING](UPGRADING.md#template-contract)). |
+| `web_ui.templates.<page>` | `array<string,string>` | `{}` | Per-page template override: `collections_index`, `collection_form`, `collection_delete`, `items_index`, `item_form`, `item_delete`, `import` (see [TEMPLATES](TEMPLATES.md)). Unknown pages fail at container build. |
+| `web_ui.import_max_bytes` | `int` | `2097152` | Maximum JSON upload size for the dashboard import (default 2 MiB). |
+| `web_ui.pagination.enabled` | `bool` | `true` | Paginate the collections and items lists. |
+| `web_ui.pagination.per_page` | `int` | `20` | Rows per page (1–500). |
+| `web_ui.dialog_sizes.collection_form` | `string` | `lg` | UiKit dialog size (`sm`, `md`, `lg`, `xl`) of the collection form dialog. |
+| `web_ui.dialog_sizes.item_form` | `string` | `lg` | Dialog size of the item form dialog. |
+| `web_ui.dialog_sizes.import` | `string` | `md` | Dialog size of the JSON import dialog. |
+| `dashboard.*` | — | — | **Deprecated since 2.7** (removed in 3.0), see [Deprecated dashboard keys](#deprecated-dashboard-keys). |
 | `security.access_roles` | `string[]` | `['ROLE_ADMIN']` | User must be granted **at least one** role for dashboard routes (REQ-UI-002). Empty list disables bundle-level role checks. |
 | `security.access_checker` | `string\|null` | `null` | Optional service id implementing `BreadcrumbKitAccessCheckerInterface`. `null` = built-in role checker. |
 | `security.allow_unauthenticated` | `bool` | `false` | **DEV/DEMO only.** Skip SecurityBundle requirement and dashboard access subscriber. Never `true` in production. |
-| `inline_edit.query_param` | `string\|null` | `null` | When non-empty, a truthy value for this query key (`1`, `true`, `yes`, `on`) enables the optional inline editor UI in `breadcrumb_render()` (requires `dashboard.enabled`, a collection `inline_edit_access_key`, and a passing access checker). |
+| `inline_edit.query_param` | `string\|null` | `null` | When non-empty, a truthy value for this query key (`1`, `true`, `yes`, `on`) enables the optional inline editor UI in `breadcrumb_render()` (requires `web_ui.enabled`, a collection `inline_edit_access_key`, and a passing access checker). |
 | `inline_edit.access_services` | `array<string,string>` | `[]` | Map of **logical keys** to **service ids** implementing `BreadcrumbInlineEditAccessCheckerInterface`. Each collection selects one key in the dashboard; the service receives the current `Request` and `?UserInterface` (or `null` if anonymous / no Security). |
 
 To override dashboard or form UI strings from your application, see [USAGE.md](USAGE.md#overriding-translations-req-i18n-001) (domain `NowoBreadcrumbKitBundle`, files `translations/NowoBreadcrumbKitBundle.{locale}.yaml`).
@@ -66,7 +61,7 @@ Override `templates/bundles/NowoBreadcrumbKitBundle/breadcrumb.html.twig` in you
 
 ## Dashboard (CRUD)
 
-1. Set `dashboard.enabled: true` and choose `dashboard.path_prefix` (e.g. `/admin/breadcrumbs`).
+1. Set `web_ui.enabled: true` and choose `web_ui.path_prefix` (e.g. `/admin/breadcrumbs`).
 2. Import routing in your app (outside a `/{_locale}` group if you want a single non-localized admin URL):
 
 ```yaml
@@ -74,7 +69,7 @@ Override `templates/bundles/NowoBreadcrumbKitBundle/breadcrumb.html.twig` in you
 nowo_breadcrumb_kit_dashboard:
     resource: '@NowoBreadcrumbKitBundle/Resources/config/routing/dashboard.yaml'
     type: yaml
-    prefix: '%nowo_breadcrumb_kit.dashboard.path_prefix%'
+    prefix: '%nowo_breadcrumb_kit.web_ui.path_prefix%'
 ```
 
 3. **Secure the dashboard (REQ-UI-002)** — production defaults require `symfony/security-bundle` and at least one of `security.access_roles` (default `ROLE_ADMIN`):
@@ -82,11 +77,10 @@ nowo_breadcrumb_kit_dashboard:
 ```yaml
 # config/packages/nowo_breadcrumb_kit.yaml
 nowo_breadcrumb_kit:
-    dashboard:
+    web_ui:
         enabled: true
         path_prefix: /admin/breadcrumbs
-        layout_template: 'base.html.twig'   # host layout
-        css_framework: bootstrap5
+        # layout_template: null          # null = nowo_ui_kit.layouts.admin
     security:
         access_roles: [ROLE_ADMIN]
         # access_checker: App\Security\BreadcrumbKitAccessChecker
@@ -104,111 +98,58 @@ security:
 
 Changes made through Doctrine (dashboard, import, your own entity code) invalidate the PSR-6 item-list cache of the affected collection automatically; changes written with raw SQL wait out `cache.ttl` (or clear the pool).
 
-The dashboard UI aligns visually with [DashboardMenuBundle](https://github.com/nowo-tech/DashboardMenuBundle): list/table views, fetch-loaded modals (`?_partial=1`), search, optional pagination, export/import JSON. Twig globals: `nowo_breadcrumb_kit_layout_template`, `nowo_breadcrumb_kit_css_framework`, `nowo_breadcrumb_kit_icon_set`.
+### Look and feel (UiKit page contract)
 
-### CSS framework (REQ-UI-001)
-
-Set `dashboard.css_framework` to switch look-and-feel **without forking page templates**. Markup uses [UiKitBundle](https://github.com/nowo-tech/UiKitBundle) macros (`@NowoUiKitBundle/macros/ui.html.twig`) and semantic `nowo-ui-*` classes from UiKit’s `nowo-ui.css`:
-
-| Value | Markup / CDN (demo layout) |
-| ----- | -------------------------- |
-| `bootstrap5` / `bootstrap` / `tabler` | Bootstrap 5 classes + CDN (default) |
-| `bootstrap4` | Bootstrap 4 classes + CDN |
-| `tailwind` | Tailwind utilities + CDN script |
-| `foundation` | Foundation classes + CDN |
-| `custom` / `none` | Semantic `nowo-ui-*` only (host CSS / UiKit `nowo-ui.css`) |
-
-When `layout_template` points at the **project layout**, the demo CDN is skipped; the host layout must expose `stylesheets` / `javascripts` blocks. Bundle pages call `{{ parent() }}` then add assets (REQ-ASSETS-004):
-
-```twig
-<link href="{{ asset('css/nowo-ui.css', 'nowo_ui_kit') }}" rel="stylesheet">
-<script src="{{ asset('js/dashboard.js', 'nowo_breadcrumb_kit') }}" defer></script>
-```
-
-Prefer a single host setting for the shared kit:
+Since **2.7** the dashboard pages extend the [UiKitBundle](https://github.com/nowo-tech/UiKitBundle) **2.1** page scaffolds
+(REQ-UI-003): the host themes them **once** for every Nowo bundle, with no BreadcrumbKit-specific chrome config.
 
 ```yaml
 nowo_ui_kit:
-    css_framework: custom
-    icon_set: ux_icon
+    css_framework: bootstrap5          # bootstrap5 | bootstrap4 | tailwind | foundation | tabler | custom | none
+    layouts:
+        admin: 'layouts/admin.html.twig'   # your layout or a one-file bridge rendering the canonical blocks
+    breadcrumbs:
+        breadcrumb_kit: true            # page headers render this bundle's trail (breadcrumb_render())
+    theme:
+        classes: { btn_primary: 'btn btn-moss', table: 'data-table' }
+        tokens: { primary: 'var(--color-moss)' }
+        bundles:
+            NowoBreadcrumbKitBundle: { classes: { table: 'data-table data-table--dense' } }   # optional exception
 ```
 
-If `nowo_ui_kit` keys are unset, BreadcrumbKit prepends `css_framework` / `icon_set` from `dashboard.*` (defaults `bootstrap5` / `bootstrap-icons`). Explicit host `nowo_ui_kit` values win and are never overridden, so `ui.btn('primary')` resolves correctly without a framework argument.
+- Layout: `nowo_ui_kit.layouts.admin` (UiKit default `@NowoUiKit/layout/admin.html.twig`), or `web_ui.layout_template`
+  for this bundle only. It loads `nowo-ui.css` and the UiKit scripts (`nowo-ui-confirm.js`, `nowo-ui-dialog.js`); the
+  pages add `js/dashboard.js` (asset package `nowo_breadcrumb_kit`) through `nowo_ui_scripts`.
+- Pages, data blocks and dialogs: [TEMPLATES.md](TEMPLATES.md). Slots: UiKit `docs/THEME_SLOTS.md`.
+- The bundle no longer loads any CSS framework from a CDN.
+- The **front trail** (`breadcrumb_render()`, `breadcrumb.html.twig`) is host chrome, not a dashboard page: it appends
+  the host classes / attributes of the UiKit slots `breadcrumbs` (the `<nav>`), `breadcrumb_link` and
+  `breadcrumb_separator` from `nowo_ui_kit.theme` (2.6 markup when none are set). See [USAGE](USAGE.md#theme-slots-of-the-trail).
 
 ### Form Kit (`nowo_form_kit`)
 
-Dashboard CRUD forms use [FormKitBundle](https://github.com/nowo-tech/FormKitBundle) (`FormOptionsTrait` + profile `breadcrumb_kit`). When FormKit is present and the host has not defined `profiles.breadcrumb_kit`, BreadcrumbKit prepends that profile (`translation_domain: NowoBreadcrumbKitBundle`, Bootstrap/`nowo-ui-input` defaults). FormKit `css_framework` is seeded from `dashboard.css_framework` mapped to FormKit’s allowed set (`bootstrap` | `tailwind` | `foundation` | `none`). Host `default_profile` is not changed.
+Dashboard CRUD forms use [FormKitBundle](https://github.com/nowo-tech/FormKitBundle) (`FormOptionsTrait` + profile `breadcrumb_kit`). When FormKit is present and the host has not defined `profiles.breadcrumb_kit`, BreadcrumbKit prepends that profile (`translation_domain: NowoBreadcrumbKitBundle`, `nowo-ui-input nowo-ui-input--full` + Bootstrap field classes). FormKit `css_framework` is seeded from the deprecated `dashboard.css_framework` when set (else `bootstrap`), mapped to FormKit’s allowed set (`bootstrap` | `tailwind` | `foundation` | `none`). Host `default_profile` is not changed.
 
-UiKit `nowo-ui.css` uses `--nowo-ui-*` custom properties (slate/blue defaults). Remap under host chrome (e.g. `.kit-admin`) without forking templates:
+### Deprecated dashboard keys
 
-```css
-.kit-admin {
-  --nowo-ui-primary: var(--brand-primary);
-  --nowo-ui-text: var(--brand-ink);
-  --nowo-ui-border: var(--brand-border);
-  --nowo-ui-surface: var(--brand-surface);
-}
-```
+The `dashboard` node is deprecated since **2.7** (every key triggers a deprecation when set) and removed in **3.0**:
 
-To customize CDNs, override `nowo_ui_styles` / `nowo_ui_scripts` **in the layout template**, not inside a child `stylesheets` / `javascripts` block that also calls `{{ parent() }}` (Twig would replace the layout CDN content).
+| Deprecated key | Replacement | Behaviour until 3.0 |
+| --- | --- | --- |
+| `dashboard.enabled`, `path_prefix`, `layout_template`, `import_max_bytes`, `pagination.*` | `web_ui.*` (same names) | aliases (the `web_ui` key wins); the 1.x default `@NowoBreadcrumbKitBundle/dashboard/layout.html.twig` reads as `null` |
+| `dashboard.modals.*` | `web_ui.dialog_sizes.*` | `normal` → `md`, `lg`, `xl`; `delete` has no effect (UiKit confirm dialog) |
+| `dashboard.css_framework`, `dashboard.icon_set` | `nowo_ui_kit.css_framework`, `nowo_ui_kit.icon_set` | seeded into UiKit when set here and not in `nowo_ui_kit` (no longer seeded by default: both default to `bootstrap5` / `bootstrap-icons`) |
+| `dashboard.classes` | `nowo_ui_kit.theme.bundles.NowoBreadcrumbKitBundle.classes` | bridged (prepended, the host's UiKit config wins), mapping in [UPGRADING](UPGRADING.md#deprecated-configuration) |
+| `dashboard.partials` | `nowo_ui_kit.theme.bundles.NowoBreadcrumbKitBundle.partials` | ignored (the UiKit partial inputs differ) |
+| `dashboard.ui_kit_stylesheet` | — | read only by the 1.x layout bridge |
+| `dashboard.collections_view`, `row_actions_position`, `cancel_first` | — | no effect |
 
-Stable content block: `nowo_breadcrumb_kit_content` (also aliased as `nowo_ui_content` in the demo layout). Overridable Twig paths: `dashboard/*.html.twig`, `dashboard/collection/*`, `dashboard/item/*`, `breadcrumb.html.twig` (see [USAGE.md](USAGE.md) / REQ-TWIG-001).
-
-### Using `css_framework: custom` (or `none`) without Bootstrap
-
-Set `dashboard.css_framework: custom` (or `none`) when your host layout does **not** load Bootstrap.
-The dashboard will use only the semantic `nowo-ui-*` classes defined in UiKit’s `nowo-ui.css`.
-
-**What the stack provides automatically:**
-
-- UiKit `nowo-ui.css` includes a self-contained modal overlay (`.nowo-ui-modal` + `.nowo-ui-modal-open`) so modals render correctly without Bootstrap's `.modal` CSS.
-- `dashboard.js` detects `cssFramework` from the CSP-safe JSON island (`<script type="application/json" id="nowo-breadcrumb-kit-dashboard">`; legacy `window.__breadcrumbKitDashboard` is a deprecated fallback until 2.4.0) at runtime:
-  - For **bootstrap / bootstrap5 / bootstrap4 / tabler** → defers to Bootstrap JS for modal management.
-  - For any other value → registers lightweight custom open/close handlers for `[data-nowo-modal-open]` / `[data-nowo-modal-close]` attributes, dispatches a synthetic `show.bs.modal` event so the existing listeners (form-load, confirm-delete, etc.) keep working.
-- Loading and error states inside modals use `nowo-ui-muted` / `nowo-ui-flash nowo-ui-flash--error` classes (no Bootstrap dependency).
-
-**Minimal host configuration:**
-
-```yaml
-# config/packages/nowo_breadcrumb_kit.yaml
-nowo_breadcrumb_kit:
-    dashboard:
-        enabled: true
-        layout_template: 'base.html.twig'   # host layout (must define nowo_breadcrumb_kit_content block)
-        css_framework: custom
-
-# optional — or let BreadcrumbKit prepend from dashboard.* above
-nowo_ui_kit:
-    css_framework: custom
-```
-
-```twig
-{# templates/base.html.twig — expose the required blocks #}
-{% block stylesheets %}
-    <link href="{{ asset('css/nowo-ui.css', 'nowo_ui_kit') }}" rel="stylesheet">
-    {# host stylesheet — remap --nowo-ui-* tokens here #}
-{% endblock %}
-{% block javascripts %}
-    <script src="{{ asset('js/dashboard.js', 'nowo_breadcrumb_kit') }}" defer></script>
-{% endblock %}
-```
-
-**Theming without Bootstrap** — remap `--nowo-ui-*` custom properties under your layout wrapper:
-
-```css
-.my-admin-layout {
-  --nowo-ui-primary: var(--brand-primary);
-  --nowo-ui-surface: var(--color-surface);
-  --nowo-ui-border: var(--color-border);
-  --nowo-ui-text: var(--color-ink);
-}
-```
-
-> UiKit macros automatically emit `data-nowo-modal-open` / `data-nowo-modal-target` / `data-nowo-modal-close` attributes instead of `data-bs-toggle` / `data-bs-target` / `data-bs-dismiss` when the framework is not bootstrap/tabler. No template overrides are required.
+Twig globals `nowo_breadcrumb_kit_layout_template`, `nowo_breadcrumb_kit_css_framework`, `nowo_breadcrumb_kit_icon_set`,
+`nowo_breadcrumb_kit_classes`, `nowo_breadcrumb_kit_partials`, … are deprecated (unused by the pages, removed in 3.0).
 
 ### Twig helper
 
-`breadcrumb_kit_dashboard_collections_url()` returns the collections index URL or `null` if `dashboard.enabled` is false or the route is not registered (e.g. routing import missing). Use it in templates instead of `path('nowo_breadcrumb_kit_dashboard_collections_index')` when the dashboard is optional.
+`breadcrumb_kit_dashboard_collections_url()` returns the collections index URL or `null` if `web_ui.enabled` is false or the route is not registered (e.g. routing import missing). Use it in templates instead of `path('nowo_breadcrumb_kit_dashboard_collections_index')` when the dashboard is optional.
 
 ## Example
 
@@ -233,21 +174,19 @@ nowo_breadcrumb_kit:
             enabled: false
             min_items: 3
             breakpoint: '40rem'
-    dashboard:
+    web_ui:
         enabled: false
         path_prefix: /breadcrumb-kit-admin
-        layout_template: '@NowoBreadcrumbKitBundle/dashboard/layout.html.twig'
-        css_framework: bootstrap5
-        icon_set: bootstrap-icons
+        layout_template: null            # null = nowo_ui_kit.layouts.admin
+        templates: {}                    # page => template (see TEMPLATES.md)
         import_max_bytes: 2097152
         pagination:
             enabled: true
             per_page: 20
-        modals:
+        dialog_sizes:
             collection_form: lg
             item_form: lg
-            import: normal
-            delete: normal
+            import: md
     inline_edit:
         query_param: null
         access_services: []

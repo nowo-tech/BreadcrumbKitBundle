@@ -11,6 +11,19 @@ Design aligns with [DashboardMenuBundle](https://github.com/nowo-tech/DashboardM
 
 This bundle is **FrankenPHP worker mode friendly**.
 
+<table>
+  <tr>
+    <td width="33%"><a href="docs/images/demo/public-trail.webp"><img src="docs/images/demo/public-trail.webp" alt="Demo product page: database-driven trail Home › Shop › Product under the demo header, with the Symfony toolbar"></a></td>
+    <td width="33%"><a href="docs/images/demo/dashboard-collections.webp"><img src="docs/images/demo/dashboard-collections.webp" alt="Breadcrumb collections dashboard on the UiKit list page: trail in the page header, export / import / new actions, search and row actions"></a></td>
+    <td width="33%"><a href="docs/images/demo/dashboard-item-dialog.webp"><img src="docs/images/demo/dashboard-item-dialog.webp" alt="Item edit form loaded into a UiKit dialog over the items list"></a></td>
+  </tr>
+  <tr>
+    <td align="center">Front trail (<code>breadcrumb_render()</code>)</td>
+    <td align="center">Dashboard: collections (UiKit page contract)</td>
+    <td align="center">Dashboard: item form dialog</td>
+  </tr>
+</table>
+
 ## Table of contents
 
 - [Status](#status)
@@ -24,7 +37,7 @@ This bundle is **FrankenPHP worker mode friendly**.
 
 ## Status
 
-**Stable (v2.6.0):** entities (`dashboard_breadcrumb_*` tables, aligned with DashboardMenuBundle), repositories, `BreadcrumbLoader`, `BreadcrumbUrlResolver`, Twig (`breadcrumb_trail`, `breadcrumb_render`) + **Twig Extra** (**REQ-TWIG-004**), **CLI** (migration / export / import / preview), **`BreadcrumbTrailBuiltEvent`** enrichers, path/attribute matching, **optional web dashboard** with **UiKitBundle** look-and-feel (**REQ-UI-001-kit**), **FormKitBundle** forms, **REQ-UI-002** access roles, named asset package `nowo_breadcrumb_kit`, **presentation options**, opt-in **collapse on narrow screens** (GitHub-style "…" menu + current crumb on phones, [USAGE](docs/USAGE.md#collapse-on-narrow-screens)), dashboard i18n **en/es/de/fr/it/nl/pt**. **Demo**: Symfony 8.1 / PHP 8.5 (**8021**) with FrankenPHP. **Flex recipe** in `.symfony/recipe/`. Compatible with FrankenPHP **worker mode without kernel reset** ([audit](docs/FRANKENPHP-WORKER-AUDIT.md)).
+**Stable (v2.6.0):** entities (`dashboard_breadcrumb_*` tables, aligned with DashboardMenuBundle), repositories, `BreadcrumbLoader`, `BreadcrumbUrlResolver`, Twig (`breadcrumb_trail`, `breadcrumb_render`) + **Twig Extra** (**REQ-TWIG-004**), **CLI** (migration / export / import / preview), **`BreadcrumbTrailBuiltEvent`** enrichers, path/attribute matching, **optional web dashboard** on the **UiKit 2.1 page contract** (**REQ-UI-003**, [TEMPLATES](docs/TEMPLATES.md)), **FormKitBundle** forms, **REQ-UI-002** access roles, named asset package `nowo_breadcrumb_kit`, **presentation options**, opt-in **collapse on narrow screens** (GitHub-style "…" menu + current crumb on phones, [USAGE](docs/USAGE.md#collapse-on-narrow-screens)), dashboard i18n **en/es/de/fr/it/nl/pt**. **Demo**: Symfony 8.1 / PHP 8.5 (**8021**) with FrankenPHP. **Flex recipe** in `.symfony/recipe/`. Compatible with FrankenPHP **worker mode without kernel reset** ([audit](docs/FRANKENPHP-WORKER-AUDIT.md)).
 
 **FrankenPHP:** demo selects classic vs worker via **`FRANKENPHP_MODE`** (default `worker`). See [docs/DEMO-FRANKENPHP.md](docs/DEMO-FRANKENPHP.md) and [docs/FRANKENPHP-WORKER-AUDIT.md](docs/FRANKENPHP-WORKER-AUDIT.md).
 
@@ -87,7 +100,8 @@ make test-coverage
 - [Installation](docs/INSTALLATION.md)
 - [Configuration](docs/CONFIGURATION.md)
 - [PSR evaluation (REQ-CS-007)](docs/PSR.md)
-- [Usage](docs/USAGE.md) — including [Customising the admin chrome](docs/USAGE.md#customising-the-admin-chrome) (class map, partials, blocks; no page copies)
+- [Usage](docs/USAGE.md) — including [Customising the dashboard](docs/USAGE.md#customising-the-dashboard) and [theme slots of the trail](docs/USAGE.md#theme-slots-of-the-trail)
+- [Templates](docs/TEMPLATES.md) — dashboard pages → UiKit scaffolds, data blocks, dialogs (REQ-UI-003)
 - [Contributing](docs/CONTRIBUTING.md)
 - [Code of Conduct](CODE_OF_CONDUCT.md)
 - [Changelog](docs/CHANGELOG.md)
@@ -112,7 +126,9 @@ make test-coverage
 make -C demo/symfony8 up
 ```
 
-Opens at `http://localhost:8021` by default; the app redirects `/` to `/en/`.
+Opens at `http://localhost:8021` by default; the app redirects `/` to `/en/`. The dashboard (`/breadcrumb-kit-admin`)
+renders in the demo host layout (`nowo_ui_kit.layouts.admin`). `make -C demo/symfony8 test-e2e` runs the Playwright e2e;
+`make -C demo/symfony8 demo-screenshots` re-captures `docs/images/demo/*.webp` (REQ-DEMO-013).
 
 ## Tests and coverage
 

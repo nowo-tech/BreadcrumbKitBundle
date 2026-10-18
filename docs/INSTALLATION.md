@@ -76,7 +76,7 @@ See the demo fixtures in `demo/symfony8/src/DataFixtures/BreadcrumbDemoFixtures.
 
 ## Import routes (dashboard)
 
-The web dashboard is **opt-in** (`dashboard.enabled: true`). Import routes with a prefix that matches `dashboard.path_prefix`.
+The web dashboard is **opt-in** (`web_ui.enabled: true`). Import routes with a prefix that matches `web_ui.path_prefix`.
 
 **With Flex recipe file** — add to `config/routes.yaml`:
 
@@ -91,7 +91,7 @@ _nowo_breadcrumb_kit_dashboard:
 nowo_breadcrumb_kit_dashboard:
     resource: '@NowoBreadcrumbKitBundle/Resources/config/routing/dashboard.yaml'
     type: yaml
-    prefix: '%nowo_breadcrumb_kit.dashboard.path_prefix%'
+    prefix: '%nowo_breadcrumb_kit.web_ui.path_prefix%'
 ```
 
 Protect the prefix in production with Symfony `security.access_control` **and** bundle `security.access_roles` (default `ROLE_ADMIN`; see [CONFIGURATION.md](CONFIGURATION.md) / [SECURITY.md](SECURITY.md), REQ-UI-002). Do **not** set `security.allow_unauthenticated: true` outside local demos. Forms and deletes require CSRF (`framework.csrf_protection: true` or SecurityBundle).

@@ -26,13 +26,13 @@ It does **not** cover your application’s routes, authentication, or hosting en
 |-------|-------------|
 | **Configuration** | YAML under `nowo_breadcrumb_kit` (locales, cache pool, Doctrine connection, table prefix). |
 | **HTTP requests** | The loader reads the current `Request` (route name, route parameters) to match items and generate URLs. |
-| **Dashboard HTTP** (when `dashboard.enabled: true`) | CRUD routes under `dashboard.path_prefix`: collections, items, JSON export/import. Forms use CSRF. Bundle-level access is enforced via `security.access_roles` / optional `security.access_checker` (REQ-UI-002) unless `security.allow_unauthenticated` is true (demo only). |
+| **Dashboard HTTP** (when `web_ui.enabled: true`) | CRUD routes under `web_ui.path_prefix`: collections, items, JSON export/import. Forms use CSRF. Bundle-level access is enforced via `security.access_roles` / optional `security.access_checker` (REQ-UI-002) unless `security.allow_unauthenticated` is true (demo only). |
 | **JSON import uploads** | Dashboard import accepts a JSON file bounded by `dashboard.import_max_bytes` (default 2 MiB). |
 | **Database** | `BreadcrumbCollection` and `BreadcrumbItem` rows (labels, JSON translations, route names, parameters). |
 | **Twig rendering** | Output uses labels and resolved URLs produced by the loader and `RouterInterface`. |
 | **Inline edit iframe** | When `inline_edit.query_param` is set and access checks pass, the default breadcrumb template may embed the dashboard item form in an `<iframe>`. |
 
-When the dashboard is enabled, HTTP endpoints are registered; protect `dashboard.path_prefix` in your application (firewall, `access_control`, VPN, etc.). When disabled, exposure depends on how your app renders breadcrumbs and who can change database content.
+When the dashboard is enabled, HTTP endpoints are registered; protect `web_ui.path_prefix` in your application (firewall, `access_control`, VPN, etc.). When disabled, exposure depends on how your app renders breadcrumbs and who can change database content.
 
 ## Threat model
 
@@ -43,14 +43,14 @@ When the dashboard is enabled, HTTP endpoints are registered; protect `dashboard
 | **Open redirect / unsafe URLs** | URLs are generated only via Symfony’s router from configured route names and request parameters; external URLs are not supported by design. |
 | **Cache poisoning** | PSR-6 cache keys are derived from collection code, context, and locale. Ensure only trusted actors can change breadcrumb rows or cache configuration. |
 | **Denial of service** | Large trees or frequent cache misses increase DB load; use sensible TTL and pool sizing. |
-| **Unauthenticated dashboard** | Mitigated by default `security.access_roles: [ROLE_ADMIN]` + `DashboardAccessSubscriber`. `allow_unauthenticated: true` disables that gate (demo only). Still add host `access_control` on `dashboard.path_prefix`. |
+| **Unauthenticated dashboard** | Mitigated by default `security.access_roles: [ROLE_ADMIN]` + `DashboardAccessSubscriber`. `allow_unauthenticated: true` disables that gate (demo only). Still add host `access_control` on `web_ui.path_prefix`. |
 | **Large JSON uploads** | Import is capped by `dashboard.import_max_bytes`; keep a reasonable limit in production. |
 
 ## Mitigations
 
 - Keep Symfony, Doctrine, and this bundle updated; run `composer audit` regularly.
 - Restrict who can manage breadcrumb entities (admin UI, migrations, fixtures).
-- When using the dashboard: keep `security.allow_unauthenticated: false`, set `security.access_roles` (or a custom `security.access_checker`), and add host `access_control` for `dashboard.path_prefix`.
+- When using the dashboard: keep `security.allow_unauthenticated: false`, set `security.access_roles` (or a custom `security.access_checker`), and add host `access_control` for `web_ui.path_prefix`.
 - Enable CSRF protection (`framework.csrf_protection: true` or SecurityBundle).
 - Never enable `security.allow_unauthenticated` outside local demos.
 - Use a dedicated cache pool with appropriate TTL for production.
@@ -105,4 +105,4 @@ For responsible disclosure, see [`.github/SECURITY.md`](../.github/SECURITY.md).
 | Grade | Pass (conditional) |
 | Risk | Medium |
 | Method | Cursor campaign static pass (`src/`, dashboard security, recipe, demo, SECURITY docs) |
-| Open residuals | Host must keep `access_control` on `dashboard.path_prefix`; never ship `allow_unauthenticated: true` in production; Twig auto-escape must stay on for DB labels; JSON import size/rate limits remain app-owned. |
+| Open residuals | Host must keep `access_control` on `web_ui.path_prefix`; never ship `allow_unauthenticated: true` in production; Twig auto-escape must stay on for DB labels; JSON import size/rate limits remain app-owned. |

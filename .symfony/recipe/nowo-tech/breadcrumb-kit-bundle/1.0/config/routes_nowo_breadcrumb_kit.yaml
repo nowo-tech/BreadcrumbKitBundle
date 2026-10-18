@@ -1,4 +1,4 @@
-# Breadcrumb Kit Bundle – dashboard admin routes (opt-in when dashboard.enabled: true).
+# Breadcrumb Kit Bundle – dashboard admin routes (opt-in when web_ui.enabled: true).
 # Import this file from config/routes.yaml, e.g.:
 #   _nowo_breadcrumb_kit_dashboard:
 #     resource: routes_nowo_breadcrumb_kit.yaml
@@ -6,4 +6,4 @@
 nowo_breadcrumb_kit_dashboard:
     resource: '@NowoBreadcrumbKitBundle/Resources/config/routing/dashboard.yaml'
     type: yaml
-    prefix: '%nowo_breadcrumb_kit.dashboard.path_prefix%'
+    prefix: '%nowo_breadcrumb_kit.web_ui.path_prefix%'

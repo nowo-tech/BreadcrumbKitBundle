@@ -2,6 +2,9 @@
 
 ## Table of contents
 
+- [Unreleased](#unreleased)
+  - [Template contract](#template-contract)
+  - [Deprecated configuration](#deprecated-configuration)
 - [To 2.6.0](#to-260)
 - [To 2.5.0](#to-250)
 - [To 2.4.1](#to-241)
@@ -43,6 +46,86 @@
 - [From pre-release / local copies to 1.0.0](#from-pre-release--local-copies-to-100)
 - [Doctrine schema](#doctrine-schema)
 - [General upgrade steps (any version)](#general-upgrade-steps-any-version)
+
+## Unreleased
+
+Standard page contract (REQ-UI-003, UiKit 2.1). Requires `nowo-tech/ui-kit-bundle` **^2.1**. Minor release: every
+2.x key keeps working (deprecated, bridged into the UiKit theme); what changes is the markup of the dashboard pages.
+The front trail (`breadcrumb_render()`) is unchanged unless your `nowo_ui_kit.theme` sets the `breadcrumbs`,
+`breadcrumb_link` or `breadcrumb_separator` slots.
+
+```bash
+composer update nowo-tech/breadcrumb-kit-bundle nowo-tech/ui-kit-bundle
+php bin/console assets:install
+```
+
+1. **Layout.** The pages extend UiKit scaffolds, which extend `nowo_ui_kit.layouts.admin` (default
+   `@NowoUiKit/layout/admin.html.twig`) — or `nowo_breadcrumb_kit.web_ui.layout_template` when you set it. That layout
+   renders the canonical blocks (`nowo_ui_document_title`, `nowo_ui_head`, `nowo_ui_styles`, `nowo_ui_navigation`,
+   `nowo_ui_page_header`, `nowo_ui_flashes`, `nowo_ui_content`, `nowo_ui_modals`, `nowo_ui_scripts`) and loads
+   `nowo-ui.css` + `js/nowo-ui-confirm.js` + `js/nowo-ui-dialog.js` (UiKit asset package `nowo_ui_kit`). See UiKit
+   `docs/PAGE_CONTRACT.md` "Example: host integration".
+   - The bundle CDN layout `@NowoBreadcrumbKitBundle/dashboard/layout.html.twig` is gone; that value of
+     `layout_template` reads as `null` (UiKit layout).
+   - A 2.x host layout that only defines `nowo_breadcrumb_kit_content` (and `title` / `stylesheets` / `javascripts`) is
+     wrapped by the deprecated `dashboard/_legacy_layout.html.twig` (a deprecation is triggered per page): it keeps
+     working and gains `nowo-ui.css` (unless `dashboard.ui_kit_stylesheet: false`), the UiKit scripts and the UiKit page
+     header. A layout that wraps `nowo_breadcrumb_kit_content` in its own `nowo_ui_content` block (a copy of the 2.x
+     bundle layout) loses the page header: render the canonical blocks instead.
+2. **Breadcrumbs in the page header.** With `nowo_ui_kit.breadcrumbs.breadcrumb_kit: true` (UiKit default) the page
+   headers render your BreadcrumbKit trail of the current route (collection `nowo_ui_kit.breadcrumbs.collection`, else
+   `default_collection`): add items for the dashboard routes (`nowo_breadcrumb_kit_dashboard_*`) if you want a trail
+   there, or set `breadcrumb_kit: false` to show the pages' own Collections › code › page trail.
+3. **Overrides.** Re-check every `templates/bundles/NowoBreadcrumbKitBundle/dashboard/` file against
+   [TEMPLATES.md](TEMPLATES.md) — most can be deleted in favour of `nowo_ui_kit.theme`; keep bundle-specific ones as
+   `web_ui.templates.<page>` targets extending `@!NowoBreadcrumbKitBundle/…`.
+4. **Config.** Move `dashboard.*` to `web_ui.*` and `nowo_ui_kit` when convenient (the old keys work until 3.0).
+   Routing imports may keep `%nowo_breadcrumb_kit.dashboard.path_prefix%` (same value as
+   `%nowo_breadcrumb_kit.web_ui.path_prefix%`).
+
+### Template contract
+
+What hosts may notice:
+
+| 2.6 | 2.7 |
+| --- | --- |
+| `collection/index`, `item/index` with their own toolbar, search form, list / table, `_pagination`, modals | extend `@NowoUiKit/page/list.html.twig`; fill `nowo_ui_list_row`, `nowo_ui_modals`, `nowo_ui_scripts` |
+| `collection/form`, `item/form`, `import` with their own breadcrumb nav, `<h1>`, buttons | extend `@NowoUiKit/page/form.html.twig`; fill `nowo_ui_form_body` |
+| Delete through the Bootstrap modal `#modal-bk-delete` filled by `dashboard.js` | UiKit confirm `<dialog>` per row (CSP-safe) + no-JS confirm page (`page/confirm`, `GET …/delete`) |
+| Bootstrap modals `#modal-bk-collection-form`, `#modal-bk-item-form`, `#modal-bk-import` (`_modal_shell`, `_dashboard_modals`) | UiKit `dialog` partial: `#bk-collection-form-dialog`, `#bk-item-form-dialog` (forms fetched by `js/dashboard.js` from `data-bk-dialog-url`), `#bk-import-dialog` (inline form) |
+| `layout.html.twig` (CDN switch), `base.html.twig`, `_pagination`, `_modal_shell`, `_dashboard_modals`, `_icons` | **removed** (UiKit layout, scaffolds, `pagination` / `dialog` / `confirm` partials, UiKit icons) |
+| Blocks `bk_page_header`, `bk_search`, `bk_toolbar`, `bk_results`, `bk_empty_state`, `bk_collections_list`, `bk_collection_row`, `bk_collection_table_row`, `bk_collection_row_actions`, `bk_pagination`, `bk_page_heading`, `bk_search_summary`, `bk_items_table`, `bk_items_table_head`, `bk_item_row`, `bk_item_link_cell`, `bk_item_row_actions`, `bk_breadcrumb`, `bk_form`, `bk_back_link`, `bk_modal_*`, slot blocks `bk_page_title` / `bk_page_intro` / `bk_page_actions` | removed — use the scaffold data blocks or the theme; the legacy layout bridge still defines `bk_page_title` |
+| Partial blocks `bk_form_fields`, `bk_form_actions`, `bk_form_submit`, `bk_form_cancel`, `bk_import_intro` | kept in `_collection_form_partial`, `_item_form_partial`, `_import_partial` (now theme slots; Cancel closes the UiKit dialog) |
+| Twig context `collections`, `collection_item_counts`, `items`, `search`, `search_form`, `delete_form`, `pagination` (`current_page`…), `dashboard_routes`, `modal_classes`, `title` | `page` = `ListPage` / `FormPage` / `ConfirmPage` (+ `import_form`, `collection`, `item`) |
+| Layout contract `bk_page_actions_in_layout`, `bk_page_title_in_layout`, `bk_title_suffix` | header actions / title in `nowo_ui_page_header`; only `bk_title_suffix` is still read by the legacy bridge |
+| Invalid dialog submission → bare form fragment | full-page form, HTTP 422 |
+| Collections `list` view (default) / `table` view | always the UiKit table (code, name, items, context); `Context` hides below 60rem of table width |
+| Link column plain text yes / no | badges (`badge_success` / `badge_neutral` slots) |
+| JSON CSP island `#nowo-breadcrumb-kit-dashboard(-page)` | removed (`dashboard.js` reads `data-*` attributes) |
+
+### Deprecated configuration
+
+| Key | Replacement | Behaviour until 3.0 |
+| --- | --- | --- |
+| `dashboard.enabled`, `path_prefix`, `layout_template`, `import_max_bytes`, `pagination.*` | `web_ui.*` | aliases (the `web_ui` key wins) |
+| `dashboard.modals.*` | `web_ui.dialog_sizes.*` | `normal` → `md`; `delete` no effect |
+| `dashboard.css_framework`, `dashboard.icon_set` | `nowo_ui_kit.css_framework`, `nowo_ui_kit.icon_set` | seeded into UiKit when set here and not in `nowo_ui_kit` |
+| `dashboard.classes.*` | `nowo_ui_kit.theme.bundles.NowoBreadcrumbKitBundle.classes.<slot>` | bridged (prepended; the value replaces the slot's framework defaults, row-action slots are additive) |
+| `dashboard.partials.*` | `nowo_ui_kit.theme.bundles.NowoBreadcrumbKitBundle.partials.<name>` | ignored (inputs differ: e.g. the UiKit `pagination` partial gets `page`, not `current_page`) |
+| `dashboard.ui_kit_stylesheet` | — | read only by the legacy layout bridge |
+| `dashboard.collections_view`, `row_actions_position`, `cancel_first` | — | no effect |
+| `DashboardChrome`, `BreadcrumbKitDashboardGlobalsExtension` (globals `nowo_breadcrumb_kit_*`) | the UiKit theme | kept, unused by the pages |
+
+`dashboard.classes` → slot: `btn_primary`, `btn_secondary`, `btn_danger`, `btn_link`, `row_actions`, `toolbar`,
+`page_title`, `page_intro`, `breadcrumb_link`, `breadcrumb_separator`, `empty`, `muted`, `table_wrap`, `table`, `form`,
+`form_panel`, `form_actions` → same name; `action_view`, `action_edit` → `action_neutral` (`action_edit` wins);
+`action_delete` → `action_danger`; `breadcrumb_nav` → `breadcrumbs`; `search_form` → `filters`; `badge`, `badge_no` →
+`badge_neutral` (`badge_no` wins); `badge_yes` → `badge_success`; `thead_row` → `table_head_row`; `th` →
+`table_head_cell`; `th_actions` → `table_actions_head`; `row` → `table_row`; `td` → `table_cell`; `td_actions` →
+`table_actions_cell`; `modal_message` → `confirm_message`; `modal_form_body` → `dialog_body`. No slot (dropped):
+`search_input`, `search_summary`, `results`, `list`, `list_item`, `modal_loading`, `modal_hint`, `modal_form`,
+`modal_actions`, `form_style_grid`. Bridged values only apply to the dashboard pages
+(`theme.bundles.NowoBreadcrumbKitBundle`), never to the front trail.
 
 ## To 2.6.0
 

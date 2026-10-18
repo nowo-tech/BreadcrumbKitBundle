@@ -10,7 +10,8 @@
 - [Overriding templates and translations](#overriding-templates-and-translations)
   - [Twig templates (REQ-TWIG-001)](#twig-templates-req-twig-001)
   - [Overriding translations (REQ-I18N-001)](#overriding-translations-req-i18n-001)
-- [Customising the admin chrome](#customising-the-admin-chrome)
+- [Theme slots of the trail](#theme-slots-of-the-trail)
+- [Customising the dashboard](#customising-the-dashboard)
 - [Data model (summary)](#data-model-summary)
 - [Caching](#caching)
 
@@ -190,7 +191,7 @@ final class EnrichBreadcrumbsSubscriber implements EventSubscriberInterface
 **Procedure**
 
 1. In your application, create a file under **`templates/bundles/NowoBreadcrumbKitBundle/`** with the same **`<subpath>`** as in the bundle (see table below).
-2. Copy or adapt markup from the bundle’s `src/Resources/views/<subpath>` as needed — or, since 2.4.0, `{% extends '@!NowoBreadcrumbKitBundle/<subpath>' %}` and redefine only the blocks you need (see [Customising the admin chrome](#customising-the-admin-chrome)).
+2. Copy or adapt markup from the bundle’s `src/Resources/views/<subpath>` as needed — or `{% extends '@!NowoBreadcrumbKitBundle/<subpath>' %}` and redefine only the blocks you need (dashboard pages: prefer `web_ui.templates.<page>` and the UiKit data blocks, see [Customising the dashboard](#customising-the-dashboard)).
 3. Clear the Symfony cache if templates are cached (`php bin/console cache:clear`).
 
 **Templates you can override**
@@ -201,28 +202,21 @@ final class EnrichBreadcrumbsSubscriber implements EventSubscriberInterface
 | `_breadcrumb_crumb.html.twig` | Single crumb (icon, link, current page). |
 | `_breadcrumb_collapse.html.twig` | "…" item + previous pages menu ([collapse on narrow screens](#collapse-on-narrow-screens)). |
 | `_breadcrumb_collapse_assets.html.twig` | Nonce-stamped styles + `js/breadcrumb-collapse.js` of the collapse mode. |
-| `dashboard/layout.html.twig` | Dashboard shell (Bootstrap navbar, main block). |
-| `dashboard/base.html.twig` | Extends configurable layout; flashes + body block; loads UiKit CSS + `dashboard.js`. |
-| `dashboard/collection/index.html.twig` | Collections list. |
-| `dashboard/collection/form.html.twig` | Collection create/edit. |
-| `dashboard/item/index.html.twig` | Items list for a collection. |
-| `dashboard/item/form.html.twig` | Item create/edit. |
-| `dashboard/import.html.twig` | Import page. |
-| `dashboard/_collection_form_partial.html.twig` | Collection form partial (modals). |
-| `dashboard/_item_form_partial.html.twig` | Item form partial. |
-| `dashboard/_import_partial.html.twig` | Import partial. |
-| `dashboard/_dashboard_modals.html.twig` | Shared dashboard modals. |
-| `dashboard/_modal_shell.html.twig` | Modal shell rendered by every modal (prefer `dashboard.partials.modal_shell`). |
-| `dashboard/_pagination.html.twig` | List pagination (prefer `dashboard.partials.pagination`). |
-| `dashboard/_icons.html.twig` | Inline SVG action icons. |
+| `dashboard/collection/index.html.twig` | Collections list (UiKit `page/list`). |
+| `dashboard/collection/form.html.twig` | Collection create / edit (`page/form`). |
+| `dashboard/collection/delete.html.twig` | No-JS delete confirmation (`page/confirm`). |
+| `dashboard/item/index.html.twig` | Items of a collection (`page/list`). |
+| `dashboard/item/form.html.twig` | Item create / edit (`page/form`). |
+| `dashboard/item/delete.html.twig` | No-JS delete confirmation (`page/confirm`). |
+| `dashboard/import.html.twig` | JSON import page (`page/form`). |
+| `dashboard/_collection_form_partial.html.twig`, `_item_form_partial.html.twig`, `_import_partial.html.twig` | Forms loaded into the UiKit dialogs. |
+| `dashboard/_form_dialog.html.twig`, `_dashboard_scripts.html.twig`, `_legacy_layout.html.twig` | Empty form dialog, `js/dashboard.js` tag, deprecated 1.x layout bridge. |
 | `Collector/breadcrumb.html.twig` | Web Profiler / toolbar panel. |
 | `Collector/_icon.svg.twig` | Profiler icon fragment. |
 
-**Dashboard CSS / macros (REQ-UI-001-kit):** import `@NowoUiKitBundle/macros/ui.html.twig` and load `asset('css/nowo-ui.css', 'nowo_ui_kit')`. Domain CRUD stays in this bundle; look-and-feel comes from [UiKitBundle](https://github.com/nowo-tech/UiKitBundle). See [CONFIGURATION.md](CONFIGURATION.md) for `dashboard.css_framework` / `nowo_ui_kit` alignment.
+**Dashboard look and feel (REQ-UI-003):** the pages extend the UiKit 2.1 scaffolds; theme them once in `nowo_ui_kit` (layouts, theme slots, tokens) — see [CONFIGURATION.md](CONFIGURATION.md#look-and-feel-uikit-page-contract) and [TEMPLATES.md](TEMPLATES.md).
 
-**Dashboard forms (FormKit):** CRUD types use [FormKitBundle](https://github.com/nowo-tech/FormKitBundle) (`FormOptionsTrait`, profile `breadcrumb_kit`). Dashboard search/delete actions also render through Symfony Form Types (`DashboardGetSearchType`, `DashboardPostDeleteType`) via Twig `form_start` / `form_end`, not hand-rolled `<form>` tags. Register `NowoFormKitBundle`; optional host `nowo_form_kit` YAML — see [CONFIGURATION.md](CONFIGURATION.md).
-
-**Dashboard layout integration:** set `nowo_breadcrumb_kit.dashboard.layout_template` to your app layout if it defines block `nowo_breadcrumb_kit_content` (same pattern as [DashboardMenuBundle](https://github.com/nowo-tech/DashboardMenuBundle) `nowo_dashboard_menu_content`).
+**Dashboard forms (FormKit):** CRUD types use [FormKitBundle](https://github.com/nowo-tech/FormKitBundle) (`FormOptionsTrait`, profile `breadcrumb_kit`). Search and delete forms are Symfony Form Types (`DashboardGetSearchType`, `DashboardPostDeleteType`) rendered by the UiKit filters region and the UiKit action / confirm partials. Register `NowoFormKitBundle`; optional host `nowo_form_kit` YAML — see [CONFIGURATION.md](CONFIGURATION.md).
 
 ### Overriding translations (REQ-I18N-001)
 
@@ -252,133 +246,54 @@ You only need the keys you want to change; missing keys fall back to the bundle 
 
 **Runtime breadcrumb labels** on the public site come from **JSON translations on `BreadcrumbItem` entities** (configured via the dashboard or fixtures), not from these YAML files. YAML overrides affect the admin dashboard and form messages only.
 
-## Customising the admin chrome
+## Theme slots of the trail
 
-Since **2.4.0** (spec [`003-admin-chrome-hooks`](../specs/003-admin-chrome-hooks/spec.md)) a host can give the dashboard its own look **without copying pages**. Everything below is opt-in: with no option set, the markup is the 2.3 markup (snapshot-tested). Behaviour hooks stay in the bundle: modal ids (`modal-bk-*`, `*-body`), `btn-bk-*` classes, `data-bk-*` attributes, CSRF ids and routes.
+`breadcrumb_render()` (template `breadcrumb.html.twig`) is host chrome, not an admin page: it keeps its markup and
+collection classes (`classList`, `classItem`, `classSeparator`, `classCurrent`) and, since 2.7, appends the host
+classes and attributes of three [UiKit](https://github.com/nowo-tech/UiKitBundle) theme slots when `nowo_ui_kit.theme`
+sets them:
 
-Pick the lightest tool that does the job:
-
-1. **Class map** (`dashboard.classes`) — swap classes on buttons, row actions, toolbar, search, list/table, empty state, badges, page and modal forms.
-2. **Options** — `collections_view: table`, `row_actions_position: end`, `cancel_first: true`, `ui_kit_stylesheet: false`.
-3. **Partial paths** (`dashboard.partials`) — your own modal shell, pagination or row-action inner markup.
-4. **Layout slots** — your `layout_template` pulls the page title / intro / actions into its own header.
-5. **Block overrides** — an app override extends `@!NowoBreadcrumbKitBundle/...` and redefines one block.
-
-### Class map keys
-
-| Group | Keys (default when unset) |
-|-------|---------------------------|
-| Buttons | `btn_primary`, `btn_secondary`, `btn_danger`, `btn_link` (`ui.btn(variant)`; full-page forms: `btn btn-*` on Bootstrap) |
-| Row actions | `action_view`, `action_edit`, `action_delete` (`ui.action(kind)`), `row_actions` (`ui.row_actions()`) |
-| Page | `toolbar`, `page_title`, `page_intro`, `breadcrumb_nav`, `breadcrumb_link`, `breadcrumb_separator`, `search_form`, `search_input`, `search_summary`, `empty`, `badge`, `badge_yes`, `badge_no` (link column: plain text by default), `muted` |
-| Tables / lists | `results` (wraps results and pagination in a `<section>` with `data-testid` `breadcrumb-kit-collections-table` / `breadcrumb-kit-items-table`; none by default), `list`, `list_item`, `table_wrap`, `table`, `thead_row`, `th`, `th_actions`, `row`, `td`, `td_actions` (no class attribute by default) |
-| Full-page forms | `form` (appended to `bk-dashboard-form`), `form_panel` (wraps the form in a `<section>` with `data-testid` `breadcrumb-kit-collection-form` / `breadcrumb-kit-item-form`), `form_actions` |
-| Modals | `modal_loading`, `modal_message`, `modal_hint`, `modal_form` (appended), `modal_form_body` (wraps the fields — and the import intro — inside the form), `modal_actions`, `form_style_grid` (groups the four CSS-class fields of the collection form) |
-
-### Partials
-
-| Key | Default | Receives |
-|-----|---------|----------|
-| `modals` | `dashboard/_dashboard_modals.html.twig` | page context (`delete_form`, `modal_classes`) |
-| `modal_shell` | `dashboard/_modal_shell.html.twig` | `modal_id`, `modal_title`, `modal_size` (`collection_form`\|`item_form`\|`import`\|`delete`), `modal_size_class`, `modal_body_id` (null for delete), `modal_scrollable`; blocks `bk_modal_body` (default: loading placeholder) and `bk_modal_footer` |
-| `pagination` | `dashboard/_pagination.html.twig` | `pagination` (`current_page`, `per_page`, `total`, `total_pages`), `item_count`, `route`, `route_params`, `query`, `nav_label`, `nav_trans_domain` |
-| `action_inner` | bundle SVG icons | `display` (`nowo_ui_kit_row_actions_display`), `icon_name` (`view`, `export`, `edit`, `delete`, `config`, `filter`), `label` |
-
-### Layout slots and contract
-
-Pages define **slot blocks** that the stock layout ignores: `bk_page_title`, `bk_page_intro`, `bk_page_actions` (index pages) and `bk_back_link` (items, import). A host layout renders them with `block()` (guard with `is defined`, form pages have no actions) and sets, at its top level:
-
-| Variable | Effect |
-|----------|--------|
-| `bk_page_actions_in_layout` | Index pages skip their inline toolbar (the layout shows `bk_page_actions`); the items page shows `bk_page_intro` instead of its heading row. |
-| `bk_page_title_in_layout` | Form and import pages skip their `<h1>`. |
-| `bk_title_suffix` | Appended to every page `title` block (e.g. `' — ' ~ brand`). |
-
-### Blocks
-
-| Template | Blocks |
-|----------|--------|
-| `collection/index` | `bk_page_header`, `bk_search`, `bk_toolbar`, `bk_results`, `bk_empty_state`, `bk_collections_list`, `bk_collection_row` (list), `bk_collection_table_row` (table), `bk_collection_row_actions`, `bk_pagination` |
-| `item/index` | `bk_page_header`, `bk_toolbar`, `bk_page_heading`, `bk_search`, `bk_search_summary`, `bk_results`, `bk_empty_state`, `bk_items_table`, `bk_items_table_head`, `bk_item_row`, `bk_item_link_cell`, `bk_item_row_actions`, `bk_pagination` |
-| `collection/form`, `item/form` | `bk_breadcrumb`, `bk_page_heading`, `bk_form`, `bk_form_fields`, `bk_form_actions` |
-| `import` | `bk_page_heading`, `bk_back_link` |
-| `_collection_form_partial`, `_item_form_partial`, `_import_partial` | `bk_form_fields`, `bk_form_actions`, `bk_form_submit`, `bk_form_cancel` (+ `bk_import_intro`) |
-| `_dashboard_modals` | `bk_modal_collection_form`, `bk_modal_item_form`, `bk_modal_import`, `bk_modal_delete` |
-
-### Example (Tailwind admin, no page copies)
+| Slot | Element |
+| --- | --- |
+| `breadcrumbs` | the `<nav>` of the trail |
+| `breadcrumb_link` | every crumb link (`_breadcrumb_crumb.html.twig`) |
+| `breadcrumb_separator` | every separator `<li>` |
 
 ```yaml
-# config/packages/nowo_breadcrumb_kit.yaml
-nowo_breadcrumb_kit:
-    dashboard:
-        layout_template: 'admin/breadcrumb_layout.html.twig'
-        css_framework: tailwind
-        ui_kit_stylesheet: false          # the admin layout loads nowo-ui.css first
-        collections_view: table
-        row_actions_position: end
-        cancel_first: true
-        classes:
-            btn_primary: 'btn-primary'
-            btn_secondary: 'btn-ghost'
-            btn_danger: 'btn-danger'
-            action_view: 'btn-ghost btn-icon'
-            action_edit: 'btn-ghost btn-icon'
-            action_delete: 'btn-danger btn-icon'
-            row_actions: 'inline-flex gap-1 nowo-ui-row-actions nowo-ui-row-actions--icon'
-            search_form: 'admin-toolbar mb-4'
-            search_input: 'input flex-1'
-            table_wrap: 'panel overflow-x-auto'
-            table: 'data-table w-full text-sm'
-            th: 'px-2 py-2 font-medium'
-            td: 'px-2 py-3'
-            th_actions: 'px-2 py-2 text-end'
-            td_actions: 'px-2 py-3 text-end whitespace-nowrap'
-            badge_yes: 'badge badge--ok'
-            badge_no: 'badge'
-            modal_form: 'modal-panel'
-            modal_form_body: 'modal-content'
-            modal_actions: 'modal-actions'
-        partials:
-            modal_shell: 'admin/_breadcrumb_modal_shell.html.twig'
-            pagination: 'admin/_pagination.html.twig'
-            action_inner: '@NowoUiKitBundle/partials/_action_inner.html.twig'
+nowo_ui_kit:
+    theme:
+        classes: { breadcrumbs: 'app-crumbs', breadcrumb_link: 'app-crumbs__link', breadcrumb_separator: 'app-crumbs__sep' }
+        attributes: { breadcrumbs: { data-controller: crumbs } }
 ```
+
+Only the host classes are added (no `nowo-ui-*` semantic or framework classes), so with no theme entry for these slots
+the output is the 2.6 markup byte for byte. The UiKit page headers render this trail instead of
+`PageHeader::breadcrumbs` while `nowo_ui_kit.breadcrumbs.breadcrumb_kit` is `true` (UiKit wraps it in a `<div>` with
+the `breadcrumbs` slot; `nowo_ui_kit.breadcrumbs.collection` / `PageHeader::breadcrumbCollection` choose the
+collection). Add trail items for your admin routes (the demo seeds them for the dashboard routes).
+
+## Customising the dashboard
+
+Since **2.7** the dashboard pages follow the UiKit page contract (REQ-UI-003): every page extends a UiKit scaffold and
+fills data blocks only; the header, actions, filters, table, row actions, confirm dialogs, pagination, empty states and
+flashes come from UiKit and its theme. Pick the lightest tool:
+
+1. **UiKit theme, once for every bundle** — `nowo_ui_kit.theme.classes` / `attributes` / `partials` / `tokens`;
+   exceptions for this bundle under `nowo_ui_kit.theme.bundles.NowoBreadcrumbKitBundle`.
+2. **Scaffold overrides, once per view type** — `templates/bundles/NowoUiKitBundle/page/list.html.twig` re-skins every
+   bundle list page.
+3. **One page of this bundle** — `nowo_breadcrumb_kit.web_ui.templates.<page>` pointing at a template that extends
+   `@!NowoBreadcrumbKitBundle/dashboard/...` and overrides a data block:
 
 ```twig
-{# templates/admin/breadcrumb_layout.html.twig #}
-{% extends 'admin/base.html.twig' %}
-{% set bk_page_actions_in_layout = true %}
-{% set bk_page_title_in_layout = true %}
-{% set bk_title_suffix = ' — ' ~ brand_name %}
-{% set admin_heading %}{{ block('bk_page_title') }}{% endset %}
-{% set admin_actions %}
-    {% if block('bk_back_link') is defined %}{{ block('bk_back_link') }}{% endif %}
-    {% if block('bk_page_actions') is defined %}{{ block('bk_page_actions') }}{% endif %}
-{% endset %}
-{% block content %}{% block nowo_breadcrumb_kit_content %}{% endblock %}{% endblock %}
+{# templates/admin/breadcrumb_items.html.twig — web_ui.templates.items_index #}
+{% extends '@!NowoBreadcrumbKitBundle/dashboard/item/index.html.twig' %}
+{% block nowo_ui_list_after %}<p class="{{ nowo_ui_class('muted', page.bundle) }}">Items are matched by route name.</p>{% endblock %}
 ```
 
-```twig
-{# templates/admin/_breadcrumb_modal_shell.html.twig — keep modal_id, "{modal_id}-label" and modal_body_id #}
-{% import '@NowoUiKitBundle/macros/ui.html.twig' as ui %}
-<dialog class="nowo-ui-modal admin-dialog{{ {collection_form: ' admin-dialog--xl', item_form: ' admin-dialog--wide'}[modal_size] ?? '' }}" id="{{ modal_id }}" aria-labelledby="{{ modal_id }}-label" aria-hidden="true">
-    <header><h2 id="{{ modal_id }}-label">{{ modal_title }}</h2><button type="button" class="btn-close" {{ ui.modal_dismiss_attrs('tailwind')|raw }} aria-label="{{ 'dashboard.close'|trans({}, 'NowoBreadcrumbKitBundle') }}"></button></header>
-    {% if modal_body_id %}
-        <div id="{{ modal_body_id }}"><div class="modal-content">{% block bk_modal_body %}<p>{{ 'dashboard.loading'|trans({}, 'NowoBreadcrumbKitBundle') }}</p>{% endblock %}</div></div>
-    {% else %}
-        <div class="modal-content">{{ block('bk_modal_body') }}</div>
-    {% endif %}
-    {% block bk_modal_footer %}{% endblock %}
-</dialog>
-```
-
-Still need one structural change? Override a single block and keep the rest of the page:
-
-```twig
-{# templates/bundles/NowoBreadcrumbKitBundle/dashboard/collection/index.html.twig #}
-{% extends '@!NowoBreadcrumbKitBundle/dashboard/collection/index.html.twig' %}
-{% block bk_empty_state %}{% include 'admin/_empty.html.twig' with {message: 'dashboard.empty_collections'|trans({}, 'NowoBreadcrumbKitBundle')} %}{% endblock %}
-```
+Pages, view models, data blocks and dialogs: [TEMPLATES.md](TEMPLATES.md). The 1.x chrome hooks (`dashboard.classes`,
+`dashboard.partials`, `bk_*` blocks, layout slots) are deprecated or removed: see
+[UPGRADING.md](UPGRADING.md#template-contract).
 
 ## Data model (summary)
 
