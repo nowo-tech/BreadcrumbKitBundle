@@ -930,11 +930,11 @@
         },
         {
             "name": "nowo-tech/breadcrumb-kit-bundle",
-            "version": "dev-feature/ui-page-contract",
+            "version": "dev-main",
             "dist": {
                 "type": "path",
                 "url": "/var/breadcrumb-kit-bundle",
-                "reference": "0cbf0917d6096266d3ca51db370e250aaaa0122a"
+                "reference": "f63764aa38cf34c8650f3ff697929cb9a13cc2e5"
             },
             "require": {
                 "doctrine/doctrine-bundle": "^2.8 || ^3.0",
