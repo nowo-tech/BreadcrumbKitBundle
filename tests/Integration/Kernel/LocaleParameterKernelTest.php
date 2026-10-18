@@ -15,9 +15,47 @@ use Symfony\Component\Filesystem\Filesystem;
  */
 final class LocaleParameterKernelTest extends TestCase
 {
+    /** @var callable|null */
+    private $previousErrorHandler;
+
+    /** @var callable|null */
+    private $previousExceptionHandler;
+
+    protected function setUp(): void
+    {
+        $this->previousErrorHandler = set_error_handler(static fn (): bool => false);
+        restore_error_handler();
+        $this->previousExceptionHandler = set_exception_handler(null);
+        restore_exception_handler();
+    }
+
     protected function tearDown(): void
     {
+        // FrameworkBundle::boot() registers Symfony's ErrorHandler (error + exception handlers); put back the
+        // handlers PHPUnit had installed, otherwise the test is reported as risky.
+        $this->restoreHandlers();
         (new Filesystem())->remove(sys_get_temp_dir().'/nowo-breadcrumb-kit-locale-kernel');
+    }
+
+    private function restoreHandlers(): void
+    {
+        for ($i = 0; $i < 100; ++$i) {
+            $current = set_exception_handler(null);
+            restore_exception_handler();
+            if ($current === $this->previousExceptionHandler) {
+                break;
+            }
+            restore_exception_handler();
+        }
+
+        for ($i = 0; $i < 100; ++$i) {
+            $current = set_error_handler(static fn (): bool => false);
+            restore_error_handler();
+            if ($current === $this->previousErrorHandler) {
+                break;
+            }
+            restore_error_handler();
+        }
     }
 
     /**
