@@ -3,6 +3,7 @@
 ## Table of contents
 
 - [Unreleased](#unreleased)
+- [To 2.7.0](#to-270)
   - [Template contract](#template-contract)
   - [Deprecated configuration](#deprecated-configuration)
 - [To 2.6.0](#to-260)
@@ -48,6 +49,14 @@
 - [General upgrade steps (any version)](#general-upgrade-steps-any-version)
 
 ## Unreleased
+
+## To 2.7.0
+
+From **2.6.0**:
+
+```bash
+composer update nowo-tech/breadcrumb-kit-bundle
+```
 
 Standard page contract (REQ-UI-003, UiKit 2.1). Requires `nowo-tech/ui-kit-bundle` **^2.1**. Minor release: every
 2.x key keeps working (deprecated, bridged into the UiKit theme); what changes is the markup of the dashboard pages.

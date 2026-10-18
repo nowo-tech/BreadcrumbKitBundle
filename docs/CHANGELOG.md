@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## Table of contents
 
 - [[Unreleased]](#unreleased)
+- [[2.7.0] - 2026-10-18](#270---2026-10-18)
 - [[2.6.0] - 2026-10-16](#260---2026-10-16)
 - [[2.5.0] - 2026-10-13](#250---2026-10-13)
 - [[2.4.1] - 2026-10-13](#241---2026-10-13)
@@ -47,6 +48,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - [[1.0.0] - 2026-07-03](#100---2026-07-03)
 
 ## [Unreleased]
+
+## [2.7.0] - 2026-10-18
+
+Dashboard pages on the UiKit 2.1 standard page contract (REQ-UI-003): list, form and confirm scaffolds, UiKit dialogs with no-JS fallbacks, front trail theme slots; dashboard deletes work again; deprecated `dashboard.*` keys mapped to `web_ui.*`. See [UPGRADING](UPGRADING.md#to-270).
 
 Standard page contract (REQ-UI-003) on **UiKit 2.1** — minor: the 2.x configuration keeps working (deprecated aliases,
 theme bridge); the dashboard markup changes (see [UPGRADING](UPGRADING.md#template-contract)).
