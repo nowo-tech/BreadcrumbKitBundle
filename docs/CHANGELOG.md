@@ -49,6 +49,34 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- Requires `nowo-tech/ui-kit-bundle` **^2.2** (default-theme polish: table header hierarchy, striped rows, filter row
+  on a grid, subtle badges, muted help text in the dialogs). See [UPGRADING](UPGRADING.md#unreleased).
+- Dashboard form dialogs are UiKit 2.2 remote dialogs: the New / Edit / Collection styles actions carry
+  `Action::dialogId` and the full-page form URL (`data-nowo-ui-dialog-src`), `js/nowo-ui-dialog.js` fetches the form
+  (the controllers answer an `X-Requested-With` GET, as well as `?_partial=1`, with the form partial) and
+  `js/dashboard.js` only shows the loading text, sets the dialog title from the form and keeps submit-once. On a failed
+  request the opener now navigates to the full-page form (was: an error text in the dialog).
+- Dashboard page headers set `PageHeader::breadcrumbsMode` `auto` (`DashboardPages::BREADCRUMBS_MODE`): the
+  BreadcrumbKit trail configured for the dashboard routes, else the dashboard's own trail (UiKit 2.2 falls back to it
+  when the kit trail is empty).
+
+### Removed
+
+- The "← Collections" / "← Items" header actions of the collection form, item form, items list and import pages
+  (2.7 workaround for a missing way back): the page-header trail is always there with UiKit 2.2.
+
+### Deprecated
+
+- `DashboardPages::dialogOpener()` (the `data-bk-dialog-url` / `?_partial=1` opener attributes): use
+  `Action::$dialogId` with the form URL. `js/dashboard.js` still loads such openers until 3.0.
+
+### Demo
+
+- The host layout prints the UiKit runtimes through the UiKit `scripts` partial (the hand-kept list lacked `modal`,
+  `tabs` and `theme`).
+
 ## [2.7.0] - 2026-10-18
 
 Dashboard pages on the UiKit 2.1 standard page contract (REQ-UI-003): list, form and confirm scaffolds, UiKit dialogs with no-JS fallbacks, front trail theme slots; dashboard deletes work again; deprecated `dashboard.*` keys mapped to `web_ui.*`. See [UPGRADING](UPGRADING.md#to-270).

@@ -50,6 +50,21 @@
 
 ## Unreleased
 
+Requires UiKit **^2.2** (`composer require nowo-tech/ui-kit-bundle:^2.2`). No configuration change. What hosts may
+notice:
+
+- **Way back**: the "← Collections" / "← Items" header actions are gone; the page header trail (the BreadcrumbKit
+  trail you configured for the dashboard routes, else Collections › code › page) leads back.
+- **Form dialogs**: openers are UiKit remote-dialog links (`data-nowo-ui-dialog-open` + `data-nowo-ui-dialog-src` =
+  the full-page form URL) instead of `data-bk-dialog-url="…?_partial=1"`. The dialog body carries
+  `data-nowo-ui-dialog-body`. Host layouts must load UiKit's `nowo-ui-dialog.js` (2.2 `scripts` partial) — they
+  already did for the 2.7 dialogs. The new / edit routes now return the form partial for any GET with
+  `X-Requested-With: XMLHttpRequest` (as for `?_partial=1`): a host script that fetched those pages over XHR and
+  expected the full page must drop that header.
+- Host templates that still print `DashboardPages::dialogOpener()` attributes keep working (deprecated, removed in 3.0).
+- UiKit 2.2 default theme: small uppercase table headers, striped rows, the search filter as a grid row, subtle badges,
+  muted help text (UiKit UPGRADING "Template contract (2.2)").
+
 ## To 2.7.0
 
 From **2.6.0**:
