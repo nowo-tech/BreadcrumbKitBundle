@@ -48,7 +48,7 @@ final class BreadcrumbItemType extends AbstractType
                 'placeholder' => false,
                 'help' => 'form.breadcrumb_item.static_params.help',
                 'required' => false,
-                'attr' => ['rows' => 3, 'class' => 'nowo-ui-code', 'spellcheck' => 'false'],
+                'attr' => ['rows' => 3, 'class' => 'nowo-ui-input nowo-ui-input--full nowo-ui-code', 'spellcheck' => 'false'],
             ]);
             $this->addTextField('pathPattern', [
                 'label' => 'form.breadcrumb_item.path_pattern.label',
@@ -56,21 +56,21 @@ final class BreadcrumbItemType extends AbstractType
                 'help' => 'form.breadcrumb_item.path_pattern.help',
                 'required' => false,
                 'constraints' => [new Length(max: 512)],
-                'attr' => ['placeholder' => '^/shop/.+', 'class' => 'nowo-ui-code'],
+                'attr' => ['placeholder' => '^/shop/.+', 'class' => 'nowo-ui-input nowo-ui-input--full nowo-ui-code'],
             ]);
             $this->addTextareaField('matchAttributes', [
                 'label' => 'form.breadcrumb_item.match_attributes.label',
                 'placeholder' => false,
                 'help' => 'form.breadcrumb_item.match_attributes.help',
                 'required' => false,
-                'attr' => ['rows' => 2, 'class' => 'nowo-ui-code', 'spellcheck' => 'false'],
+                'attr' => ['rows' => 2, 'class' => 'nowo-ui-input nowo-ui-input--full nowo-ui-code', 'spellcheck' => 'false'],
             ]);
             $this->addTextareaField('dynamicParamKeys', [
                 'label' => 'form.breadcrumb_item.dynamic_keys.label',
                 'placeholder' => false,
                 'help' => 'form.breadcrumb_item.dynamic_keys.help',
                 'required' => false,
-                'attr' => ['rows' => 2, 'class' => 'nowo-ui-code', 'spellcheck' => 'false'],
+                'attr' => ['rows' => 2, 'class' => 'nowo-ui-input nowo-ui-input--full nowo-ui-code', 'spellcheck' => 'false'],
             ]);
             $this->addCheckboxField('linkEnabled', [
                 'label' => 'form.breadcrumb_item.link_enabled.label',
@@ -90,7 +90,7 @@ final class BreadcrumbItemType extends AbstractType
                 'placeholder' => false,
                 'help' => 'form.breadcrumb_item.translations.help',
                 'required' => false,
-                'attr' => ['rows' => 4, 'class' => 'nowo-ui-code', 'spellcheck' => 'false'],
+                'attr' => ['rows' => 4, 'class' => 'nowo-ui-input nowo-ui-input--full nowo-ui-code', 'spellcheck' => 'false'],
             ]);
             $this->addTextField('icon', [
                 'label' => 'form.breadcrumb_item.icon.label',

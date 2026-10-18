@@ -23,19 +23,16 @@ final class DashboardGetSearchType extends AbstractType
 
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
-        $this->withBuilder($builder, function () use ($options): void {
-            $this->addWithDefaults($this->boundBuilder(), 'q', SearchType::class, [
-                'label' => false,
-                'placeholder' => false,
-                'help' => false,
-                'required' => false,
-                'attr' => array_filter([
-                    'placeholder' => $options['search_placeholder'],
-                    'aria-label' => $options['search_label'],
-                    'autocomplete' => 'off',
-                ], static fn (string $v): bool => '' !== $v),
-            ]);
-        });
+        // Plain builder->add(): the FormKit field conventions would give the label-less field a "Q" label.
+        $builder->add('q', SearchType::class, [
+            'label' => false,
+            'required' => false,
+            'attr' => array_filter([
+                'placeholder' => $options['search_placeholder'],
+                'aria-label' => $options['search_label'],
+                'autocomplete' => 'off',
+            ], static fn (string $v): bool => '' !== $v),
+        ]);
     }
 
     public function configureOptions(OptionsResolver $resolver): void

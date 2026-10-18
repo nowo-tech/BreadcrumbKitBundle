@@ -7,12 +7,14 @@ namespace Nowo\BreadcrumbKitBundle\Form\Dashboard;
 use Nowo\BreadcrumbKitBundle\NowoBreadcrumbKitBundle;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\AbstractType;
+use Symfony\Component\Form\Extension\Core\Type\HiddenType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
 /**
- * Empty POST form: CSRF only. Built with {@see AbstractController::createNamedBuilder()}
- * so each row has a unique name and {@code csrf_token_id}.
+ * POST form: CSRF token + a hidden {@code confirm} marker. Built unnamed with {@see AbstractController::createNamedBuilder()}
+ * (fields {@code _token} and {@code confirm} at the root) and a per-row {@code csrf_token_id}. The marker is what makes
+ * Symfony submit an unnamed root form (it ignores the CSRF field when it looks for submitted children).
  *
  * @extends AbstractType<null>
  */
@@ -20,6 +22,7 @@ final class DashboardPostDeleteType extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
+        $builder->add('confirm', HiddenType::class, ['mapped' => false, 'data' => '1']);
     }
 
     public function configureOptions(OptionsResolver $resolver): void

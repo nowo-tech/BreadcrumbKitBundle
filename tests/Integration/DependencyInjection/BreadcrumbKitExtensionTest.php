@@ -163,7 +163,7 @@ final class BreadcrumbKitExtensionTest extends TestCase
             $formKit[0]['profiles']['breadcrumb_kit']['translation_domain'] ?? null,
         );
         self::assertSame(
-            'nowo-ui-input form-control',
+            'nowo-ui-input nowo-ui-input--full form-control',
             $formKit[0]['profiles']['breadcrumb_kit']['defaults']['attr']['class'] ?? null,
         );
     }

@@ -99,7 +99,7 @@ final class BreadcrumbCollectionType extends AbstractType
                 'help' => 'form.breadcrumb_collection.responsive_config.help',
                 'required' => false,
                 'mapped' => false,
-                'attr' => ['rows' => 6, 'class' => 'nowo-ui-code', 'spellcheck' => 'false'],
+                'attr' => ['rows' => 6, 'class' => 'nowo-ui-input nowo-ui-input--full nowo-ui-code', 'spellcheck' => 'false'],
             ]);
 
             $inlineKeys = $options['inline_edit_access_keys'];

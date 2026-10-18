@@ -110,7 +110,7 @@ final class PageContractTest extends PageContractTestCase
         $item = $this->html(DashboardPages::TEMPLATES['item_form'], DashboardPageFixtures::itemForm($collections[0], DashboardPageFixtures::items($collections[0])[1]));
         self::assertStringContainsString('Edit item #11', $item);
         self::assertStringContainsString('← Items', $item);
-        self::assertStringContainsString('class="nowo-ui-code"', $item);
+        self::assertStringContainsString('class="nowo-ui-input nowo-ui-input--full nowo-ui-code"', $item);
         self::assertStringContainsString('data-nowo-ui-region="danger-zone"', $item);
 
         $newItem = $this->html(DashboardPages::TEMPLATES['item_form'], DashboardPageFixtures::itemForm($collections[0], null));

@@ -114,7 +114,7 @@ final class BreadcrumbKitExtension extends Extension implements PrependExtension
                     'alias' => 'breadcrumb_kit',
                     'translation_domain' => 'NowoBreadcrumbKitBundle',
                     'defaults' => [
-                        'attr' => ['class' => 'nowo-ui-input form-control'],
+                        'attr' => ['class' => 'nowo-ui-input nowo-ui-input--full form-control'],
                         'row_attr' => ['class' => 'mb-2'],
                     ],
                     'field_types' => [
@@ -123,13 +123,13 @@ final class BreadcrumbKitExtension extends Extension implements PrependExtension
                             'row_attr' => ['class' => 'form-check mb-2'],
                         ],
                         'choice' => [
-                            'attr' => ['class' => 'nowo-ui-input form-control'],
+                            'attr' => ['class' => 'nowo-ui-input nowo-ui-input--full form-control'],
                         ],
                         'file' => [
-                            'attr' => ['class' => 'nowo-ui-input form-control'],
+                            'attr' => ['class' => 'nowo-ui-input nowo-ui-input--full form-control'],
                         ],
                         'textarea' => [
-                            'attr' => ['class' => 'nowo-ui-input form-control'],
+                            'attr' => ['class' => 'nowo-ui-input nowo-ui-input--full form-control'],
                         ],
                     ],
                 ],
