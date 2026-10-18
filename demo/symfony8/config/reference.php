@@ -1009,29 +1009,45 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *             breakpoint?: scalar|Param|null, // Width of the breadcrumb wrapper (container query; viewport media query fallback) below which the trail collapses: a length in px, rem or em, or an integer (pixels). // Default: "40rem"
  *         },
  *     },
- *     dashboard?: array{
- *         enabled?: bool|Param, // Registers CRUD controllers and forms; import bundle routing with path_prefix (see docs). // Default: false
- *         path_prefix?: scalar|Param|null, // URL prefix for dashboard routes (leading slash, no trailing slash). Use the same value when importing routing in your app. // Default: "/breadcrumb-kit-admin"
- *         layout_template?: scalar|Param|null, // Twig layout extended by dashboard pages (override in app like DashboardMenuBundle). // Default: "@NowoBreadcrumbKitBundle/dashboard/layout.html.twig"
- *         css_framework?: scalar|Param|null, // CSS stack for dashboard markup (REQ-UI-001): see Nowo\BreadcrumbKitBundle\Enum\CssFramework. // Default: "bootstrap5"
- *         icon_set?: scalar|Param|null, // Icon set for dashboard row actions (REQ-UI-001): see Nowo\BreadcrumbKitBundle\Enum\IconSet. // Default: "bootstrap-icons"
- *         import_max_bytes?: int|Param, // Max JSON upload size for dashboard import (default 2 MiB). // Default: 2097152
- *         pagination?: array{ // Pagination for collections and items lists in the dashboard.
+ *     web_ui?: array{ // Admin dashboard (CRUD of collections and items) on the UiKit page contract (REQ-UI-003). Import the bundle routing with path_prefix (see docs).
+ *         enabled?: bool|Param, // Registers the dashboard controllers and forms. // Default: false
+ *         path_prefix?: scalar|Param|null, // URL prefix of the dashboard routes (leading slash, no trailing slash). Use the same value when importing the routing (parameter %nowo_breadcrumb_kit.web_ui.path_prefix%). // Default: "/breadcrumb-kit-admin"
+ *         layout_template?: scalar|Param|null, // Per-bundle layout override for the dashboard pages; null = nowo_ui_kit.layouts.admin. It must render the UiKit canonical blocks (nowo_ui_page_header, nowo_ui_content…); a 1.x layout that only defines nowo_breadcrumb_kit_content is wrapped by a deprecated bridge. // Default: null
+ *         templates?: array<string, scalar|Param|null>,
+ *         import_max_bytes?: int|Param, // Max JSON upload size for the dashboard import (default 2 MiB). // Default: 2097152
+ *         pagination?: array{ // Pagination of the collections and items lists.
  *             enabled?: bool|Param, // Default: true
  *             per_page?: int|Param, // Default: 20
  *         },
- *         modals?: array{ // Modal dialog size per type: normal (default), lg, or xl (Bootstrap 5).
- *             collection_form?: scalar|Param|null, // Default: "lg"
- *             item_form?: scalar|Param|null, // Default: "lg"
- *             import?: scalar|Param|null, // Default: "normal"
- *             delete?: scalar|Param|null, // Default: "normal"
+ *         dialog_sizes?: array{ // UiKit dialog size (sm, md, lg, xl) of the collection form, item form and import dialogs.
+ *             collection_form?: "sm"|"md"|"lg"|"xl"|Param, // Default: "lg"
+ *             item_form?: "sm"|"md"|"lg"|"xl"|Param, // Default: "lg"
+ *             import?: "sm"|"md"|"lg"|"xl"|Param, // Default: "md"
+ *         },
+ *     },
+ *     dashboard?: array{ // Deprecated since 2.7: use web_ui (REQ-UI-003) and the UiKit theme (nowo_ui_kit.theme.bundles.NowoBreadcrumbKitBundle). Removed in 3.0.
+ *         enabled?: bool|Param, // Deprecated: The "nowo_breadcrumb_kit.dashboard.enabled.enabled" option is deprecated, use "nowo_breadcrumb_kit.web_ui.enabled" instead. // Deprecated alias of web_ui.enabled. // Default: false
+ *         path_prefix?: scalar|Param|null, // Deprecated: The "nowo_breadcrumb_kit.dashboard.path_prefix.path_prefix" option is deprecated, use "nowo_breadcrumb_kit.web_ui.path_prefix" instead. // Deprecated alias of web_ui.path_prefix. // Default: "/breadcrumb-kit-admin"
+ *         layout_template?: scalar|Param|null, // Deprecated: The "nowo_breadcrumb_kit.dashboard.layout_template.layout_template" option is deprecated, use "nowo_breadcrumb_kit.web_ui.layout_template" (null = nowo_ui_kit.layouts.admin) instead. // Deprecated alias of web_ui.layout_template (the 1.x default @NowoBreadcrumbKitBundle/dashboard/layout.html.twig is read as null). // Default: null
+ *         css_framework?: scalar|Param|null, // Deprecated: The "nowo_breadcrumb_kit.dashboard.css_framework.css_framework" option is deprecated, set "nowo_ui_kit.css_framework" instead. // Deprecated: seeded into nowo_ui_kit.css_framework when set here and not in nowo_ui_kit. See Nowo\BreadcrumbKitBundle\Enum\CssFramework. // Default: null
+ *         icon_set?: scalar|Param|null, // Deprecated: The "nowo_breadcrumb_kit.dashboard.icon_set.icon_set" option is deprecated, set "nowo_ui_kit.icon_set" instead. // Deprecated: seeded into nowo_ui_kit.icon_set when set here and not in nowo_ui_kit. See Nowo\BreadcrumbKitBundle\Enum\IconSet. // Default: null
+ *         import_max_bytes?: int|Param, // Deprecated: The "nowo_breadcrumb_kit.dashboard.import_max_bytes.import_max_bytes" option is deprecated, use "nowo_breadcrumb_kit.web_ui.import_max_bytes" instead. // Deprecated alias of web_ui.import_max_bytes.
+ *         pagination?: array{ // Deprecated: The "nowo_breadcrumb_kit.dashboard.pagination.pagination" option is deprecated, use "nowo_breadcrumb_kit.web_ui.pagination" instead. // Deprecated alias of web_ui.pagination.
+ *             enabled?: bool|Param,
+ *             per_page?: int|Param,
+ *         },
+ *         modals?: array{ // Deprecated: The "nowo_breadcrumb_kit.dashboard.modals.modals" option is deprecated, use "nowo_breadcrumb_kit.web_ui.dialog_sizes" instead. // Deprecated alias of web_ui.dialog_sizes (normal = md); "delete" has no effect (UiKit confirm dialog).
+ *             collection_form?: "normal"|"lg"|"xl"|Param,
+ *             item_form?: "normal"|"lg"|"xl"|Param,
+ *             import?: "normal"|"lg"|"xl"|Param,
+ *             delete?: "normal"|"lg"|"xl"|Param,
  *         },
  *         classes?: array<string, scalar|Param|null>,
  *         partials?: array<string, scalar|Param|null>,
- *         ui_kit_stylesheet?: bool|Param, // Append nowo-ui.css from dashboard/base.html.twig. Set false when the host layout already loads it before its own theme. // Default: true
- *         collections_view?: "list"|"table"|Param, // Collections index markup: list (default) or table (code, name, items, context, actions columns). // Default: "list"
- *         row_actions_position?: "start"|"end"|Param, // Actions column position in dashboard tables. // Default: "start"
- *         cancel_first?: bool|Param, // Render Cancel before the submit button in modal forms. // Default: false
+ *         ui_kit_stylesheet?: bool|Param, // Deprecated: The "nowo_breadcrumb_kit.dashboard.ui_kit_stylesheet.ui_kit_stylesheet" option is deprecated, the layout (nowo_ui_kit.layouts.admin) loads the UiKit assets. // Deprecated: the layout loads nowo-ui.css (only the 1.x layout bridge still reads it).
+ *         collections_view?: "list"|"table"|Param, // Deprecated: The "nowo_breadcrumb_kit.dashboard.collections_view.collections_view" option is deprecated and has no effect: the collections index renders the UiKit list scaffold. // Deprecated, no effect: the collections index is the UiKit list scaffold (table).
+ *         row_actions_position?: "start"|"end"|Param, // Deprecated: The "nowo_breadcrumb_kit.dashboard.row_actions_position.row_actions_position" option is deprecated and has no effect: the UiKit list scaffold renders the actions column last. // Deprecated, no effect: the UiKit list scaffold renders the actions column last.
+ *         cancel_first?: bool|Param, // Deprecated: The "nowo_breadcrumb_kit.dashboard.cancel_first.cancel_first" option is deprecated and has no effect: the UiKit form actions render submit, then cancel. // Deprecated, no effect: the UiKit form actions render submit then cancel.
  *     },
  *     security?: array{ // Private dashboard access (REQ-UI-002). Defaults to ROLE_ADMIN; demos may set allow_unauthenticated.
  *         access_checker?: scalar|Param|null, // Service id implementing BreadcrumbKitAccessCheckerInterface. null = built-in role checker. // Default: null
@@ -1055,6 +1071,93 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *         cache_ttl?: int|Param, // Seconds to cache the GitHub answer (cache.app). Default 12h. // Default: 43200
  *         default_branch?: scalar|Param|null, // Branch used as compare target when the installed version is already the latest. // Default: "main"
  *         user_agent?: scalar|Param|null, // User-Agent sent to api.github.com. // Default: "nowo-ui-kit-release-check"
+ *     },
+ *     route_links?: array{ // Route (or route prefix) → link map read by nowo_ui_route_link(), e.g. for the page-edge "manual" tab (partials/_edge_tab.html.twig). A prefix matches the route itself or any route starting with "<prefix>_"; the longest prefix wins.
+ *         base_url?: scalar|Param|null, // Prepended to every relative path (paths starting with "/", "//", "http://" or "https://" are used as is). // Default: ""
+ *         default_testid?: scalar|Param|null, // testid returned for entries without their own. // Default: null
+ *         routes?: array<string, Param|string|array{ // Default: []
+ *             path?: scalar|Param|null,
+ *             testid?: scalar|Param|null, // Default: null
+ *         }>,
+ *     },
+ *     appearance?: array{ // Optional site appearance SPI (presets, --nowo-ui-* token emitter, Twig functions). Off by default.
+ *         enabled?: bool|Param, // Default: false
+ *         provider?: scalar|Param|null, // Service id implementing AppearanceProviderInterface (host storage). Null = the config defaults below. // Default: null
+ *         defaults?: array{
+ *             brand_name?: scalar|Param|null, // Default: ""
+ *             brand_eyebrow?: scalar|Param|null, // Default: ""
+ *             preset?: scalar|Param|null, // Preset whose light colours are the default. // Default: "slate"
+ *             preset_dark?: scalar|Param|null, // Preset whose dark colours are the default. // Default: "midnight"
+ *             corner_style?: "sharp"|"soft"|"rounded"|Param, // Default: "soft"
+ *             border_strength?: "subtle"|"medium"|"strong"|Param, // Default: "medium"
+ *             footer_fixed?: bool|Param, // Default: false
+ *         },
+ *         presets?: array<string, array{ // Default: []
+ *             mode?: "light"|"dark"|Param, // Default: "light"
+ *             light?: array{
+ *                 accent?: scalar|Param|null,
+ *                 accent_deep?: scalar|Param|null,
+ *                 danger?: scalar|Param|null,
+ *                 warn?: scalar|Param|null,
+ *                 paper?: scalar|Param|null,
+ *                 ink?: scalar|Param|null,
+ *                 surface?: scalar|Param|null,
+ *             },
+ *             dark?: array{
+ *                 accent?: scalar|Param|null,
+ *                 accent_deep?: scalar|Param|null,
+ *                 danger?: scalar|Param|null,
+ *                 warn?: scalar|Param|null,
+ *                 paper?: scalar|Param|null,
+ *                 ink?: scalar|Param|null,
+ *                 surface?: scalar|Param|null,
+ *             },
+ *         }>,
+ *         builtin_presets?: list<scalar|Param|null>,
+ *         kit_tokens?: bool|Param, // Emit the --nowo-ui-* tokens. False = only the token_aliases are written. // Default: true
+ *         token_aliases?: array<string, list<scalar|Param|null>>,
+ *         selectors?: array{ // Selectors of the three emitted blocks.
+ *             root?: scalar|Param|null, // Default: ":root"
+ *             light?: scalar|Param|null, // Default: ":root, [data-theme=\"light\"]"
+ *             dark?: scalar|Param|null, // Default: "[data-theme=\"dark\"]"
+ *         },
+ *         shadow_rgb_fallback?: scalar|Param|null, // --nowo-ui-shadow-rgb when the light ink colour is not hex ("r g b"). // Default: "15 23 42"
+ *     },
+ *     layouts?: array{ // Layouts the page scaffolds extend (Twig global nowo_ui_layout). Host layouts or one-file bridges must render the canonical nowo_ui_* blocks.
+ *         admin?: scalar|Param|null, // Default: "@NowoUiKit/layout/admin.html.twig"
+ *         guest?: scalar|Param|null, // Default: "@NowoUiKit/layout/guest.html.twig"
+ *     },
+ *     breadcrumbs?: array{ // Page header breadcrumbs: BreadcrumbKit (breadcrumb_render) when installed and enabled here, else the plain trail from PageHeader::breadcrumbs.
+ *         breadcrumb_kit?: bool|Param, // Use BreadcrumbKit when its breadcrumb_render() Twig function exists. // Default: true
+ *         collection?: scalar|Param|null, // BreadcrumbKit collection code (null = its default collection). PageHeader::breadcrumbCollection overrides it. // Default: null
+ *     },
+ *     theme?: array{ // Global theme (REQ-UI-003): semantic slot classes / attributes, partial overrides and --nowo-ui-* tokens, configured once for every bundle.
+ *         framework_defaults?: bool|Param, // false = slots print the semantic nowo-ui-* class and the host classes only (no UiKit framework defaults such as btn / badge / card). Per slot: classes.<slot>: {value: …, framework_defaults: false}. // Default: true
+ *         classes?: array<string, mixed>,
+ *         attributes?: array<string, array<string, mixed>>,
+ *         partials?: array<string, scalar|Param|null>,
+ *         tokens?: array<string, mixed>,
+ *         tokens_dark?: array<string, mixed>,
+ *         confirm_message_in_header?: bool|Param, // Confirm dialogs and the full-page confirm render the message inside the header, under the title (hosts whose dialog header is title + message). View\Confirm::messageInHeader wins when set. // Default: false
+ *         bundles?: array<string, array{ // Default: []
+ *             framework_defaults?: bool|Param, // Override of theme.framework_defaults for this bundle (unset = inherit).
+ *             classes?: array<string, mixed>,
+ *             attributes?: array<string, array<string, mixed>>,
+ *             partials?: array<string, scalar|Param|null>,
+ *             tokens?: array<string, mixed>,
+ *             tokens_dark?: array<string, mixed>,
+ *             pages?: array<string, array{ // Default: []
+ *                 framework_defaults?: bool|Param, // Override of theme.framework_defaults for this page type (unset = inherit).
+ *                 classes?: array<string, mixed>,
+ *                 attributes?: array<string, array<string, mixed>>,
+ *             }>,
+ *         }>,
+ *         pages?: array<string, array{ // Default: []
+ *             framework_defaults?: bool|Param, // Override of theme.framework_defaults for this page type (unset = inherit).
+ *             classes?: array<string, mixed>,
+ *             attributes?: array<string, array<string, mixed>>,
+ *             header_actions_in_filters?: bool|Param, // list only: render the page-header actions at the end of the filter row instead of the page header (ListPage::headerActionsInFilters wins when set; unset = false).
+ *         }>,
  *     },
  * }
  * @psalm-type NowoHotReloadConfig = array{
@@ -1093,6 +1196,7 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  * @psalm-type NowoFormKitConfig = array{
  *     type_map?: array<string, scalar|Param|null>,
  *     default_profile?: scalar|Param|null, // Name of the profile to use when no profile is specified (key in profiles) // Default: "default"
+ *     convention_requires_translation?: bool|Param, // Global default for profiles.<name>.convention_requires_translation: only apply auto help / placeholder convention keys that exist in the translator catalogue. Requires a translator implementing TranslatorBagInterface (no effect otherwise). Default: false. // Default: false
  *     css_framework?: scalar|Param|null, // CSS framework for CssClassUtilities (column merge + class ordering): bootstrap, tailwind, foundation, none. // Default: "bootstrap"
  *     stateless_csrf?: array{ // Give selected (usually anonymous/public) form types a stateless CSRF token id so rendering them does not start a session. Off by default.
  *         enabled?: bool|Param, // Default: false
@@ -1103,11 +1207,15 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *     accessibility?: array{ // Accessibility helpers applied by kit form type extensions.
  *         unlabelled_choice_aria_label?: bool|Param, // When true (default), non-expanded ChoiceType fields (and subtypes such as EntityType) rendered with label: false and no aria-label/aria-labelledby get aria-label from their translated help, else their placeholder. // Default: true
  *     },
+ *     twig?: array{ // Twig helpers shipped by the bundle (registered only when twig/twig is installed).
+ *         csrf_action_form?: bool|Param, // When true (default), registers the csrf_action_form() Twig function (CSRF-only single-action POST forms). Set false if the host keeps its own function with that name. // Default: true
+ *     },
  *     profiles?: array<string, array{ // Default: []
  *         alias?: scalar|Param|null, // Alias for this profile (e.g. for reference in form types)
  *         translation_domain?: scalar|Param|null, // Default: "messages"
  *         auto_placeholder?: bool|Param, // When true (default), unset placeholders become {form}.{field}.placeholder translation keys. Set false for kits that only set explicit labels. // Default: true
  *         auto_help?: bool|Param, // When true (default), unset help becomes {form}.{field}.help translation keys. Set false to avoid raw missing-help keys in the UI. // Default: true
+ *         convention_requires_translation?: bool|Param|null, // When true, the auto help / placeholder convention keys are only applied if the key exists in the translator catalogue (current locale + fallbacks) for the field's translation domain. Never affects labels. Null (default) inherits the root convention_requires_translation. // Default: null
  *         required_label_suffix?: scalar|Param|null, // Appended to the label when the field is required (e.g. " *"). Empty or null to disable. // Default: null
  *         help_modal?: array{ // Default help modal configuration (used when the field option "help_modal" is enabled).
  *             framework?: scalar|Param|null, // Modal framework to use when opening from frontend. // Default: "bootstrap5"

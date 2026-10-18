@@ -1,7 +1,7 @@
 {# Visual shell aligned with DashboardMenuBundle demo (Bootstrap 5.3 + app-header / app-layout). #}
 {% trans_default_domain 'NowoBreadcrumbKitBundle' %}
 <!DOCTYPE html>
-<html lang="{{ app.request.locale }}">
+<html lang="{{ app.request.locale }}"{% block html_attributes %}{% endblock %}>
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -50,6 +50,7 @@
             max-width: var(--content-max-width);
             margin: 0 auto;
         }
+        .app-main--wide { max-width: 72rem; }
         .app-main h1 { font-size: 1.75rem; margin-bottom: 1rem; color: #2c3e50; }
         .app-main p { color: #495057; line-height: 1.6; }
         .app-main code { background: #f1f3f5; padding: 0.2em 0.4em; border-radius: 4px; font-size: 0.9em; }
@@ -140,7 +141,8 @@
         .demo-breadcrumb-card .breadcrumb-demo,
         .demo-breadcrumb-card .breadcrumb-admin { margin: 0; padding: 0; border: none; }
         .demo-breadcrumb-card nav[aria-label="breadcrumb"] ol.breadcrumb-list,
-        .demo-breadcrumb-card ol.breadcrumb-list {
+        .demo-breadcrumb-card ol.breadcrumb-list,
+        .nowo-ui-breadcrumbs ol.breadcrumb-list {
             display: flex;
             flex-direction: row;
             flex-wrap: wrap;
@@ -151,14 +153,17 @@
             padding-inline-start: 0;
             gap: 0.15rem 0.35rem;
         }
-        .demo-breadcrumb-card ol.breadcrumb-list > li {
+        .demo-breadcrumb-card ol.breadcrumb-list > li,
+        .nowo-ui-breadcrumbs ol.breadcrumb-list > li {
             list-style: none;
             margin: 0;
             padding: 0;
             display: flex;
             align-items: center;
         }
-        .demo-breadcrumb-card ol.breadcrumb-list > li::marker { content: none; }
+        .demo-breadcrumb-card ol.breadcrumb-list > li::marker,
+        .nowo-ui-breadcrumbs ol.breadcrumb-list > li::marker { content: none; }
+        .nowo-ui-breadcrumbs .breadcrumb--demo { margin: 0; padding: 0; }
         .breadcrumb-app-override.breadcrumb--many .breadcrumb-list > li {
             flex-shrink: 0;
             white-space: nowrap;
@@ -228,7 +233,8 @@
     <div class="app-layout">
         {% include '_demo_sidebar.html.twig' %}
 
-        <main class="app-main">
+        <main class="app-main{% block main_class %}{% endblock %}">
+            {% block breadcrumb_card %}
             <div class="card demo-breadcrumb-card mb-4">
                 <div class="card-body py-3">
                     {% block breadcrumb %}
@@ -236,6 +242,7 @@
                     {% endblock %}
                 </div>
             </div>
+            {% endblock %}
             {% block body %}{% endblock %}
         </main>
 
@@ -269,5 +276,6 @@
     </footer>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    {% block javascripts %}{% endblock %}
 </body>
 </html>

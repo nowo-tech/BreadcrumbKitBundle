@@ -1,7 +1,7 @@
 # Form Kit — profile `breadcrumb_kit` is prepended by BreadcrumbKitExtension.
 # Host can override here; keep NowoFormKitBundle registered in bundles.php.
 nowo_form_kit:
-    # css_framework is seeded from nowo_breadcrumb_kit.dashboard.css_framework when omitted.
+    # css_framework defaults to bootstrap (seeded by BreadcrumbKitExtension when omitted).
     default_profile: default
     profiles:
         default:

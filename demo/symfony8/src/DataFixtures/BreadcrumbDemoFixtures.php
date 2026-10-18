@@ -114,6 +114,35 @@ final class BreadcrumbDemoFixtures extends Fixture
         $deepHub->setParent($home);
         $collection->addItem($deepHub);
 
+        // Dashboard pages (UiKit page headers render this trail: nowo_ui_kit.breadcrumbs.breadcrumb_kit).
+        $admin = new BreadcrumbItem();
+        $admin->setRouteName('nowo_breadcrumb_kit_dashboard_collections_index');
+        $admin->setStaticRouteParams([]);
+        $admin->setLabel('Breadcrumb collections');
+        $admin->setTranslations(['en' => 'Breadcrumb collections', 'es' => 'Colecciones de migas']);
+        $admin->setLinkEnabled(true);
+        $admin->setParent($home);
+        $collection->addItem($admin);
+
+        foreach ([
+            ['nowo_breadcrumb_kit_dashboard_items_index', 'Items', 'Ítems', ['collectionId']],
+            ['nowo_breadcrumb_kit_dashboard_import', 'Import', 'Importar', null],
+            ['nowo_breadcrumb_kit_dashboard_collections_new', 'New collection', 'Nueva colección', null],
+            ['nowo_breadcrumb_kit_dashboard_collections_edit', 'Edit collection', 'Editar colección', ['id']],
+        ] as [$route, $en, $es, $keys]) {
+            $page = new BreadcrumbItem();
+            $page->setRouteName($route);
+            $page->setStaticRouteParams([]);
+            $page->setLabel($en);
+            $page->setTranslations(['en' => $en, 'es' => $es]);
+            $page->setLinkEnabled(true);
+            $page->setParent($admin);
+            if (null !== $keys) {
+                $page->setDynamicParamKeys($keys);
+            }
+            $collection->addItem($page);
+        }
+
         $deepPrev = $deepHub;
         for ($i = 1; $i <= 6; ++$i) {
             $step = new BreadcrumbItem();

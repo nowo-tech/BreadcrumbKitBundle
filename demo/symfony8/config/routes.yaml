@@ -1,8 +1,8 @@
-# Panel CRUD del bundle (prefijo = nowo_breadcrumb_kit.dashboard.path_prefix).
+# Panel CRUD del bundle (prefijo = nowo_breadcrumb_kit.web_ui.path_prefix).
 nowo_breadcrumb_kit_dashboard:
     resource: '@NowoBreadcrumbKitBundle/Resources/config/routing/dashboard.yaml'
     type: yaml
-    prefix: '%nowo_breadcrumb_kit.dashboard.path_prefix%'
+    prefix: '%nowo_breadcrumb_kit.web_ui.path_prefix%'
 
 # Ruta literal `/` (sin prefijo _locale). Un import `resource` + `attribute` sobre un solo
 # __invoke a veces no registra bien; aquí va explícita.

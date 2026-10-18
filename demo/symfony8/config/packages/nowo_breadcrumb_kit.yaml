@@ -10,11 +10,10 @@ nowo_breadcrumb_kit:
         access_services:
             demo_public: App\Breadcrumb\DemoBreadcrumbInlineEditAccess
             demo_staff_only: App\Breadcrumb\DemoStaffOnlyBreadcrumbInlineEditAccess
-    dashboard:
+    # Admin dashboard on the UiKit page contract (REQ-UI-003): layout = nowo_ui_kit.layouts.admin.
+    web_ui:
         enabled: true
         path_prefix: /breadcrumb-kit-admin
-        css_framework: bootstrap5
-        icon_set: svg_inline
     # Demo-only: open CRUD without login. Never use allow_unauthenticated in production (REQ-UI-002).
     security:
         access_roles: []
