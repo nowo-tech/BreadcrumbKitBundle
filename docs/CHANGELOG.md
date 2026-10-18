@@ -50,6 +50,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- `locales` given as a container parameter or env var (`'%app.locales%'`, `'%kernel.enabled_locales%'`,
+  `'%env(json:APP_LOCALES)%'`) no longer breaks the container build ("Expected array, but got string"): `prepend()`
+  processed the whole raw host config, where the parameter is still a string (and `kernel.enabled_locales` is not
+  defined yet), and the node only accepted a literal list. `prepend()` now reads only the deprecated `dashboard.*` keys,
+  `locales` accepts a list or a parameter / env placeholder, and an env var is read at runtime (the first locale
+  becomes the loader default when `default_locale` is null). See [CONFIGURATION](CONFIGURATION.md#locales-from-a-parameter-or-env-var).
+
 ## [2.7.1] - 2026-10-18
 
 Requires UiKit ^2.2 (breadcrumbs modes); dashboard search and item placeholders translated once. See [UPGRADING](UPGRADING.md#to-271).

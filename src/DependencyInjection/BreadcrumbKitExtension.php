@@ -13,6 +13,7 @@ use Nowo\BreadcrumbKitBundle\Security\BreadcrumbKitAccessCheckerInterface;
 use Nowo\BreadcrumbKitBundle\Security\ConfigurableBreadcrumbKitAccessChecker;
 use Nowo\BreadcrumbKitBundle\Service\BreadcrumbCacheInvalidator;
 use Nowo\BreadcrumbKitBundle\Service\BreadcrumbLoader;
+use Nowo\BreadcrumbKitBundle\Service\ConfiguredLocales;
 use Nowo\BreadcrumbKitBundle\Twig\BreadcrumbExtension;
 use Symfony\Bundle\WebProfilerBundle\WebProfilerBundle;
 use Symfony\Component\Config\FileLocator;
@@ -95,8 +96,7 @@ final class BreadcrumbKitExtension extends Extension implements PrependExtension
         $seed = [];
 
         if (!$hostHasCssFramework) {
-            $config = $this->processConfiguration(new Configuration(), $container->getExtensionConfig($this->getAlias()));
-            $dashboard = \is_array($config['dashboard'] ?? null) ? $config['dashboard'] : [];
+            $dashboard = $this->deprecatedDashboardConfig($container);
             $raw = $dashboard['css_framework'] ?? null;
             $fw = CssFramework::from(\is_string($raw) ? $raw : CssFramework::Bootstrap5->value)->normalized();
             // FormKit accepts only bootstrap|tailwind|foundation|none (not bootstrap5 / tabler / …).
@@ -163,8 +163,7 @@ final class BreadcrumbKitExtension extends Extension implements PrependExtension
             }
         }
 
-        $config = $this->processConfiguration(new Configuration(), $container->getExtensionConfig($this->getAlias()));
-        $dashboard = \is_array($config['dashboard'] ?? null) ? $config['dashboard'] : [];
+        $dashboard = $this->deprecatedDashboardConfig($container);
         $defaults = [];
 
         $fw = $dashboard['css_framework'] ?? null;
@@ -186,14 +185,39 @@ final class BreadcrumbKitExtension extends Extension implements PrependExtension
         }
     }
 
+    /**
+     * The processed deprecated dashboard.* keys, the only ones prepend() needs. prepend() sees the raw host config,
+     * where any other key may still be a "%parameter%" or env placeholder (e.g. locales: '%kernel.enabled_locales%',
+     * defined by FrameworkExtension::load() after prepend), so the rest of the tree is not processed here.
+     *
+     * @return array<array-key, mixed>
+     */
+    private function deprecatedDashboardConfig(ContainerBuilder $container): array
+    {
+        $configs = [];
+        foreach ($container->getExtensionConfig($this->getAlias()) as $cfg) {
+            if (\is_array($cfg['dashboard'] ?? null)) {
+                $configs[] = ['dashboard' => $cfg['dashboard']];
+            }
+        }
+        $config = $this->processConfiguration(new Configuration(), $configs);
+
+        return \is_array($config['dashboard'] ?? null) ? $config['dashboard'] : [];
+    }
+
     public function load(array $configs, ContainerBuilder $container): void
     {
         $config = $this->processConfiguration(new Configuration(), $configs);
 
-        $locales = $config['locales'] ?? [];
-        $defaultLocale = $config['default_locale'] ?? null;
-        if (null === $defaultLocale && [] !== $locales) {
-            $defaultLocale = $locales[0];
+        // locales may be a parameter (%app.locales%, %kernel.enabled_locales%): the kernel resolves it before load(),
+        // a direct load() caller may not. An env var (%env(json:APP_LOCALES)%) stays a placeholder until runtime.
+        $locales = $container->getParameterBag()->resolveValue($config['locales'] ?? []);
+        $defaultLocale = \is_string($config['default_locale'] ?? null) ? $config['default_locale'] : null;
+        $usedEnvs = [];
+        $container->resolveEnvPlaceholders($locales, null, $usedEnvs);
+        $runtimeLocales = [] !== $usedEnvs;
+        if (!$runtimeLocales) {
+            $locales = ConfiguredLocales::normalize($locales);
         }
 
         $container->setParameter(Configuration::ALIAS.'.project', $config['project']);
@@ -201,7 +225,9 @@ final class BreadcrumbKitExtension extends Extension implements PrependExtension
         $container->setParameter(Configuration::ALIAS.'.doctrine.table_prefix', $config['doctrine']['table_prefix']);
         $container->setParameter(Configuration::ALIAS.'.table_prefix', $config['doctrine']['table_prefix']);
         $container->setParameter(Configuration::ALIAS.'.locales', $locales);
-        $container->setParameter(Configuration::ALIAS.'.default_locale_resolved', $defaultLocale ?? 'en');
+        // With runtime (env) locales and no default_locale, the parameter holds the fallback; BreadcrumbLoader gets the
+        // first locale from a factory below.
+        $container->setParameter(Configuration::ALIAS.'.default_locale_resolved', ConfiguredLocales::defaultLocale($runtimeLocales ? [] : $locales, $defaultLocale));
         $container->setParameter(Configuration::ALIAS.'.default_collection', $config['default_collection']);
         $container->setParameter(Configuration::ALIAS.'.cache.ttl', (int) $config['cache']['ttl']);
 
@@ -315,6 +341,12 @@ final class BreadcrumbKitExtension extends Extension implements PrependExtension
                 '%nowo_breadcrumb_kit.presentation.collapse.min_items%',
                 '%nowo_breadcrumb_kit.presentation.collapse.breakpoint%',
             ]));
+
+        if ($runtimeLocales && null === $defaultLocale) {
+            $container->getDefinition(BreadcrumbLoader::class)->setArgument('$defaultLocale', (new Definition('string'))
+                ->setFactory([ConfiguredLocales::class, 'defaultLocale'])
+                ->setArguments(['%'.Configuration::ALIAS.'.locales%']));
+        }
 
         $container->getDefinition(BreadcrumbExtension::class)
             ->setArgument('$defaultCollection', $config['default_collection']);

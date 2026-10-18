@@ -69,11 +69,18 @@ final class Configuration implements ConfigurationInterface
                         ->end()
                     ->end()
                 ->end()
-                ->arrayNode('locales')
-                    ->scalarPrototype()->end()
+                ->variableNode('locales')
+                    ->info('Locale codes (list), or a parameter / env var holding one: "%app.locales%", "%kernel.enabled_locales%", "%env(json:APP_LOCALES)%" (resolved at runtime).')
                     ->defaultValue([])
+                    ->validate()
+                        ->ifTrue(static fn (mixed $v): bool => !\is_string($v) && !self::isLocaleList($v))
+                        ->thenInvalid('Invalid nowo_breadcrumb_kit.locales %s: use a list of locale codes or a parameter / env placeholder holding one.')
+                    ->end()
                 ->end()
-                ->scalarNode('default_locale')->defaultNull()->end()
+                ->scalarNode('default_locale')
+                    ->info('Default locale; null = first entry of locales (or "en").')
+                    ->defaultNull()
+                ->end()
                 ->scalarNode('default_collection')
                     ->info('Collection code used when none is passed to Twig/helpers.')
                     ->defaultValue('default')
@@ -310,6 +317,20 @@ final class Configuration implements ConfigurationInterface
             ->end();
 
         return $treeBuilder;
+    }
+
+    private static function isLocaleList(mixed $v): bool
+    {
+        if (!\is_array($v)) {
+            return false;
+        }
+        foreach ($v as $locale) {
+            if (!\is_string($locale)) {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     /**

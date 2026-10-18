@@ -996,8 +996,8 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *         ttl?: int|Param, // Default: 60
  *         pool?: scalar|Param|null, // PSR-6 pool service id, e.g. cache.app. Empty disables item-list cache. // Default: "cache.app"
  *     },
- *     locales?: list<scalar|Param|null>,
- *     default_locale?: scalar|Param|null, // Default: null
+ *     locales?: mixed, // Locale codes (list), or a parameter / env var holding one: "%app.locales%", "%kernel.enabled_locales%", "%env(json:APP_LOCALES)%" (resolved at runtime). // Default: []
+ *     default_locale?: scalar|Param|null, // Default locale; null = first entry of locales (or "en"). // Default: null
  *     default_collection?: scalar|Param|null, // Collection code used when none is passed to Twig/helpers. // Default: "default"
  *     presentation?: array{ // Default trail presentation; collection homeIcon and responsiveConfig can override per collection.
  *         home_icon?: scalar|Param|null, // Fallback home/root icon (HTML, emoji, or app-specific token) when the collection homeIcon is empty. // Default: null

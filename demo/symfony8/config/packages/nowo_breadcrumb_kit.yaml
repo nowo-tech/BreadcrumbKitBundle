@@ -1,5 +1,9 @@
+# One locale list for the app, passed as a parameter (an env var also works: '%env(json:APP_LOCALES)%').
+parameters:
+    app.locales: ['en', 'es']
+
 nowo_breadcrumb_kit:
-    locales: ['en', 'es']
+    locales: '%app.locales%'
     default_locale: 'en'
     default_collection: 'default'
     cache:

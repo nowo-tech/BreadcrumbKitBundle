@@ -5,6 +5,7 @@ Configuration root key: `nowo_breadcrumb_kit` (see `Nowo\BreadcrumbKitBundle\Dep
 ## Table of contents
 
 - [Reference](#reference)
+- [Locales from a parameter or env var](#locales-from-a-parameter-or-env-var)
 - [Inline edit (modal)](#inline-edit-modal)
 - [Dashboard (CRUD)](#dashboard-crud)
   - [Look and feel (UiKit page contract)](#look-and-feel-uikit-page-contract)
@@ -22,7 +23,7 @@ Configuration root key: `nowo_breadcrumb_kit` (see `Nowo\BreadcrumbKitBundle\Dep
 | `doctrine.table_prefix` | `string` | `''` | Prefix for table names (`dashboard_breadcrumb_collection`, `dashboard_breadcrumb_item`). |
 | `cache.ttl` | `int` | `60` | TTL in seconds for the PSR-6 cache of serialized breadcrumb items (0 disables TTL semantics per pool). |
 | `cache.pool` | `string` | `cache.app` | PSR-6 cache pool service id. Empty string keeps the loader without a pool (no item-list cache); an id that does not exist in the container also disables the cache. Entries are deleted automatically on Doctrine writes (dashboard, import); raw SQL changes wait for `cache.ttl`. |
-| `locales` | `string[]` | `[]` | Supported locales for resolving labels from JSON translations on items. |
+| `locales` | `string[]\|string` | `[]` | Supported locales for resolving labels from JSON translations on items. A literal list, or a parameter / env var holding one (`'%app.locales%'`, `'%kernel.enabled_locales%'`, `'%env(json:APP_LOCALES)%'`); see [Locales from a parameter or env var](#locales-from-a-parameter-or-env-var). |
 | `default_locale` | `string\|null` | `null` | Fallback locale; if null and `locales` is non-empty, the first locale is used. |
 | `default_collection` | `string` | `default` | Collection code used when Twig helpers omit an explicit collection. |
 | `presentation.home_icon` | `string\|null` | `null` | Fallback home/root icon when the collection `homeIcon` is empty (HTML, emoji, or an app-specific token such as `tabler:home` with Symfony UX Icons). |
@@ -49,6 +50,24 @@ Configuration root key: `nowo_breadcrumb_kit` (see `Nowo\BreadcrumbKitBundle\Dep
 | `inline_edit.access_services` | `array<string,string>` | `[]` | Map of **logical keys** to **service ids** implementing `BreadcrumbInlineEditAccessCheckerInterface`. Each collection selects one key in the dashboard; the service receives the current `Request` and `?UserInterface` (or `null` if anonymous / no Security). |
 
 To override dashboard or form UI strings from your application, see [USAGE.md](USAGE.md#overriding-translations-req-i18n-001) (domain `NowoBreadcrumbKitBundle`, files `translations/NowoBreadcrumbKitBundle.{locale}.yaml`).
+
+## Locales from a parameter or env var
+
+Keep one locale list in the host and pass it to the bundle:
+
+```yaml
+parameters:
+    app.locales: ['en', 'es']
+
+nowo_breadcrumb_kit:
+    locales: '%app.locales%'            # or '%kernel.enabled_locales%' (framework.enabled_locales)
+    # locales: '%env(json:APP_LOCALES)%' # APP_LOCALES='["en","es"]' (or '%env(csv:APP_LOCALES)%' with APP_LOCALES=en,es)
+```
+
+Parameters are resolved when the container is built (`nowo_breadcrumb_kit.locales` holds the resolved list). An env
+var is read at runtime: the `nowo_breadcrumb_kit.locales` parameter is then dynamic, and when `default_locale` is null
+the loader default is the first locale of the env value (the `nowo_breadcrumb_kit.default_locale_resolved` parameter
+keeps the `en` fallback). Values are trimmed and de-duplicated; empty entries are dropped.
 
 ## Inline edit (modal)
 
