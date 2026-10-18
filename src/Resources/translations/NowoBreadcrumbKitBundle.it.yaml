@@ -38,11 +38,13 @@ dashboard:
   link_export_json: JSON
   link_edit: Modifica
   empty_collections: Nessuna collezione. Creane una o importa un JSON esportato dal pannello.
+  empty_collections_search: 'Nessuna collezione corrisponde.'
   delete_collection_confirm: 'Eliminare la collezione «%code%» e tutti i suoi elementi?'
   items_heading: Elementi breadcrumb
   items_title_with_code: 'Elementi · %code%'
   unnamed_collection: Senza nome
   back_collections: ← Collezioni
+  back_items: '← Elementi'
   search: Cerca
   clear_search: Cancella
   export_collection: Esporta collezione

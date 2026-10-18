@@ -13,27 +13,6 @@ use Symfony\Component\Form\FormInterface;
 trait DashboardControllerTrait
 {
     /**
-     * @param array<string, string> $sizes
-     *
-     * @return array{collection_form: string, item_form: string, import: string, delete: string}
-     */
-    private static function resolveModalClasses(array $sizes): array
-    {
-        $map = static fn (string $v): string => match ($v) {
-            'lg' => 'modal-lg',
-            'xl' => 'modal-xl',
-            default => '',
-        };
-
-        return [
-            'collection_form' => $map($sizes['collection_form'] ?? 'lg'),
-            'item_form' => $map($sizes['item_form'] ?? 'lg'),
-            'import' => $map($sizes['import'] ?? 'normal'),
-            'delete' => $map($sizes['delete'] ?? 'normal'),
-        ];
-    }
-
-    /**
      * @return FormInterface<null>
      */
     private function createDeletePostForm(string $action, string $csrfTokenId): FormInterface

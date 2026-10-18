@@ -1,0 +1,42 @@
+{#
+  BC bridge (deprecated since 2.7, removed in 3.0): wraps a 1.x web_ui.layout_template (dashboard.layout_template)
+  that defines the `nowo_breadcrumb_kit_content` block (and optionally `title`, `stylesheets`, `javascripts`) instead of
+  the UiKit canonical blocks. DashboardPages selects it when the configured layout has no `nowo_ui_page_header`
+  block. Variable: nowo_breadcrumb_kit_legacy_layout. nowo-ui.css follows the deprecated dashboard.ui_kit_stylesheet
+  (default true), as the 1.x dashboard base template did. A layout that wraps nowo_breadcrumb_kit_content in its own
+  `nowo_ui_content` block must add the canonical blocks instead (the scaffold content replaces that block).
+#}
+{% extends nowo_breadcrumb_kit_legacy_layout %}
+{% set _bk_nonce = app is defined and app and app.request ? app.request.attributes.get('csp_nonce')|default('') : '' %}
+
+{% block title %}{% block nowo_ui_document_title %}{% endblock %}{{ bk_title_suffix|default('') }}{% endblock %}
+
+{#- 1.x layout slot read by host layouts with block('bk_page_title'). -#}
+{% block bk_page_title %}{{ block('nowo_ui_document_title') }}{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    {% if nowo_breadcrumb_kit_ui_kit_stylesheet ?? true %}
+        <link rel="stylesheet" href="{{ asset('css/nowo-ui.css', 'nowo_ui_kit') }}">
+    {% endif %}
+    {% block nowo_ui_head %}{% endblock %}
+    {% block nowo_ui_styles %}{% endblock %}
+{% endblock %}
+
+{% block nowo_breadcrumb_kit_content %}
+    {% block nowo_ui_navigation %}{% endblock %}
+    <div class="{{ nowo_ui_class('content', nowo_ui_bundle|default(null)) }}"{% if nowo_ui_bundle|default(null) %} data-nowo-ui-bundle="{{ nowo_ui_bundle }}"{% endif %}>
+        {% block nowo_ui_page_header %}{% endblock %}
+        {% block nowo_ui_flashes %}{{ include(nowo_ui_partial('flashes', nowo_ui_bundle|default(null)), {bundle: nowo_ui_bundle|default(null)}) }}{% endblock %}
+        {% block nowo_ui_content %}{% endblock %}
+    </div>
+    {% block nowo_ui_modals %}{% endblock %}
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    {% for _script in ['nowo-ui-confirm', 'nowo-ui-dialog'] %}
+        <script src="{{ asset('js/' ~ _script ~ '.js', 'nowo_ui_kit') }}" defer{% if _bk_nonce %} nonce="{{ _bk_nonce }}"{% endif %}></script>
+    {% endfor %}
+    {% block nowo_ui_scripts %}{% endblock %}
+{% endblock %}

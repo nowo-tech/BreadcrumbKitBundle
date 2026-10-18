@@ -29,12 +29,11 @@ final class DashboardGetSearchType extends AbstractType
                 'placeholder' => false,
                 'help' => false,
                 'required' => false,
-                'attr' => [
+                'attr' => array_filter([
                     'placeholder' => $options['search_placeholder'],
+                    'aria-label' => $options['search_label'],
                     'autocomplete' => 'off',
-                    'class' => 'dash-search-input',
-                    'style' => 'max-width: 20rem;',
-                ],
+                ], static fn (string $v): bool => '' !== $v),
             ]);
         });
     }
@@ -46,8 +45,10 @@ final class DashboardGetSearchType extends AbstractType
             'csrf_protection' => false,
             'allow_extra_fields' => true,
             'search_placeholder' => '',
+            'search_label' => '',
         ]);
         $resolver->setAllowedTypes('search_placeholder', 'string');
+        $resolver->setAllowedTypes('search_label', 'string');
     }
 
     public function getBlockPrefix(): string

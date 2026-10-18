@@ -1,12 +1,15 @@
 {#
   Single breadcrumb item content.
   Variables: node (BreadcrumbNode), trail (BreadcrumbTrailView), is_first (bool)
+  Links get the host classes / attributes of the UiKit `breadcrumb_link` slot (none configured: 2.6 markup).
 #}
+{% set _bk_theme = nowo_ui_theme|default(null) %}
+{% set _bk_link_class = _bk_theme ? _bk_theme.extraClasses('breadcrumb_link') : '' %}
 {% set show_home_icon_only = is_first and trail.homeIcon and trail.homeIconReplacesLabel %}
 {% set crumb_icon = show_home_icon_only ? trail.homeIcon : node.icon %}
 {% set crumb_label = show_home_icon_only ? '' : node.label %}
 {% if not node.current and node.linkEnabled and node.url %}
-    <a href="{{ node.url }}"{% if show_home_icon_only %} aria-label="{{ node.label }}"{% endif %}>
+    <a href="{{ node.url }}"{% if _bk_link_class %} class="{{ _bk_link_class }}"{% endif %}{{ _bk_theme ? _bk_theme.renderAttributes('breadcrumb_link')|raw }}{% if show_home_icon_only %} aria-label="{{ node.label }}"{% endif %}>
         {%- if crumb_icon %}<span class="breadcrumb-icon" aria-hidden="true">{{ crumb_icon|raw }}</span>{% endif -%}
         {%- if crumb_label %} {{ crumb_label }}{% endif -%}
     </a>

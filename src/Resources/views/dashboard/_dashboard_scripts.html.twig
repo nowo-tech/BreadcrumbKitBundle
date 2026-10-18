@@ -1,0 +1,3 @@
+{#- js/dashboard.js (loads the dashboard forms into the UiKit dialogs). CSP: external, deferred, nonce when set. -#}
+{%- set _bk_nonce = app is defined and app and app.request ? app.request.attributes.get('csp_nonce')|default('') : '' -%}
+<script src="{{ asset('js/dashboard.js', 'nowo_breadcrumb_kit') }}" defer{% if _bk_nonce %} nonce="{{ _bk_nonce }}"{% endif %}></script>

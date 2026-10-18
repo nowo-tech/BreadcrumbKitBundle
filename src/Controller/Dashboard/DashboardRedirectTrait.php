@@ -28,4 +28,24 @@ trait DashboardRedirectTrait
 
         return $this->redirectToRoute($route, $routeParams);
     }
+
+    /**
+     * After a delete: back to the list page the user came from (keeps its page / search query), else the list route.
+     * Other referers (the deleted entity's edit page, the no-JS confirm page) would 404.
+     *
+     * @param array<string, mixed> $routeParams
+     */
+    private function redirectToListOr(Request $request, string $route, array $routeParams = []): RedirectResponse
+    {
+        $listPath = $this->generateUrl($route, $routeParams);
+        $referer = $request->headers->get('Referer');
+        if (null !== $referer && '' !== $referer) {
+            $parsed = parse_url($referer);
+            if (($parsed['host'] ?? '') === $request->getHost() && ($parsed['path'] ?? '') === $listPath) {
+                return new RedirectResponse($referer);
+            }
+        }
+
+        return $this->redirectToRoute($route, $routeParams);
+    }
 }

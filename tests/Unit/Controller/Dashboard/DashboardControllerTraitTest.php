@@ -6,6 +6,7 @@ namespace Nowo\BreadcrumbKitBundle\Tests\Unit\Controller\Dashboard;
 
 use Doctrine\ORM\EntityManagerInterface;
 use Nowo\BreadcrumbKitBundle\Controller\Dashboard\CollectionCrudController;
+use Nowo\BreadcrumbKitBundle\Dashboard\DashboardPages;
 use Nowo\BreadcrumbKitBundle\Repository\BreadcrumbCollectionRepository;
 use Nowo\BreadcrumbKitBundle\Repository\BreadcrumbItemRepository;
 use Nowo\BreadcrumbKitBundle\Service\BreadcrumbExporter;
@@ -13,40 +14,14 @@ use PHPUnit\Framework\TestCase;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\Form\Extension\Csrf\CsrfExtension;
 use Symfony\Component\Form\Forms;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Security\Csrf\CsrfTokenManager;
 use Symfony\Contracts\Translation\TranslatorInterface;
+use Twig\Environment;
+use Twig\Loader\ArrayLoader;
 
 final class DashboardControllerTraitTest extends TestCase
 {
-    public function testResolveModalClassesMapsSizes(): void
-    {
-        $method = new \ReflectionMethod(CollectionCrudController::class, 'resolveModalClasses');
-
-        $classes = $method->invoke(null, [
-            'collection_form' => 'lg',
-            'item_form' => 'xl',
-            'import' => 'normal',
-            'delete' => 'normal',
-        ]);
-
-        self::assertSame('modal-lg', $classes['collection_form']);
-        self::assertSame('modal-xl', $classes['item_form']);
-        self::assertSame('', $classes['import']);
-        self::assertSame('', $classes['delete']);
-    }
-
-    public function testResolveModalClassesUsesDefaultsForMissingKeys(): void
-    {
-        $method = new \ReflectionMethod(CollectionCrudController::class, 'resolveModalClasses');
-
-        $classes = $method->invoke(null, []);
-
-        self::assertSame('modal-lg', $classes['collection_form']);
-        self::assertSame('modal-lg', $classes['item_form']);
-        self::assertSame('', $classes['import']);
-        self::assertSame('', $classes['delete']);
-    }
-
     public function testCreateDeletePostFormUsesUnnamedRootTokenField(): void
     {
         $formFactory = Forms::createFormFactoryBuilder()
@@ -66,7 +41,7 @@ final class DashboardControllerTraitTest extends TestCase
             $this->createMock(TranslatorInterface::class),
             false,
             25,
-            [],
+            new DashboardPages($this->createMock(UrlGeneratorInterface::class), new Environment(new ArrayLoader())),
         );
 
         $method = new \ReflectionMethod($controller, 'createDeletePostForm');

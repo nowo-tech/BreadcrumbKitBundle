@@ -1,46 +1,35 @@
 {% trans_default_domain 'NowoBreadcrumbKitBundle' %}
-{% import '@NowoUiKitBundle/macros/ui.html.twig' as ui %}
 {#
-  Import form loaded into #modal-bk-import-body (?_partial=1) and included by import.html.twig.
-  Blocks: bk_import_intro (flashes + hint), bk_form_fields, bk_form_actions, bk_form_submit, bk_form_cancel.
-  Classes (dashboard.classes): modal_hint, modal_form, modal_form_body (wraps intro + fields inside the form),
-  modal_actions, btn_primary, btn_secondary. Option dashboard.cancel_first swaps the buttons.
+  JSON import form: rendered inside the import dialog of the collections index (and by GET import?_partial=1 for
+  1.x integrations). A plain multipart POST; the import page (import.html.twig) is its full-page / no-JS fallback.
+  Variables: form, dialog (true: the cancel button closes the UiKit dialog).
+  Blocks: bk_import_intro (format hint), bk_form_fields, bk_form_actions, bk_form_submit, bk_form_cancel.
+  Theme slots (bundle NowoBreadcrumbKitBundle): muted, form, form_actions, btn_primary, btn_secondary.
 #}
-{% set _bk_c = nowo_breadcrumb_kit_classes|default({}) %}
-{% set _bk_wrapped = _bk_c.modal_form_body is defined %}
-<div id="modal-bk-import-container">
-    {% if not _bk_wrapped %}{{ block('bk_import_intro') }}{% endif %}
-    {{ form_start(form, { attr: { enctype: 'multipart/form-data', class: 'import-form bk-dashboard-form' ~ (_bk_c.modal_form is defined ? ' ' ~ _bk_c.modal_form : ''), 'data-import-form': '1' } }) }}
+{% set _b = 'NowoBreadcrumbKitBundle' %}
+<div id="modal-bk-import-container" data-bk-dialog-title="{{ 'dashboard.import_modal_title'|trans }}">
+    {{ form_start(form, {attr: {class: nowo_ui_class('form', _b), 'data-bk-submit-once': '1'}}) }}
         <input type="hidden" name="_modal" value="1">
-        {% if _bk_wrapped %}<div class="{{ _bk_c.modal_form_body }}">{{ block('bk_import_intro') }}{% endif %}
+        {% block bk_import_intro %}
+            <p class="{{ nowo_ui_class('muted', _b) }}">{{ 'dashboard.import_partial_hint'|trans|raw }}</p>
+        {% endblock %}
         {% block bk_form_fields %}
+            {{ form_errors(form) }}
             {% for child in form %}
                 {% if not child.rendered %}
                     {{ form_row(child) }}
                 {% endif %}
             {% endfor %}
         {% endblock %}
-        {% if _bk_wrapped %}</div>{% endif %}
-        <div class="{{ _bk_c.modal_actions ?? ui.row_actions() }}"{% if _bk_c.modal_actions is not defined %} style="justify-content:flex-start;margin-top:1rem;"{% endif %}>
+        <div class="{{ nowo_ui_class('form_actions', _b) }}"{{ nowo_ui_attrs('form_actions', _b) }}>
             {% block bk_form_actions %}
-                {% if nowo_breadcrumb_kit_cancel_first|default(false) %}{{ block('bk_form_cancel') }}{% endif %}
                 {% block bk_form_submit %}
-                    <button type="submit" class="{{ _bk_c.btn_primary ?? ui.btn('primary') }}">{{ 'dashboard.import_submit'|trans }}</button>
+                    <button type="submit" class="{{ nowo_ui_class('btn_primary', _b) }}">{{ 'dashboard.import_submit'|trans }}</button>
                 {% endblock %}
-                {% if not nowo_breadcrumb_kit_cancel_first|default(false) %}{{ block('bk_form_cancel') }}{% endif %}
+                {% block bk_form_cancel %}
+                    <button type="button" class="{{ nowo_ui_class('btn_secondary', _b) }}" data-nowo-ui-dialog-close>{{ 'dashboard.cancel'|trans }}</button>
+                {% endblock %}
             {% endblock %}
         </div>
     {{ form_end(form) }}
 </div>
-{% if false %}
-    {% block bk_import_intro %}
-        {% for msg in app.flashes('danger') %}
-            <div class="{{ ui.flash('danger') }}">{{ msg }}</div>
-        {% endfor %}
-        {% for msg in app.flashes('success') %}
-            <div class="{{ ui.flash('success') }}">{{ msg }}</div>
-        {% endfor %}
-        <p class="{{ _bk_c.modal_hint ?? (ui.muted() ~ ' small') }}">{{ 'dashboard.import_partial_hint'|trans|raw }}</p>
-    {% endblock %}
-    {% block bk_form_cancel %}<button type="button" class="{{ _bk_c.btn_secondary ?? ui.btn('secondary') }}" {{ ui.modal_dismiss_attrs()|raw }}>{{ 'dashboard.cancel'|trans }}</button>{% endblock %}
-{% endif %}

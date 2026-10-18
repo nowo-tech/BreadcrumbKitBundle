@@ -6,6 +6,7 @@ namespace Nowo\BreadcrumbKitBundle\Tests\Integration\DependencyInjection;
 
 use Nowo\BreadcrumbKitBundle\DependencyInjection\BreadcrumbKitExtension;
 use Nowo\BreadcrumbKitBundle\Twig\BreadcrumbKitDashboardGlobalsExtension;
+use PHPUnit\Framework\Attributes\IgnoreDeprecations;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Config\Definition\Exception\InvalidConfigurationException;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
@@ -13,6 +14,7 @@ use Symfony\Component\DependencyInjection\ContainerBuilder;
 /**
  * Spec 003: dashboard.classes / partials / ui_kit_stylesheet / collections_view / row_actions_position / cancel_first.
  */
+#[IgnoreDeprecations]
 final class DashboardChromeConfigTest extends TestCase
 {
     public function testDefaultsKeepTheLegacyChrome(): void

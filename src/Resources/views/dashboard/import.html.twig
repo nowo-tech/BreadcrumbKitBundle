@@ -1,26 +1,14 @@
-{% extends '@NowoBreadcrumbKitBundle/dashboard/base.html.twig' %}
-{% trans_default_domain 'NowoBreadcrumbKitBundle' %}
-{% import '@NowoUiKitBundle/macros/ui.html.twig' as ui %}
 {#
-  Full-page import (fallback for the list modal). Slot blocks: bk_page_title. Page blocks: bk_page_heading, bk_back_link.
-  Classes (dashboard.classes): page_title, btn_link.
-  Layout contract: bk_title_suffix, bk_page_title_in_layout (skips the <h1>).
+  JSON import page (REQ-UI-003): UiKit form scaffold. Variable: page (View\FormPage from DashboardPages::import()).
+  The collections index opens the same form in a dialog (_import_partial.html.twig); this page is its full-page /
+  no-JS fallback and the page shown again with the flashes when an upload is rejected.
+  Data block filled: nowo_ui_form_body (format hint, form-level errors, then the default child loop).
 #}
-{% set _bk_c = nowo_breadcrumb_kit_classes|default({}) %}
+{% extends '@NowoUiKit/page/form.html.twig' %}
+{% trans_default_domain 'NowoBreadcrumbKitBundle' %}
 
-{% block title %}{{ block('bk_page_title') }}{{ bk_title_suffix|default('') }}{% endblock %}
-{% block bk_page_title %}{{ 'dashboard.import'|trans }}{% endblock %}
-
-{% block body %}
-    <div class="mx-auto" style="max-width: 42rem;">
-        {% block bk_page_heading %}
-            {% if not bk_page_title_in_layout|default(false) %}
-                <h1 class="{{ _bk_c.page_title ?? 'h3 mb-3' }}">{{ 'dashboard.import_page_title'|trans }}</h1>
-            {% endif %}
-        {% endblock %}
-        {% block bk_back_link %}
-            <p class="{{ ui.is_bootstrap() == '1' ? 'text-muted' : ui.muted() }}"><a href="{{ path(dashboard_routes.collections_index|default('nowo_breadcrumb_kit_dashboard_collections_index')) }}" class="{{ _bk_c.btn_link ?? 'btn btn-link text-decoration-none px-0' }}">{{ 'dashboard.back_collections'|trans }}</a></p>
-        {% endblock %}
-        {% include '@NowoBreadcrumbKitBundle/dashboard/_import_partial.html.twig' %}
-    </div>
+{% block nowo_ui_form_body %}
+    <p class="{{ nowo_ui_class('muted', page.bundle) }}">{{ 'dashboard.import_partial_hint'|trans|raw }}</p>
+    {{ form_errors(form) }}
+    {{ parent() }}
 {% endblock %}

@@ -6,9 +6,11 @@ namespace Nowo\BreadcrumbKitBundle\Controller\Dashboard;
 
 use Doctrine\DBAL\Exception\UniqueConstraintViolationException as DbalUniqueConstraintViolationException;
 use Doctrine\ORM\EntityManagerInterface;
+use Nowo\BreadcrumbKitBundle\Dashboard\DashboardPages;
 use Nowo\BreadcrumbKitBundle\Entity\BreadcrumbCollection;
 use Nowo\BreadcrumbKitBundle\Form\BreadcrumbCollectionType;
 use Nowo\BreadcrumbKitBundle\Form\Dashboard\DashboardGetSearchType;
+use Nowo\BreadcrumbKitBundle\Form\Dashboard\ImportBreadcrumbType;
 use Nowo\BreadcrumbKitBundle\NowoBreadcrumbKitBundle;
 use Nowo\BreadcrumbKitBundle\Repository\BreadcrumbCollectionRepository;
 use Nowo\BreadcrumbKitBundle\Repository\BreadcrumbItemRepository;
@@ -17,6 +19,7 @@ use Nowo\BreadcrumbKitBundle\Service\BreadcrumbExporter;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\Form\FormFactoryInterface;
+use Symfony\Component\Form\FormInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\StreamedResponse;
@@ -29,9 +32,6 @@ final class CollectionCrudController extends AbstractController
     use DashboardControllerTrait;
     use DashboardRedirectTrait;
 
-    /**
-     * @param array<string, string> $modalSizes
-     */
     public function __construct(
         private readonly BreadcrumbCollectionRepository $collectionRepository,
         private readonly BreadcrumbItemRepository $itemRepository,
@@ -42,25 +42,9 @@ final class CollectionCrudController extends AbstractController
         private readonly TranslatorInterface $translator,
         private readonly bool $paginationEnabled,
         private readonly int $paginationPerPage,
-        private readonly array $modalSizes,
+        private readonly DashboardPages $pages,
         private readonly ?BreadcrumbEntityManagerResetter $entityManagerResetter = null,
     ) {
-    }
-
-    /**
-     * @return array<string, string>
-     */
-    private function dashboardRoutes(): array
-    {
-        return [
-            'index' => 'nowo_breadcrumb_kit_dashboard_collections_index',
-            'new' => 'nowo_breadcrumb_kit_dashboard_collections_new',
-            'edit' => 'nowo_breadcrumb_kit_dashboard_collections_edit',
-            'delete' => 'nowo_breadcrumb_kit_dashboard_collections_delete',
-            'export' => 'nowo_breadcrumb_kit_dashboard_collections_export',
-            'import' => ImportExportController::ROUTE_IMPORT,
-            'export_all' => ImportExportController::ROUTE_EXPORT_ALL,
-        ];
     }
 
     #[Route('', name: 'index', methods: ['GET'])]
@@ -68,23 +52,16 @@ final class CollectionCrudController extends AbstractController
     {
         $search = trim((string) $request->query->get('q', ''));
         $page = max(1, (int) $request->query->get('page', 1));
+        $total = 0;
+        $perPage = $this->paginationPerPage;
 
         if ($this->paginationEnabled) {
-            $perPage = $this->paginationPerPage;
             $total = $this->collectionRepository->countForDashboard($search);
             $totalPages = $total > 0 ? (int) ceil($total / $perPage) : 1;
-            $page = max(1, min($page, $totalPages > 0 ? $totalPages : 1));
-            $offset = ($page - 1) * $perPage;
-            $collections = $this->collectionRepository->findForDashboard($search, $offset, $perPage);
-            $pagination = [
-                'current_page' => $page,
-                'per_page' => $perPage,
-                'total' => $total,
-                'total_pages' => $totalPages,
-            ];
+            $page = max(1, min($page, $totalPages));
+            $collections = $this->collectionRepository->findForDashboard($search, ($page - 1) * $perPage, $perPage);
         } else {
             $collections = $this->collectionRepository->findForDashboard($search, 0);
-            $pagination = null;
         }
 
         $collectionIds = [];
@@ -94,24 +71,26 @@ final class CollectionCrudController extends AbstractController
                 $collectionIds[] = (int) $collectionId;
             }
         }
-        $collectionItemCounts = $this->itemRepository->countForCollections($collectionIds);
         $searchForm = $this->createForm(DashboardGetSearchType::class, ['q' => $search], [
-            'action' => $this->generateUrl('nowo_breadcrumb_kit_dashboard_collections_index'),
+            'action' => $this->generateUrl(DashboardPages::ROUTE_COLLECTIONS),
             'method' => 'GET',
             'search_placeholder' => $this->translator->trans('dashboard.search_placeholder', [], NowoBreadcrumbKitBundle::TRANSLATION_DOMAIN),
+            'search_label' => $this->translator->trans('dashboard.search', [], NowoBreadcrumbKitBundle::TRANSLATION_DOMAIN),
+        ]);
+        $importForm = $this->createForm(ImportBreadcrumbType::class, null, [
+            'action' => $this->generateUrl(DashboardPages::ROUTE_IMPORT),
         ]);
 
-        return $this->render('@NowoBreadcrumbKitBundle/dashboard/collection/index.html.twig', [
-            'collections' => $collections,
-            'collection_item_counts' => $collectionItemCounts,
-            'search' => $search,
-            'search_form' => $searchForm,
-            'delete_form' => $this->createDeletePostForm('', 'delete_confirm'),
-            'pagination' => $pagination,
-            'dashboard_nav' => 'collections',
-            'dashboard_routes' => $this->dashboardRoutes(),
-            'modal_classes' => self::resolveModalClasses($this->modalSizes),
-            'breadcrumb_kit_page' => 'collections_index',
+        return $this->pages->render('collections_index', [
+            'page' => $this->pages->collectionsIndex(
+                $collections,
+                $this->itemRepository->countForCollections($collectionIds),
+                $searchForm->createView(),
+                $search,
+                DashboardPages::pagination($this->paginationEnabled, $page, $perPage, $total, DashboardPages::ROUTE_COLLECTIONS, '' !== $search ? ['q' => $search] : []),
+                fn (int $id) => $this->deleteForm($id)->createView(),
+            ),
+            'import_form' => $importForm->createView(),
         ]);
     }
 
@@ -134,7 +113,6 @@ final class CollectionCrudController extends AbstractController
 
         $form = $this->createForm(BreadcrumbCollectionType::class, $collection, $opts);
         $form->handleRequest($request);
-        $fromModal = $request->request->has('_modal');
 
         if ($form->isSubmitted() && $form->isValid()) {
             try {
@@ -147,34 +125,13 @@ final class CollectionCrudController extends AbstractController
                 if ($this->isUniqueConstraintViolation($e)) {
                     $this->entityManagerResetter?->resetIfClosed();
                     $this->addFlash('danger', $this->translator->trans('dashboard.flash.collection_duplicate', [], NowoBreadcrumbKitBundle::TRANSLATION_DOMAIN));
-                    if ($fromModal) {
-                        return $this->render('@NowoBreadcrumbKitBundle/dashboard/_collection_form_partial.html.twig', [
-                            'form' => $form,
-                            'title' => $this->translator->trans('dashboard.new_collection_modal_title', [], NowoBreadcrumbKitBundle::TRANSLATION_DOMAIN),
-                            'is_edit' => false,
-                        ]);
-                    }
                 } else {
                     throw $e;
                 }
             }
         }
 
-        if ($form->isSubmitted() && !$form->isValid() && $fromModal) {
-            return $this->render('@NowoBreadcrumbKitBundle/dashboard/_collection_form_partial.html.twig', [
-                'form' => $form,
-                'title' => $this->translator->trans('dashboard.new_collection_modal_title', [], NowoBreadcrumbKitBundle::TRANSLATION_DOMAIN),
-                'is_edit' => false,
-            ]);
-        }
-
-        return $this->render('@NowoBreadcrumbKitBundle/dashboard/collection/form.html.twig', [
-            'form' => $form,
-            'title' => $this->translator->trans('dashboard.new_collection_modal_title', [], NowoBreadcrumbKitBundle::TRANSLATION_DOMAIN),
-            'collection' => null,
-            'dashboard_nav' => 'collections',
-            'dashboard_routes' => $this->dashboardRoutes(),
-        ]);
+        return $this->renderFormPage($form, null);
     }
 
     #[Route('/{id<\d+>}/edit', name: 'edit', methods: ['GET', 'POST'])]
@@ -201,7 +158,6 @@ final class CollectionCrudController extends AbstractController
 
         $form = $this->createForm(BreadcrumbCollectionType::class, $collection, $opts);
         $form->handleRequest($request);
-        $fromModal = $request->request->has('_modal');
 
         if ($form->isSubmitted() && $form->isValid()) {
             try {
@@ -213,34 +169,13 @@ final class CollectionCrudController extends AbstractController
                 if ($this->isUniqueConstraintViolation($e)) {
                     $this->entityManagerResetter?->resetIfClosed();
                     $this->addFlash('danger', $this->translator->trans('dashboard.flash.collection_duplicate', [], NowoBreadcrumbKitBundle::TRANSLATION_DOMAIN));
-                    if ($fromModal) {
-                        return $this->render('@NowoBreadcrumbKitBundle/dashboard/_collection_form_partial.html.twig', [
-                            'form' => $form,
-                            'title' => $editTitle,
-                            'is_edit' => true,
-                        ]);
-                    }
                 } else {
                     throw $e;
                 }
             }
         }
 
-        if ($form->isSubmitted() && !$form->isValid() && $fromModal) {
-            return $this->render('@NowoBreadcrumbKitBundle/dashboard/_collection_form_partial.html.twig', [
-                'form' => $form,
-                'title' => $editTitle,
-                'is_edit' => true,
-            ]);
-        }
-
-        return $this->render('@NowoBreadcrumbKitBundle/dashboard/collection/form.html.twig', [
-            'form' => $form,
-            'title' => $editTitle,
-            'collection' => $collection,
-            'dashboard_nav' => 'collections',
-            'dashboard_routes' => $this->dashboardRoutes(),
-        ]);
+        return $this->renderFormPage($form, $collection);
     }
 
     #[Route('/{id<\d+>}/export', name: 'export', methods: ['GET'])]
@@ -268,7 +203,10 @@ final class CollectionCrudController extends AbstractController
         return $response;
     }
 
-    #[Route('/{id<\d+>}/delete', name: 'delete', methods: ['POST'])]
+    /**
+     * POST deletes (CSRF); GET renders the no-JS confirmation page (UiKit page/confirm, Action::fallbackHref).
+     */
+    #[Route('/{id<\d+>}/delete', name: 'delete', methods: ['GET', 'POST'])]
     public function delete(Request $request, int $id): Response
     {
         $collection = $this->collectionRepository->find($id);
@@ -276,10 +214,10 @@ final class CollectionCrudController extends AbstractController
             throw $this->createNotFoundException($this->translator->trans('dashboard.collection_not_found', [], NowoBreadcrumbKitBundle::TRANSLATION_DOMAIN));
         }
 
-        $form = $this->createDeletePostForm(
-            $this->generateUrl('nowo_breadcrumb_kit_dashboard_collections_delete', ['id' => $id]),
-            'delete_collection_'.$id,
-        );
+        $form = $this->deleteForm($id);
+        if (!$request->isMethod('POST')) {
+            return $this->pages->render('collection_delete', ['page' => $this->pages->collectionDelete($collection, $form->createView()), 'collection' => $collection]);
+        }
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
@@ -290,7 +228,28 @@ final class CollectionCrudController extends AbstractController
             $this->addFlash('danger', $this->translator->trans('dashboard.flash.csrf_invalid', [], NowoBreadcrumbKitBundle::TRANSLATION_DOMAIN));
         }
 
-        return $this->redirectToRefererOr($request, 'nowo_breadcrumb_kit_dashboard_collections_index');
+        return $this->redirectToListOr($request, DashboardPages::ROUTE_COLLECTIONS);
+    }
+
+    /**
+     * @param FormInterface<BreadcrumbCollection> $form
+     */
+    private function renderFormPage(FormInterface $form, ?BreadcrumbCollection $collection): Response
+    {
+        $id = $collection?->getId();
+
+        return $this->pages->render('collection_form', [
+            'page' => $this->pages->collectionForm($form->createView(), $collection, null !== $id ? $this->deleteForm((int) $id)->createView() : null),
+            'collection' => $collection,
+        ], $form->isSubmitted() && !$form->isValid() ? Response::HTTP_UNPROCESSABLE_ENTITY : Response::HTTP_OK);
+    }
+
+    /**
+     * @return FormInterface<null>
+     */
+    private function deleteForm(int $id): FormInterface
+    {
+        return $this->createDeletePostForm($this->generateUrl(DashboardPages::ROUTE_COLLECTION_DELETE, ['id' => $id]), 'delete_collection_'.$id);
     }
 
     /**

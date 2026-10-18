@@ -5,10 +5,11 @@ declare(strict_types=1);
 namespace Nowo\BreadcrumbKitBundle\Dashboard;
 
 /**
- * Admin chrome hooks (spec 003): the keys accepted by {@code dashboard.classes} and {@code dashboard.partials}.
+ * 1.x admin chrome hooks (spec 003): the keys accepted by {@code dashboard.classes} and {@code dashboard.partials}.
  *
- * Each class key replaces the class list the templates would otherwise compute (UiKit macro or legacy class);
- * an unset key keeps the default markup. Each partial key replaces one included template.
+ * @deprecated since 2.7, the dashboard pages extend the UiKit scaffolds (REQ-UI-003) and read the UiKit theme slots.
+ *             {@see self::themeBridge()} maps {@code dashboard.classes} into
+ *             {@code nowo_ui_kit.theme.bundles.NowoBreadcrumbKitBundle} for one minor version; removed in 3.0.
  */
 final class DashboardChrome
 {
@@ -34,6 +35,63 @@ final class DashboardChrome
      * @var list<string>
      */
     public const PARTIAL_KEYS = ['modals', 'modal_shell', 'pagination', 'action_inner'];
+
+    /**
+     * 1.x class key => UiKit theme slot (null: no equivalent region, the value is dropped). When two keys map to the
+     * same slot, the later key in this list wins.
+     *
+     * @var array<string, string|null>
+     */
+    public const CLASS_SLOTS = [
+        'btn_primary' => 'btn_primary',
+        'btn_secondary' => 'btn_secondary',
+        'btn_danger' => 'btn_danger',
+        'btn_link' => 'btn_link',
+        'action_view' => 'action_neutral',
+        'action_edit' => 'action_neutral',
+        'action_delete' => 'action_danger',
+        'row_actions' => 'row_actions',
+        'toolbar' => 'toolbar',
+        'page_title' => 'page_title',
+        'page_intro' => 'page_intro',
+        'breadcrumb_nav' => 'breadcrumbs',
+        'breadcrumb_link' => 'breadcrumb_link',
+        'breadcrumb_separator' => 'breadcrumb_separator',
+        'search_form' => 'filters',
+        'search_input' => null,
+        'search_summary' => null,
+        'empty' => 'empty',
+        'badge' => 'badge_neutral',
+        'badge_yes' => 'badge_success',
+        'badge_no' => 'badge_neutral',
+        'muted' => 'muted',
+        'results' => null,
+        'list' => null,
+        'list_item' => null,
+        'table_wrap' => 'table_wrap',
+        'table' => 'table',
+        'thead_row' => 'table_head_row',
+        'th' => 'table_head_cell',
+        'th_actions' => 'table_actions_head',
+        'row' => 'table_row',
+        'td' => 'table_cell',
+        'td_actions' => 'table_actions_cell',
+        'form' => 'form',
+        'form_panel' => 'form_panel',
+        'form_actions' => 'form_actions',
+        'modal_loading' => null,
+        'modal_message' => 'confirm_message',
+        'modal_hint' => null,
+        'modal_form' => null,
+        'modal_form_body' => 'dialog_body',
+        'modal_actions' => null,
+        'form_style_grid' => null,
+    ];
+
+    /**
+     * Row-action slots: UiKit adds their host classes to the action classes (no framework defaults to drop).
+     */
+    private const ADDITIVE_SLOTS = ['action_neutral', 'action_danger'];
 
     /**
      * @param array<array-key, mixed> $map
@@ -63,5 +121,32 @@ final class DashboardChrome
         }
 
         return $clean;
+    }
+
+    /**
+     * Bridges {@code dashboard.classes} into a {@code nowo_ui_kit.theme.bundles.NowoBreadcrumbKitBundle} entry. A 1.x
+     * class value replaced the whole class list, so the slot drops UiKit's framework defaults
+     * ({@code framework_defaults: false}) and keeps only its semantic {@code nowo-ui-*} class plus the host value
+     * (row-action slots are additive). {@code dashboard.partials} is not bridged: the 1.x partial inputs differ from
+     * the UiKit ones.
+     *
+     * @param array<array-key, mixed> $classes dashboard.classes
+     *
+     * @return array{classes?: array<string, array{value: string, framework_defaults: bool}|string>}
+     */
+    public static function themeBridge(array $classes): array
+    {
+        $bridge = [];
+        $clean = self::clean($classes);
+        foreach (self::CLASS_SLOTS as $key => $slot) {
+            if (null === $slot || !isset($clean[$key])) {
+                continue;
+            }
+            $bridge['classes'][$slot] = \in_array($slot, self::ADDITIVE_SLOTS, true)
+                ? $clean[$key]
+                : ['value' => $clean[$key], 'framework_defaults' => false];
+        }
+
+        return $bridge;
     }
 }

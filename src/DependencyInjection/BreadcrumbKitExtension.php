@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Nowo\BreadcrumbKitBundle\DependencyInjection;
 
 use Nowo\BreadcrumbKitBundle\Dashboard\DashboardChrome;
+use Nowo\BreadcrumbKitBundle\Dashboard\DashboardPages;
 use Nowo\BreadcrumbKitBundle\Dto\BreadcrumbCollapse;
 use Nowo\BreadcrumbKitBundle\Enum\CssFramework;
 use Nowo\BreadcrumbKitBundle\Enum\IconSet;
@@ -49,23 +50,19 @@ final class BreadcrumbKitExtension extends Extension implements PrependExtension
             ]);
         }
 
-        if (!$container->hasParameter(Configuration::ALIAS.'.dashboard.path_prefix')) {
-            $container->setParameter(Configuration::ALIAS.'.dashboard.path_prefix', '/breadcrumb-kit-admin');
-        }
-        if (!$container->hasParameter(Configuration::ALIAS.'.dashboard.enabled')) {
-            $container->setParameter(Configuration::ALIAS.'.dashboard.enabled', false);
-        }
-        if (!$container->hasParameter(Configuration::ALIAS.'.inline_edit.query_param')) {
-            $container->setParameter(Configuration::ALIAS.'.inline_edit.query_param', null);
-        }
-        if (!$container->hasParameter(Configuration::ALIAS.'.inline_edit.access_services')) {
-            $container->setParameter(Configuration::ALIAS.'.inline_edit.access_services', []);
-        }
-        if (!$container->hasParameter(Configuration::ALIAS.'.dashboard.layout_template')) {
-            $container->setParameter(Configuration::ALIAS.'.dashboard.layout_template', '@NowoBreadcrumbKitBundle/dashboard/layout.html.twig');
-        }
-        if (!$container->hasParameter(Configuration::ALIAS.'.dashboard.import_max_bytes')) {
-            $container->setParameter(Configuration::ALIAS.'.dashboard.import_max_bytes', 2_097_152);
+        foreach ([
+            'dashboard.path_prefix' => Configuration::DEFAULT_PATH_PREFIX,
+            'dashboard.enabled' => false,
+            'web_ui.path_prefix' => Configuration::DEFAULT_PATH_PREFIX,
+            'web_ui.enabled' => false,
+            'inline_edit.query_param' => null,
+            'inline_edit.access_services' => [],
+            'dashboard.layout_template' => '',
+            'dashboard.import_max_bytes' => Configuration::DEFAULT_IMPORT_MAX_BYTES,
+        ] as $name => $default) {
+            if (!$container->hasParameter(Configuration::ALIAS.'.'.$name)) {
+                $container->setParameter(Configuration::ALIAS.'.'.$name, $default);
+            }
         }
 
         $this->prependUiKitDefaults($container);
@@ -100,8 +97,8 @@ final class BreadcrumbKitExtension extends Extension implements PrependExtension
         if (!$hostHasCssFramework) {
             $config = $this->processConfiguration(new Configuration(), $container->getExtensionConfig($this->getAlias()));
             $dashboard = \is_array($config['dashboard'] ?? null) ? $config['dashboard'] : [];
-            $raw = (string) ($dashboard['css_framework'] ?? CssFramework::Bootstrap5->value);
-            $fw = CssFramework::from($raw)->normalized();
+            $raw = $dashboard['css_framework'] ?? null;
+            $fw = CssFramework::from(\is_string($raw) ? $raw : CssFramework::Bootstrap5->value)->normalized();
             // FormKit accepts only bootstrap|tailwind|foundation|none (not bootstrap5 / tabler / …).
             $seed['css_framework'] = match ($fw) {
                 CssFramework::Tailwind => 'tailwind',
@@ -145,9 +142,9 @@ final class BreadcrumbKitExtension extends Extension implements PrependExtension
     }
 
     /**
-     * When UiKit is installed, seed nowo_ui_kit.css_framework / icon_set from dashboard
-     * config so kit macros (ui.btn, …) resolve the same stack without editing every call.
-     * Does not override keys the host already set under nowo_ui_kit.
+     * When UiKit is installed: seed nowo_ui_kit.css_framework / icon_set from the deprecated dashboard keys when the
+     * host set them (and not the nowo_ui_kit ones), and bridge the deprecated dashboard.classes map into
+     * nowo_ui_kit.theme.bundles.NowoBreadcrumbKitBundle (REQ-UI-003). Prepended: the host's own UiKit config wins.
      */
     private function prependUiKitDefaults(ContainerBuilder $container): void
     {
@@ -166,24 +163,27 @@ final class BreadcrumbKitExtension extends Extension implements PrependExtension
             }
         }
 
-        if ($hostHasCssFramework && $hostHasIconSet) {
-            return;
-        }
-
         $config = $this->processConfiguration(new Configuration(), $container->getExtensionConfig($this->getAlias()));
         $dashboard = \is_array($config['dashboard'] ?? null) ? $config['dashboard'] : [];
         $defaults = [];
 
-        if (!$hostHasCssFramework) {
-            $raw = (string) ($dashboard['css_framework'] ?? CssFramework::Bootstrap5->value);
-            $defaults['css_framework'] = CssFramework::from($raw)->normalized()->value;
+        $fw = $dashboard['css_framework'] ?? null;
+        if (!$hostHasCssFramework && \is_string($fw)) {
+            $defaults['css_framework'] = CssFramework::from($fw)->normalized()->value;
         }
-        if (!$hostHasIconSet) {
-            $rawIcon = (string) ($dashboard['icon_set'] ?? IconSet::BootstrapIcons->value);
-            $defaults['icon_set'] = IconSet::from($rawIcon)->value;
+        $iconSet = $dashboard['icon_set'] ?? null;
+        if (!$hostHasIconSet && \is_string($iconSet)) {
+            $defaults['icon_set'] = IconSet::from($iconSet)->value;
         }
 
-        $container->prependExtensionConfig('nowo_ui_kit', $defaults);
+        $bridge = DashboardChrome::themeBridge(\is_array($dashboard['classes'] ?? null) ? $dashboard['classes'] : []);
+        if ([] !== $bridge) {
+            $defaults['theme'] = ['bundles' => [DashboardPages::BUNDLE => $bridge]];
+        }
+
+        if ([] !== $defaults) {
+            $container->prependExtensionConfig('nowo_ui_kit', $defaults);
+        }
     }
 
     public function load(array $configs, ContainerBuilder $container): void
@@ -216,33 +216,33 @@ final class BreadcrumbKitExtension extends Extension implements PrependExtension
         $container->setParameter(Configuration::ALIAS.'.presentation.collapse.min_items', (int) ($collapse['min_items'] ?? BreadcrumbCollapse::DEFAULT_MIN_ITEMS));
         $container->setParameter(Configuration::ALIAS.'.presentation.collapse.breakpoint', BreadcrumbCollapse::normalizeBreakpoint($collapse['breakpoint'] ?? null) ?? BreadcrumbCollapse::DEFAULT_BREAKPOINT);
 
+        $webUi = \is_array($config['web_ui'] ?? null) ? $config['web_ui'] : [];
         $dashboard = \is_array($config['dashboard'] ?? null) ? $config['dashboard'] : [];
-        $pathPrefix = trim((string) ($dashboard['path_prefix'] ?? '/breadcrumb-kit-admin'));
+        $pathPrefix = trim((string) ($webUi['path_prefix'] ?? Configuration::DEFAULT_PATH_PREFIX));
         if ('' === $pathPrefix || !str_starts_with($pathPrefix, '/')) {
-            $pathPrefix = '/breadcrumb-kit-admin';
+            $pathPrefix = Configuration::DEFAULT_PATH_PREFIX;
         }
-        $container->setParameter(Configuration::ALIAS.'.dashboard.path_prefix', $pathPrefix);
-        $container->setParameter(Configuration::ALIAS.'.dashboard.enabled', (bool) ($dashboard['enabled'] ?? false));
-        $layoutTemplate = trim((string) ($dashboard['layout_template'] ?? '@NowoBreadcrumbKitBundle/dashboard/layout.html.twig'));
-        if ('' === $layoutTemplate) {
-            $layoutTemplate = '@NowoBreadcrumbKitBundle/dashboard/layout.html.twig';
+        $dashboardEnabled = (bool) ($webUi['enabled'] ?? false);
+        $layoutTemplate = \is_string($webUi['layout_template'] ?? null) && '' !== trim($webUi['layout_template']) ? trim($webUi['layout_template']) : null;
+        $pagination = \is_array($webUi['pagination'] ?? null) ? $webUi['pagination'] : [];
+
+        // Canonical parameters (REQ-UI-003) + the 1.x names kept for host routing imports (%…dashboard.path_prefix%).
+        foreach (['web_ui', 'dashboard'] as $group) {
+            $container->setParameter(Configuration::ALIAS.'.'.$group.'.path_prefix', $pathPrefix);
+            $container->setParameter(Configuration::ALIAS.'.'.$group.'.enabled', $dashboardEnabled);
         }
-        $container->setParameter(Configuration::ALIAS.'.dashboard.layout_template', $layoutTemplate);
-        $cssFrameworkRaw = (string) ($dashboard['css_framework'] ?? CssFramework::Bootstrap5->value);
-        $cssFramework = CssFramework::from($cssFrameworkRaw)->normalized()->value;
-        $container->setParameter(Configuration::ALIAS.'.dashboard.css_framework', $cssFramework);
-        $iconSet = IconSet::from((string) ($dashboard['icon_set'] ?? IconSet::BootstrapIcons->value))->value;
-        $container->setParameter(Configuration::ALIAS.'.dashboard.icon_set', $iconSet);
-        $container->setParameter(Configuration::ALIAS.'.dashboard.import_max_bytes', (int) ($dashboard['import_max_bytes'] ?? 2_097_152));
-        $pagination = \is_array($dashboard['pagination'] ?? null) ? $dashboard['pagination'] : [];
+        $container->setParameter(Configuration::ALIAS.'.web_ui.layout_template', $layoutTemplate);
+        $container->setParameter(Configuration::ALIAS.'.web_ui.templates', \is_array($webUi['templates'] ?? null) ? $webUi['templates'] : []);
+        $container->setParameter(Configuration::ALIAS.'.web_ui.dialog_sizes', \is_array($webUi['dialog_sizes'] ?? null) ? $webUi['dialog_sizes'] : []);
+        $container->setParameter(Configuration::ALIAS.'.dashboard.import_max_bytes', (int) ($webUi['import_max_bytes'] ?? Configuration::DEFAULT_IMPORT_MAX_BYTES));
         $container->setParameter(Configuration::ALIAS.'.dashboard.pagination.enabled', (bool) ($pagination['enabled'] ?? true));
         $container->setParameter(Configuration::ALIAS.'.dashboard.pagination.per_page', (int) ($pagination['per_page'] ?? 20));
-        $container->setParameter(Configuration::ALIAS.'.dashboard.modals', $dashboard['modals'] ?? [
-            'collection_form' => 'lg',
-            'item_form' => 'lg',
-            'import' => 'normal',
-            'delete' => 'normal',
-        ]);
+
+        // Deprecated 1.x Twig globals (BreadcrumbKitDashboardGlobalsExtension), unused by the pages since 2.7.
+        $container->setParameter(Configuration::ALIAS.'.dashboard.layout_template', $layoutTemplate ?? '');
+        $cssFramework = \is_string($dashboard['css_framework'] ?? null) ? $dashboard['css_framework'] : CssFramework::Bootstrap5->value;
+        $container->setParameter(Configuration::ALIAS.'.dashboard.css_framework', CssFramework::from($cssFramework)->normalized()->value);
+        $container->setParameter(Configuration::ALIAS.'.dashboard.icon_set', \is_string($dashboard['icon_set'] ?? null) ? $dashboard['icon_set'] : IconSet::BootstrapIcons->value);
         $container->setParameter(Configuration::ALIAS.'.dashboard.classes', DashboardChrome::clean(\is_array($dashboard['classes'] ?? null) ? $dashboard['classes'] : []));
         $container->setParameter(Configuration::ALIAS.'.dashboard.partials', DashboardChrome::clean(\is_array($dashboard['partials'] ?? null) ? $dashboard['partials'] : []));
         $container->setParameter(Configuration::ALIAS.'.dashboard.ui_kit_stylesheet', (bool) ($dashboard['ui_kit_stylesheet'] ?? true));
@@ -285,7 +285,7 @@ final class BreadcrumbKitExtension extends Extension implements PrependExtension
         $loader = new YamlFileLoader($container, new FileLocator(__DIR__.'/../Resources/config'));
         $loader->load('services.yaml');
 
-        if (($dashboard['enabled'] ?? false) === true) {
+        if ($dashboardEnabled) {
             $loader->load('services_dashboard.yaml');
             $this->registerAccessChecker($container, $accessRoles, $customAccessChecker ? (string) $accessCheckerId : null);
         }

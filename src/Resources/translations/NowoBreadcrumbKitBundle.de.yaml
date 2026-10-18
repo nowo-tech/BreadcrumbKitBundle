@@ -38,11 +38,13 @@ dashboard:
   link_export_json: JSON
   link_edit: Bearbeiten
   empty_collections: Noch keine Sammlungen. Erstellen Sie eine oder importieren Sie JSON aus dem Panel.
+  empty_collections_search: 'Keine Sammlung passt.'
   delete_collection_confirm: 'Sammlung „%code%“ und alle zugehörigen Elemente löschen?'
   items_heading: Breadcrumb-Elemente
   items_title_with_code: 'Elemente · %code%'
   unnamed_collection: Unbenannt
   back_collections: ← Sammlungen
+  back_items: '← Elemente'
   search: Suchen
   clear_search: Leeren
   export_collection: Sammlung exportieren

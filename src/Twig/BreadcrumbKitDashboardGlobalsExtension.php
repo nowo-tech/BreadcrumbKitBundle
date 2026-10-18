@@ -9,6 +9,9 @@ use Twig\Extension\GlobalsInterface;
 
 /**
  * Twig globals for dashboard layout / CSS framework (REQ-UI-001) and the admin chrome hooks (spec 003).
+ *
+ * @deprecated since 2.7, the dashboard pages extend the UiKit scaffolds (REQ-UI-003) and read none of these globals;
+ *             removed in 3.0.
  */
 final class BreadcrumbKitDashboardGlobalsExtension extends AbstractExtension implements GlobalsInterface
 {

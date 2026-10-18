@@ -1,54 +1,14 @@
-{% extends '@NowoBreadcrumbKitBundle/dashboard/base.html.twig' %}
-{% trans_default_domain 'NowoBreadcrumbKitBundle' %}
-{% import '@NowoUiKitBundle/macros/ui.html.twig' as ui %}
 {#
-  Full-page collection create/edit (fallback for the list modal).
-  Slot blocks: bk_page_title. Page blocks: bk_breadcrumb, bk_page_heading, bk_form, bk_form_fields, bk_form_actions.
-  Classes (dashboard.classes): breadcrumb_nav, breadcrumb_link, breadcrumb_separator, page_title, form, form_panel (wraps the form in a section with data-testid), form_actions,
-  btn_primary, btn_secondary. Layout contract: bk_title_suffix, bk_page_title_in_layout (skips the <h1>).
+  Collection create / edit page (REQ-UI-003): UiKit form scaffold. Variables: page (View\FormPage from
+  DashboardPages::collectionForm(); edit pages carry the items / export links and the danger zone), collection
+  (BreadcrumbCollection or null). The collections index opens the same form in a dialog
+  (_collection_form_partial.html.twig); this page is its full-page / no-JS fallback.
+  Data block filled: nowo_ui_form_body (form-level errors, then the default child loop).
 #}
-{% set is_edit = collection is not null and collection.id is not null %}
-{% set _bk_c = nowo_breadcrumb_kit_classes|default({}) %}
-{% set _bk_bs = ui.is_bootstrap() == '1' %}
+{% extends '@NowoUiKit/page/form.html.twig' %}
+{% trans_default_domain 'NowoBreadcrumbKitBundle' %}
 
-{% block title %}{{ block('bk_page_title') }}{{ bk_title_suffix|default('') }}{% endblock %}
-{% block bk_page_title %}{{ title }}{% endblock %}
-
-{% block body %}
-    {% block bk_breadcrumb %}
-        <nav aria-label="{{ 'dashboard.breadcrumb_crumb_nav'|trans }}" class="{{ _bk_c.breadcrumb_nav ?? 'mb-2 small' }}">
-            <a href="{{ path(dashboard_routes.index|default('nowo_breadcrumb_kit_dashboard_collections_index')) }}" class="{{ _bk_c.breadcrumb_link ?? 'text-decoration-none' }}">{{ 'dashboard.collections_heading'|trans }}</a>
-            {% if collection is not null and collection.id %}
-                <span class="{{ _bk_c.breadcrumb_separator ?? (_bk_bs ? 'text-muted' : ui.muted()) }}"> / </span>
-                <a href="{{ path('nowo_breadcrumb_kit_dashboard_items_index', { collectionId: collection.id }) }}" class="{{ _bk_c.breadcrumb_link ?? 'text-decoration-none' }}"><code>{{ collection.code }}</code></a>
-            {% endif %}
-            <span class="{{ _bk_c.breadcrumb_separator ?? (_bk_bs ? 'text-muted' : ui.muted()) }}"> / </span>
-            <span>{{ title }}</span>
-        </nav>
-    {% endblock %}
-    {% block bk_page_heading %}
-        {% if not bk_page_title_in_layout|default(false) %}
-            <h1 class="{{ _bk_c.page_title ?? 'h3 mb-3' }}">{{ title }}</h1>
-        {% endif %}
-    {% endblock %}
-
-    {% block bk_form %}
-        {% if _bk_c.form_panel is defined %}<section class="{{ _bk_c.form_panel }}" data-testid="breadcrumb-kit-collection-form">{% endif %}
-        {{ form_start(form, { attr: { class: 'bk-dashboard-form' ~ (_bk_c.form is defined ? ' ' ~ _bk_c.form : '') } }) }}
-            {% block bk_form_fields %}
-                {% for child in form %}
-                    {% if not child.rendered %}
-                        {{ form_row(child) }}
-                    {% endif %}
-                {% endfor %}
-            {% endblock %}
-            <div class="{{ _bk_c.form_actions ?? (_bk_bs ? 'd-flex gap-2 flex-wrap mt-3' : ui.row_actions()) }}">
-                {% block bk_form_actions %}
-                    <button type="submit" class="{{ _bk_c.btn_primary ?? (_bk_bs ? 'btn btn-primary' : ui.btn('primary')) }}">{{ is_edit ? ('dashboard.form_update'|trans) : ('dashboard.form_create'|trans) }}</button>
-                    <a href="{{ path(dashboard_routes.index|default('nowo_breadcrumb_kit_dashboard_collections_index')) }}" class="{{ _bk_c.btn_secondary ?? (_bk_bs ? 'btn btn-secondary' : ui.btn('secondary')) }}">{{ 'dashboard.cancel'|trans }}</a>
-                {% endblock %}
-            </div>
-        {{ form_end(form) }}
-        {% if _bk_c.form_panel is defined %}</section>{% endif %}
-    {% endblock %}
+{% block nowo_ui_form_body %}
+    {{ form_errors(form) }}
+    {{ parent() }}
 {% endblock %}

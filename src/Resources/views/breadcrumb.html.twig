@@ -5,18 +5,24 @@
   Collapse on narrow screens (opt-in, presentation.collapse / responsiveConfig.collapse): when trail.collapsible,
   the wrapper gets data-breadcrumb-collapse="<breakpoint>", a "…" item is inserted before the last separator and
   _breadcrumb_collapse_assets.html.twig adds its styles + js/breadcrumb-collapse.js. Output is unchanged otherwise.
+  UiKit theme slots (2.7, REQ-UI-003): the host classes / attributes of `breadcrumbs` (the <nav>), `breadcrumb_separator`
+  (separator items) and `breadcrumb_link` (crumb links, _breadcrumb_crumb.html.twig) from nowo_ui_kit.theme are
+  appended; with no host classes / attributes for these slots (or without UiKit) the markup is the 2.6 markup.
 #}
 {% trans_default_domain 'NowoBreadcrumbKitBundle' %}
+{% set _bk_theme = nowo_ui_theme|default(null) %}
+{% set _bk_nav_class = _bk_theme ? _bk_theme.extraClasses('breadcrumbs') : '' %}
+{% set _bk_sep_class = _bk_theme ? _bk_theme.extraClasses('breadcrumb_separator') : '' %}
 {% set has_trail = trail.nodes is not empty %}
 {% set collapse = has_trail and trail.collapsible %}
 {% if has_trail or breadcrumb_inline_edit.show %}
 <div class="breadcrumb-kit"{% if breadcrumb_inline_edit.show %} data-breadcrumb-kit-inline-wrap{% endif %}{% if collapse %} data-breadcrumb-collapse="{{ trail.collapse.breakpoint }}"{% endif %}>
   {% if has_trail %}
-  <nav class="{{ trail.classList|default('breadcrumb') }}" aria-label="{{ 'breadcrumb.aria_label'|trans }}"{% if trail.responsiveConfig.breakpoint is defined %} data-breadcrumb-breakpoint="{{ trail.responsiveConfig.breakpoint }}"{% endif %}>
+  <nav class="{{ trail.classList|default('breadcrumb') }}{{ _bk_nav_class ? ' ' ~ _bk_nav_class }}" aria-label="{{ 'breadcrumb.aria_label'|trans }}"{% if trail.responsiveConfig.breakpoint is defined %} data-breadcrumb-breakpoint="{{ trail.responsiveConfig.breakpoint }}"{% endif %}{{ _bk_theme ? _bk_theme.renderAttributes('breadcrumbs')|raw }}>
     <ol class="breadcrumb-list">
       {% for node in trail.nodes %}
         {% if collapse and node.current %}{% include '@NowoBreadcrumbKitBundle/_breadcrumb_collapse.html.twig' with { trail: trail } only %}{% endif %}{% if not loop.first %}
-          <li class="{{ trail.classSeparator|default('breadcrumb-separator') }}" aria-hidden="true">{% if trail.separatorIcon %}<span class="breadcrumb-sep-icon">{{ trail.separatorIcon }}</span>{% else %}<span>/</span>{% endif %}</li>
+          <li class="{{ trail.classSeparator|default('breadcrumb-separator') }}{{ _bk_sep_class ? ' ' ~ _bk_sep_class }}" aria-hidden="true"{{ _bk_theme ? _bk_theme.renderAttributes('breadcrumb_separator')|raw }}>{% if trail.separatorIcon %}<span class="breadcrumb-sep-icon">{{ trail.separatorIcon }}</span>{% else %}<span>/</span>{% endif %}</li>
         {% endif %}
         <li class="{{ trail.classItem|default('breadcrumb-item') }}{% if node.current %} {{ trail.classCurrent|default('is-current') }}{% endif %}">
           {% include '@NowoBreadcrumbKitBundle/_breadcrumb_crumb.html.twig' with { node: node, trail: trail, is_first: loop.first } %}

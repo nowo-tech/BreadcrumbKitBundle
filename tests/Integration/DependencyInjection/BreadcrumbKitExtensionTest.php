@@ -9,6 +9,8 @@ use Nowo\BreadcrumbKitBundle\EventSubscriber\TablePrefixSubscriber;
 use Nowo\BreadcrumbKitBundle\Security\BreadcrumbKitAccessCheckerInterface;
 use Nowo\BreadcrumbKitBundle\Service\BreadcrumbInlineEditResolver;
 use Nowo\BreadcrumbKitBundle\Service\BreadcrumbLoader;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\IgnoreDeprecations;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Extension\ExtensionInterface;
@@ -79,6 +81,7 @@ final class BreadcrumbKitExtensionTest extends TestCase
         self::assertSame('/bundles/nowobreadcrumbkit', $prepended[0]['assets']['packages']['nowo_breadcrumb_kit']['base_path']);
     }
 
+    #[IgnoreDeprecations]
     public function testPrependAlignsUiKitFromDashboardConfigWhenUiKitPresent(): void
     {
         $container = new ContainerBuilder();
@@ -118,6 +121,7 @@ final class BreadcrumbKitExtensionTest extends TestCase
         self::assertSame('svg_inline', $uiKit[0]['icon_set']);
     }
 
+    #[IgnoreDeprecations]
     public function testPrependSeedsFormKitProfileAndMapsCssFramework(): void
     {
         $container = new ContainerBuilder();
@@ -179,9 +183,8 @@ final class BreadcrumbKitExtensionTest extends TestCase
         ];
     }
 
-    /**
-     * @dataProvider formKitCssFrameworkMapProvider
-     */
+    #[DataProvider('formKitCssFrameworkMapProvider')]
+    #[IgnoreDeprecations]
     public function testPrependMapsDashboardCssFrameworkToFormKitAllowedSet(string $dashboardFw, string $expectedFormKitFw): void
     {
         $container = new ContainerBuilder();
@@ -216,6 +219,7 @@ final class BreadcrumbKitExtensionTest extends TestCase
         self::assertSame($expectedFormKitFw, $formKit[0]['css_framework'] ?? null);
     }
 
+    #[IgnoreDeprecations]
     public function testPrependDoesNotOverrideExplicitFormKitHostConfig(): void
     {
         $container = new ContainerBuilder();
@@ -327,12 +331,11 @@ final class BreadcrumbKitExtensionTest extends TestCase
 
         (new BreadcrumbKitExtension())->prepend($container);
 
-        $uiKit = $container->getExtensionConfig('nowo_ui_kit');
-        self::assertNotEmpty($uiKit);
-        self::assertSame('bootstrap5', $uiKit[0]['css_framework']);
-        self::assertSame('bootstrap-icons', $uiKit[0]['icon_set']);
+        // UiKit's own defaults (bootstrap5 / bootstrap-icons) apply: nothing is seeded since 2.7.
+        self::assertSame([], $container->getExtensionConfig('nowo_ui_kit'));
     }
 
+    #[IgnoreDeprecations]
     public function testPrependDoesNotOverrideExplicitUiKitHostConfig(): void
     {
         $container = new ContainerBuilder();
@@ -382,6 +385,7 @@ final class BreadcrumbKitExtensionTest extends TestCase
         self::assertSame('ux_icon', $uiKitConfigs[0]['icon_set'] ?? null);
     }
 
+    #[IgnoreDeprecations]
     public function testLoadWithDashboardEnabledAndInlineEditConfig(): void
     {
         $container = new ContainerBuilder();
@@ -423,6 +427,9 @@ final class BreadcrumbKitExtensionTest extends TestCase
         self::assertSame('/admin/breadcrumbs', $container->getParameter('nowo_breadcrumb_kit.dashboard.path_prefix'));
         self::assertTrue($container->getParameter('nowo_breadcrumb_kit.dashboard.enabled'));
         self::assertSame('@App/custom_layout.html.twig', $container->getParameter('nowo_breadcrumb_kit.dashboard.layout_template'));
+        self::assertSame('@App/custom_layout.html.twig', $container->getParameter('nowo_breadcrumb_kit.web_ui.layout_template'));
+        self::assertSame('/admin/breadcrumbs', $container->getParameter('nowo_breadcrumb_kit.web_ui.path_prefix'));
+        self::assertTrue($container->getParameter('nowo_breadcrumb_kit.web_ui.enabled'));
         self::assertSame('bootstrap5', $container->getParameter('nowo_breadcrumb_kit.dashboard.css_framework'));
         self::assertSame('bootstrap-icons', $container->getParameter('nowo_breadcrumb_kit.dashboard.icon_set'));
         self::assertSame(4096, $container->getParameter('nowo_breadcrumb_kit.dashboard.import_max_bytes'));
@@ -430,10 +437,9 @@ final class BreadcrumbKitExtensionTest extends TestCase
         self::assertSame(50, $container->getParameter('nowo_breadcrumb_kit.dashboard.pagination.per_page'));
         self::assertSame([
             'collection_form' => 'xl',
-            'item_form' => 'normal',
+            'item_form' => 'md',
             'import' => 'lg',
-            'delete' => 'normal',
-        ], $container->getParameter('nowo_breadcrumb_kit.dashboard.modals'));
+        ], $container->getParameter('nowo_breadcrumb_kit.web_ui.dialog_sizes'));
         self::assertSame(['ROLE_ADMIN'], $container->getParameter('nowo_breadcrumb_kit.security.access_roles'));
         self::assertFalse($container->getParameter('nowo_breadcrumb_kit.security.allow_unauthenticated'));
         self::assertTrue($container->hasAlias(BreadcrumbKitAccessCheckerInterface::class));
@@ -442,6 +448,7 @@ final class BreadcrumbKitExtensionTest extends TestCase
         self::assertSame('es', $container->getParameter('nowo_breadcrumb_kit.default_locale_resolved'));
     }
 
+    #[IgnoreDeprecations]
     public function testLoadRegistersSecurityAllowUnauthenticatedForDemos(): void
     {
         $container = new ContainerBuilder();
@@ -459,6 +466,7 @@ final class BreadcrumbKitExtensionTest extends TestCase
         self::assertTrue($container->getParameter('nowo_breadcrumb_kit.security.allow_unauthenticated'));
     }
 
+    #[IgnoreDeprecations]
     public function testLoadAliasesBootstrapCssFrameworkToBootstrap5(): void
     {
         $container = new ContainerBuilder();
@@ -475,12 +483,10 @@ final class BreadcrumbKitExtensionTest extends TestCase
 
         self::assertSame('bootstrap5', $container->getParameter('nowo_breadcrumb_kit.dashboard.css_framework'));
         self::assertSame('svg_inline', $container->getParameter('nowo_breadcrumb_kit.dashboard.icon_set'));
-        self::assertSame(
-            '@NowoBreadcrumbKitBundle/dashboard/layout.html.twig',
-            $container->getParameter('nowo_breadcrumb_kit.dashboard.layout_template'),
-        );
+        self::assertNull($container->getParameter('nowo_breadcrumb_kit.web_ui.layout_template'));
     }
 
+    #[IgnoreDeprecations]
     public function testLoadNormalizesInvalidDashboardPathPrefix(): void
     {
         $container = new ContainerBuilder();

@@ -1,46 +1,32 @@
 {% trans_default_domain 'NowoBreadcrumbKitBundle' %}
-{% import '@NowoUiKitBundle/macros/ui.html.twig' as ui %}
 {#
-  Collection create/edit form loaded into #modal-bk-collection-form-body (?_partial=1).
+  Collection create / edit form loaded into the collection form dialog (GET ?_partial=1, js/dashboard.js). A plain
+  POST: the controller redirects back on success and renders the full-page form (collection/form.html.twig) on errors.
+  Variables: form, title (translated; copied into the dialog title from data-bk-dialog-title), is_edit.
   Blocks: bk_form_fields, bk_form_actions, bk_form_submit, bk_form_cancel.
-  Classes (dashboard.classes): modal_form, modal_form_body (wraps the fields), form_style_grid (groups the four
-  CSS class fields), modal_actions, btn_primary, btn_secondary. Option dashboard.cancel_first swaps the buttons.
+  Theme slots (bundle NowoBreadcrumbKitBundle): form, form_actions, btn_primary, btn_secondary.
 #}
-{% set _bk_c = nowo_breadcrumb_kit_classes|default({}) %}
-<div id="modal-bk-collection-form-container">
-{{ form_start(form, { attr: { class: 'bk-dashboard-form' ~ (_bk_c.modal_form is defined ? ' ' ~ _bk_c.modal_form : '') } }) }}
+{% set _b = 'NowoBreadcrumbKitBundle' %}
+<div id="modal-bk-collection-form-container" data-bk-dialog-title="{{ title|default('') }}">
+{{ form_start(form, {attr: {class: nowo_ui_class('form', _b)}}) }}
     <input type="hidden" name="_modal" value="1">
-    {% if _bk_c.modal_form_body is defined %}<div class="{{ _bk_c.modal_form_body }}">{% endif %}
     {% block bk_form_fields %}
-        {% if _bk_c.form_style_grid is defined %}
-            {% for name in ['code', 'contextKey', 'name', 'homeIcon', 'separatorIcon'] %}
-                {% if form[name] is defined and not form[name].rendered %}{{ form_row(form[name]) }}{% endif %}
-            {% endfor %}
-            {% set _bk_style_fields = ['classList', 'classItem', 'classSeparator', 'classCurrent']|filter(n => form[n] is defined) %}
-            {% if _bk_style_fields is not empty %}
-                <div class="{{ _bk_c.form_style_grid }}">
-                    {% for name in _bk_style_fields %}
-                        {{ form_row(form[name]) }}
-                    {% endfor %}
-                </div>
-            {% endif %}
-        {% endif %}
+        {{ form_errors(form) }}
         {% for child in form %}
             {% if not child.rendered %}
                 {{ form_row(child) }}
             {% endif %}
         {% endfor %}
     {% endblock %}
-    {% if _bk_c.modal_form_body is defined %}</div>{% endif %}
-    <div class="{{ _bk_c.modal_actions ?? ui.row_actions() }}"{% if _bk_c.modal_actions is not defined %} style="justify-content:flex-start;margin-top:1rem;"{% endif %}>
+    <div class="{{ nowo_ui_class('form_actions', _b) }}"{{ nowo_ui_attrs('form_actions', _b) }}>
         {% block bk_form_actions %}
-            {% if nowo_breadcrumb_kit_cancel_first|default(false) %}{{ block('bk_form_cancel') }}{% endif %}
             {% block bk_form_submit %}
-                <button type="submit" class="{{ _bk_c.btn_primary ?? ui.btn('primary') }}">{{ is_edit|default(false) ? ('dashboard.form_update'|trans) : ('dashboard.form_create'|trans) }}</button>
+                <button type="submit" class="{{ nowo_ui_class('btn_primary', _b) }}">{{ is_edit|default(false) ? ('dashboard.form_update'|trans) : ('dashboard.form_create'|trans) }}</button>
             {% endblock %}
-            {% if not nowo_breadcrumb_kit_cancel_first|default(false) %}{{ block('bk_form_cancel') }}{% endif %}
+            {% block bk_form_cancel %}
+                <button type="button" class="{{ nowo_ui_class('btn_secondary', _b) }}" data-nowo-ui-dialog-close>{{ 'dashboard.cancel'|trans }}</button>
+            {% endblock %}
         {% endblock %}
     </div>
 {{ form_end(form) }}
 </div>
-{% if false %}{% block bk_form_cancel %}<button type="button" class="{{ _bk_c.btn_secondary ?? ui.btn('secondary') }}" {{ ui.modal_dismiss_attrs()|raw }}>{{ 'dashboard.cancel'|trans }}</button>{% endblock %}{% endif %}

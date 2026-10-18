@@ -38,11 +38,13 @@ dashboard:
   link_export_json: JSON
   link_edit: Bewerken
   empty_collections: Nog geen collecties. Maak er een aan of importeer JSON geëxporteerd uit het paneel.
+  empty_collections_search: 'Geen collecties gevonden.'
   delete_collection_confirm: 'Collectie «%code%» en alle bijbehorende items verwijderen?'
   items_heading: Breadcrumb-items
   items_title_with_code: 'Elementen · %code%'
   unnamed_collection: Naamloos
   back_collections: ← Collecties
+  back_items: '← Items'
   search: Zoeken
   clear_search: Wissen
   export_collection: Collectie exporteren

@@ -38,11 +38,13 @@ dashboard:
   link_export_json: JSON
   link_edit: Modifier
   empty_collections: Aucune collection. Créez-en une ou importez un JSON exporté depuis le panneau.
+  empty_collections_search: 'Aucune collection ne correspond.'
   delete_collection_confirm: 'Supprimer la collection « %code% » et tous ses éléments ?'
   items_heading: Éléments du fil d''Ariane
   items_title_with_code: 'Éléments · %code%'
   unnamed_collection: Sans nom
   back_collections: ← Collections
+  back_items: '← Éléments'
   search: Rechercher
   clear_search: Effacer
   export_collection: Exporter la collection

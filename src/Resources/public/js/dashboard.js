@@ -1,231 +1,61 @@
+/*
+ * Breadcrumb Kit dashboard (REQ-UI-003): loads the collection / item forms into the UiKit dialogs.
+ *
+ * An opener is a link to the full-page form with data-nowo-ui-dialog-open="<dialog id>" (opened by UiKit's
+ * js/nowo-ui-dialog.js) and data-bk-dialog-url (the same form with ?_partial=1). This script fetches that URL into the
+ * dialog's [data-bk-dialog-body] and copies [data-bk-dialog-title] into the dialog title. Without JavaScript (or
+ * without nowo-ui-dialog.js) the link opens the full-page form. Forms with data-bk-submit-once submit once.
+ * CSP-safe: no inline handlers, text only from data attributes.
+ */
 (function () {
   'use strict';
 
-  var ISLAND_IDS = ['nowo-breadcrumb-kit-dashboard', 'nowo-breadcrumb-kit-dashboard-page'];
-
-  function readIsland(id) {
-    var el = document.getElementById(id);
-    if (!el) return null;
-    try {
-      var data = JSON.parse(el.textContent || '{}');
-      return data && typeof data === 'object' ? data : null;
-    } catch (e) {
-      return null;
-    }
-  }
-
-  /**
-   * Reads CSP-safe JSON config islands (<script type="application/json">).
-   * Falls back to the legacy window.__breadcrumbKitDashboard global (deprecated since 2.3.0).
-   */
-  function readConfig() {
-    var cfg = {};
-    var legacy = window.__breadcrumbKitDashboard;
-    if (legacy && typeof legacy === 'object') {
-      Object.keys(legacy).forEach(function (k) { cfg[k] = legacy[k]; });
-    }
-    ISLAND_IDS.forEach(function (id) {
-      var data = readIsland(id);
-      if (data) {
-        Object.keys(data).forEach(function (k) { cfg[k] = data[k]; });
-      }
-    });
-    return cfg;
-  }
-
-  var _cfg = readConfig();
-  var _fw = ((_cfg.cssFramework || 'bootstrap5') + '').trim().toLowerCase();
-
-  function isBootstrapFw(fw) {
-    return fw === 'bootstrap' || fw === 'bootstrap5' || fw === 'bootstrap4' || fw === 'tabler';
-  }
-
-  function t(key, fallback) {
-    var g = _cfg.i18n || (typeof window !== 'undefined' ? window.breadcrumbKitI18n : null);
-    return (g && g[key]) ? g[key] : fallback;
-  }
-
-  function fetchPartial(url, bodyEl, loadingHtml) {
-    if (!bodyEl) return;
-    bodyEl.innerHTML = loadingHtml;
-    fetch(url)
-      .then(function (r) { return r.text(); })
-      .then(function (html) { bodyEl.innerHTML = html; })
+  function loadInto(dialog, url) {
+    var body = dialog.querySelector('[data-bk-dialog-body]');
+    if (!body) return;
+    var message = function (key) {
+      var p = document.createElement('p');
+      p.textContent = body.getAttribute(key) || '';
+      body.replaceChildren(p);
+    };
+    message('data-bk-loading');
+    fetch(url, { headers: { 'X-Requested-With': 'XMLHttpRequest' }, credentials: 'same-origin' })
+      .then(function (r) {
+        if (!r.ok) throw new Error(String(r.status));
+        return r.text();
+      })
+      .then(function (html) {
+        body.innerHTML = html;
+        var titled = body.querySelector('[data-bk-dialog-title]');
+        var title = dialog.querySelector('#' + CSS.escape(dialog.id) + '-title');
+        if (titled && title && titled.getAttribute('data-bk-dialog-title')) {
+          title.textContent = titled.getAttribute('data-bk-dialog-title');
+        }
+        var field = body.querySelector('input:not([type=hidden]), select, textarea');
+        if (field) field.focus();
+      })
       .catch(function () {
-        bodyEl.innerHTML = '<div class="nowo-ui-flash nowo-ui-flash--error alert alert-danger">' + t('errorLoadingForm', 'Could not load the form.') + '</div>';
+        message('data-bk-error');
       });
   }
 
-  // --- Custom-framework modal helpers (non-bootstrap stacks) ---
+  document.addEventListener('click', function (ev) {
+    var opener = ev.target instanceof Element ? ev.target.closest('[data-bk-dialog-url]') : null;
+    if (!opener || typeof window.nowoUiOpenDialog !== 'function') return;
+    var dialog = document.getElementById(opener.getAttribute('data-nowo-ui-dialog-open') || '');
+    if (!(dialog instanceof HTMLDialogElement)) return;
+    loadInto(dialog, opener.getAttribute('data-bk-dialog-url'));
+  });
 
-  function openModal(id, opener) {
-    var el = document.getElementById(id);
-    if (!el) return;
-    el.classList.add('nowo-ui-modal-open');
-    el.removeAttribute('hidden');
-    el.setAttribute('aria-hidden', 'false');
-    document.body.classList.add('nowo-modal-open');
-    // Dispatch synthetic show.bs.modal so existing listeners keep working.
-    var ev;
-    try {
-      ev = new CustomEvent('show.bs.modal', { bubbles: true, cancelable: true });
-    } catch (e) {
-      ev = document.createEvent('Event');
-      ev.initEvent('show.bs.modal', true, true);
+  document.addEventListener('submit', function (ev) {
+    var form = ev.target instanceof HTMLFormElement && ev.target.matches('[data-bk-submit-once]') ? ev.target : null;
+    if (!form) return;
+    if (form.dataset.bkSubmitting === '1') {
+      ev.preventDefault();
+      return;
     }
-    ev.relatedTarget = opener || null;
-    el.dispatchEvent(ev);
-  }
-
-  function closeModal(id) {
-    var el = document.getElementById(id);
-    if (!el) return;
-    el.classList.remove('nowo-ui-modal-open');
-    el.setAttribute('aria-hidden', 'true');
-    if (!document.querySelector('.nowo-ui-modal-open')) {
-      document.body.classList.remove('nowo-modal-open');
-    }
-  }
-
-  function bindCustomModals() {
-    document.addEventListener('click', function (ev) {
-      var opener = ev.target.closest('[data-nowo-modal-open]');
-      if (opener) {
-        var id = opener.getAttribute('data-nowo-modal-open') || '';
-        if (!id) {
-          var target = opener.getAttribute('data-nowo-modal-target') || '';
-          id = target.replace(/^#/, '');
-        }
-        if (id) openModal(id, opener);
-        return;
-      }
-      var closer = ev.target.closest('[data-nowo-modal-close]');
-      if (closer) {
-        var modalEl = closer.closest('.nowo-ui-modal-open[id]');
-        var closeId = (modalEl && modalEl.id) || closer.getAttribute('data-nowo-modal-close') || '';
-        if (closeId) closeModal(closeId);
-      }
-    });
-    // Click directly on the overlay backdrop closes the modal.
-    document.addEventListener('click', function (ev) {
-      if (ev.target.matches && ev.target.matches('.nowo-ui-modal-open[id]')) {
-        closeModal(ev.target.id);
-      }
-    });
-  }
-
-  // --- Bootstrap-style event listeners (work for all frameworks via show.bs.modal) ---
-
-  function bindDeleteModal() {
-    var modalEl = document.getElementById('modal-bk-delete');
-    var msgEl = document.getElementById('modal-bk-delete-message');
-    var form = document.getElementById('form-bk-delete-confirm');
-    if (!modalEl || !msgEl || !form) return;
-
-    var deleteCollectionTpl = t('deleteCollectionConfirm', 'Delete this collection and all its items?');
-    var deleteItemTpl = t('deleteItemConfirm', 'Delete this item?');
-
-    modalEl.addEventListener('show.bs.modal', function (ev) {
-      var btn = ev.relatedTarget;
-      if (!btn || !btn.classList.contains('btn-bk-delete')) return;
-      form.action = btn.getAttribute('data-url') || '';
-      var tokenInput = form.querySelector('input[name="_token"]');
-      if (tokenInput) tokenInput.value = btn.getAttribute('data-token') || '';
-      var name = btn.getAttribute('data-name') || '';
-      var itemId = btn.getAttribute('data-id') || '';
-      var itemRoute = btn.getAttribute('data-route') || '';
-      if (itemId && itemRoute) {
-        msgEl.textContent = deleteItemTpl.replace('%id%', itemId).replace('%route%', itemRoute);
-      } else {
-        msgEl.textContent = deleteCollectionTpl.replace('%code%', name);
-      }
-    });
-  }
-
-  function bindCollectionFormModal() {
-    var modalEl = document.getElementById('modal-bk-collection-form');
-    var bodyEl = document.getElementById('modal-bk-collection-form-body');
-    var titleEl = document.getElementById('modal-bk-collection-form-label');
-    if (!modalEl || !bodyEl) return;
-
-    var loading = '<div class="nowo-ui-muted text-center py-4">' + t('loading', 'Loading…') + '</div>';
-
-    modalEl.addEventListener('show.bs.modal', function (ev) {
-      var btn = ev.relatedTarget;
-      if (!btn || !btn.classList.contains('btn-bk-collection-form')) return;
-      var url = btn.getAttribute('data-bk-url');
-      var ttl = btn.getAttribute('data-bk-title') || t('defaultCollectionModalTitle', 'Collection');
-      if (!url) return;
-      if (titleEl) titleEl.textContent = ttl;
-      fetchPartial(url, bodyEl, loading);
-    });
-  }
-
-  function bindItemFormModal() {
-    var modalEl = document.getElementById('modal-bk-item-form');
-    var bodyEl = document.getElementById('modal-bk-item-form-body');
-    var titleEl = document.getElementById('modal-bk-item-form-label');
-    if (!modalEl || !bodyEl) return;
-
-    var loading = '<div class="nowo-ui-muted text-center py-4">' + t('loading', 'Loading…') + '</div>';
-
-    modalEl.addEventListener('show.bs.modal', function (ev) {
-      var btn = ev.relatedTarget;
-      if (!btn || !btn.classList.contains('btn-bk-item-form')) return;
-      var url = btn.getAttribute('data-bk-url');
-      var ttl = btn.getAttribute('data-bk-title') || t('defaultItemModalTitle', 'Item');
-      if (!url) return;
-      if (titleEl) titleEl.textContent = ttl;
-      fetchPartial(url, bodyEl, loading);
-    });
-  }
-
-  function bindImportModal() {
-    var modalEl = document.getElementById('modal-bk-import');
-    var bodyEl = document.getElementById('modal-bk-import-body');
-    if (!modalEl || !bodyEl) return;
-
-    var loading = '<div class="nowo-ui-muted text-center py-4">' + t('loading', 'Loading…') + '</div>';
-    var cfg = _cfg;
-
-    modalEl.addEventListener('show.bs.modal', function (ev) {
-      var btn = ev.relatedTarget;
-      var url = (btn && btn.getAttribute('data-bk-import-url')) || cfg.importPartialUrl;
-      if (!url) return;
-      fetchPartial(url, bodyEl, loading);
-    });
-
-    bodyEl.addEventListener('submit', function (ev) {
-      var form = ev.target.closest('form[data-import-form], form.import-form');
-      if (!form || !bodyEl.contains(form)) return;
-      if (form.dataset.bkSubmitting === '1') {
-        ev.preventDefault();
-        return;
-      }
-      form.dataset.bkSubmitting = '1';
-      var sb = form.querySelector('button[type="submit"]');
-      if (sb) sb.disabled = true;
-    }, true);
-  }
-
-  function init() {
-    // Re-read config at init time (islands may be parsed after this file).
-    _cfg = readConfig();
-    _fw = ((_cfg.cssFramework || 'bootstrap5') + '').trim().toLowerCase();
-
-    if (!isBootstrapFw(_fw)) {
-      bindCustomModals();
-    }
-
-    bindDeleteModal();
-    bindCollectionFormModal();
-    bindItemFormModal();
-    bindImportModal();
-  }
-
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', init);
-  } else {
-    init();
-  }
+    form.dataset.bkSubmitting = '1';
+    var submit = form.querySelector('button[type="submit"]');
+    if (submit) submit.disabled = true;
+  }, true);
 })();

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Nowo\BreadcrumbKitBundle\DependencyInjection;
 
 use Nowo\BreadcrumbKitBundle\Dashboard\DashboardChrome;
+use Nowo\BreadcrumbKitBundle\Dashboard\DashboardPages;
 use Nowo\BreadcrumbKitBundle\Dto\BreadcrumbCollapse;
 use Nowo\BreadcrumbKitBundle\Enum\CssFramework;
 use Nowo\BreadcrumbKitBundle\Enum\IconSet;
@@ -19,12 +20,30 @@ final class Configuration implements ConfigurationInterface
 {
     public const ALIAS = 'nowo_breadcrumb_kit';
 
+    public const DEFAULT_PATH_PREFIX = '/breadcrumb-kit-admin';
+
+    public const DEFAULT_IMPORT_MAX_BYTES = 2_097_152;
+
+    /** 1.x default of dashboard.layout_template (removed CDN layout); read as null (UiKit layout). */
+    public const LEGACY_LAYOUT_TEMPLATE = '@NowoBreadcrumbKitBundle/dashboard/layout.html.twig';
+
+    private const DEPRECATION_PACKAGE = 'nowo-tech/breadcrumb-kit-bundle';
+
+    private const DEPRECATION_VERSION = '2.7';
+
+    /** 1.x modal size => UiKit dialog size. */
+    private const MODAL_TO_DIALOG = ['normal' => 'md', 'lg' => 'lg', 'xl' => 'xl'];
+
     public function getConfigTreeBuilder(): TreeBuilder
     {
         $treeBuilder = new TreeBuilder(self::ALIAS);
         $root = $treeBuilder->getRootNode();
 
         $root
+            ->beforeNormalization()
+                ->ifArray()
+                ->then(static fn (array $v): array => self::mapDeprecatedDashboardKeys($v))
+            ->end()
             ->children()
                 ->scalarNode('project')
                     ->info('Optional project id when several apps share one DB.')
@@ -96,92 +115,121 @@ final class Configuration implements ConfigurationInterface
                         ->end()
                     ->end()
                 ->end()
-                ->arrayNode('dashboard')
+                ->arrayNode('web_ui')
+                    ->info('Admin dashboard (CRUD of collections and items) on the UiKit page contract (REQ-UI-003). Import the bundle routing with path_prefix (see docs).')
                     ->addDefaultsIfNotSet()
                     ->children()
                         ->booleanNode('enabled')
                             ->defaultFalse()
-                            ->info('Registers CRUD controllers and forms; import bundle routing with path_prefix (see docs).')
+                            ->info('Registers the dashboard controllers and forms.')
                         ->end()
                         ->scalarNode('path_prefix')
-                            ->defaultValue('/breadcrumb-kit-admin')
-                            ->info('URL prefix for dashboard routes (leading slash, no trailing slash). Use the same value when importing routing in your app.')
+                            ->defaultValue(self::DEFAULT_PATH_PREFIX)
+                            ->info('URL prefix of the dashboard routes (leading slash, no trailing slash). Use the same value when importing the routing (parameter %nowo_breadcrumb_kit.web_ui.path_prefix%).')
                         ->end()
                         ->scalarNode('layout_template')
-                            ->defaultValue('@NowoBreadcrumbKitBundle/dashboard/layout.html.twig')
-                            ->info('Twig layout extended by dashboard pages (override in app like DashboardMenuBundle).')
+                            ->defaultNull()
+                            ->info('Per-bundle layout override for the dashboard pages; null = nowo_ui_kit.layouts.admin. It must render the UiKit canonical blocks (nowo_ui_page_header, nowo_ui_content…); a 1.x layout that only defines nowo_breadcrumb_kit_content is wrapped by a deprecated bridge.')
                         ->end()
-                        ->scalarNode('css_framework')
-                            ->defaultValue(CssFramework::Bootstrap5->value)
-                            ->info('CSS stack for dashboard markup (REQ-UI-001): see Nowo\BreadcrumbKitBundle\Enum\CssFramework.')
+                        ->arrayNode('templates')
+                            ->info('Per-page template override (page => template): '.implode(', ', array_keys(DashboardPages::TEMPLATES)).'. Extend @!NowoBreadcrumbKitBundle/... and override a data block.')
+                            ->normalizeKeys(false)
+                            ->useAttributeAsKey('page')
+                            ->scalarPrototype()->end()
                             ->validate()
-                                ->ifNotInArray(CssFramework::values())
-                                ->thenInvalid('Invalid css_framework "%s".')
-                            ->end()
-                        ->end()
-                        ->scalarNode('icon_set')
-                            ->defaultValue(IconSet::BootstrapIcons->value)
-                            ->info('Icon set for dashboard row actions (REQ-UI-001): see Nowo\BreadcrumbKitBundle\Enum\IconSet.')
-                            ->validate()
-                                ->ifNotInArray(IconSet::values())
-                                ->thenInvalid('Invalid icon_set "%s".')
+                                ->ifTrue(static fn (array $v): bool => [] !== array_diff(array_keys($v), array_keys(DashboardPages::TEMPLATES)))
+                                ->then(static function (array $v): array {
+                                    throw new \InvalidArgumentException(\sprintf('Unknown nowo_breadcrumb_kit.web_ui.templates page(s): %s. Allowed: %s.', implode(', ', array_diff(array_keys($v), array_keys(DashboardPages::TEMPLATES))), implode(', ', array_keys(DashboardPages::TEMPLATES))));
+                                })
                             ->end()
                         ->end()
                         ->integerNode('import_max_bytes')
-                            ->defaultValue(2_097_152)
+                            ->defaultValue(self::DEFAULT_IMPORT_MAX_BYTES)
                             ->min(1024)
-                            ->info('Max JSON upload size for dashboard import (default 2 MiB).')
+                            ->info('Max JSON upload size for the dashboard import (default 2 MiB).')
                         ->end()
                         ->arrayNode('pagination')
-                            ->info('Pagination for collections and items lists in the dashboard.')
+                            ->info('Pagination of the collections and items lists.')
                             ->addDefaultsIfNotSet()
                             ->children()
-                                ->booleanNode('enabled')
-                                    ->defaultValue(true)
-                                ->end()
-                                ->integerNode('per_page')
-                                    ->min(1)
-                                    ->max(500)
-                                    ->defaultValue(20)
-                                ->end()
+                                ->booleanNode('enabled')->defaultTrue()->end()
+                                ->integerNode('per_page')->min(1)->max(500)->defaultValue(20)->end()
+                            ->end()
+                        ->end()
+                        ->arrayNode('dialog_sizes')
+                            ->info('UiKit dialog size (sm, md, lg, xl) of the collection form, item form and import dialogs.')
+                            ->addDefaultsIfNotSet()
+                            ->children()
+                                ->enumNode('collection_form')->values(DashboardPages::DIALOG_SIZES)->defaultValue('lg')->end()
+                                ->enumNode('item_form')->values(DashboardPages::DIALOG_SIZES)->defaultValue('lg')->end()
+                                ->enumNode('import')->values(DashboardPages::DIALOG_SIZES)->defaultValue('md')->end()
+                            ->end()
+                        ->end()
+                    ->end()
+                ->end()
+                ->arrayNode('dashboard')
+                    ->info('Deprecated since 2.7: use web_ui (REQ-UI-003) and the UiKit theme (nowo_ui_kit.theme.bundles.NowoBreadcrumbKitBundle). Removed in 3.0.')
+                    ->addDefaultsIfNotSet()
+                    ->children()
+                        ->booleanNode('enabled')
+                            ->defaultFalse()
+                            ->info('Deprecated alias of web_ui.enabled.')
+                            ->setDeprecated(self::DEPRECATION_PACKAGE, self::DEPRECATION_VERSION, 'The "%path%.%node%" option is deprecated, use "nowo_breadcrumb_kit.web_ui.enabled" instead.')
+                        ->end()
+                        ->scalarNode('path_prefix')
+                            ->defaultValue(self::DEFAULT_PATH_PREFIX)
+                            ->info('Deprecated alias of web_ui.path_prefix.')
+                            ->setDeprecated(self::DEPRECATION_PACKAGE, self::DEPRECATION_VERSION, 'The "%path%.%node%" option is deprecated, use "nowo_breadcrumb_kit.web_ui.path_prefix" instead.')
+                        ->end()
+                        ->scalarNode('layout_template')
+                            ->defaultNull()
+                            ->info('Deprecated alias of web_ui.layout_template (the 1.x default @NowoBreadcrumbKitBundle/dashboard/layout.html.twig is read as null).')
+                            ->setDeprecated(self::DEPRECATION_PACKAGE, self::DEPRECATION_VERSION, 'The "%path%.%node%" option is deprecated, use "nowo_breadcrumb_kit.web_ui.layout_template" (null = nowo_ui_kit.layouts.admin) instead.')
+                        ->end()
+                        ->scalarNode('css_framework')
+                            ->defaultNull()
+                            ->info('Deprecated: seeded into nowo_ui_kit.css_framework when set here and not in nowo_ui_kit. See Nowo\BreadcrumbKitBundle\Enum\CssFramework.')
+                            ->setDeprecated(self::DEPRECATION_PACKAGE, self::DEPRECATION_VERSION, 'The "%path%.%node%" option is deprecated, set "nowo_ui_kit.css_framework" instead.')
+                            ->validate()
+                                ->ifTrue(static fn (mixed $v): bool => null !== $v && !\in_array($v, CssFramework::values(), true))
+                                ->thenInvalid('Invalid css_framework %s.')
+                            ->end()
+                        ->end()
+                        ->scalarNode('icon_set')
+                            ->defaultNull()
+                            ->info('Deprecated: seeded into nowo_ui_kit.icon_set when set here and not in nowo_ui_kit. See Nowo\BreadcrumbKitBundle\Enum\IconSet.')
+                            ->setDeprecated(self::DEPRECATION_PACKAGE, self::DEPRECATION_VERSION, 'The "%path%.%node%" option is deprecated, set "nowo_ui_kit.icon_set" instead.')
+                            ->validate()
+                                ->ifTrue(static fn (mixed $v): bool => null !== $v && !\in_array($v, IconSet::values(), true))
+                                ->thenInvalid('Invalid icon_set %s.')
+                            ->end()
+                        ->end()
+                        ->integerNode('import_max_bytes')
+                            ->min(1024)
+                            ->info('Deprecated alias of web_ui.import_max_bytes.')
+                            ->setDeprecated(self::DEPRECATION_PACKAGE, self::DEPRECATION_VERSION, 'The "%path%.%node%" option is deprecated, use "nowo_breadcrumb_kit.web_ui.import_max_bytes" instead.')
+                        ->end()
+                        ->arrayNode('pagination')
+                            ->info('Deprecated alias of web_ui.pagination.')
+                            ->setDeprecated(self::DEPRECATION_PACKAGE, self::DEPRECATION_VERSION, 'The "%path%.%node%" option is deprecated, use "nowo_breadcrumb_kit.web_ui.pagination" instead.')
+                            ->children()
+                                ->booleanNode('enabled')->end()
+                                ->integerNode('per_page')->min(1)->max(500)->end()
                             ->end()
                         ->end()
                         ->arrayNode('modals')
-                            ->info('Modal dialog size per type: normal (default), lg, or xl (Bootstrap 5).')
-                            ->addDefaultsIfNotSet()
+                            ->info('Deprecated alias of web_ui.dialog_sizes (normal = md); "delete" has no effect (UiKit confirm dialog).')
+                            ->setDeprecated(self::DEPRECATION_PACKAGE, self::DEPRECATION_VERSION, 'The "%path%.%node%" option is deprecated, use "nowo_breadcrumb_kit.web_ui.dialog_sizes" instead.')
                             ->children()
-                                ->scalarNode('collection_form')
-                                    ->defaultValue(ModalSize::Lg->value)
-                                    ->validate()
-                                        ->ifNotInArray(ModalSize::values())
-                                        ->thenInvalid('Must be normal, lg, or xl.')
-                                    ->end()
-                                ->end()
-                                ->scalarNode('item_form')
-                                    ->defaultValue(ModalSize::Lg->value)
-                                    ->validate()
-                                        ->ifNotInArray(ModalSize::values())
-                                        ->thenInvalid('Must be normal, lg, or xl.')
-                                    ->end()
-                                ->end()
-                                ->scalarNode('import')
-                                    ->defaultValue(ModalSize::Normal->value)
-                                    ->validate()
-                                        ->ifNotInArray(ModalSize::values())
-                                        ->thenInvalid('Must be normal, lg, or xl.')
-                                    ->end()
-                                ->end()
-                                ->scalarNode('delete')
-                                    ->defaultValue(ModalSize::Normal->value)
-                                    ->validate()
-                                        ->ifNotInArray(ModalSize::values())
-                                        ->thenInvalid('Must be normal, lg, or xl.')
-                                    ->end()
-                                ->end()
+                                ->enumNode('collection_form')->values(ModalSize::values())->end()
+                                ->enumNode('item_form')->values(ModalSize::values())->end()
+                                ->enumNode('import')->values(ModalSize::values())->end()
+                                ->enumNode('delete')->values(ModalSize::values())->end()
                             ->end()
                         ->end()
                         ->arrayNode('classes')
-                            ->info('Admin chrome class map (spec 003): key => class list replacing the default UiKit/legacy classes. Keys: '.implode(', ', DashboardChrome::CLASS_KEYS).'. Unset keys keep the default markup.')
+                            ->info('Deprecated 1.x admin chrome class map (spec 003), bridged into nowo_ui_kit.theme.bundles.NowoBreadcrumbKitBundle.classes (UiKit theme slots). Keys: '.implode(', ', DashboardChrome::CLASS_KEYS).'.')
+                            ->setDeprecated(self::DEPRECATION_PACKAGE, self::DEPRECATION_VERSION, 'The "%path%.%node%" option is deprecated, use "nowo_ui_kit.theme.bundles.NowoBreadcrumbKitBundle.classes" (UiKit theme slots) instead.')
                             ->normalizeKeys(false)
                             ->useAttributeAsKey('name')
                             ->scalarPrototype()->end()
@@ -193,7 +241,8 @@ final class Configuration implements ConfigurationInterface
                             ->end()
                         ->end()
                         ->arrayNode('partials')
-                            ->info('Admin chrome partial paths (spec 003): modals, modal_shell, pagination, action_inner (e.g. @NowoUiKitBundle/partials/_action_inner.html.twig).')
+                            ->info('Deprecated 1.x admin chrome partial map (spec 003): '.implode(', ', DashboardChrome::PARTIAL_KEYS).'. Ignored: the input of the UiKit partials differs (use nowo_ui_kit.theme.partials).')
+                            ->setDeprecated(self::DEPRECATION_PACKAGE, self::DEPRECATION_VERSION, 'The "%path%.%node%" option is deprecated and ignored, use "nowo_ui_kit.theme.bundles.NowoBreadcrumbKitBundle.partials" (UiKit partial names) instead.')
                             ->normalizeKeys(false)
                             ->useAttributeAsKey('name')
                             ->scalarPrototype()->end()
@@ -205,22 +254,22 @@ final class Configuration implements ConfigurationInterface
                             ->end()
                         ->end()
                         ->booleanNode('ui_kit_stylesheet')
-                            ->defaultTrue()
-                            ->info('Append nowo-ui.css from dashboard/base.html.twig. Set false when the host layout already loads it before its own theme.')
+                            ->info('Deprecated: the layout loads nowo-ui.css (only the 1.x layout bridge still reads it).')
+                            ->setDeprecated(self::DEPRECATION_PACKAGE, self::DEPRECATION_VERSION, 'The "%path%.%node%" option is deprecated, the layout (nowo_ui_kit.layouts.admin) loads the UiKit assets.')
                         ->end()
                         ->enumNode('collections_view')
                             ->values(['list', 'table'])
-                            ->defaultValue('list')
-                            ->info('Collections index markup: list (default) or table (code, name, items, context, actions columns).')
+                            ->info('Deprecated, no effect: the collections index is the UiKit list scaffold (table).')
+                            ->setDeprecated(self::DEPRECATION_PACKAGE, self::DEPRECATION_VERSION, 'The "%path%.%node%" option is deprecated and has no effect: the collections index renders the UiKit list scaffold.')
                         ->end()
                         ->enumNode('row_actions_position')
                             ->values(['start', 'end'])
-                            ->defaultValue('start')
-                            ->info('Actions column position in dashboard tables.')
+                            ->info('Deprecated, no effect: the UiKit list scaffold renders the actions column last.')
+                            ->setDeprecated(self::DEPRECATION_PACKAGE, self::DEPRECATION_VERSION, 'The "%path%.%node%" option is deprecated and has no effect: the UiKit list scaffold renders the actions column last.')
                         ->end()
                         ->booleanNode('cancel_first')
-                            ->defaultFalse()
-                            ->info('Render Cancel before the submit button in modal forms.')
+                            ->info('Deprecated, no effect: the UiKit form actions render submit then cancel.')
+                            ->setDeprecated(self::DEPRECATION_PACKAGE, self::DEPRECATION_VERSION, 'The "%path%.%node%" option is deprecated and has no effect: the UiKit form actions render submit, then cancel.')
                         ->end()
                     ->end()
                 ->end()
@@ -261,5 +310,46 @@ final class Configuration implements ConfigurationInterface
             ->end();
 
         return $treeBuilder;
+    }
+
+    /**
+     * REQ-UI-003 canonical keys: copies the deprecated dashboard.* aliases into web_ui.* when the canonical key is not
+     * set (the canonical key wins). The 1.x default layout (a standalone CDN page, removed) is read as null.
+     *
+     * @param array<array-key, mixed> $v
+     *
+     * @return array<array-key, mixed>
+     */
+    private static function mapDeprecatedDashboardKeys(array $v): array
+    {
+        $dashboard = \is_array($v['dashboard'] ?? null) ? $v['dashboard'] : [];
+        $webUi = \is_array($v['web_ui'] ?? null) ? $v['web_ui'] : [];
+
+        foreach (['enabled', 'path_prefix', 'layout_template', 'import_max_bytes'] as $key) {
+            if (\array_key_exists($key, $dashboard) && !\array_key_exists($key, $webUi)) {
+                $webUi[$key] = $dashboard[$key];
+            }
+        }
+        if (\is_array($dashboard['pagination'] ?? null)) {
+            $webUi['pagination'] = (\is_array($webUi['pagination'] ?? null) ? $webUi['pagination'] : []) + $dashboard['pagination'];
+        }
+        if (\is_array($dashboard['modals'] ?? null)) {
+            $sizes = \is_array($webUi['dialog_sizes'] ?? null) ? $webUi['dialog_sizes'] : [];
+            foreach (['collection_form', 'item_form', 'import'] as $key) {
+                $size = $dashboard['modals'][$key] ?? null;
+                if (\is_string($size) && isset(self::MODAL_TO_DIALOG[$size]) && !\array_key_exists($key, $sizes)) {
+                    $sizes[$key] = self::MODAL_TO_DIALOG[$size];
+                }
+            }
+            $webUi['dialog_sizes'] = $sizes;
+        }
+        if (self::LEGACY_LAYOUT_TEMPLATE === ($webUi['layout_template'] ?? null) || '' === ($webUi['layout_template'] ?? null)) {
+            $webUi['layout_template'] = null;
+        }
+        if ([] !== $webUi) {
+            $v['web_ui'] = $webUi;
+        }
+
+        return $v;
     }
 }

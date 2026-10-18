@@ -149,15 +149,13 @@ final class CoverageCompletionTest extends TestCase
         $container = new ContainerBuilder();
         (new BreadcrumbKitExtension())->load([
             [
-                'dashboard' => ['layout_template' => '   '],
+                'web_ui' => ['layout_template' => '   '],
                 'cache' => ['pool' => 'cache.app', 'ttl' => 90],
             ],
         ], $container);
 
-        self::assertSame(
-            '@NowoBreadcrumbKitBundle/dashboard/layout.html.twig',
-            $container->getParameter('nowo_breadcrumb_kit.dashboard.layout_template'),
-        );
+        self::assertNull($container->getParameter('nowo_breadcrumb_kit.web_ui.layout_template'));
+        self::assertSame('', $container->getParameter('nowo_breadcrumb_kit.dashboard.layout_template'));
         $cachePool = $container->getDefinition(BreadcrumbLoader::class)->getArgument('$cachePool');
         self::assertInstanceOf(Reference::class, $cachePool);
         self::assertSame('cache.app', (string) $cachePool);

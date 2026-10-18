@@ -1,0 +1,21 @@
+{#
+  Empty UiKit `dialog` (REQ-UI-003) whose body js/dashboard.js fills with a dashboard form (?_partial=1) when an
+  action with data-nowo-ui-dialog-open="<id>" + data-bk-dialog-url opens it (DashboardPages::dialogOpener()).
+  Without JavaScript the opener is a plain link to the full-page form.
+  Variables: id, title (string), size (sm | md | lg | xl), bundle.
+#}
+{% trans_default_domain 'NowoBreadcrumbKitBundle' %}
+{% set _body %}
+    <div data-bk-dialog-body data-bk-loading="{{ 'dashboard.loading'|trans }}" data-bk-error="{{ 'dashboard.error_loading_form'|trans }}">
+        <p class="{{ nowo_ui_class('muted', bundle) }}">{{ 'dashboard.loading'|trans }}</p>
+    </div>
+{% endset %}
+{{ include(nowo_ui_partial('dialog', bundle), {
+    id: id,
+    title: title,
+    body: _body,
+    size: size,
+    close_label: 'dashboard.close'|trans,
+    attr: {'data-testid': id},
+    bundle: bundle,
+}) }}

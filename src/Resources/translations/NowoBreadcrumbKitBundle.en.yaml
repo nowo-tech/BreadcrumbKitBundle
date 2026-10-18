@@ -38,11 +38,13 @@ dashboard:
   link_export_json: JSON
   link_edit: Edit
   empty_collections: No collections yet. Create one or import JSON exported from the panel.
+  empty_collections_search: 'No collections match.'
   delete_collection_confirm: 'Delete collection “%code%” and all its items?'
   items_heading: Breadcrumb items
   items_title_with_code: 'Items · %code%'
   unnamed_collection: Unnamed
   back_collections: ← Collections
+  back_items: '← Items'
   search: Search
   clear_search: Clear
   export_collection: Export collection

@@ -8,6 +8,14 @@ services:
     resource: '../../Controller/Dashboard/'
     tags: ['controller.service_arguments']
 
+  # REQ-UI-003: view models, per-page templates and the layout override of the dashboard pages.
+  Nowo\BreadcrumbKitBundle\Dashboard\DashboardPages:
+    arguments:
+      $layoutTemplate: '%nowo_breadcrumb_kit.web_ui.layout_template%'
+      $templates: '%nowo_breadcrumb_kit.web_ui.templates%'
+      $dialogSizes: '%nowo_breadcrumb_kit.web_ui.dialog_sizes%'
+
+  # Deprecated since 2.7 (1.x Twig globals, unused by the dashboard pages); removed in 3.0.
   Nowo\BreadcrumbKitBundle\Twig\BreadcrumbKitDashboardGlobalsExtension:
     arguments:
       $layoutTemplate: '%nowo_breadcrumb_kit.dashboard.layout_template%'
@@ -25,13 +33,11 @@ services:
     arguments:
       $paginationEnabled: '%nowo_breadcrumb_kit.dashboard.pagination.enabled%'
       $paginationPerPage: '%nowo_breadcrumb_kit.dashboard.pagination.per_page%'
-      $modalSizes: '%nowo_breadcrumb_kit.dashboard.modals%'
 
   Nowo\BreadcrumbKitBundle\Controller\Dashboard\ItemCrudController:
     arguments:
       $paginationEnabled: '%nowo_breadcrumb_kit.dashboard.pagination.enabled%'
       $paginationPerPage: '%nowo_breadcrumb_kit.dashboard.pagination.per_page%'
-      $modalSizes: '%nowo_breadcrumb_kit.dashboard.modals%'
 
   Nowo\BreadcrumbKitBundle\Controller\Dashboard\ImportExportController:
     arguments:

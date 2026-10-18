@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Nowo\BreadcrumbKitBundle\Controller\Dashboard;
 
+use Nowo\BreadcrumbKitBundle\Dashboard\DashboardPages;
 use Nowo\BreadcrumbKitBundle\Form\Dashboard\ImportBreadcrumbType;
 use Nowo\BreadcrumbKitBundle\NowoBreadcrumbKitBundle;
 use Nowo\BreadcrumbKitBundle\Service\BreadcrumbExporter;
@@ -30,19 +31,8 @@ final class ImportExportController extends AbstractController
         private readonly BreadcrumbImporter $breadcrumbImporter,
         private readonly int $importMaxBytes,
         private readonly TranslatorInterface $translator,
+        private readonly DashboardPages $pages,
     ) {
-    }
-
-    /**
-     * @return array<string, string>
-     */
-    private function dashboardRoutes(): array
-    {
-        return [
-            'collections_index' => 'nowo_breadcrumb_kit_dashboard_collections_index',
-            'import' => self::ROUTE_IMPORT,
-            'export_all' => self::ROUTE_EXPORT_ALL,
-        ];
     }
 
     #[Route(path: 'export', name: 'nowo_breadcrumb_kit_dashboard_export_all', methods: ['GET'])]
@@ -100,7 +90,7 @@ final class ImportExportController extends AbstractController
                             $this->addFlash('danger', $this->translator->trans($err, [], NowoBreadcrumbKitBundle::TRANSLATION_DOMAIN));
                         }
 
-                        return $this->redirectToRefererOr($request, $this->dashboardRoutes()['collections_index']);
+                        return $this->redirectToRefererOr($request, DashboardPages::ROUTE_COLLECTIONS);
                     }
                     $rawStrategy = $data['strategy'] ?? BreadcrumbImporter::STRATEGY_SKIP_EXISTING;
                     $strategy = \in_array($rawStrategy, [BreadcrumbImporter::STRATEGY_REPLACE, BreadcrumbImporter::STRATEGY_SKIP_EXISTING], true)
@@ -118,11 +108,11 @@ final class ImportExportController extends AbstractController
                         ], NowoBreadcrumbKitBundle::TRANSLATION_DOMAIN));
                     }
 
-                    return $this->redirectToRefererOr($request, $this->dashboardRoutes()['collections_index']);
+                    return $this->redirectToRefererOr($request, DashboardPages::ROUTE_COLLECTIONS);
                 }
             }
 
-            return $this->redirectToRefererOr($request, $this->dashboardRoutes()['collections_index']);
+            return $this->redirectToRefererOr($request, DashboardPages::ROUTE_COLLECTIONS);
         }
 
         if ($form->isSubmitted() && !$form->isValid()) {
@@ -137,15 +127,11 @@ final class ImportExportController extends AbstractController
      */
     private function renderImportResponse(Request $request, FormInterface $form, bool $usePartial): Response
     {
-        $vars = [
-            'form' => $form,
-            'dashboard_routes' => $this->dashboardRoutes(),
-        ];
-        if ($usePartial || $request->query->get('_partial')) {
-            return $this->render('@NowoBreadcrumbKitBundle/dashboard/_import_partial.html.twig', $vars);
+        if ($request->isMethod('GET') && ($usePartial || $request->query->get('_partial'))) {
+            return $this->render('@NowoBreadcrumbKitBundle/dashboard/_import_partial.html.twig', ['form' => $form, 'dialog' => true]);
         }
 
-        return $this->render('@NowoBreadcrumbKitBundle/dashboard/import.html.twig', $vars);
+        return $this->pages->render('import', ['page' => $this->pages->import($form->createView())], $form->isSubmitted() && !$form->isValid() ? Response::HTTP_UNPROCESSABLE_ENTITY : Response::HTTP_OK);
     }
 
     /**

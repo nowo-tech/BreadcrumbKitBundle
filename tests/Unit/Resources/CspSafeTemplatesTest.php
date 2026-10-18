@@ -13,15 +13,6 @@ final class CspSafeTemplatesTest extends TestCase
 {
     private const VIEWS = __DIR__.'/../../../src/Resources/views';
 
-    public function testDashboardLayoutEmitsJsonIslandWithoutInlineAssignment(): void
-    {
-        $twig = (string) file_get_contents(self::VIEWS.'/dashboard/layout.html.twig');
-
-        self::assertStringContainsString('<script type="application/json" id="nowo-breadcrumb-kit-dashboard">', $twig);
-        self::assertStringNotContainsString('window.__breadcrumbKitDashboard', $twig);
-        self::assertStringNotContainsString('window.breadcrumbKitI18n', $twig);
-    }
-
     public function testBundleTemplatesHaveNoInlineExecutableScripts(): void
     {
         $iterator = new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator(self::VIEWS, \FilesystemIterator::SKIP_DOTS));
@@ -39,19 +30,13 @@ final class CspSafeTemplatesTest extends TestCase
         }
     }
 
-    public function testPageTemplatesUsePageIsland(): void
-    {
-        foreach (['collection', 'item'] as $dir) {
-            $twig = (string) file_get_contents(self::VIEWS.'/dashboard/'.$dir.'/index.html.twig');
-            self::assertStringContainsString('id="nowo-breadcrumb-kit-dashboard-page"', $twig);
-        }
-    }
-
-    public function testDashboardJsReadsIslandWithLegacyFallback(): void
+    public function testDashboardJsLoadsFormsIntoUiKitDialogsWithoutInlineHtml(): void
     {
         $js = (string) file_get_contents(self::VIEWS.'/../public/js/dashboard.js');
 
-        self::assertStringContainsString('nowo-breadcrumb-kit-dashboard', $js);
-        self::assertStringContainsString('window.__breadcrumbKitDashboard', $js);
+        self::assertStringContainsString('data-bk-dialog-url', $js);
+        self::assertStringContainsString('nowoUiOpenDialog', $js);
+        self::assertStringNotContainsString('bootstrap', strtolower($js));
+        self::assertStringNotContainsString('eval(', $js);
     }
 }
