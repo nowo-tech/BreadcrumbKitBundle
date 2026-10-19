@@ -3,6 +3,7 @@
 ## Table of contents
 
 - [Unreleased](#unreleased)
+- [To 2.8.0](#to-280)
   - [Item label translations: locale tabs instead of JSON](#item-label-translations-locale-tabs-instead-of-json)
 - [To 2.7.2](#to-272)
 - [To 2.7.1](#to-271)
@@ -52,6 +53,14 @@
 - [General upgrade steps (any version)](#general-upgrade-steps-any-version)
 
 ## Unreleased
+
+## To 2.8.0
+
+From **2.7.2**:
+
+```bash
+composer update nowo-tech/breadcrumb-kit-bundle
+```
 
 ### Item label translations: locale tabs instead of JSON
 

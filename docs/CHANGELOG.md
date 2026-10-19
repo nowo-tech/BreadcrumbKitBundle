@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## Table of contents
 
 - [[Unreleased]](#unreleased)
+- [[2.8.0] - 2026-10-19](#280---2026-10-19)
 - [[2.7.2] - 2026-10-18](#272---2026-10-18)
 - [[2.7.1] - 2026-10-18](#271---2026-10-18)
 - [[2.7.0] - 2026-10-18](#270---2026-10-18)
@@ -50,6 +51,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - [[1.0.0] - 2026-07-03](#100---2026-07-03)
 
 ## [Unreleased]
+
+## [2.8.0] - 2026-10-19
+
+Item label translations as FormKit locale tabs (TranslatableMapType) instead of a JSON textarea; labels of other locales kept. See [UPGRADING](UPGRADING.md#to-280).
 
 ### Changed
 
