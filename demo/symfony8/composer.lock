@@ -930,7 +930,7 @@
         },
         {
             "name": "nowo-tech/breadcrumb-kit-bundle",
-            "version": "dev-feature/locale-tabs",
+            "version": "dev-main",
             "dist": {
                 "type": "path",
                 "url": "/var/breadcrumb-kit-bundle",
