@@ -251,7 +251,7 @@ final class PageContractTest extends PageContractTestCase
     /**
      * @return list<string>
      */
-    protected static function formThemes(): ?array
+    protected static function formThemes(): array
     {
         return ['form_div_layout.html.twig', '@NowoFormKitBundle/form/locale_tabs_theme.html.twig'];
     }

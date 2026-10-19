@@ -22,9 +22,8 @@ use Symfony\Component\Form\FormInterface;
  */
 final class ItemFormLocaleTabsKernelTest extends TestCase
 {
-    private ?LocaleParameterTestKernel $kernel = null;
-
     use RestoresGlobalHandlers;
+    private ?LocaleParameterTestKernel $kernel = null;
 
     protected function setUp(): void
     {
@@ -146,7 +145,6 @@ final class ItemFormLocaleTabsKernelTest extends TestCase
         $container = $this->kernel->getContainer()->get('test.service_container');
         self::assertInstanceOf(ContainerInterface::class, $container);
         $service = $container->get($id);
-        self::assertNotNull($service);
 
         return $service;
     }
