@@ -69,11 +69,17 @@ final class LocaleParameterTestKernel extends Kernel
                 'test' => true,
                 'http_method_override' => false,
                 'enabled_locales' => ['de', 'en'],
+                'csrf_protection' => false,
                 'router' => ['utf8' => true, 'resource' => 'kernel::loadRoutes', 'type' => 'service'],
             ]);
             $container->loadFromExtension('doctrine', [
                 'dbal' => ['url' => 'sqlite:///:memory:'],
-                'orm' => ['mappings' => []],
+                'orm' => ['mappings' => ['NowoBreadcrumbKitBundle' => [
+                    'type' => 'attribute',
+                    'is_bundle' => false,
+                    'dir' => \dirname(__DIR__, 3).'/src/Entity',
+                    'prefix' => 'Nowo\\BreadcrumbKitBundle\\Entity',
+                ]]],
             ]);
             $container->loadFromExtension('nowo_breadcrumb_kit', $this->breadcrumbConfig);
         });

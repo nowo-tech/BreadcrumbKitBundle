@@ -3,6 +3,7 @@
 ## Table of contents
 
 - [Unreleased](#unreleased)
+  - [Item label translations: locale tabs instead of JSON](#item-label-translations-locale-tabs-instead-of-json)
 - [To 2.7.2](#to-272)
 - [To 2.7.1](#to-271)
 - [To 2.7.0](#to-270)
@@ -51,6 +52,23 @@
 - [General upgrade steps (any version)](#general-upgrade-steps-any-version)
 
 ## Unreleased
+
+### Item label translations: locale tabs instead of JSON
+
+- **Composer**: `nowo-tech/form-kit-bundle` **^2.13** and `nowo-tech/ui-kit-bundle` **^2.5.1**. The FormKit form
+  theme `@NowoFormKitBundle/form/locale_tabs_theme.html.twig` must be active (it is added to `twig.form_themes`
+  automatically unless `nowo_form_kit.locale_tabs.form_theme: false`) and the page must load `nowo-ui-tabs.js` (the
+  UiKit layouts / `scripts` partial do); without JavaScript every locale shows as a stacked fieldset.
+- **Field / DOM**: `breadcrumb_item[translations]` (one textarea with JSON) becomes
+  `breadcrumb_item[translations][<locale>]` (one input per locale, ids `breadcrumb_item_translations_<locale>`).
+  Tabs: `tab-breadcrumb_item_translations-locale-<locale>`, panels `…-panel`. Functional tests that posted JSON
+  must post one value per locale.
+- **Locales**: configure `nowo_breadcrumb_kit.locales` (or leave it empty to use `framework.enabled_locales` through
+  FormKit). Labels stored for other locales are not lost: they stay in the JSON column on every save and the field
+  help lists them ("Labels of languages that are not configured are kept: DE: Startseite").
+- **Data model**: unchanged (`BreadcrumbItem::$translations`, JSON `{locale: label}`, `null` when empty).
+- `BreadcrumbItemType` has constructor arguments `$locales` / `$defaultLocale`; hosts that instantiate it themselves
+  pass them (or nothing for FormKit's locales).
 
 ## To 2.7.2
 

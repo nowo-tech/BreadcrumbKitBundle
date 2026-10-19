@@ -171,8 +171,9 @@ form:
     dynamic_keys.help: 'e.g. ["id"] copied from the request when generating the link.'
     link_enabled.label: Link enabled
     label.label: Default label
-    translations.label: Translations (JSON)
-    translations.help: '{"en":"Home","es":"Inicio"}'
+    translations.label: 'Label by language'
+    translations.help: 'One label per language; an empty tab falls back to the default label.'
+    translations.help_other_locales: 'Labels of languages that are not configured are kept: %labels%'
     icon.label: Icon
     parent.label: Parent
     parent.placeholder: — root —

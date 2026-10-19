@@ -171,8 +171,9 @@ form:
     dynamic_keys.help: 'z. B. ["id"] aus der Anfrage beim Generieren des Links kopiert.'
     link_enabled.label: Link aktiviert
     label.label: Standardbezeichnung
-    translations.label: Übersetzungen (JSON)
-    translations.help: '{"en":"Home","es":"Inicio"}'
+    translations.label: 'Bezeichnung je Sprache'
+    translations.help: 'Eine Bezeichnung pro Sprache; ein leerer Tab verwendet die Standardbezeichnung.'
+    translations.help_other_locales: 'Bezeichnungen nicht konfigurierter Sprachen bleiben erhalten: %labels%'
     icon.label: Symbol
     parent.label: Eltern
     parent.placeholder: — Wurzel —

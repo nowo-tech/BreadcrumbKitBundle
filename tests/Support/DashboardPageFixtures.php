@@ -13,7 +13,9 @@ use Nowo\BreadcrumbKitBundle\Form\Dashboard\DashboardPostDeleteType;
 use Nowo\BreadcrumbKitBundle\Form\Dashboard\ImportBreadcrumbType;
 use Nowo\BreadcrumbKitBundle\NowoBreadcrumbKitBundle;
 use Nowo\FormKitBundle\Form\Constraint\ConstraintDefinitionFactory;
+use Nowo\FormKitBundle\Form\Extension\LocaleTabsExtension;
 use Nowo\FormKitBundle\Form\FormOptionsMerger;
+use Nowo\FormKitBundle\Form\Type\TranslatableMapType;
 use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\FormType;
@@ -190,7 +192,7 @@ final class DashboardPageFixtures
             ->add('dynamicParamKeys', TextareaType::class, $field('dynamic_keys', true) + ['attr' => ['rows' => 2, 'class' => 'nowo-ui-input nowo-ui-input--full nowo-ui-code']])
             ->add('linkEnabled', CheckboxType::class, $field('link_enabled') + ['data' => $item?->isLinkEnabled() ?? true])
             ->add('label', TextType::class, $field('label') + ['data' => $item?->getLabel()])
-            ->add('translations', TextareaType::class, $field('translations', true) + ['attr' => ['rows' => 4, 'class' => 'nowo-ui-input nowo-ui-input--full nowo-ui-code']])
+            ->add('translations', TranslatableMapType::class, $field('translations', true) + ['data' => $item?->getTranslations() ?? [], 'entry_options' => ['attr' => ['class' => 'nowo-ui-input nowo-ui-input--full']]])
             ->add('icon', TextType::class, $field('icon'))
             ->add('parent', ChoiceType::class, $field('parent') + ['placeholder' => 'form.breadcrumb_item.parent.placeholder', 'choice_translation_domain' => false, 'choices' => ['Home (#10)' => 10, 'Shop (#11)' => 11]])
             ->getForm()
@@ -294,7 +296,9 @@ final class DashboardPageFixtures
                     return true;
                 }
             }))
-            ->addType(new DashboardPostDeleteType());
+            ->addType(new DashboardPostDeleteType())
+            ->addType(new TranslatableMapType(['en', 'es'], 'en'))
+            ->addTypeExtension(new LocaleTabsExtension());
         foreach ($types as $type) {
             $builder->addType($type);
         }

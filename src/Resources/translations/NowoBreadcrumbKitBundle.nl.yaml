@@ -171,8 +171,9 @@ form:
     dynamic_keys.help: 'bijv. ["id"] gekopieerd uit het verzoek bij het genereren van de link.'
     link_enabled.label: Link ingeschakeld
     label.label: Standaardlabel
-    translations.label: Vertalingen (JSON)
-    translations.help: '{"en":"Home","es":"Inicio"}'
+    translations.label: 'Label per taal'
+    translations.help: 'Eén label per taal; een leeg tabblad gebruikt het standaardlabel.'
+    translations.help_other_locales: 'Labels van talen die niet zijn geconfigureerd blijven bewaard: %labels%'
     icon.label: Icoon
     parent.label: Ouder
     parent.placeholder: — wortel —

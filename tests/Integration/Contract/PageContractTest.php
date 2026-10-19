@@ -7,6 +7,7 @@ namespace Nowo\BreadcrumbKitBundle\Tests\Integration\Contract;
 use Nowo\BreadcrumbKitBundle\Dashboard\DashboardPages;
 use Nowo\BreadcrumbKitBundle\Form\BreadcrumbCollectionType;
 use Nowo\BreadcrumbKitBundle\Tests\Support\DashboardPageFixtures;
+use Nowo\FormKitBundle\Twig\LocaleTabsTwigExtension;
 use Nowo\UiKitBundle\Test\PageContractTestCase;
 use Nowo\UiKitBundle\Test\PageFixture;
 use Nowo\UiKitBundle\Test\RenderedPage;
@@ -14,6 +15,7 @@ use Nowo\UiKitBundle\View\ConfirmPage;
 use PHPUnit\Framework\Attributes\DataProvider;
 use Symfony\Bridge\Twig\Extension\TranslationExtension;
 use Symfony\Component\Translation\DataCollectorTranslator;
+use Twig\Environment;
 
 /**
  * REQ-UI-003: every dashboard page extends a UiKit scaffold, fills the canonical blocks, ships no chrome of its own
@@ -239,7 +241,24 @@ final class PageContractTest extends PageContractTestCase
     {
         $views = \dirname(__DIR__, 3).'/src/Resources/views';
 
-        return ['NowoBreadcrumbKitBundle' => $views, '!NowoBreadcrumbKitBundle' => $views];
+        return [
+            'NowoBreadcrumbKitBundle' => $views,
+            '!NowoBreadcrumbKitBundle' => $views,
+            'NowoFormKitBundle' => \dirname(__DIR__, 3).'/vendor/nowo-tech/form-kit-bundle/src/Resources/views',
+        ];
+    }
+
+    /**
+     * @return list<string>
+     */
+    protected static function formThemes(): ?array
+    {
+        return ['form_div_layout.html.twig', '@NowoFormKitBundle/form/locale_tabs_theme.html.twig'];
+    }
+
+    protected function configureTwig(Environment $twig): void
+    {
+        $twig->addExtension(new LocaleTabsTwigExtension());
     }
 
     protected static function translationDirs(): array

@@ -9,6 +9,7 @@ use Nowo\BreadcrumbKitBundle\Dashboard\DashboardPages;
 use Nowo\BreadcrumbKitBundle\Dto\BreadcrumbCollapse;
 use Nowo\BreadcrumbKitBundle\Enum\CssFramework;
 use Nowo\BreadcrumbKitBundle\Enum\IconSet;
+use Nowo\BreadcrumbKitBundle\Form\BreadcrumbItemType;
 use Nowo\BreadcrumbKitBundle\Security\BreadcrumbKitAccessCheckerInterface;
 use Nowo\BreadcrumbKitBundle\Security\ConfigurableBreadcrumbKitAccessChecker;
 use Nowo\BreadcrumbKitBundle\Service\BreadcrumbCacheInvalidator;
@@ -350,6 +351,24 @@ final class BreadcrumbKitExtension extends Extension implements PrependExtension
 
         $container->getDefinition(BreadcrumbExtension::class)
             ->setArgument('$defaultCollection', $config['default_collection']);
+
+        // 2.8: the item form edits the label translations as locale tabs (FormKit TranslatableMapType); an empty
+        // locales list lets FormKit use its own locales (framework.enabled_locales).
+        if ($container->hasDefinition(BreadcrumbItemType::class)) {
+            $container->getDefinition(BreadcrumbItemType::class)
+                ->setArgument('$locales', (new Definition('array'))
+                    ->setFactory([ConfiguredLocales::class, 'normalize'])
+                    ->setArguments(['%'.Configuration::ALIAS.'.locales%']))
+                ->setArgument('$defaultLocale', match (true) {
+                    // default_locale null = first configured locale (as for the trail labels)
+                    null !== $defaultLocale => $defaultLocale,
+                    $runtimeLocales => (new Definition('string'))
+                        ->setFactory([ConfiguredLocales::class, 'defaultLocale'])
+                        ->setArguments(['%'.Configuration::ALIAS.'.locales%']),
+                    [] !== $locales => '%'.Configuration::ALIAS.'.default_locale_resolved%',
+                    default => null,
+                });
+        }
     }
 
     /**

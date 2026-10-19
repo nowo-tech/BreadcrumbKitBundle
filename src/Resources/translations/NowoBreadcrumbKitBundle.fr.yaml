@@ -171,8 +171,9 @@ form:
     dynamic_keys.help: 'Ex. ["id"] copiés depuis la requête lors de la génération du lien.'
     link_enabled.label: Lien activé
     label.label: Libellé par défaut
-    translations.label: Traductions (JSON)
-    translations.help: '{"en":"Home","es":"Inicio"}'
+    translations.label: 'Libellé par langue'
+    translations.help: 'Un libellé par langue ; un onglet vide reprend le libellé par défaut.'
+    translations.help_other_locales: 'Les libellés des langues non configurées sont conservés : %labels%'
     icon.label: Icône
     parent.label: Parent
     parent.placeholder: — racine —

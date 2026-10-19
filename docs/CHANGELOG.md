@@ -51,6 +51,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- **Item label translations as locale tabs**: the raw JSON textarea of the item form (`translations`) is a FormKit
+  `TranslatableMapType` (one text field per locale, rendered as UiKit locale tabs in the page and the dialog). Tabs
+  come from `nowo_breadcrumb_kit.locales` (empty: the FormKit locales, i.e. `framework.enabled_locales`), the default
+  tab from `default_locale`. Labels of locales that are not tabs are kept on save and listed in the field help; an
+  emptied tab removes its label; no labels at all is stored as `null` as before. Each label is limited to 512
+  characters (error on its tab).
+- `BreadcrumbItemType` takes `$locales` and `$defaultLocale` constructor arguments (wired by the extension).
+- Requires `nowo-tech/form-kit-bundle` **^2.13** (was ^2.0) and `nowo-tech/ui-kit-bundle` **^2.5.1** (was ^2.2).
+
+### Added
+
+- Translation key `form.breadcrumb_item.translations.help_other_locales`; `translations.label` / `.help` reworded
+  (no more JSON example) in every shipped locale.
+
 ## [2.7.2] - 2026-10-18
 
 Locale lists accept %parameters% and env vars (no compile error with a parameter). See [UPGRADING](UPGRADING.md#to-272).

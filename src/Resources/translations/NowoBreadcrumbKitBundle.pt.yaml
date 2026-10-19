@@ -171,8 +171,9 @@ form:
     dynamic_keys.help: 'Ex. ["id"] copiados do pedido ao gerar o link.'
     link_enabled.label: Link ativado
     label.label: Etiqueta predefinida
-    translations.label: Traduções (JSON)
-    translations.help: '{"en":"Home","es":"Inicio"}'
+    translations.label: 'Etiqueta por idioma'
+    translations.help: 'Uma etiqueta por idioma; um separador vazio usa a etiqueta predefinida.'
+    translations.help_other_locales: 'As etiquetas de idiomas não configurados são mantidas: %labels%'
     icon.label: Ícone
     parent.label: Pai
     parent.placeholder: — raiz —

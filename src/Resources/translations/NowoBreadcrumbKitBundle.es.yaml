@@ -171,8 +171,9 @@ form:
     dynamic_keys.help: 'Ej. ["id"] copiados de la petición al generar el enlace.'
     link_enabled.label: Enlace habilitado
     label.label: Etiqueta por defecto
-    translations.label: Traducciones (JSON)
-    translations.help: '{"en":"Home","es":"Inicio"}'
+    translations.label: 'Etiqueta por idioma'
+    translations.help: 'Una etiqueta por idioma; una pestaña vacía usa la etiqueta por defecto.'
+    translations.help_other_locales: 'Se conservan las etiquetas de idiomas no configurados: %labels%'
     icon.label: Icono
     parent.label: Padre
     parent.placeholder: — raíz —
