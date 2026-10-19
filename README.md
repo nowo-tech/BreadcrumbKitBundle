@@ -15,7 +15,7 @@ This bundle is **FrankenPHP worker mode friendly**.
   <tr>
     <td width="33%"><a href="docs/images/demo/public-trail.webp"><img src="docs/images/demo/public-trail.webp" alt="Demo product page: database-driven trail Home › Shop › Product under the demo header, with the Symfony toolbar"></a></td>
     <td width="33%"><a href="docs/images/demo/dashboard-collections.webp"><img src="docs/images/demo/dashboard-collections.webp" alt="Breadcrumb collections dashboard on the UiKit list page: trail in the page header, export / import / new actions, search and row actions"></a></td>
-    <td width="33%"><a href="docs/images/demo/dashboard-item-dialog.webp"><img src="docs/images/demo/dashboard-item-dialog.webp" alt="Item edit form loaded into a UiKit dialog over the items list"></a></td>
+    <td width="33%"><a href="docs/images/demo/dashboard-item-dialog.webp"><img src="docs/images/demo/dashboard-item-dialog.webp" alt="Item edit form in a UiKit dialog over the items list: default label and the label translations as one tab per locale"></a></td>
   </tr>
   <tr>
     <td align="center">Front trail (<code>breadcrumb_render()</code>)</td>

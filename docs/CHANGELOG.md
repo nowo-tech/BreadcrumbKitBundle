@@ -60,6 +60,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   emptied tab removes its label; no labels at all is stored as `null` as before. Each label is limited to 512
   characters (error on its tab).
 - `BreadcrumbItemType` takes `$locales` and `$defaultLocale` constructor arguments (wired by the extension).
+- Demo locked to FormKit 2.13 / UiKit 2.5; README screenshot of the item dialog re-captured with the label tabs.
 - Requires `nowo-tech/form-kit-bundle` **^2.13** (was ^2.0) and `nowo-tech/ui-kit-bundle` **^2.5.1** (was ^2.2).
 
 ### Added
