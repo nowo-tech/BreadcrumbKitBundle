@@ -136,7 +136,7 @@ final class WebUiConfigTest extends TestCase
                 return '';
             }
 
-            public function getXsdValidationBasePath(): string|false
+            public function getXsdValidationBasePath(): false
             {
                 return false;
             }

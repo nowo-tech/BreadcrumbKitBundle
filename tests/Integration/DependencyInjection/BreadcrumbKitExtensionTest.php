@@ -68,7 +68,7 @@ final class BreadcrumbKitExtensionTest extends TestCase
                 return '';
             }
 
-            public function getXsdValidationBasePath(): string|false
+            public function getXsdValidationBasePath(): false
             {
                 return false;
             }
@@ -100,7 +100,7 @@ final class BreadcrumbKitExtensionTest extends TestCase
                 return '';
             }
 
-            public function getXsdValidationBasePath(): string|false
+            public function getXsdValidationBasePath(): false
             {
                 return false;
             }
@@ -140,7 +140,7 @@ final class BreadcrumbKitExtensionTest extends TestCase
                 return '';
             }
 
-            public function getXsdValidationBasePath(): string|false
+            public function getXsdValidationBasePath(): false
             {
                 return false;
             }
@@ -203,7 +203,7 @@ final class BreadcrumbKitExtensionTest extends TestCase
                 return '';
             }
 
-            public function getXsdValidationBasePath(): string|false
+            public function getXsdValidationBasePath(): false
             {
                 return false;
             }
@@ -238,7 +238,7 @@ final class BreadcrumbKitExtensionTest extends TestCase
                 return '';
             }
 
-            public function getXsdValidationBasePath(): string|false
+            public function getXsdValidationBasePath(): false
             {
                 return false;
             }
@@ -291,7 +291,7 @@ final class BreadcrumbKitExtensionTest extends TestCase
                 return '';
             }
 
-            public function getXsdValidationBasePath(): string|false
+            public function getXsdValidationBasePath(): false
             {
                 return false;
             }
@@ -323,7 +323,7 @@ final class BreadcrumbKitExtensionTest extends TestCase
                 return '';
             }
 
-            public function getXsdValidationBasePath(): string|false
+            public function getXsdValidationBasePath(): false
             {
                 return false;
             }
@@ -354,7 +354,7 @@ final class BreadcrumbKitExtensionTest extends TestCase
                 return '';
             }
 
-            public function getXsdValidationBasePath(): string|false
+            public function getXsdValidationBasePath(): false
             {
                 return false;
             }
