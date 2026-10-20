@@ -9,7 +9,6 @@
 {% set _b = 'NowoBreadcrumbKitBundle' %}
 <div id="modal-bk-collection-form-container" data-bk-dialog-title="{{ title|default('') }}">
 {{ form_start(form, {attr: {class: nowo_ui_class('form', _b)}}) }}
-    <input type="hidden" name="_modal" value="1">
     {% block bk_form_fields %}
         {{ form_errors(form) }}
         {% for child in form %}

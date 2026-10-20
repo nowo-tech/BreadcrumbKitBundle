@@ -22,18 +22,11 @@ use Symfony\Component\Form\FormInterface;
  */
 final class ItemFormLocaleTabsKernelTest extends TestCase
 {
-    use RestoresGlobalHandlers;
     private ?LocaleParameterTestKernel $kernel = null;
-
-    protected function setUp(): void
-    {
-        $this->rememberGlobalHandlers();
-    }
 
     protected function tearDown(): void
     {
         $this->kernel?->shutdown();
-        $this->restoreGlobalHandlers();
         (new Filesystem())->remove(sys_get_temp_dir().'/nowo-breadcrumb-kit-locale-kernel');
     }
 

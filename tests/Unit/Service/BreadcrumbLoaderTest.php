@@ -18,6 +18,7 @@ use Nowo\BreadcrumbKitBundle\Service\BreadcrumbUrlResolverInterface;
 use PHPUnit\Framework\TestCase;
 use Psr\Cache\CacheItemInterface;
 use Psr\Cache\CacheItemPoolInterface;
+use ReflectionProperty;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
@@ -46,11 +47,11 @@ final class BreadcrumbLoaderTest extends TestCase
         $leaf->setLabel('Product');
         $leaf->setLinkEnabled(true);
 
-        $ref = new \ReflectionProperty(BreadcrumbItem::class, 'id');
+        $ref = new ReflectionProperty(BreadcrumbItem::class, 'id');
         $ref->setValue($root, 1);
         $ref->setValue($leaf, 2);
 
-        $refC = new \ReflectionProperty(BreadcrumbCollection::class, 'id');
+        $refC = new ReflectionProperty(BreadcrumbCollection::class, 'id');
         $refC->setValue($collection, 10);
 
         $colRepo = $this->createMock(BreadcrumbCollectionRepository::class);
@@ -130,11 +131,11 @@ final class BreadcrumbLoaderTest extends TestCase
         $specific->setLabel('Books');
         $specific->setLinkEnabled(true);
 
-        $ref = new \ReflectionProperty(BreadcrumbItem::class, 'id');
+        $ref = new ReflectionProperty(BreadcrumbItem::class, 'id');
         $ref->setValue($generic, 1);
         $ref->setValue($specific, 2);
 
-        $refC = new \ReflectionProperty(BreadcrumbCollection::class, 'id');
+        $refC = new ReflectionProperty(BreadcrumbCollection::class, 'id');
         $refC->setValue($collection, 1);
 
         $colRepo = $this->createMock(BreadcrumbCollectionRepository::class);
@@ -166,7 +167,7 @@ final class BreadcrumbLoaderTest extends TestCase
         $collection->setContextKey('');
         $collection->setHomeIcon('home-icon');
 
-        $refC = new \ReflectionProperty(BreadcrumbCollection::class, 'id');
+        $refC = new ReflectionProperty(BreadcrumbCollection::class, 'id');
         $refC->setValue($collection, 1);
 
         $colRepo = $this->createMock(BreadcrumbCollectionRepository::class);
@@ -858,7 +859,7 @@ final class BreadcrumbLoaderTest extends TestCase
         $collection->setCode('default');
         $collection->setContextKey('');
 
-        $ref = new \ReflectionProperty(BreadcrumbCollection::class, 'id');
+        $ref = new ReflectionProperty(BreadcrumbCollection::class, 'id');
         $ref->setValue($collection, $id);
 
         return $collection;
@@ -877,7 +878,7 @@ final class BreadcrumbLoaderTest extends TestCase
         $item->setRouteName($route);
         $item->setLabel($label);
 
-        $ref = new \ReflectionProperty(BreadcrumbItem::class, 'id');
+        $ref = new ReflectionProperty(BreadcrumbItem::class, 'id');
         $ref->setValue($item, $id);
 
         return $item;

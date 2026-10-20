@@ -4,7 +4,11 @@ declare(strict_types=1);
 
 namespace Nowo\BreadcrumbKitBundle\Tests\Unit\Resources;
 
+use FilesystemIterator;
 use PHPUnit\Framework\TestCase;
+use RecursiveDirectoryIterator;
+use RecursiveIteratorIterator;
+use SplFileInfo;
 
 /**
  * Guards the CSP-safe contract: JSON config islands and no inline executable scripts in bundle templates.
@@ -15,10 +19,10 @@ final class CspSafeTemplatesTest extends TestCase
 
     public function testBundleTemplatesHaveNoInlineExecutableScripts(): void
     {
-        $iterator = new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator(self::VIEWS, \FilesystemIterator::SKIP_DOTS));
+        $iterator = new RecursiveIteratorIterator(new RecursiveDirectoryIterator(self::VIEWS, FilesystemIterator::SKIP_DOTS));
 
         foreach ($iterator as $file) {
-            if (!$file instanceof \SplFileInfo || !str_ends_with($file->getFilename(), '.twig')) {
+            if (!$file instanceof SplFileInfo || !str_ends_with($file->getFilename(), '.twig')) {
                 continue;
             }
 

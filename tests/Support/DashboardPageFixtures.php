@@ -16,6 +16,7 @@ use Nowo\FormKitBundle\Form\Constraint\ConstraintDefinitionFactory;
 use Nowo\FormKitBundle\Form\Extension\LocaleTabsExtension;
 use Nowo\FormKitBundle\Form\FormOptionsMerger;
 use Nowo\FormKitBundle\Form\Type\TranslatableMapType;
+use ReflectionProperty;
 use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\FormType;
@@ -309,7 +310,7 @@ final class DashboardPageFixtures
     public static function collection(int $id, string $code, ?string $name, string $contextKey): BreadcrumbCollection
     {
         $collection = (new BreadcrumbCollection())->setCode($code)->setName($name)->setContextKey($contextKey);
-        (new \ReflectionProperty(BreadcrumbCollection::class, 'id'))->setValue($collection, $id);
+        (new ReflectionProperty(BreadcrumbCollection::class, 'id'))->setValue($collection, $id);
 
         return $collection;
     }
@@ -322,7 +323,7 @@ final class DashboardPageFixtures
         $item->setLabel($label);
         $item->setParent($parent);
         $item->setLinkEnabled($link);
-        (new \ReflectionProperty(BreadcrumbItem::class, 'id'))->setValue($item, $id);
+        (new ReflectionProperty(BreadcrumbItem::class, 'id'))->setValue($item, $id);
 
         return $item;
     }

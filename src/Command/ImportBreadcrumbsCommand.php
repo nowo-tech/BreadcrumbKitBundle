@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Nowo\BreadcrumbKitBundle\Command;
 
+use JsonException;
 use Nowo\BreadcrumbKitBundle\Service\BreadcrumbImporter;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
@@ -57,7 +58,7 @@ final class ImportBreadcrumbsCommand extends Command
 
         try {
             $decoded = json_decode($raw, true, 512, \JSON_THROW_ON_ERROR);
-        } catch (\JsonException $e) {
+        } catch (JsonException $e) {
             $io->error('Invalid JSON: '.$e->getMessage());
 
             return Command::FAILURE;

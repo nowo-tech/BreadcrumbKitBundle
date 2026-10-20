@@ -12,6 +12,9 @@ use Nowo\BreadcrumbKitBundle\Repository\BreadcrumbCollectionRepository;
 use Nowo\BreadcrumbKitBundle\Repository\BreadcrumbItemRepository;
 use Nowo\BreadcrumbKitBundle\Service\BreadcrumbImporter;
 use PHPUnit\Framework\TestCase;
+use Psr\Log\AbstractLogger;
+use RuntimeException;
+use Stringable;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 final class BreadcrumbImporterTest extends TestCase
@@ -269,6 +272,57 @@ final class BreadcrumbImporterTest extends TestCase
         self::assertInstanceOf(BreadcrumbCollection::class, $persisted[0]);
     }
 
+    public function testImportLogsStartAndSuccessWithCounts(): void
+    {
+        $colRepo = $this->createMock(BreadcrumbCollectionRepository::class);
+        $colRepo->method('findOneByCodeAndContextKey')->willReturn(null);
+        $logger = $this->recordingLogger();
+
+        $importer = new BreadcrumbImporter($colRepo, $this->createMock(BreadcrumbItemRepository::class), $this->createMock(EntityManagerInterface::class), $this->translator(), $logger);
+        $importer->import(['collection' => ['code' => 'demo'], 'items' => []], BreadcrumbImporter::STRATEGY_REPLACE);
+
+        self::assertSame([
+            ['info', 'Breadcrumb import started.', ['bundle' => 'NowoBreadcrumbKitBundle', 'action' => 'import', 'strategy' => 'replace']],
+            ['info', 'Breadcrumb import finished.', ['bundle' => 'NowoBreadcrumbKitBundle', 'action' => 'import', 'strategy' => 'replace', 'created' => 1, 'updated' => 0, 'skipped' => 0, 'errors' => 0]],
+        ], $logger->records);
+    }
+
+    public function testImportLogsWarningWhenThePayloadHasErrors(): void
+    {
+        $logger = $this->recordingLogger();
+        $importer = new BreadcrumbImporter($this->createMock(BreadcrumbCollectionRepository::class), $this->createMock(BreadcrumbItemRepository::class), $this->createMock(EntityManagerInterface::class), $this->translator(), $logger);
+
+        $importer->import(['unexpected' => true]);
+
+        self::assertSame('warning', $logger->records[1][0]);
+        self::assertSame('Breadcrumb import finished with errors.', $logger->records[1][1]);
+        self::assertSame(1, $logger->records[1][2]['errors']);
+    }
+
+    public function testImportLogsErrorAndRethrowsOnFailure(): void
+    {
+        $colRepo = $this->createMock(BreadcrumbCollectionRepository::class);
+        $colRepo->method('findOneByCodeAndContextKey')->willThrowException(new RuntimeException('db down'));
+        $logger = $this->recordingLogger();
+        $importer = new BreadcrumbImporter($colRepo, $this->createMock(BreadcrumbItemRepository::class), $this->createMock(EntityManagerInterface::class), $this->translator(), $logger);
+
+        try {
+            $importer->import(['collection' => ['code' => 'demo'], 'items' => []]);
+            self::fail('Expected the repository failure to propagate.');
+        } catch (RuntimeException $e) {
+            self::assertSame('db down', $e->getMessage());
+        }
+
+        self::assertSame('error', $logger->records[1][0]);
+        self::assertSame('Breadcrumb import failed.', $logger->records[1][1]);
+        self::assertSame(RuntimeException::class, $logger->records[1][2]['exception']);
+    }
+
+    private function recordingLogger(): RecordingLogger
+    {
+        return new RecordingLogger();
+    }
+
     private function translator(): TranslatorInterface
     {
         $translator = $this->createMock(TranslatorInterface::class);
@@ -279,5 +333,22 @@ final class BreadcrumbImporterTest extends TestCase
         );
 
         return $translator;
+    }
+}
+
+/**
+ * Minimal PSR-3 spy: keeps level, message and context of every record.
+ */
+final class RecordingLogger extends AbstractLogger
+{
+    /** @var list<array{0: string, 1: string, 2: array<string, mixed>}> */
+    public array $records = [];
+
+    /**
+     * @param array<string, mixed> $context
+     */
+    public function log($level, string|Stringable $message, array $context = []): void
+    {
+        $this->records[] = [\is_string($level) ? $level : 'unknown', (string) $message, $context];
     }
 }

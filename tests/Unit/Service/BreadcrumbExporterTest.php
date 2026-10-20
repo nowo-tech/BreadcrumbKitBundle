@@ -10,6 +10,7 @@ use Nowo\BreadcrumbKitBundle\Repository\BreadcrumbCollectionRepository;
 use Nowo\BreadcrumbKitBundle\Repository\BreadcrumbItemRepository;
 use Nowo\BreadcrumbKitBundle\Service\BreadcrumbExporter;
 use PHPUnit\Framework\TestCase;
+use ReflectionProperty;
 
 final class BreadcrumbExporterTest extends TestCase
 {
@@ -113,7 +114,7 @@ final class BreadcrumbExporterTest extends TestCase
         $collection->setContextKey($contextKey);
         $collection->setName($name);
 
-        $ref = new \ReflectionProperty(BreadcrumbCollection::class, 'id');
+        $ref = new ReflectionProperty(BreadcrumbCollection::class, 'id');
         $ref->setValue($collection, $id);
 
         return $collection;
@@ -132,7 +133,7 @@ final class BreadcrumbExporterTest extends TestCase
         $item->setRouteName($route);
         $item->setLabel($label);
 
-        $ref = new \ReflectionProperty(BreadcrumbItem::class, 'id');
+        $ref = new ReflectionProperty(BreadcrumbItem::class, 'id');
         $ref->setValue($item, $id);
 
         return $item;

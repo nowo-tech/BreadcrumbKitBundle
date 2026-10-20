@@ -18,6 +18,15 @@ return (new Config())
             // Convert \Foo\Bar to use Foo\Bar; + Bar (instanceof, new, types, ::class, etc.).
             'import_symbols' => true,
         ],
+        // Global classes too (`use InvalidArgumentException;` instead of `new \InvalidArgumentException`); native
+        // functions/constants keep the @Symfony:risky leading-backslash form.
+        'global_namespace_import' => [
+            'import_classes' => true,
+            'import_constants' => false,
+            'import_functions' => false,
+        ],
+        'single_import_per_statement' => true,
+        'single_line_after_imports' => true,
         'ordered_imports' => [
             'imports_order' => ['class', 'function', 'const'],
             'sort_algorithm' => 'alpha',

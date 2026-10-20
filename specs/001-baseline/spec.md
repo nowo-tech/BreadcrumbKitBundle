@@ -66,7 +66,7 @@ Dashboard look-and-feel composes **UiKitBundle**; dashboard Symfony forms compos
 
 ### Import/export
 
-- **FR-SVC-004**: `BreadcrumbExporter`, `BreadcrumbImporter` — portable trail definitions.
+- **FR-SVC-004**: `BreadcrumbExporter`, `BreadcrumbImporter` — portable trail definitions; imports log start / success / rejected entries / failure through an optional PSR-3 logger with payload-free context (REQ-OBS-001).
 
 ### DTOs
 

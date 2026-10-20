@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Nowo\BreadcrumbKitBundle\Command;
 
+use JsonException;
 use Nowo\BreadcrumbKitBundle\Repository\BreadcrumbCollectionRepository;
 use Nowo\BreadcrumbKitBundle\Service\BreadcrumbExporter;
 use Symfony\Component\Console\Attribute\AsCommand;
@@ -55,7 +56,7 @@ final class ExportBreadcrumbsCommand extends Command
 
         try {
             $json = json_encode($payload, \JSON_PRETTY_PRINT | \JSON_UNESCAPED_UNICODE | \JSON_THROW_ON_ERROR);
-        } catch (\JsonException $e) {
+        } catch (JsonException $e) {
             $io->error('JSON encode failed: '.$e->getMessage());
 
             return Command::FAILURE;

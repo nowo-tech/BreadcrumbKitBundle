@@ -30,6 +30,7 @@
         "nowo-tech/form-kit-bundle": "^2.13",
         "nowo-tech/ui-kit-bundle": "^2.5.1",
         "psr/cache": "^3.0",
+        "psr/log": "^2.0 || ^3.0",
         "symfony/asset": "^7.4 || ^8.0",
         "symfony/config": "^7.4 || ^8.0",
         "symfony/console": "^7.4 || ^8.0",
@@ -63,6 +64,7 @@
         "phpstan/phpstan-symfony": "^2.0",
         "phpunit/phpunit": "^11.0",
         "rector/rector": "^2.0",
+        "symfony/runtime": "^7.4 || ^8.0",
         "vincentlanglet/twig-cs-fixer": "^4.0"
     },
     "autoload": {
@@ -85,7 +87,8 @@
         "sort-packages": true,
         "allow-plugins": {
             "phpstan/extension-installer": true,
-            "rector/rector": true
+            "rector/rector": true,
+            "symfony/runtime": true
         }
     },
     "minimum-stability": "stable",
@@ -99,7 +102,7 @@
     "scripts": {
         "test": "phpunit --colors=always",
         "test-coverage": "phpunit --colors=always --coverage-html coverage --coverage-clover coverage.xml --coverage-text=coverage-output.txt && sh .scripts/php-coverage-percent.sh coverage-output.txt",
-        "coverage-check": "phpunit --colors=always --coverage-text=coverage-output.txt --coverage-clover coverage.xml && sh .scripts/coverage-fail-under.sh coverage-output.txt 99",
+        "coverage-check": "phpunit --colors=always --coverage-text=coverage-output.txt --coverage-clover coverage.xml && sh .scripts/coverage-fail-under.sh coverage-output.txt 100",
         "cs-check": "php-cs-fixer fix --dry-run --diff --config=.php-cs-fixer.dist.php",
         "cs-fix": "php-cs-fixer fix --config=.php-cs-fixer.dist.php",
         "rector": "rector process",

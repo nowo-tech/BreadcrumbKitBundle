@@ -11,6 +11,7 @@ use Nowo\BreadcrumbKitBundle\Entity\BreadcrumbCollection;
 use Nowo\BreadcrumbKitBundle\Entity\BreadcrumbItem;
 use Nowo\BreadcrumbKitBundle\EventSubscriber\TablePrefixSubscriber;
 use PHPUnit\Framework\TestCase;
+use stdClass;
 
 final class TablePrefixSubscriberTest extends TestCase
 {
@@ -38,7 +39,7 @@ final class TablePrefixSubscriberTest extends TestCase
 
     public function testIgnoresOtherEntities(): void
     {
-        $metadata = new ClassMetadata(\stdClass::class);
+        $metadata = new ClassMetadata(stdClass::class);
         $metadata->setPrimaryTable(['name' => 'other_table']);
 
         $subscriber = new TablePrefixSubscriber('app_');

@@ -18,6 +18,7 @@ use Nowo\UiKitBundle\Theme\Theme;
 use Nowo\UiKitBundle\Twig\ThemeExtension;
 use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerInterface;
+use ReflectionProperty;
 use Symfony\Bridge\Twig\Extension\TranslationExtension;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
@@ -109,19 +110,19 @@ final class BreadcrumbThemeSlotsTest extends TestCase
     private function breadcrumbExtension(): BreadcrumbExtension
     {
         $collection = (new BreadcrumbCollection())->setCode('default')->setContextKey('');
-        (new \ReflectionProperty(BreadcrumbCollection::class, 'id'))->setValue($collection, 1);
+        (new ReflectionProperty(BreadcrumbCollection::class, 'id'))->setValue($collection, 1);
         $home = new BreadcrumbItem();
         $home->setCollection($collection);
         $home->setRouteName('app_home');
         $home->setLabel('Home');
         $home->setLinkEnabled(true);
-        (new \ReflectionProperty(BreadcrumbItem::class, 'id'))->setValue($home, 1);
+        (new ReflectionProperty(BreadcrumbItem::class, 'id'))->setValue($home, 1);
         $shop = new BreadcrumbItem();
         $shop->setCollection($collection);
         $shop->setParent($home);
         $shop->setRouteName('app_shop');
         $shop->setLabel('Shop');
-        (new \ReflectionProperty(BreadcrumbItem::class, 'id'))->setValue($shop, 2);
+        (new ReflectionProperty(BreadcrumbItem::class, 'id'))->setValue($shop, 2);
 
         $collections = $this->createMock(BreadcrumbCollectionRepository::class);
         $collections->method('findOneByCodeAndContextKey')->willReturn($collection);

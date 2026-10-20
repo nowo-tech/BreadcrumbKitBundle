@@ -11,6 +11,7 @@ use Nowo\BreadcrumbKitBundle\Repository\BreadcrumbCollectionRepository;
 use Nowo\BreadcrumbKitBundle\Repository\BreadcrumbItemRepository;
 use Nowo\BreadcrumbKitBundle\Service\BreadcrumbExporter;
 use PHPUnit\Framework\TestCase;
+use ReflectionMethod;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\Form\Extension\Csrf\CsrfExtension;
 use Symfony\Component\Form\Forms;
@@ -44,7 +45,7 @@ final class DashboardControllerTraitTest extends TestCase
             new DashboardPages($this->createMock(UrlGeneratorInterface::class), new Environment(new ArrayLoader())),
         );
 
-        $method = new \ReflectionMethod($controller, 'createDeletePostForm');
+        $method = new ReflectionMethod($controller, 'createDeletePostForm');
         $form = $method->invoke($controller, '/delete/42', 'delete_collection_42');
         $view = $form->createView();
 

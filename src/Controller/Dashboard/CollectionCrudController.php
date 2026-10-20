@@ -25,6 +25,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Contracts\Translation\TranslatorInterface;
+use Throwable;
 
 #[Route('/collections', name: 'nowo_breadcrumb_kit_dashboard_collections_')]
 final class CollectionCrudController extends AbstractController
@@ -121,7 +122,7 @@ final class CollectionCrudController extends AbstractController
                 $this->addFlash('success', $this->translator->trans('dashboard.flash.collection_created', [], NowoBreadcrumbKitBundle::TRANSLATION_DOMAIN));
 
                 return $this->redirectToRefererOr($request, 'nowo_breadcrumb_kit_dashboard_collections_edit', ['id' => $collection->getId()]);
-            } catch (\Throwable $e) {
+            } catch (Throwable $e) {
                 if ($this->isUniqueConstraintViolation($e)) {
                     $this->entityManagerResetter?->resetIfClosed();
                     $this->addFlash('danger', $this->translator->trans('dashboard.flash.collection_duplicate', [], NowoBreadcrumbKitBundle::TRANSLATION_DOMAIN));
@@ -165,7 +166,7 @@ final class CollectionCrudController extends AbstractController
                 $this->addFlash('success', $this->translator->trans('dashboard.flash.collection_updated', [], NowoBreadcrumbKitBundle::TRANSLATION_DOMAIN));
 
                 return $this->redirectToRefererOr($request, 'nowo_breadcrumb_kit_dashboard_collections_edit', ['id' => $collection->getId()]);
-            } catch (\Throwable $e) {
+            } catch (Throwable $e) {
                 if ($this->isUniqueConstraintViolation($e)) {
                     $this->entityManagerResetter?->resetIfClosed();
                     $this->addFlash('danger', $this->translator->trans('dashboard.flash.collection_duplicate', [], NowoBreadcrumbKitBundle::TRANSLATION_DOMAIN));
@@ -272,14 +273,14 @@ final class CollectionCrudController extends AbstractController
         return ['inline_edit_access_keys' => $keys];
     }
 
-    private function isUniqueConstraintViolation(\Throwable $e): bool
+    private function isUniqueConstraintViolation(Throwable $e): bool
     {
         if ($e instanceof DbalUniqueConstraintViolationException) {
             return true;
         }
 
         $prev = $e->getPrevious();
-        while ($prev instanceof \Throwable) {
+        while ($prev instanceof Throwable) {
             if ($prev instanceof DbalUniqueConstraintViolationException) {
                 return true;
             }

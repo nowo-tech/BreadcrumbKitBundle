@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Nowo\BreadcrumbKitBundle\Tests\Integration;
 
+use Closure;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\DriverManager;
 use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
@@ -114,9 +115,9 @@ final class WorkerModeManagerRegistry implements ManagerRegistry
     private EntityManager $entityManager;
 
     /**
-     * @param \Closure(): EntityManager $factory
+     * @param Closure(): EntityManager $factory
      */
-    public function __construct(private readonly \Closure $factory)
+    public function __construct(private readonly Closure $factory)
     {
         $this->entityManager = ($this->factory)();
     }

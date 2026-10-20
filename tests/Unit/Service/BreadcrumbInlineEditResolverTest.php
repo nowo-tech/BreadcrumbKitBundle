@@ -14,6 +14,8 @@ use Nowo\BreadcrumbKitBundle\Service\BreadcrumbLoader;
 use Nowo\BreadcrumbKitBundle\Service\BreadcrumbUrlResolverInterface;
 use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerInterface;
+use ReflectionProperty;
+use stdClass;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\Routing\Exception\RouteNotFoundException;
@@ -268,7 +270,7 @@ final class BreadcrumbInlineEditResolverTest extends TestCase
 
         $locator = $this->createMock(ContainerInterface::class);
         $locator->method('has')->willReturn(true);
-        $locator->method('get')->willReturn(new \stdClass());
+        $locator->method('get')->willReturn(new stdClass());
 
         $resolver = $this->makeResolver(
             dashboardEnabled: true,
@@ -403,7 +405,7 @@ final class BreadcrumbInlineEditResolverTest extends TestCase
         $item->setRouteName($route);
         $item->setLabel($label);
 
-        $ref = new \ReflectionProperty(BreadcrumbItem::class, 'id');
+        $ref = new ReflectionProperty(BreadcrumbItem::class, 'id');
         $ref->setValue($item, $id);
 
         return $item;
@@ -427,7 +429,7 @@ final class BreadcrumbInlineEditResolverTest extends TestCase
         $collection->setCode('default');
         $collection->setContextKey('');
 
-        $ref = new \ReflectionProperty(BreadcrumbCollection::class, 'id');
+        $ref = new ReflectionProperty(BreadcrumbCollection::class, 'id');
         $ref->setValue($collection, $id);
 
         return $collection;

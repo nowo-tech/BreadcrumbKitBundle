@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Nowo\BreadcrumbKitBundle\DependencyInjection;
 
+use InvalidArgumentException;
 use Nowo\BreadcrumbKitBundle\Dashboard\DashboardChrome;
 use Nowo\BreadcrumbKitBundle\Dashboard\DashboardPages;
 use Nowo\BreadcrumbKitBundle\Dto\BreadcrumbCollapse;
@@ -146,7 +147,7 @@ final class Configuration implements ConfigurationInterface
                             ->validate()
                                 ->ifTrue(static fn (array $v): bool => [] !== array_diff(array_keys($v), array_keys(DashboardPages::TEMPLATES)))
                                 ->then(static function (array $v): array {
-                                    throw new \InvalidArgumentException(\sprintf('Unknown nowo_breadcrumb_kit.web_ui.templates page(s): %s. Allowed: %s.', implode(', ', array_diff(array_keys($v), array_keys(DashboardPages::TEMPLATES))), implode(', ', array_keys(DashboardPages::TEMPLATES))));
+                                    throw new InvalidArgumentException(\sprintf('Unknown nowo_breadcrumb_kit.web_ui.templates page(s): %s. Allowed: %s.', implode(', ', array_diff(array_keys($v), array_keys(DashboardPages::TEMPLATES))), implode(', ', array_keys(DashboardPages::TEMPLATES))));
                                 })
                             ->end()
                         ->end()
@@ -243,7 +244,7 @@ final class Configuration implements ConfigurationInterface
                             ->validate()
                                 ->ifTrue(static fn (array $v): bool => [] !== DashboardChrome::unknownKeys($v, DashboardChrome::CLASS_KEYS))
                                 ->then(static function (array $v): array {
-                                    throw new \InvalidArgumentException(\sprintf('Unknown nowo_breadcrumb_kit.dashboard.classes key(s): %s. Allowed: %s.', implode(', ', DashboardChrome::unknownKeys($v, DashboardChrome::CLASS_KEYS)), implode(', ', DashboardChrome::CLASS_KEYS)));
+                                    throw new InvalidArgumentException(\sprintf('Unknown nowo_breadcrumb_kit.dashboard.classes key(s): %s. Allowed: %s.', implode(', ', DashboardChrome::unknownKeys($v, DashboardChrome::CLASS_KEYS)), implode(', ', DashboardChrome::CLASS_KEYS)));
                                 })
                             ->end()
                         ->end()
@@ -256,7 +257,7 @@ final class Configuration implements ConfigurationInterface
                             ->validate()
                                 ->ifTrue(static fn (array $v): bool => [] !== DashboardChrome::unknownKeys($v, DashboardChrome::PARTIAL_KEYS))
                                 ->then(static function (array $v): array {
-                                    throw new \InvalidArgumentException(\sprintf('Unknown nowo_breadcrumb_kit.dashboard.partials key(s): %s. Allowed: %s.', implode(', ', DashboardChrome::unknownKeys($v, DashboardChrome::PARTIAL_KEYS)), implode(', ', DashboardChrome::PARTIAL_KEYS)));
+                                    throw new InvalidArgumentException(\sprintf('Unknown nowo_breadcrumb_kit.dashboard.partials key(s): %s. Allowed: %s.', implode(', ', DashboardChrome::unknownKeys($v, DashboardChrome::PARTIAL_KEYS)), implode(', ', DashboardChrome::PARTIAL_KEYS)));
                                 })
                             ->end()
                         ->end()

@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Nowo\BreadcrumbKitBundle\Command;
 
+use InvalidArgumentException;
+use JsonException;
 use Nowo\BreadcrumbKitBundle\Service\BreadcrumbTrailPreview;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
@@ -44,7 +46,7 @@ final class PreviewBreadcrumbTrailCommand extends Command
         try {
             $routeParams = $this->decodeMap((string) $input->getOption('route-params'));
             $attributes = $this->decodeMap((string) $input->getOption('attributes'));
-        } catch (\InvalidArgumentException $e) {
+        } catch (InvalidArgumentException $e) {
             $io->error($e->getMessage());
 
             return Command::FAILURE;
@@ -91,11 +93,11 @@ final class PreviewBreadcrumbTrailCommand extends Command
     {
         try {
             $decoded = json_decode($json, true, 512, \JSON_THROW_ON_ERROR);
-        } catch (\JsonException $e) {
-            throw new \InvalidArgumentException('Invalid JSON: '.$e->getMessage(), 0, $e);
+        } catch (JsonException $e) {
+            throw new InvalidArgumentException('Invalid JSON: '.$e->getMessage(), 0, $e);
         }
         if (!\is_array($decoded)) {
-            throw new \InvalidArgumentException('Expected a JSON object.');
+            throw new InvalidArgumentException('Expected a JSON object.');
         }
         $out = [];
         foreach ($decoded as $k => $v) {

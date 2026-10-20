@@ -58,6 +58,14 @@ final class LocalesConfigTest extends TestCase
         (new BreadcrumbKitExtension())->load([['locales' => ['en', ['es']]]], new ContainerBuilder());
     }
 
+    public function testNonListScalarLocalesAreRejected(): void
+    {
+        $this->expectException(InvalidConfigurationException::class);
+        $this->expectExceptionMessage('Invalid nowo_breadcrumb_kit.locales');
+
+        (new BreadcrumbKitExtension())->load([['locales' => 42]], new ContainerBuilder());
+    }
+
     public function testPrependIgnoresParameterStringsOutsideTheDashboardKeys(): void
     {
         $container = new ContainerBuilder();

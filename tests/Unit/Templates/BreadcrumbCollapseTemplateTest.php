@@ -4,6 +4,11 @@ declare(strict_types=1);
 
 namespace Nowo\BreadcrumbKitBundle\Tests\Unit\Templates;
 
+use DOMDocument;
+use DOMElement;
+use DOMNode;
+use DOMNodeList;
+use DOMXPath;
 use Nowo\BreadcrumbKitBundle\Dto\BreadcrumbCollapse;
 use Nowo\BreadcrumbKitBundle\Dto\BreadcrumbNode;
 use Nowo\BreadcrumbKitBundle\Dto\BreadcrumbTrailView;
@@ -72,7 +77,7 @@ final class BreadcrumbCollapseTemplateTest extends TestCase
 
         self::assertSame('40rem', $this->first($xpath, '//div[@class="breadcrumb-kit"]')->getAttribute('data-breadcrumb-collapse'));
 
-        $classes = array_map(static fn (\DOMElement $li): string => $li->getAttribute('class'), $this->elements($xpath, '//ol[@class="breadcrumb-list"]/li'));
+        $classes = array_map(static fn (DOMElement $li): string => $li->getAttribute('class'), $this->elements($xpath, '//ol[@class="breadcrumb-list"]/li'));
 
         self::assertSame([
             'trail__item',
@@ -100,10 +105,10 @@ final class BreadcrumbCollapseTemplateTest extends TestCase
 
         self::assertCount(3, $this->elements($xpath, './/li[@class="breadcrumb-collapse__entry"]', $menu));
 
-        $labels = array_map(static fn (\DOMElement $label): string => $label->textContent, $this->elements($xpath, './/span[@class="breadcrumb-collapse__label"]', $menu));
+        $labels = array_map(static fn (DOMElement $label): string => $label->textContent, $this->elements($xpath, './/span[@class="breadcrumb-collapse__label"]', $menu));
         self::assertSame(['Home', 'Shop & <Co>', 'Catalogue'], $labels, 'labels in trail order, current crumb excluded');
 
-        $hrefs = array_map(static fn (\DOMElement $a): string => $a->getAttribute('href'), $this->elements($xpath, './/a[@class="breadcrumb-collapse__link"]', $menu));
+        $hrefs = array_map(static fn (DOMElement $a): string => $a->getAttribute('href'), $this->elements($xpath, './/a[@class="breadcrumb-collapse__link"]', $menu));
         self::assertSame(['/', '/catalogue?a=1&b=2'], $hrefs);
 
         $text = $this->elements($xpath, './/span[@class="breadcrumb-collapse__text"]', $menu);
@@ -226,35 +231,35 @@ final class BreadcrumbCollapseTemplateTest extends TestCase
         return $this->twig($nonce, $locale)->render(self::TEMPLATE, $this->context($trail, false));
     }
 
-    private function xpath(string $html): \DOMXPath
+    private function xpath(string $html): DOMXPath
     {
-        $document = new \DOMDocument();
+        $document = new DOMDocument();
         $previous = libxml_use_internal_errors(true);
         $document->loadHTML('<?xml encoding="UTF-8">'.$html);
         libxml_clear_errors();
         libxml_use_internal_errors($previous);
 
-        return new \DOMXPath($document);
+        return new DOMXPath($document);
     }
 
     /**
-     * @return list<\DOMElement>
+     * @return list<DOMElement>
      */
-    private function elements(\DOMXPath $xpath, string $expression, ?\DOMNode $context = null): array
+    private function elements(DOMXPath $xpath, string $expression, ?DOMNode $context = null): array
     {
         $nodes = $xpath->query($expression, $context);
-        self::assertInstanceOf(\DOMNodeList::class, $nodes);
+        self::assertInstanceOf(DOMNodeList::class, $nodes);
 
         $elements = [];
         foreach ($nodes as $node) {
-            self::assertInstanceOf(\DOMElement::class, $node);
+            self::assertInstanceOf(DOMElement::class, $node);
             $elements[] = $node;
         }
 
         return $elements;
     }
 
-    private function first(\DOMXPath $xpath, string $expression): \DOMElement
+    private function first(DOMXPath $xpath, string $expression): DOMElement
     {
         $elements = $this->elements($xpath, $expression);
         self::assertNotSame([], $elements, $expression);

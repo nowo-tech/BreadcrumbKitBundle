@@ -20,6 +20,7 @@ use Nowo\BreadcrumbKitBundle\Service\BreadcrumbCacheInvalidator;
 use Nowo\BreadcrumbKitBundle\Service\BreadcrumbImporter;
 use Nowo\BreadcrumbKitBundle\Service\BreadcrumbLoader;
 use PHPUnit\Framework\TestCase;
+use RuntimeException;
 use Symfony\Component\Cache\Adapter\ArrayAdapter;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
@@ -131,7 +132,7 @@ final class CacheInvalidationDoctrineTest extends TestCase
             {
                 $entity = $args->getObject();
                 if ($entity instanceof BreadcrumbItem && 'app_boom' === $entity->getRouteName()) {
-                    throw new \RuntimeException('boom');
+                    throw new RuntimeException('boom');
                 }
             }
         });
@@ -142,7 +143,7 @@ final class CacheInvalidationDoctrineTest extends TestCase
                 'items' => [['routeName' => 'app_boom']],
             ], BreadcrumbImporter::STRATEGY_REPLACE);
             self::fail('The import must fail.');
-        } catch (\RuntimeException $e) {
+        } catch (RuntimeException $e) {
             self::assertSame('boom', $e->getMessage());
             self::assertFalse($this->entityManager->isOpen());
         }

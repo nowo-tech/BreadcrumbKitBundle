@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Nowo\BreadcrumbKitBundle\Tests\Unit\Dto;
 
+use InvalidArgumentException;
 use Nowo\BreadcrumbKitBundle\Dto\BreadcrumbCollapse;
 use Nowo\BreadcrumbKitBundle\Dto\BreadcrumbNode;
 use Nowo\BreadcrumbKitBundle\Dto\BreadcrumbTrailView;
@@ -33,7 +34,7 @@ final class BreadcrumbCollapseTest extends TestCase
 
     public function testRejectsMinItemsBelowFloor(): void
     {
-        $this->expectException(\InvalidArgumentException::class);
+        $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage('min_items must be >= 2');
 
         new BreadcrumbCollapse(true, 1);
@@ -41,7 +42,7 @@ final class BreadcrumbCollapseTest extends TestCase
 
     public function testRejectsUnsafeBreakpoint(): void
     {
-        $this->expectException(\InvalidArgumentException::class);
+        $this->expectException(InvalidArgumentException::class);
 
         new BreadcrumbCollapse(true, 3, '40rem) { body { display: none }');
     }

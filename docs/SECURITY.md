@@ -70,6 +70,17 @@ The bundle does **not** handle end-user passwords or API keys. Do not store secr
 
 Avoid logging full request bodies or sensitive route parameters. If you add custom logging around breadcrumbs, redact personal data per your policy.
 
+What the bundle logs (`Psr\Log\LoggerInterface`, autowired; `NullLogger` when built by hand):
+
+| Event | Level | Context |
+|-------|-------|---------|
+| JSON import started (`nowo_breadcrumb_kit:import` CLI and dashboard import) | info | `bundle`, `action`, `strategy` |
+| Import finished without errors | info | + `created`, `updated`, `skipped`, `errors` (counts) |
+| Import finished with rejected entries | warning | same counts |
+| Import aborted by an exception (transaction rolled back) | error | + `exception` (class name only) |
+
+Never logged: file contents, labels, route parameters, URLs or exception messages (they may echo payload data).
+
 ## Dependencies
 
 - Run `composer audit` before releases.

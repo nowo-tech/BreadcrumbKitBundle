@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Nowo\BreadcrumbKitBundle\Form\DataTransformer;
 
+use JsonException;
 use Symfony\Component\Form\DataTransformerInterface;
 use Symfony\Component\Form\Exception\TransformationFailedException;
 
@@ -25,7 +26,7 @@ final class JsonObjectTransformer implements DataTransformerInterface
 
         try {
             return (string) json_encode($value, \JSON_PRETTY_PRINT | \JSON_THROW_ON_ERROR | \JSON_UNESCAPED_UNICODE);
-        } catch (\JsonException) {
+        } catch (JsonException) {
             return '';
         }
     }
@@ -48,7 +49,7 @@ final class JsonObjectTransformer implements DataTransformerInterface
 
         try {
             $decoded = json_decode($value, true, 512, \JSON_THROW_ON_ERROR);
-        } catch (\JsonException $e) {
+        } catch (JsonException $e) {
             throw new TransformationFailedException('JSON inválido: '.$e->getMessage());
         }
 

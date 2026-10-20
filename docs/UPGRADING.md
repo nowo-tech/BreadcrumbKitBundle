@@ -54,6 +54,11 @@
 
 ## Unreleased
 
+No action required. If you overrode `dashboard/_import_partial.html.twig`, `_item_form_partial.html.twig` or
+`_collection_form_partial.html.twig`, you may drop the hidden `_modal` input there as well (it is ignored for item and
+collection forms and optional for the import form). To see the new import log lines, route the `app` channel (or
+whichever channel autowires `LoggerInterface`) to a handler.
+
 ## To 2.8.0
 
 From **2.7.2**:

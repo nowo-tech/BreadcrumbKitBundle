@@ -6,6 +6,7 @@ namespace Nowo\BreadcrumbKitBundle\Tests\Unit\Service;
 
 use Nowo\BreadcrumbKitBundle\Service\BreadcrumbUrlResolver;
 use PHPUnit\Framework\TestCase;
+use RuntimeException;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
@@ -141,7 +142,7 @@ final class BreadcrumbUrlResolverTest extends TestCase
     public function testResolveReturnsNullWhenUrlGeneratorThrows(): void
     {
         $urlGenerator = $this->createMock(UrlGeneratorInterface::class);
-        $urlGenerator->method('generate')->willThrowException(new \RuntimeException('missing route'));
+        $urlGenerator->method('generate')->willThrowException(new RuntimeException('missing route'));
 
         $router = $this->createMock(RouterInterface::class);
         $router->method('getRouteCollection')->willReturn(new RouteCollection());
@@ -161,7 +162,7 @@ final class BreadcrumbUrlResolverTest extends TestCase
             ->willReturn('/ok');
 
         $router = $this->createMock(RouterInterface::class);
-        $router->method('getRouteCollection')->willThrowException(new \RuntimeException('broken router'));
+        $router->method('getRouteCollection')->willThrowException(new RuntimeException('broken router'));
 
         $resolver = new BreadcrumbUrlResolver($urlGenerator, new RequestStack(), $router);
         [$url, $params] = $resolver->resolve('any', [], null);

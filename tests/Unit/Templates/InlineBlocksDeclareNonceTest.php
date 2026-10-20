@@ -5,6 +5,9 @@ declare(strict_types=1);
 namespace Nowo\BreadcrumbKitBundle\Tests\Unit\Templates;
 
 use PHPUnit\Framework\TestCase;
+use RecursiveDirectoryIterator;
+use RecursiveIteratorIterator;
+use SplFileInfo;
 
 /**
  * CSP convention: every inline <script>/<style> rendered by the bundle templates carries the
@@ -51,8 +54,8 @@ final class InlineBlocksDeclareNonceTest extends TestCase
     private function templates(): iterable
     {
         $root = \dirname(__DIR__, 3).'/src/Resources/views';
-        $files = new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($root));
-        /** @var \SplFileInfo $file */
+        $files = new RecursiveIteratorIterator(new RecursiveDirectoryIterator($root));
+        /** @var SplFileInfo $file */
         foreach ($files as $file) {
             if (!$file->isFile() || !str_ends_with($file->getFilename(), '.twig')) {
                 continue;

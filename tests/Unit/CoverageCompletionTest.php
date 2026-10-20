@@ -28,6 +28,8 @@ use PHPUnit\Framework\TestCase;
 use Psr\Cache\CacheItemInterface;
 use Psr\Cache\CacheItemPoolInterface;
 use Psr\Container\ContainerInterface;
+use ReflectionMethod;
+use ReflectionProperty;
 use Symfony\Bundle\WebProfilerBundle\WebProfilerBundle;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Definition;
@@ -308,7 +310,7 @@ final class CoverageCompletionTest extends TestCase
         $item = $this->itemWithId(1, $collection, null, 'search', 'Search');
         $item->setLinkEnabled(true);
         // Dirty DB/JSON-like payload: castDynamicKeys keeps only strings.
-        (new \ReflectionProperty($item, 'dynamicParamKeys'))->setValue($item, ['q', 5, '']);
+        (new ReflectionProperty($item, 'dynamicParamKeys'))->setValue($item, ['q', 5, '']);
 
         $colRepo = $this->createMock(BreadcrumbCollectionRepository::class);
         $colRepo->method('findOneByCodeAndContextKey')->willReturn($collection);
@@ -508,10 +510,10 @@ final class CoverageCompletionTest extends TestCase
         self::assertFalse($this->invokeIsQueryParamTruthy($resolver, $missingParamRequest, 'edit'));
 
         $boolQuery = new InputBag();
-        $parameters = new \ReflectionProperty(InputBag::class, 'parameters');
+        $parameters = new ReflectionProperty(InputBag::class, 'parameters');
         $parameters->setValue($boolQuery, ['edit' => true]);
         $boolRequest = Request::create('/');
-        $queryProperty = new \ReflectionProperty(Request::class, 'query');
+        $queryProperty = new ReflectionProperty(Request::class, 'query');
         $queryProperty->setValue($boolRequest, $boolQuery);
         self::assertTrue($this->invokeIsQueryParamTruthy($resolver, $boolRequest, 'edit'));
 
@@ -781,7 +783,7 @@ final class CoverageCompletionTest extends TestCase
      */
     private function invokeLoaderMethod(BreadcrumbLoader $loader, string $method, array $args): mixed
     {
-        $reflection = new \ReflectionMethod(BreadcrumbLoader::class, $method);
+        $reflection = new ReflectionMethod(BreadcrumbLoader::class, $method);
 
         return $reflection->invoke($loader, ...$args);
     }
@@ -799,7 +801,7 @@ final class CoverageCompletionTest extends TestCase
         Request $request,
         string $param,
     ): bool {
-        $method = new \ReflectionMethod(BreadcrumbInlineEditResolver::class, 'isQueryParamTruthy');
+        $method = new ReflectionMethod(BreadcrumbInlineEditResolver::class, 'isQueryParamTruthy');
 
         return $method->invoke($resolver, $request, $param);
     }
@@ -810,7 +812,7 @@ final class CoverageCompletionTest extends TestCase
         $collection->setCode('default');
         $collection->setContextKey('');
 
-        $ref = new \ReflectionProperty(BreadcrumbCollection::class, 'id');
+        $ref = new ReflectionProperty(BreadcrumbCollection::class, 'id');
         $ref->setValue($collection, $id);
 
         return $collection;
@@ -829,7 +831,7 @@ final class CoverageCompletionTest extends TestCase
         $item->setRouteName($route);
         $item->setLabel($label);
 
-        $ref = new \ReflectionProperty(BreadcrumbItem::class, 'id');
+        $ref = new ReflectionProperty(BreadcrumbItem::class, 'id');
         $ref->setValue($item, $id);
 
         return $item;

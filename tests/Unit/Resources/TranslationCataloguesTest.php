@@ -5,6 +5,9 @@ declare(strict_types=1);
 namespace Nowo\BreadcrumbKitBundle\Tests\Unit\Resources;
 
 use PHPUnit\Framework\TestCase;
+use RecursiveDirectoryIterator;
+use RecursiveIteratorIterator;
+use SplFileInfo;
 use Symfony\Component\Yaml\Yaml;
 
 /**
@@ -28,8 +31,8 @@ final class TranslationCataloguesTest extends TestCase
     {
         $english = array_flip($this->keys('en'));
         $missing = [];
-        $files = new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator(\dirname(__DIR__, 3).'/src/Resources/views/dashboard'));
-        /** @var \SplFileInfo $file */
+        $files = new RecursiveIteratorIterator(new RecursiveDirectoryIterator(\dirname(__DIR__, 3).'/src/Resources/views/dashboard'));
+        /** @var SplFileInfo $file */
         foreach ($files as $file) {
             if (!$file->isFile() || !str_ends_with($file->getFilename(), '.twig')) {
                 continue;

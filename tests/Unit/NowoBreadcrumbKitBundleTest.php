@@ -10,6 +10,8 @@ use Nowo\BreadcrumbKitBundle\DependencyInjection\Compiler\DashboardSecurityPass;
 use Nowo\BreadcrumbKitBundle\DependencyInjection\Compiler\TwigPathsPass;
 use Nowo\BreadcrumbKitBundle\NowoBreadcrumbKitBundle;
 use PHPUnit\Framework\TestCase;
+use ReflectionClassConstant;
+use ReflectionProperty;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 
 final class NowoBreadcrumbKitBundleTest extends TestCase
@@ -31,13 +33,13 @@ final class NowoBreadcrumbKitBundleTest extends TestCase
      */
     private function extractBeforeOptimizationPassClasses(ContainerBuilder $container): array
     {
-        $compilerRef = new \ReflectionProperty($container, 'compiler');
+        $compilerRef = new ReflectionProperty($container, 'compiler');
         $compiler = $compilerRef->getValue($container);
 
-        $passConfigRef = new \ReflectionProperty($compiler, 'passConfig');
+        $passConfigRef = new ReflectionProperty($compiler, 'passConfig');
         $passConfig = $passConfigRef->getValue($compiler);
 
-        $beforeRef = new \ReflectionProperty($passConfig, 'beforeOptimizationPasses');
+        $beforeRef = new ReflectionProperty($passConfig, 'beforeOptimizationPasses');
         /** @var array<int, list<object>> $beforeOptimization */
         $beforeOptimization = $beforeRef->getValue($passConfig);
 
@@ -60,7 +62,7 @@ final class NowoBreadcrumbKitBundleTest extends TestCase
 
     public function testTranslationDomainConstant(): void
     {
-        $value = (new \ReflectionClassConstant(NowoBreadcrumbKitBundle::class, 'TRANSLATION_DOMAIN'))->getValue();
+        $value = (new ReflectionClassConstant(NowoBreadcrumbKitBundle::class, 'TRANSLATION_DOMAIN'))->getValue();
 
         self::assertSame('NowoBreadcrumbKitBundle', $value);
     }

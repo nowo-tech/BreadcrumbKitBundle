@@ -10,7 +10,10 @@ use Nowo\BreadcrumbKitBundle\Entity\BreadcrumbItem;
 use Nowo\BreadcrumbKitBundle\NowoBreadcrumbKitBundle;
 use Nowo\BreadcrumbKitBundle\Repository\BreadcrumbCollectionRepository;
 use Nowo\BreadcrumbKitBundle\Repository\BreadcrumbItemRepository;
+use Psr\Log\LoggerInterface;
+use Psr\Log\NullLogger;
 use Symfony\Contracts\Translation\TranslatorInterface;
+use Throwable;
 
 /**
  * Import JSON produced by {@see BreadcrumbExporter}.
@@ -28,6 +31,7 @@ final readonly class BreadcrumbImporter
         private BreadcrumbItemRepository $itemRepository,
         private EntityManagerInterface $entityManager,
         private TranslatorInterface $translator,
+        private LoggerInterface $logger = new NullLogger(),
     ) {
     }
 
@@ -38,6 +42,41 @@ final readonly class BreadcrumbImporter
      * @return array{created: int, updated: int, skipped: int, errors: list<string>}
      */
     public function import(array $data, string $strategy = self::STRATEGY_SKIP_EXISTING): array
+    {
+        $context = ['bundle' => 'NowoBreadcrumbKitBundle', 'action' => 'import', 'strategy' => $strategy];
+        $this->logger->info('Breadcrumb import started.', $context);
+        try {
+            $result = $this->doImport($data, $strategy);
+        } catch (Throwable $e) {
+            $this->logger->error('Breadcrumb import failed.', $context + ['exception' => $e::class]);
+
+            throw $e;
+        }
+
+        $context += [
+            'created' => $result['created'],
+            'updated' => $result['updated'],
+            'skipped' => $result['skipped'],
+            'errors' => \count($result['errors']),
+        ];
+        if ([] === $result['errors']) {
+            $this->logger->info('Breadcrumb import finished.', $context);
+        } else {
+            $this->logger->warning('Breadcrumb import finished with errors.', $context);
+        }
+
+        return $result;
+    }
+
+    /**
+     * Import body without logging (see import()).
+     *
+     * @param array<int|string, mixed> $data
+     * @param self::STRATEGY_*         $strategy
+     *
+     * @return array{created: int, updated: int, skipped: int, errors: list<string>}
+     */
+    private function doImport(array $data, string $strategy): array
     {
         $data = self::normalizeImportPayload($data);
         $result = ['created' => 0, 'updated' => 0, 'skipped' => 0, 'errors' => []];
@@ -136,7 +175,7 @@ final readonly class BreadcrumbImporter
         try {
             $this->writeCollection($existing, $colData, $itemsData);
             $this->entityManager->commit();
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             $this->entityManager->rollback();
             // Same as EntityManager::wrapInTransaction(): the unit of work is no longer consistent.
             $this->entityManager->close();

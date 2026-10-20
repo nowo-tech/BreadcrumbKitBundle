@@ -9,7 +9,6 @@
 {% set _b = 'NowoBreadcrumbKitBundle' %}
 <div id="modal-bk-import-container" data-bk-dialog-title="{{ 'dashboard.import_modal_title'|trans }}">
     {{ form_start(form, {attr: {class: nowo_ui_class('form', _b), 'data-bk-submit-once': '1'}}) }}
-        <input type="hidden" name="_modal" value="1">
         {% block bk_import_intro %}
             <p class="{{ nowo_ui_class('muted', _b) }}">{{ 'dashboard.import_partial_hint'|trans|raw }}</p>
         {% endblock %}

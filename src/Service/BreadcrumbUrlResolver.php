@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Nowo\BreadcrumbKitBundle\Service;
 
+use Exception;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
@@ -54,7 +55,7 @@ final readonly class BreadcrumbUrlResolver implements BreadcrumbUrlResolverInter
                     }
                 }
             }
-        } catch (\Exception) {
+        } catch (Exception) {
         }
 
         if ($request instanceof Request && \is_array($dynamicKeys)) {
@@ -74,7 +75,7 @@ final readonly class BreadcrumbUrlResolver implements BreadcrumbUrlResolverInter
             $url = $this->urlGenerator->generate($routeName, $params, UrlGeneratorInterface::ABSOLUTE_PATH);
 
             return [$url, $params];
-        } catch (\Exception) {
+        } catch (Exception) {
             return [null, $params];
         }
     }

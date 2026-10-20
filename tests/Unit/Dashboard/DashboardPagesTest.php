@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Nowo\BreadcrumbKitBundle\Tests\Unit\Dashboard;
 
+use InvalidArgumentException;
 use Nowo\BreadcrumbKitBundle\Dashboard\DashboardPages;
 use Nowo\BreadcrumbKitBundle\Tests\Support\DashboardPageFixtures;
 use Nowo\UiKitBundle\View\ListPage;
@@ -21,7 +22,7 @@ final class DashboardPagesTest extends TestCase
         self::assertSame('admin/import.html.twig', $pages->template('import'));
         self::assertSame(DashboardPages::TEMPLATES['items_index'], $pages->template('items_index'));
 
-        $this->expectException(\InvalidArgumentException::class);
+        $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage('Unknown BreadcrumbKit dashboard page "edit"');
         $pages->template('edit');
     }
@@ -81,6 +82,16 @@ final class DashboardPagesTest extends TestCase
             'data-bk-dialog-url' => '/items/new?x=1&_partial=1',
             'aria-haspopup' => 'dialog',
         ], DashboardPages::dialogOpener(DashboardPages::DIALOG_ITEM_FORM, '/items/new?x=1'));
+    }
+
+    public function testDialogOpenerAddsTheTestIdWhenGiven(): void
+    {
+        self::assertSame([
+            'data-nowo-ui-dialog-open' => DashboardPages::DIALOG_ITEM_FORM,
+            'data-bk-dialog-url' => '/items/new?_partial=1',
+            'aria-haspopup' => 'dialog',
+            'data-testid' => 'bk-new-item',
+        ], DashboardPages::dialogOpener(DashboardPages::DIALOG_ITEM_FORM, '/items/new', 'bk-new-item'));
     }
 
     public function testListPagesBuildRowActionsPerRow(): void

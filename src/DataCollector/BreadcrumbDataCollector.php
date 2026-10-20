@@ -9,13 +9,14 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\DataCollector\DataCollector;
 use Symfony\Component\HttpKernel\DataCollector\TemplateAwareDataCollectorInterface;
+use Throwable;
 
 /**
  * Web Profiler panel: last breadcrumb resolutions ({@see BreadcrumbProfilerRecorder}).
  */
 final class BreadcrumbDataCollector extends DataCollector implements TemplateAwareDataCollectorInterface
 {
-    public function collect(Request $request, Response $response, ?\Throwable $exception = null): void
+    public function collect(Request $request, Response $response, ?Throwable $exception = null): void
     {
         $rawTrails = $request->attributes->get(BreadcrumbProfilerRecorder::REQUEST_ATTRIBUTE, []);
         /** @var list<array<string, mixed>> $trails */

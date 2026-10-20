@@ -52,8 +52,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- `BreadcrumbImporter` logs import start / success (info), rejected entries (warning) and failures (error) with structured, payload-free context through an optional `Psr\Log\LoggerInterface` (CLI `nowo_breadcrumb_kit:import` and dashboard import) (REQ-OBS-001).
+- `make check-no-raw-html-form` (in `release-check`) and `.scripts/validate-translations.php` (key parity across the 7 locales, also in CI) (REQ-MAKE-002/004).
+- CI `quality` job: PHPStan, Igor and translation parity on every push / PR (REQ-CS-005/006/008).
+
 ### Changed
 
+- Dashboard dialog partials (`_import_partial`, `_item_form_partial`, `_collection_form_partial`) no longer print a raw hidden `_modal` input; the import controller still accepts it from 1.x integrations (REQ-TWIG-005).
+- PHP-CS-Fixer imports global classes (`global_namespace_import`), so `src/` no longer uses leading-backslash class names (REQ-CS-001).
+- PHPStan runs without baseline (removed the empty `phpstan-baseline.neon`); the kernel tests no longer swap global error handlers (`symfony/runtime` in require-dev keeps FrameworkBundle from registering them) (REQ-CS-005/006).
+- CI: Symfony matrix 7.4 / 8.1 with every `symfony/*` package pinned to the cell minor (7.0 was below the supported range; 8.0 is end of maintenance); coverage job on Symfony 7.4 (REQ-SF-002).
+- Makefile `help` in canonical block order with `igor`; `release-check` in REQ-MAKE-002 order; Rector capped at 2 parallel workers (REQ-MAKE-001/002).
+- `.scripts/check-no-cursor-coauthor.sh` accepts git worktrees (REQ-GIT-001).
 - Dependencies refreshed (Composer and pnpm/npm lock files of the bundle and its demos, campaign 2026-10-19).
 - `.php-cs-fixer.dist.php`: `new ParallelConfig(2)` (REQ-CS-001).
 - Documentation: wave-1 REQ compliance — README documentation list order (Demo section moved out of Documentation), CONTRIBUTING Cursor Agent settings and post-release-commit trailer check, canonical issue templates, PascalCase GitHub links, doc TOCs, Spec Kit inventory refresh (92/92).

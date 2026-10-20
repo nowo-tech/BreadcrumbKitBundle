@@ -13,6 +13,7 @@ use Nowo\BreadcrumbKitBundle\Repository\BreadcrumbItemRepository;
 use Nowo\FormKitBundle\Attribute\FormKitConfig;
 use Nowo\FormKitBundle\Form\FormOptionsTrait;
 use Nowo\FormKitBundle\Form\Type\TranslatableMapType;
+use SortDirection;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\CallbackTransformer;
@@ -143,7 +144,7 @@ final class BreadcrumbItemType extends AbstractType
                     $qb = $repository->createQueryBuilder('i')
                         ->andWhere('i.collection = :c')
                         ->setParameter('c', $collection)
-                        ->orderBy('i.id', \SortDirection::Ascending);
+                        ->orderBy('i.id', SortDirection::Ascending);
                     if ($excludeItem instanceof BreadcrumbItem && null !== $excludeItem->getId()) {
                         $qb->andWhere('i.id != :xid')->setParameter('xid', $excludeItem->getId());
                     }

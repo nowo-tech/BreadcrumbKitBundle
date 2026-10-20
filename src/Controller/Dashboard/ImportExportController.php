@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Nowo\BreadcrumbKitBundle\Controller\Dashboard;
 
+use JsonException;
 use Nowo\BreadcrumbKitBundle\Dashboard\DashboardPages;
 use Nowo\BreadcrumbKitBundle\Form\Dashboard\ImportBreadcrumbType;
 use Nowo\BreadcrumbKitBundle\NowoBreadcrumbKitBundle;
@@ -75,7 +76,7 @@ final class ImportExportController extends AbstractController
                 try {
                     $content = $file->getContent();
                     $decoded = json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
-                } catch (\JsonException $e) {
+                } catch (JsonException $e) {
                     $this->addFlash('danger', $this->translator->trans('dashboard.flash.import_json_invalid', ['%message%' => $e->getMessage()], NowoBreadcrumbKitBundle::TRANSLATION_DOMAIN));
 
                     return $this->renderImportResponse($request, $form, $isModal);

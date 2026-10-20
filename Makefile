@@ -4,22 +4,67 @@ COMPOSE ?= $(shell docker compose version >/dev/null 2>&1 && echo "docker compos
 SERVICE_PHP ?= php
 export COMPOSER_ALLOW_SUPERUSER ?= 1
 
-.PHONY: help ensure-up up down down-dev build shell install assets test test-coverage \
-	check-twig-extra check-no-cursor-coauthor check-open-prs strip-cursor-coauthor-from-history setup-hooks \
-	cs-check cs-fix rector rector-dry phpstan qa release-check composer-sync \
-	clean update validate demo-smoke twig-lint
+.PHONY: help ensure-up up down down-dev build shell install assets test test-coverage coverage-check \
+	check-twig-extra check-no-raw-html-form check-no-cursor-coauthor check-open-prs strip-cursor-coauthor-from-history \
+	setup-hooks cs-check cs-fix rector rector-dry phpstan igor qa release-check composer-sync \
+	clean update validate validate-translations demo-smoke twig-lint
 
 help:
+	@echo "Breadcrumb Kit Bundle - Development Commands"
+	@echo ""
 	@echo "Usage: make <target>"
 	@echo ""
-	@echo "Container: up, down, down-dev, build, shell"
-	@echo "Dependencies: install, update, update-deps, validate, validate-translations"
-	@echo "Assets: assets"
-	@echo "Tests: test, test-coverage, coverage-check, demo-smoke"
-	@echo "Quality: cs-check, cs-fix, rector, rector-dry, phpstan, qa"
-	@echo "Release: release-check, composer-sync, check-open-prs"
-	@echo "Demos: make -C demo/symfony8 up (8021) — see docs/DEMO-FRANKENPHP.md"
-	@echo "Cleanup: clean"
+	@echo "Container:"
+	@echo "  up                Start Docker container"
+	@echo "  down              Stop Docker container"
+	@echo "  build             Rebuild Docker image (no cache)"
+	@echo "  shell             Open shell in container"
+	@echo ""
+	@echo "Dependencies:"
+	@echo "  install           Install Composer dependencies (starts container if needed)"
+	@echo ""
+	@echo "Assets:"
+	@echo "  assets            No-op: no frontend build in this bundle"
+	@echo ""
+	@echo "Tests:"
+	@echo "  test              Run PHPUnit tests"
+	@echo "  test-coverage     Run tests with coverage and fail below 100% lines (REQ-TEST-003)"
+	@echo ""
+	@echo "Quality:"
+	@echo "  cs-check          Check code style"
+	@echo "  cs-fix            Fix code style"
+	@echo "  rector            Apply Rector refactoring"
+	@echo "  rector-dry        Run Rector in dry-run mode"
+	@echo "  phpstan           Run PHPStan static analysis"
+	@echo "  igor              Run Igor worker-state audit (REQ-CS-008)"
+	@echo "  qa                Run cs-check and tests"
+	@echo ""
+	@echo "Release:"
+	@echo "  release-check     Pre-release chain (REQ-MAKE-002), then demo release-check"
+	@echo "  composer-sync     Validate composer.json and install dependencies"
+	@echo ""
+	@echo "Cleanup:"
+	@echo "  clean             Remove vendor, caches and coverage reports"
+	@echo ""
+	@echo "Composer:"
+	@echo "  update            Update dependencies (bundle container only)"
+	@echo "  update-deps       Update bundle and demo dependencies (REQ-MAKE-008)"
+	@echo "  validate          Validate composer.json (--strict)"
+	@echo ""
+	@echo "Bundle-specific:"
+	@echo "  coverage-check    Alias of the coverage gate (CI parity)"
+	@echo "  validate-translations  YAML parse + key parity across locales (REQ-MAKE-004)"
+	@echo "  check-twig-extra  Fail when Twig Extra is not wired (REQ-TWIG-004)"
+	@echo "  check-no-raw-html-form  Fail on raw <form>/<input>/<textarea>/<select> in Twig (REQ-TWIG-005)"
+	@echo "  check-no-cursor-coauthor  Fail on Cursor co-author trailers (REQ-GIT-001)"
+	@echo "  check-open-prs    Fail if unresolved open GitHub PRs remain (REQ-REL-003)"
+	@echo "  twig-lint         Lint bundle Twig templates"
+	@echo "  setup-hooks       Install git hooks (.githooks)"
+	@echo "  down-dev          Stop root container (non-destructive)"
+	@echo ""
+	@echo "Demos:"
+	@echo "  demo-smoke        Boot demo/symfony8 and assert HTTP 200 (REQ-TEST-011)"
+	@echo "  make -C demo/symfony8 up (port 8021) — see docs/DEMO-FRANKENPHP.md"
 
 ensure-up:
 	@echo "Ensuring Docker environment is up..."
@@ -51,8 +96,9 @@ test: ensure-up
 	@$(COMPOSE) exec -T $(SERVICE_PHP) composer test
 
 test-coverage: ensure-up
-	@$(COMPOSE) exec -T $(SERVICE_PHP) composer test-coverage 2>&1 | tee coverage-php.txt
-	@sh ./.scripts/php-coverage-percent.sh coverage-php.txt
+	@set -o pipefail; $(COMPOSE) exec -T $(SERVICE_PHP) composer test-coverage 2>&1 | tee coverage-php.txt
+	@sh ./.scripts/php-coverage-percent.sh coverage-output.txt
+	@sh ./.scripts/coverage-fail-under.sh coverage-output.txt 100
 
 coverage-check: ensure-up
 	@$(COMPOSE) exec -T $(SERVICE_PHP) composer coverage-check
@@ -84,10 +130,15 @@ check-twig-extra:
 	@chmod +x .scripts/check-twig-extra.sh
 	@./.scripts/check-twig-extra.sh
 
+check-no-raw-html-form:
+	@bash .scripts/check-no-raw-html-form.sh
+
 # Run Igor worker-state audit (REQ-CS-008)
 igor: ensure-up
-	$(COMPOSE) exec -T php composer igor
-release-check: ensure-up check-no-cursor-coauthor check-open-prs check-twig-extra composer-sync cs-fix cs-check rector-dry phpstan igor coverage-check
+	@$(COMPOSE) exec -T $(SERVICE_PHP) composer igor
+
+# REQ-MAKE-002 order.
+release-check: ensure-up check-no-cursor-coauthor check-open-prs check-twig-extra check-no-raw-html-form composer-sync cs-fix cs-check rector-dry phpstan igor validate-translations test-coverage
 	@if [ -d demo ]; then $(MAKE) -C demo release-check; fi
 
 # REQ-TEST-011 — boot demo stack and assert one HTTP 200
@@ -111,8 +162,7 @@ validate: ensure-up
 	@$(COMPOSE) exec -T $(SERVICE_PHP) composer validate --strict
 
 validate-translations: ensure-up
-	@$(COMPOSE) exec -T $(SERVICE_PHP) sh -c 'for f in src/Resources/translations/*.yaml; do php -r "yaml_parse_file(\$argv[1]);" "$$f" || exit 1; done'
-	@echo "Translation YAML files OK."
+	@$(COMPOSE) exec -T $(SERVICE_PHP) php .scripts/validate-translations.php
 
 
 

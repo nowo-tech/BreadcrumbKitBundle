@@ -7,6 +7,7 @@ namespace Nowo\BreadcrumbKitBundle\Tests\Integration\Kernel;
 use Nowo\BreadcrumbKitBundle\Service\BreadcrumbLoader;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+use ReflectionProperty;
 use Symfony\Component\Filesystem\Filesystem;
 
 /**
@@ -15,16 +16,8 @@ use Symfony\Component\Filesystem\Filesystem;
  */
 final class LocaleParameterKernelTest extends TestCase
 {
-    use RestoresGlobalHandlers;
-
-    protected function setUp(): void
-    {
-        $this->rememberGlobalHandlers();
-    }
-
     protected function tearDown(): void
     {
-        $this->restoreGlobalHandlers();
         (new Filesystem())->remove(sys_get_temp_dir().'/nowo-breadcrumb-kit-locale-kernel');
     }
 
@@ -54,7 +47,7 @@ final class LocaleParameterKernelTest extends TestCase
             $container = $kernel->getContainer();
             $loader = $container->get(BreadcrumbLoader::class);
             self::assertInstanceOf(BreadcrumbLoader::class, $loader);
-            $defaultLocale = (new \ReflectionProperty(BreadcrumbLoader::class, 'defaultLocale'))->getValue($loader);
+            $defaultLocale = (new ReflectionProperty(BreadcrumbLoader::class, 'defaultLocale'))->getValue($loader);
             self::assertSame($expectedDefault, $defaultLocale);
             if (!str_contains((string) json_encode($config), 'env(')) {
                 self::assertSame($expectedLocales, $container->getParameter('nowo_breadcrumb_kit.locales'));

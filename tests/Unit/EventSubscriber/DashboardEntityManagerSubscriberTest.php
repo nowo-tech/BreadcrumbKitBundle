@@ -9,6 +9,7 @@ use Doctrine\Persistence\ManagerRegistry;
 use Nowo\BreadcrumbKitBundle\EventSubscriber\DashboardEntityManagerSubscriber;
 use Nowo\BreadcrumbKitBundle\Service\BreadcrumbEntityManagerResetter;
 use PHPUnit\Framework\TestCase;
+use RuntimeException;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Event\ExceptionEvent;
 use Symfony\Component\HttpKernel\Event\RequestEvent;
@@ -68,7 +69,7 @@ final class DashboardEntityManagerSubscriberTest extends TestCase
             $this->createMock(HttpKernelInterface::class),
             $this->request($route),
             $type,
-            new \RuntimeException('flush failed'),
+            new RuntimeException('flush failed'),
         );
     }
 

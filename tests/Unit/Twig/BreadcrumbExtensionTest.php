@@ -15,6 +15,7 @@ use Nowo\BreadcrumbKitBundle\Service\BreadcrumbUrlResolverInterface;
 use Nowo\BreadcrumbKitBundle\Twig\BreadcrumbExtension;
 use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerInterface;
+use ReflectionProperty;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
@@ -189,7 +190,7 @@ final class BreadcrumbExtensionTest extends TestCase
         $collection->setCode('default');
         $collection->setContextKey('');
 
-        $ref = new \ReflectionProperty(BreadcrumbCollection::class, 'id');
+        $ref = new ReflectionProperty(BreadcrumbCollection::class, 'id');
         $ref->setValue($collection, $id);
 
         return $collection;
@@ -208,7 +209,7 @@ final class BreadcrumbExtensionTest extends TestCase
         $item->setRouteName($route);
         $item->setLabel($label);
 
-        $ref = new \ReflectionProperty(BreadcrumbItem::class, 'id');
+        $ref = new ReflectionProperty(BreadcrumbItem::class, 'id');
         $ref->setValue($item, $id);
 
         return $item;

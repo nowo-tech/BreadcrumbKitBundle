@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Nowo\BreadcrumbKitBundle\Dto;
 
+use InvalidArgumentException;
+
 /**
  * "Collapse on narrow screens" settings of a trail (GitHub-style): below {@see $breakpoint} the trail shows
  * only a "…" disclosure listing the previous crumbs, one separator and the current crumb.
@@ -29,11 +31,11 @@ final readonly class BreadcrumbCollapse
         public string $breakpoint = self::DEFAULT_BREAKPOINT,
     ) {
         if ($minItems < self::MIN_ITEMS_FLOOR) {
-            throw new \InvalidArgumentException(\sprintf('Breadcrumb collapse min_items must be >= %d, got %d.', self::MIN_ITEMS_FLOOR, $minItems));
+            throw new InvalidArgumentException(\sprintf('Breadcrumb collapse min_items must be >= %d, got %d.', self::MIN_ITEMS_FLOOR, $minItems));
         }
 
         if (!self::isValidBreakpoint($breakpoint)) {
-            throw new \InvalidArgumentException(\sprintf('Invalid breadcrumb collapse breakpoint "%s": use a positive length in px, rem or em (e.g. "40rem", "640px") or an integer (pixels).', $breakpoint));
+            throw new InvalidArgumentException(\sprintf('Invalid breadcrumb collapse breakpoint "%s": use a positive length in px, rem or em (e.g. "40rem", "640px") or an integer (pixels).', $breakpoint));
         }
     }
 

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Nowo\BreadcrumbKitBundle\Dashboard;
 
+use InvalidArgumentException;
 use Nowo\BreadcrumbKitBundle\Entity\BreadcrumbCollection;
 use Nowo\BreadcrumbKitBundle\Entity\BreadcrumbItem;
 use Nowo\BreadcrumbKitBundle\NowoBreadcrumbKitBundle;
@@ -127,7 +128,7 @@ final readonly class DashboardPages
     public function template(string $page): string
     {
         if (!\array_key_exists($page, self::TEMPLATES)) {
-            throw new \InvalidArgumentException(\sprintf('Unknown BreadcrumbKit dashboard page "%s" (%s).', $page, implode(', ', array_keys(self::TEMPLATES))));
+            throw new InvalidArgumentException(\sprintf('Unknown BreadcrumbKit dashboard page "%s" (%s).', $page, implode(', ', array_keys(self::TEMPLATES))));
         }
 
         return $this->templates[$page] ?? self::TEMPLATES[$page];
