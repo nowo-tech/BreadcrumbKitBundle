@@ -95,6 +95,7 @@ Dashboard look-and-feel composes **UiKitBundle**; dashboard Symfony forms compos
 - **FR-TWIG-004**: Admin chrome hooks — `dashboard.classes` / `dashboard.partials` / layout slot blocks / `@!NowoBreadcrumbKitBundle` namespace (spec [`003-admin-chrome-hooks`](../003-admin-chrome-hooks/spec.md), v2.4.0).
 - **FR-TWIG-005**: Collapse on narrow screens — opt-in `presentation.collapse` / `responsiveConfig.collapse`, "…" disclosure + previous pages menu, nonce-stamped container-query styles, `js/breadcrumb-collapse.js` (spec [`004-collapse-narrow`](../004-collapse-narrow/spec.md), v2.6.0).
 - **FR-UI-001**: Dashboard markup imports `@NowoUiKitBundle/macros/ui.html.twig` and loads `asset('css/nowo-ui.css', 'nowo_ui_kit')`; `dashboard.js` remains on package `nowo_breadcrumb_kit` (REQ-UI-001-kit). Child templates must not nest/replace layout `nowo_ui_styles` / `nowo_ui_scripts` / content wrappers in a way that drops CDN or modal DOM.
+- **FR-UI-002**: Dashboard pages are built on the UiKit page contract (REQ-UI-003): `DashboardPages` builds the view models, per-page templates (`web_ui.templates.<page>`) and the layout override (`web_ui.layout_template`), with collection/item delete confirmation pages and the shared form dialog; `DashboardChrome` bridges 1.x `dashboard.classes` into UiKit theme slots (deprecated since 2.7).
 
 ### Profiler
 
@@ -116,7 +117,7 @@ Dashboard look-and-feel composes **UiKitBundle**; dashboard Symfony forms compos
 
 ## Success Criteria
 
-- **SC-001**: **82/82** production files under `src/` mapped in [`code-inventory.md`](code-inventory.md).
+- **SC-001**: **92/92** production files under `src/` mapped in [`code-inventory.md`](code-inventory.md).
 - **SC-002**: Config keys match `docs/CONFIGURATION.md` (incl. UiKit / FormKit prepend notes).
 - **SC-003**: QA/CI green (`make release-check` / PHPUnit / PHPStan / coverage floor).
 - **SC-004**: Hosts registering the dashboard can resolve UiKit macros/CSS and FormKit profile `breadcrumb_kit` without forking BreadcrumbKit form PHP for basic field chrome.

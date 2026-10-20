@@ -31,6 +31,7 @@ This bundle is **FrankenPHP worker mode friendly**.
 - [Quick start](#quick-start)
 - [Requirements](#requirements)
 - [Development](#development)
+- [Demo](#demo)
 - [Documentation](#documentation)
 - [Tests and coverage](#tests-and-coverage)
 - [License](#license)
@@ -95,30 +96,7 @@ make install
 make test-coverage
 ```
 
-## Documentation
-
-- [Installation](docs/INSTALLATION.md)
-- [Configuration](docs/CONFIGURATION.md)
-- [PSR evaluation (REQ-CS-007)](docs/PSR.md)
-- [Usage](docs/USAGE.md) — including [Customising the dashboard](docs/USAGE.md#customising-the-dashboard) and [theme slots of the trail](docs/USAGE.md#theme-slots-of-the-trail)
-- [Templates](docs/TEMPLATES.md) — dashboard pages → UiKit scaffolds, data blocks, dialogs (REQ-UI-003)
-- [Contributing](docs/CONTRIBUTING.md)
-- [Code of Conduct](CODE_OF_CONDUCT.md)
-- [Changelog](docs/CHANGELOG.md)
-- [Upgrading](docs/UPGRADING.md)
-- [Release](docs/RELEASE.md)
-- [Security](docs/SECURITY.md)
-- [Engram](docs/ENGRAM.md)
-- [Spec-driven development](docs/SPEC-DRIVEN-DEVELOPMENT.md)
-- [GitHub Spec Kit manual](docs/SPEC-KIT.md)
-
-### Additional documentation
-
-- [DEMO-FRANKENPHP.md](docs/DEMO-FRANKENPHP.md) — FrankenPHP demo (`demo/symfony8`)
-- [FRANKENPHP-WORKER-AUDIT.md](docs/FRANKENPHP-WORKER-AUDIT.md) — worker mode without kernel reset
-- [GitHub Actions CI requirements](docs/GITHUB_CI.md)
-
-### Demo application
+## Demo
 
 **Symfony 8** (Symfony 8.1, PHP 8.5):
 
@@ -129,6 +107,30 @@ make -C demo/symfony8 up
 Opens at `http://localhost:8021` by default; the app redirects `/` to `/en/`. The dashboard (`/breadcrumb-kit-admin`)
 renders in the demo host layout (`nowo_ui_kit.layouts.admin`). `make -C demo/symfony8 test-e2e` runs the Playwright e2e;
 `make -C demo/symfony8 demo-screenshots` re-captures `docs/images/demo/*.webp` (REQ-DEMO-013).
+
+## Documentation
+
+- [Installation](docs/INSTALLATION.md)
+- [Configuration](docs/CONFIGURATION.md)
+- [Usage](docs/USAGE.md)
+- [Contributing](docs/CONTRIBUTING.md)
+- [Code of Conduct](CODE_OF_CONDUCT.md)
+- [Changelog](docs/CHANGELOG.md)
+- [Upgrading](docs/UPGRADING.md)
+- [Release](docs/RELEASE.md)
+- [Security](docs/SECURITY.md)
+- [Engram](docs/ENGRAM.md)
+- [Spec-driven development](docs/SPEC-DRIVEN-DEVELOPMENT.md)
+- [GitHub Spec Kit](docs/SPEC-KIT.md)
+
+### Additional documentation
+
+- [PSR evaluation (REQ-CS-007)](docs/PSR.md)
+- [Templates](docs/TEMPLATES.md) — dashboard pages → UiKit scaffolds, data blocks, dialogs (REQ-UI-003)
+- [Customising the dashboard](docs/USAGE.md#customising-the-dashboard) and [theme slots of the trail](docs/USAGE.md#theme-slots-of-the-trail) (USAGE)
+- [DEMO-FRANKENPHP.md](docs/DEMO-FRANKENPHP.md) — FrankenPHP demo (`demo/symfony8`)
+- [FRANKENPHP-WORKER-AUDIT.md](docs/FRANKENPHP-WORKER-AUDIT.md) — worker mode without kernel reset
+- [GitHub Actions CI requirements](docs/GITHUB_CI.md)
 
 ## Tests and coverage
 

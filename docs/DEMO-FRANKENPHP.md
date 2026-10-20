@@ -17,6 +17,7 @@ Use it to validate compatibility with the current Symfony 8 maintenance line. Th
 - [Quick start](#quick-start)
 - [Development vs production](#development-vs-production)
 - [Switching classic vs worker (`FRANKENPHP_MODE`)](#switching-classic-vs-worker-frankenphp_mode)
+- [Worker mode without kernel reset](#worker-mode-without-kernel-reset)
 - [Troubleshooting](#troubleshooting)
 
 ## Contents
@@ -31,7 +32,7 @@ Use it to validate compatibility with the current Symfony 8 maintenance line. Th
 
 - **Demo UI**: templates under `demo/symfony8/templates/` use the same shell as **DashboardMenuBundle** demos (Bootstrap 5.3, Bootstrap Icons, `app-header` gradient navbar, `app-layout` with light gray `app-sidebar` / `app-main` / `app-aside`, `app-footer`) so all Nowo bundle demos feel consistent.
 - **Compose project name**: `breadcrumb-kit-bundle-demo-symfony-8` (`docker-compose.yml` → `name:`).
-- **FrankenPHP** serves the app from `demo/symfony8` with the parent bundle mounted at **`/var/breadcrumb-kit-bundle`** (Composer `path` repository), same layout as [DashboardMenuBundle](https://github.com/nowo-tech/dashboard-menu-bundle) / Twig Inspector demos: `../..` → `/var/<bundle-slug>-bundle` in `docker-compose.yml`, and `composer.json` uses `{ "type": "path", "url": "/var/…" }` **without** extra `options` (Composer defaults).
+- **FrankenPHP** serves the app from `demo/symfony8` with the parent bundle mounted at **`/var/breadcrumb-kit-bundle`** (Composer `path` repository), same layout as [DashboardMenuBundle](https://github.com/nowo-tech/DashboardMenuBundle) / Twig Inspector demos: `../..` → `/var/<bundle-slug>-bundle` in `docker-compose.yml`, and `composer.json` uses `{ "type": "path", "url": "/var/…" }` **without** extra `options` (Composer defaults).
 - **MySQL 8** runs in a separate container; **no DB port is published to the host** (only `expose:`). The app uses hostname `mysql` on the Docker network.
 - **Caddyfiles**: `docker/frankenphp/Caddyfile` (**worker** mode) and `Caddyfile.dev` (**classic** / no worker). The entrypoint selects which file is active via **`FRANKENPHP_MODE`** (`worker` by default; set `classic` for per-request PHP / easier hot-reload). Independent of `APP_ENV`.
 - **Developer UX** (with `APP_ENV=dev`, `APP_DEBUG=1`, Composer **dev** dependencies installed): **Symfony Web Debug Toolbar** + **Web Profiler** (`config/packages/web_profiler.yaml`, routes in `config/routes/web_profiler.yaml`), **`symfony/asset` + `symfony/stopwatch`** (in the demo `composer.json` so Twig can use `asset()` and the profiler can time requests), **`assets:install`** in the `Makefile` / Docker entrypoint for `public/bundles/`, and **`config/packages/dev/framework.yaml`** (`profiler.collect: true`). **[nowo-tech/twig-inspector-bundle](https://github.com/nowo-tech/TwigInspectorBundle)** (profiler panel + `/_template/…` route in `config/routes.yaml`). Twig Inspector: cookie / **Ctrl+Shift+T** by default; see `config/packages/dev/nowo_twig_inspector.yaml`.
@@ -123,4 +124,4 @@ The demo Caddyfile runs FrankenPHP **worker** mode. Symfony may keep the same ke
 - **Database**: if schema is out of date, from the demo directory run `make down`, remove `.data/mysql` if you need a clean MySQL volume, then `make up` again.
 - **Port in use**: change `PORT` in `.env` and ensure `DEFAULT_URI` matches (used by Symfony routing defaults).
 
-For a longer, generic guide (reusable across Nowo bundles), see [DashboardMenuBundle `docs/DEMO-FRANKENPHP.md`](https://github.com/nowo-tech/dashboard-menu-bundle/blob/main/docs/DEMO-FRANKENPHP.md).
+For a longer, generic guide (reusable across Nowo bundles), see [DashboardMenuBundle `docs/DEMO-FRANKENPHP.md`](https://github.com/nowo-tech/DashboardMenuBundle/blob/main/docs/DEMO-FRANKENPHP.md).

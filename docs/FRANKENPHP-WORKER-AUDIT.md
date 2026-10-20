@@ -9,6 +9,19 @@
 | Remediation (2026-09-24) | W-01 resolved (closed EntityManager reset on **every** main request / main exception and after the caught unique violation); W-02 resolved for staleness (`Query::HINT_REFRESH` on both lookups), identity-map growth accepted as the application's responsibility; W-04 (stale token when no firewall ran) found and resolved; regression tests in `tests/Integration/WorkerModeDoctrineTest.php` and unit tests |
 | **Verdict** | ✅ **Viable** under scenario B — every bundle service is stateless, a closed EntityManager is reset by the bundle before the next main request (including public `breadcrumb_render()`), breadcrumb lookups refresh from the database, and the security token is only trusted when a firewall handled the request. Clearing the identity map between requests remains the application's responsibility |
 
+## Table of contents
+
+- [Execution model assumed](#execution-model-assumed)
+- [Summary](#summary)
+- [Services reviewed](#services-reviewed)
+- [Findings](#findings)
+  - [W-01 — Caught flush failure leaves the EntityManager closed (Medium)](#w-01--caught-flush-failure-leaves-the-entitymanager-closed-medium)
+  - [W-02 — Identity map is never cleared by the bundle (Medium)](#w-02--identity-map-is-never-cleared-by-the-bundle-medium)
+  - [W-03 — Item-row cache is not invalidated on dashboard writes (Info)](#w-03--item-row-cache-is-not-invalidated-on-dashboard-writes-info)
+  - [W-04 — Stale security token trusted when no firewall ran (Medium)](#w-04--stale-security-token-trusted-when-no-firewall-ran-medium)
+- [Usage recommendations in worker mode](#usage-recommendations-in-worker-mode)
+- [Re-audit triggers](#re-audit-triggers)
+
 ## Execution model assumed
 
 FrankenPHP worker mode boots the Symfony kernel once per worker and serves many requests with the same container. This audit assumes the **strict** variant: the kernel is **not** rebooted between requests, so every shared service, static property and PHP global survives from one request to the next. Two scenarios are evaluated:

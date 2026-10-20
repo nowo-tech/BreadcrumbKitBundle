@@ -52,6 +52,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- Documentation: wave-1 REQ compliance — README documentation list order (Demo section moved out of Documentation), CONTRIBUTING Cursor Agent settings and post-release-commit trailer check, canonical issue templates, PascalCase GitHub links, doc TOCs, Spec Kit inventory refresh (92/92).
+
 ## [2.8.0] - 2026-10-19
 
 Item label translations as FormKit locale tabs (TranslatableMapType) instead of a JSON textarea; labels of other locales kept. See [UPGRADING](UPGRADING.md#to-280).

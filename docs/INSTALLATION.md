@@ -13,6 +13,7 @@ This guide covers installing Breadcrumb Kit Bundle in a Symfony application.
 - [Import routes (dashboard)](#import-routes-dashboard)
 - [Verify](#verify)
 - [Docker (bundle development)](#docker-bundle-development)
+- [Twig Extra Bundle (REQ-TWIG-004)](#twig-extra-bundle-req-twig-004)
 - [Next steps](#next-steps)
 
 ## Requirements

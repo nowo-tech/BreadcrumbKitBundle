@@ -2,8 +2,8 @@
 
 **Baseline spec**: [`spec.md`](spec.md)  
 **Package**: `nowo-tech/breadcrumb-kit-bundle`  
-**Last audited**: 2026-10-16 (v2.6.0 collapse on narrow screens, spec 004)  
-**Audit**: `find src -type f | wc -l` → **80** (matches summary total)
+**Last audited**: 2026-10-20 (wave-1 refresh: UiKit page contract, cache invalidator, configured locales)  
+**Audit**: `find src -type f | wc -l` → **92** (matches summary total)
 
 ## Symfony config
 
@@ -24,6 +24,7 @@
 | `DependencyInjection/Compiler/TwigPathsPass.php` | Bundle & DI | FR-TWIG-001 |
 | `DependencyInjection/Configuration.php` | Bundle & DI | FR-CFG-001, FR-PHP-001 |
 | `NowoBreadcrumbKitBundle.php` | Bundle & DI | FR-BUNDLE-001 |
+| `Dashboard/DashboardChrome.php` | Bundle & DI | FR-TWIG-004 |
 
 ## Enums
 
@@ -74,6 +75,8 @@
 | `Service/BreadcrumbEntityManagerResetter.php` | Services | FR-WORKER-001 |
 | `Service/BreadcrumbUrlResolver.php` | Services | FR-SVC-002 |
 | `Service/BreadcrumbUrlResolverInterface.php` | Services | FR-SVC-002 |
+| `Service/BreadcrumbCacheInvalidator.php` | Services | FR-SVC-001, FR-WORKER-001 |
+| `Service/ConfiguredLocales.php` | Services | FR-CFG-001 |
 
 ## Controllers — dashboard
 
@@ -85,6 +88,7 @@
 | `Controller/Dashboard/DashboardRedirectTrait.php` | Controllers — dashboard | FR-CTRL-001 |
 | `Controller/Dashboard/ImportExportController.php` | Controllers — dashboard | FR-CTRL-001 |
 | `Controller/Dashboard/ItemCrudController.php` | Controllers — dashboard | FR-CTRL-001 |
+| `Dashboard/DashboardPages.php` | Controllers — dashboard | FR-CTRL-001, FR-UI-002 |
 
 ## Commands
 
@@ -179,30 +183,31 @@ BreadcrumbKit prepends FormKit profile `breadcrumb_kit` and may seed FormKit/UiK
 | Source file | Spec section | Requirement IDs |
 | --- | --- | --- |
 | `Resources/views/dashboard/_collection_form_partial.html.twig` | Twig views — dashboard | FR-TWIG-002, FR-UI-001 |
-| `Resources/views/dashboard/_dashboard_modals.html.twig` | Twig views — dashboard | FR-TWIG-002, FR-UI-001 |
-| `Resources/views/dashboard/_icons.html.twig` | Twig views — dashboard | FR-TWIG-002 |
 | `Resources/views/dashboard/_import_partial.html.twig` | Twig views — dashboard | FR-TWIG-002, FR-UI-001 |
 | `Resources/views/dashboard/_item_form_partial.html.twig` | Twig views — dashboard | FR-TWIG-002, FR-UI-001 |
-| `Resources/views/dashboard/base.html.twig` | Twig views — dashboard | FR-TWIG-002, FR-UI-001 |
 | `Resources/views/dashboard/collection/form.html.twig` | Twig views — dashboard | FR-TWIG-002 |
 | `Resources/views/dashboard/collection/index.html.twig` | Twig views — dashboard | FR-TWIG-002, FR-UI-001 |
 | `Resources/views/dashboard/import.html.twig` | Twig views — dashboard | FR-TWIG-002 |
 | `Resources/views/dashboard/item/form.html.twig` | Twig views — dashboard | FR-TWIG-002 |
 | `Resources/views/dashboard/item/index.html.twig` | Twig views — dashboard | FR-TWIG-002, FR-UI-001 |
-| `Resources/views/dashboard/layout.html.twig` | Twig views — dashboard | FR-TWIG-002, FR-UI-001 |
+| `Resources/views/dashboard/_dashboard_scripts.html.twig` | Twig views — dashboard | FR-TWIG-002, FR-ASSET-001 |
+| `Resources/views/dashboard/_form_dialog.html.twig` | Twig views — dashboard | FR-TWIG-002, FR-UI-002 |
+| `Resources/views/dashboard/_legacy_layout.html.twig` | Twig views — dashboard | FR-TWIG-004 |
+| `Resources/views/dashboard/collection/delete.html.twig` | Twig views — dashboard | FR-TWIG-002, FR-UI-002 |
+| `Resources/views/dashboard/item/delete.html.twig` | Twig views — dashboard | FR-TWIG-002, FR-UI-002 |
 
 ## Coverage summary
 
 | Category | Files | Mapped |
 | --- | ---: | ---: |
 | Symfony config | 4 | 4 |
-| Bundle & DI | 6 | 6 |
+| Bundle & DI | 7 | 7 |
 | Enums | 3 | 3 |
 | Security & contracts | 5 | 5 |
 | Entities & persistence | 5 | 5 |
 | DTOs | 4 | 4 |
-| Services | 8 | 8 |
-| Controllers — dashboard | 6 | 6 |
+| Services | 10 | 10 |
+| Controllers — dashboard | 7 | 7 |
 | Commands | 4 | 4 |
 | Events | 1 | 1 |
 | Forms | 7 | 7 |
@@ -212,5 +217,5 @@ BreadcrumbKit prepends FormKit profile `breadcrumb_kit` and may seed FormKit/UiK
 | Translations | 7 | 7 |
 | Twig views — public | 4 | 4 |
 | Twig views — profiler | 2 | 2 |
-| Twig views — dashboard | 12 | 12 |
-| **Total production sources** | **87** | **87** |
+| Twig views — dashboard | 13 | 13 |
+| **Total production sources** | **92** | **92** |
