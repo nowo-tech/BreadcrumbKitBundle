@@ -3,6 +3,7 @@
 ## Table of contents
 
 - [Unreleased](#unreleased)
+- [To 2.9.0](#to-290)
 - [To 2.8.0](#to-280)
   - [Item label translations: locale tabs instead of JSON](#item-label-translations-locale-tabs-instead-of-json)
 - [To 2.7.2](#to-272)
@@ -53,6 +54,14 @@
 - [General upgrade steps (any version)](#general-upgrade-steps-any-version)
 
 ## Unreleased
+
+## To 2.9.0
+
+From **2.8.0**:
+
+```bash
+composer update nowo-tech/breadcrumb-kit-bundle
+```
 
 No action required. If you overrode `dashboard/_import_partial.html.twig`, `_item_form_partial.html.twig` or
 `_collection_form_partial.html.twig`, you may drop the hidden `_modal` input there as well (it is ignored for item and
