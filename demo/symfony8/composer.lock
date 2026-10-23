@@ -934,7 +934,7 @@
             "dist": {
                 "type": "path",
                 "url": "/var/breadcrumb-kit-bundle",
-                "reference": "dc51217f0742dcd43a7ae2bd3aaaba2deca91640"
+                "reference": "497ac0af08f2de0ee9249054fd146b326464af81"
             },
             "require": {
                 "doctrine/doctrine-bundle": "^2.8 || ^3.0",
@@ -943,6 +943,7 @@
                 "nowo-tech/ui-kit-bundle": "^2.5.1",
                 "php": ">=8.2 <8.6",
                 "psr/cache": "^3.0",
+                "psr/log": "^2.0 || ^3.0",
                 "symfony/asset": "^7.4 || ^8.0",
                 "symfony/config": "^7.4 || ^8.0",
                 "symfony/console": "^7.4 || ^8.0",
@@ -972,6 +973,7 @@
                 "phpstan/phpstan-symfony": "^2.0",
                 "phpunit/phpunit": "^11.0",
                 "rector/rector": "^2.0",
+                "symfony/runtime": "^7.4 || ^8.0",
                 "vincentlanglet/twig-cs-fixer": "^4.0"
             },
             "suggest": {
@@ -1006,7 +1008,7 @@
                     "phpunit --colors=always --coverage-html coverage --coverage-clover coverage.xml --coverage-text=coverage-output.txt && sh .scripts/php-coverage-percent.sh coverage-output.txt"
                 ],
                 "coverage-check": [
-                    "phpunit --colors=always --coverage-text=coverage-output.txt --coverage-clover coverage.xml && sh .scripts/coverage-fail-under.sh coverage-output.txt 99"
+                    "phpunit --colors=always --coverage-text=coverage-output.txt --coverage-clover coverage.xml && sh .scripts/coverage-fail-under.sh coverage-output.txt 100"
                 ],
                 "cs-check": [
                     "php-cs-fixer fix --dry-run --diff --config=.php-cs-fixer.dist.php"
@@ -1183,16 +1185,16 @@
         },
         {
             "name": "nowo-tech/ui-kit-bundle",
-            "version": "v2.5.3",
+            "version": "v2.6.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/nowo-tech/UiKitBundle.git",
-                "reference": "5ddc3eff7a01e610a643edf6893bbedaa935a3d3"
+                "reference": "1e0944a99055b820204e3c64aa024d088de06fc7"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/nowo-tech/UiKitBundle/zipball/5ddc3eff7a01e610a643edf6893bbedaa935a3d3",
-                "reference": "5ddc3eff7a01e610a643edf6893bbedaa935a3d3",
+                "url": "https://api.github.com/repos/nowo-tech/UiKitBundle/zipball/1e0944a99055b820204e3c64aa024d088de06fc7",
+                "reference": "1e0944a99055b820204e3c64aa024d088de06fc7",
                 "shasum": ""
             },
             "require": {
@@ -1273,7 +1275,7 @@
                 "issues": "https://github.com/nowo-tech/UiKitBundle/issues",
                 "source": "https://github.com/nowo-tech/UiKitBundle"
             },
-            "time": "2026-10-20T08:01:25+00:00"
+            "time": "2026-10-21T19:29:07+00:00"
         },
         {
             "name": "psr/cache",
@@ -5936,16 +5938,16 @@
         },
         {
             "name": "nowo-tech/hot-reload-bundle",
-            "version": "v1.6.1",
+            "version": "v1.6.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/nowo-tech/HotReloadBundle.git",
-                "reference": "6d3117328bd9d7f55a70743567d04ee25d6bc366"
+                "reference": "cf84e69a6f93f95f06876638337f9f792b2bcb0a"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/nowo-tech/HotReloadBundle/zipball/6d3117328bd9d7f55a70743567d04ee25d6bc366",
-                "reference": "6d3117328bd9d7f55a70743567d04ee25d6bc366",
+                "url": "https://api.github.com/repos/nowo-tech/HotReloadBundle/zipball/cf84e69a6f93f95f06876638337f9f792b2bcb0a",
+                "reference": "cf84e69a6f93f95f06876638337f9f792b2bcb0a",
                 "shasum": ""
             },
             "require": {
@@ -6023,7 +6025,7 @@
                 "issues": "https://github.com/nowo-tech/HotReloadBundle/issues",
                 "source": "https://github.com/nowo-tech/HotReloadBundle"
             },
-            "time": "2026-10-13T10:57:34+00:00"
+            "time": "2026-10-21T05:26:17+00:00"
         },
         {
             "name": "nowo-tech/twig-inspector-bundle",
