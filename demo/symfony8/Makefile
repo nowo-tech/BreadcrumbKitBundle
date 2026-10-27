@@ -13,7 +13,7 @@ SERVICE_PHP ?= php
 help:
 	@echo "Breadcrumb Kit — Symfony 8 demo (Symfony 8.1, FrankenPHP, PHP 8.5)"
 	@echo "  up, down, restart, build, shell, install, ensure-up, update-bundle, verify, test, test-coverage"
-	@echo "  test-e2e (Playwright e2e of the dashboard), demo-screenshots (refresh docs/images/demo/*.webp, REQ-DEMO-013)"
+	@echo "  test-e2e (Playwright e2e of the dashboard), demo-screenshots (refresh docs/images/demo/*.webp + docs/images/usage/*.webp, REQ-DEMO-013)"
 
 build:
 	$(COMPOSE) build --no-cache
@@ -120,15 +120,17 @@ test-e2e: ensure-up
 		bash -lc 'npm install --no-fund --no-audit && npx playwright test --project=chromium'
 
 demo-screenshots: ensure-up
-	@mkdir -p ../../docs/images/demo e2e/node_modules
+	@mkdir -p ../../docs/images/demo ../../docs/images/usage e2e/node_modules
 	$(COMPOSE) exec -T php php bin/console doctrine:fixtures:load --no-interaction
 	@PORT=$$(grep -E '^PORT=' .env 2>/dev/null | cut -d= -f2); PORT=$${PORT:-8021}; \
 	docker run --rm --network host \
 		-v "$(CURDIR)/e2e:/e2e" \
 		-v "$(CURDIR)/../../docs/images/demo:/screenshots" \
+		-v "$(CURDIR)/../../docs/images/usage:/usage-screenshots" \
 		-w /e2e \
 		-e DEMO_BASE_URL=http://127.0.0.1:$$PORT \
 		-e SCREENSHOT_DIR=/screenshots \
+		-e USAGE_SCREENSHOT_DIR=/usage-screenshots \
 		$(PLAYWRIGHT_IMAGE) \
-		bash -lc 'npm install --no-fund --no-audit && npx playwright test --project=screenshots && node scripts/to-webp.mjs /screenshots'
-	@echo "Screenshots written under docs/images/demo/ (WebP)"
+		bash -lc 'npm install --no-fund --no-audit && npx playwright test --project=screenshots && node scripts/to-webp.mjs /screenshots && node scripts/to-webp.mjs /usage-screenshots'
+	@echo "Screenshots written under docs/images/demo/ and docs/images/usage/ (WebP)"

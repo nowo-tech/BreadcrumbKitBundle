@@ -106,7 +106,7 @@ make -C demo/symfony8 up
 
 Opens at `http://localhost:8021` by default; the app redirects `/` to `/en/`. The dashboard (`/breadcrumb-kit-admin`)
 renders in the demo host layout (`nowo_ui_kit.layouts.admin`). `make -C demo/symfony8 test-e2e` runs the Playwright e2e;
-`make -C demo/symfony8 demo-screenshots` re-captures `docs/images/demo/*.webp` (REQ-DEMO-013).
+`make -C demo/symfony8 demo-screenshots` re-captures `docs/images/demo/*.webp` and the USAGE collapse capture (REQ-DEMO-013).
 
 ## Documentation
 

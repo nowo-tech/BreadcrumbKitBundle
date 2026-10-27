@@ -65,7 +65,7 @@ Collection `homeIcon` wins over `presentation.home_icon`. Override `@NowoBreadcr
 
 Since **2.6.0** (spec [`004-collapse-narrow`](../specs/004-collapse-narrow/spec.md)), long trails can collapse GitHub-style on phones: below a width breakpoint the trail shows a **"…"** button, one separator and the **current crumb** (one line, ellipsis). The "…" button opens a dropdown listing every previous crumb in order (same labels, icons and links; non-link crumbs as text). Above the breakpoint the trail is unchanged and the "…" item is hidden. It is **opt-in**: with the option off (default), or when the trail has fewer than `min_items` crumbs, the HTML is byte-identical to 2.5.0.
 
-![Collapsed trail at phone width with the previous pages menu open](images/breadcrumb-collapse.png)
+![Collapsed trail at phone width with the previous pages menu open](images/usage/breadcrumb-collapse.webp)
 
 **Global** (`config/packages/nowo_breadcrumb_kit.yaml`):
 
@@ -193,6 +193,17 @@ final class EnrichBreadcrumbsSubscriber implements EventSubscriberInterface
 1. In your application, create a file under **`templates/bundles/NowoBreadcrumbKitBundle/`** with the same **`<subpath>`** as in the bundle (see table below).
 2. Copy or adapt markup from the bundle’s `src/Resources/views/<subpath>` as needed — or `{% extends '@!NowoBreadcrumbKitBundle/<subpath>' %}` and redefine only the blocks you need (dashboard pages: prefer `web_ui.templates.<page>` and the UiKit data blocks, see [Customising the dashboard](#customising-the-dashboard)).
 3. Clear the Symfony cache if templates are cached (`php bin/console cache:clear`).
+4. Treat a full copy as a fork: Symfony resolves `@NowoBreadcrumbKitBundle/<subpath>` to your file from now on.
+
+**Override vs upgrade (freeze rule).** An application file at the override path always wins and will not pick up vendor changes for that path until removed or merged. A full-file override is an escape hatch: that `<subpath>` stays frozen on every `composer update` while the rest of the bundle keeps upgrading.
+
+Prefer the upgrade-safe path, lightest first:
+
+- **No Twig fork** — collection classes (`classList`, `classItem`, `classSeparator`, `classCurrent`), the `presentation.*` options ([home icon, hide on home](#presentation-home-icon-hide-on-home), [collapse](#collapse-on-narrow-screens)), the UiKit [theme slots of the trail](#theme-slots-of-the-trail) and the [translations](#overriding-translations-req-i18n-001).
+- **Dashboard** — the UiKit theme and scaffolds, or `web_ui.templates.<page>` pointing at a template that extends `@!NowoBreadcrumbKitBundle/dashboard/...` and redefines one data block ([Customising the dashboard](#customising-the-dashboard)); the vendor page keeps upgrading underneath.
+- **Surgical override** — copy only the small partial you need (`_breadcrumb_crumb.html.twig` for the crumb markup, `_breadcrumb_collapse.html.twig` for the "…" menu) instead of `breadcrumb.html.twig`; only that partial is frozen.
+
+**Recovering upstream after a freeze:** delete (or rename aside) the application override, clear the cache (`php bin/console cache:clear`), and re-apply only the customisation you still need. Diff your copy against the new vendor file under `vendor/nowo-tech/breadcrumb-kit-bundle/src/Resources/views/` before re-copying.
 
 **Templates you can override**
 
