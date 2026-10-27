@@ -40,6 +40,17 @@ make qa
 make test-coverage
 ```
 
+When you touch the dashboard, the trail markup or the demo, run the Playwright e2e against the Symfony 8 demo and, if
+the visible UI changed, refresh the screenshots (REQ-DEMO-013):
+
+```bash
+make -C demo/symfony8 test-e2e          # starts the demo if needed, then runs e2e/tests/demo.spec.ts
+make -C demo/symfony8 demo-screenshots  # reloads the fixtures, captures, converts PNG to WebP (sharp), deletes the PNGs
+```
+
+`demo-screenshots` writes the README set to `docs/images/demo/*.webp` and the USAGE collapse capture to
+`docs/images/usage/breadcrumb-collapse.webp`; commit only the `.webp` files and look at them before committing.
+
 5. Open a pull request using the repository template; describe the change and how you tested it.
 
 ## Standards

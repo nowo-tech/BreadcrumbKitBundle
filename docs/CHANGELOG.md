@@ -53,6 +53,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- Documentation: the USAGE collapse screenshot is now a WebP re-captured from the demo by Playwright (`docs/images/usage/breadcrumb-collapse.webp`, phone width, menu open); the legacy `docs/images/breadcrumb-collapse.png` is removed. `make -C demo/symfony8 demo-screenshots` refreshes it with the README set, and CONTRIBUTING documents `test-e2e` / `demo-screenshots` (REQ-DEMO-013).
+- Documentation: USAGE states the Twig override freeze rule, the upgrade-safe alternatives (collection classes, `presentation.*`, UiKit theme slots, `web_ui.templates.<page>` with `@!NowoBreadcrumbKitBundle`, single partials) and how to recover upstream templates after a freeze (REQ-TWIG-001).
+
 ## [2.9.0] - 2026-10-20
 
 Wave-2 REQ compliance: import logging, PHPStan without baseline, raw-form gate, Symfony 7.4/8.1 CI matrix and tooling. See [UPGRADING](UPGRADING.md#to-290).
