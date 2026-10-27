@@ -53,6 +53,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Security
+
+- CSRF fails closed: new `CsrfProtectionPass` makes the container refuse to compile when the dashboard (`web_ui.enabled: true`) is on and form CSRF protection is unavailable (`security.csrf.token_manager` or `form.type_extension.csrf` missing, or `framework.form.csrf_protection: false`). Before, item / collection delete (`DashboardPostDeleteType` declares its own `csrf_token_id`), the CRUD forms and the JSON import accepted tokenless cross-site POSTs in that configuration. See [UPGRADING](UPGRADING.md#unreleased) and [SECURITY](SECURITY.md#threat-model).
+
 ### Changed
 
 - Documentation: the USAGE collapse screenshot is now a WebP re-captured from the demo by Playwright (`docs/images/usage/breadcrumb-collapse.webp`, phone width, menu open); the legacy `docs/images/breadcrumb-collapse.png` is removed. `make -C demo/symfony8 demo-screenshots` refreshes it with the README set, and CONTRIBUTING documents `test-e2e` / `demo-screenshots` (REQ-DEMO-013).

@@ -6,6 +6,7 @@ namespace Nowo\BreadcrumbKitBundle;
 
 use Nowo\BreadcrumbKitBundle\DependencyInjection\BreadcrumbKitExtension;
 use Nowo\BreadcrumbKitBundle\DependencyInjection\Compiler\BreadcrumbInlineEditAccessLocatorPass;
+use Nowo\BreadcrumbKitBundle\DependencyInjection\Compiler\CsrfProtectionPass;
 use Nowo\BreadcrumbKitBundle\DependencyInjection\Compiler\DashboardSecurityPass;
 use Nowo\BreadcrumbKitBundle\DependencyInjection\Compiler\TwigPathsPass;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
@@ -24,6 +25,7 @@ final class NowoBreadcrumbKitBundle extends Bundle
         $container->addCompilerPass(new TwigPathsPass());
         $container->addCompilerPass(new BreadcrumbInlineEditAccessLocatorPass());
         $container->addCompilerPass(new DashboardSecurityPass());
+        $container->addCompilerPass(new CsrfProtectionPass());
     }
 
     public function getContainerExtension(): ExtensionInterface

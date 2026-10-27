@@ -44,6 +44,7 @@ When the dashboard is enabled, HTTP endpoints are registered; protect `web_ui.pa
 | **Cache poisoning** | PSR-6 cache keys are derived from collection code, context, and locale. Ensure only trusted actors can change breadcrumb rows or cache configuration. |
 | **Denial of service** | Large trees or frequent cache misses increase DB load; use sensible TTL and pool sizing. |
 | **Unauthenticated dashboard** | Mitigated by default `security.access_roles: [ROLE_ADMIN]` + `DashboardAccessSubscriber`. `allow_unauthenticated: true` disables that gate (demo only). Still add host `access_control` on `web_ui.path_prefix`. |
+| **CSRF on dashboard mutations** | Delete / CRUD / import go through Symfony forms. **Fails closed**: `CsrfProtectionPass` refuses to compile the container when the dashboard is enabled without `security.csrf.token_manager` + `form.type_extension.csrf`, or with `framework.form.csrf_protection: false` (forms declaring their own CSRF options would otherwise accept tokenless POSTs). |
 | **Large JSON uploads** | Import is capped by `dashboard.import_max_bytes`; keep a reasonable limit in production. |
 
 ## Mitigations
@@ -51,7 +52,7 @@ When the dashboard is enabled, HTTP endpoints are registered; protect `web_ui.pa
 - Keep Symfony, Doctrine, and this bundle updated; run `composer audit` regularly.
 - Restrict who can manage breadcrumb entities (admin UI, migrations, fixtures).
 - When using the dashboard: keep `security.allow_unauthenticated: false`, set `security.access_roles` (or a custom `security.access_checker`), and add host `access_control` for `web_ui.path_prefix`.
-- Enable CSRF protection (`framework.csrf_protection: true` or SecurityBundle).
+- Enable CSRF protection (`framework.csrf_protection: true` and form CSRF); the dashboard refuses to compile without it.
 - Never enable `security.allow_unauthenticated` outside local demos.
 - Use a dedicated cache pool with appropriate TTL for production.
 - Prefer least-privilege DB credentials for the application.
