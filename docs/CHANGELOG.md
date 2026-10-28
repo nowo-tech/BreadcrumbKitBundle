@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## Table of contents
 
 - [[Unreleased]](#unreleased)
+- [[2.11.0] - 2026-10-28](#2110---2026-10-28)
 - [[2.10.0] - 2026-10-28](#2100---2026-10-28)
 - [[2.9.0] - 2026-10-20](#290---2026-10-20)
 - [[2.8.0] - 2026-10-19](#280---2026-10-19)
@@ -53,6 +54,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - [[1.0.0] - 2026-07-03](#100---2026-07-03)
 
 ## [Unreleased]
+
+## [2.11.0] - 2026-10-28
+
+Security: breadcrumb icons are sanitized (stored XSS through item icon / collection homeIcon). See [UPGRADING](UPGRADING.md#to-2110).
 
 ### Security
 

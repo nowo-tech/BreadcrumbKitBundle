@@ -3,6 +3,7 @@
 ## Table of contents
 
 - [Unreleased](#unreleased)
+- [To 2.11.0](#to-2110)
   - [Breadcrumb icons are sanitized](#breadcrumb-icons-are-sanitized)
 - [To 2.10.0](#to-2100)
   - [Dashboard requires form CSRF protection at compile time](#dashboard-requires-form-csrf-protection-at-compile-time)
@@ -57,6 +58,14 @@
 - [General upgrade steps (any version)](#general-upgrade-steps-any-version)
 
 ## Unreleased
+
+## To 2.11.0
+
+From **2.10.0**:
+
+```bash
+composer update nowo-tech/breadcrumb-kit-bundle
+```
 
 ### Breadcrumb icons are sanitized
 
