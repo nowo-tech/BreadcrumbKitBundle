@@ -120,6 +120,7 @@ import:
     invalid_shape: 'Expected format: { "collection", "items" } or { "collections": [ ... ] }.'
     collection_code_required: Collection code is required.
     icon_rejected: 'Collection "%code%": %count% icon(s) contained unsafe markup and were left empty.'
+    path_pattern_rejected: 'Collection "%code%": %count% path pattern(s) did not compile or used nested quantifiers and were left empty.'
 
 form:
   icon:
@@ -169,6 +170,7 @@ form:
     path_pattern.label: Path pattern (PCRE)
     path_pattern.placeholder: '^/shop/.+'
     path_pattern.help: 'Optional regex body matched against the request path (e.g. ^/shop/.+). Use with route * for path-only matches.'
+    path_pattern.invalid: 'Invalid path pattern: it must be a valid regular expression body (used as #…#u) without nested quantifiers such as (a+)+.'
     match_attributes.label: Request attributes (JSON)
     match_attributes.help: 'Optional map of request attributes that must match (beyond _route_params).'
     dynamic_keys.label: Dynamic keys (JSON array)

@@ -11,6 +11,7 @@ use Nowo\BreadcrumbKitBundle\NowoBreadcrumbKitBundle;
 use Nowo\BreadcrumbKitBundle\Repository\BreadcrumbCollectionRepository;
 use Nowo\BreadcrumbKitBundle\Repository\BreadcrumbItemRepository;
 use Nowo\BreadcrumbKitBundle\Security\BreadcrumbIconSanitizer;
+use Nowo\BreadcrumbKitBundle\Security\BreadcrumbPathPatternValidator;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 use Symfony\Contracts\Translation\TranslatorInterface;
@@ -173,9 +174,9 @@ final readonly class BreadcrumbImporter
         // One transaction per collection: a failure while re-creating the tree must not leave a "replace"
         // import with its old items deleted and the new ones missing.
         $this->entityManager->beginTransaction();
-        $rejectedIcons = 0;
+        $rejected = ['icon' => 0, 'pathPattern' => 0];
         try {
-            $this->writeCollection($existing, $colData, $itemsData, $rejectedIcons);
+            $this->writeCollection($existing, $colData, $itemsData, $rejected);
             $this->entityManager->commit();
         } catch (Throwable $e) {
             $this->entityManager->rollback();
@@ -190,33 +191,36 @@ final readonly class BreadcrumbImporter
         } else {
             ++$result['created'];
         }
-        if ($rejectedIcons > 0) {
-            $result['errors'][] = $this->t('import.error.icon_rejected', ['%code%' => $code, '%count%' => (string) $rejectedIcons]);
+        if ($rejected['icon'] > 0) {
+            $result['errors'][] = $this->t('import.error.icon_rejected', ['%code%' => $code, '%count%' => (string) $rejected['icon']]);
+        }
+        if ($rejected['pathPattern'] > 0) {
+            $result['errors'][] = $this->t('import.error.path_pattern_rejected', ['%code%' => $code, '%count%' => (string) $rejected['pathPattern']]);
         }
     }
 
     /**
-     * @param array<string, mixed>       $colData
-     * @param list<array<string, mixed>> $itemsData
-     * @param int                        $rejectedIcons incremented for every icon dropped as unsafe markup
+     * @param array<string, mixed>               $colData
+     * @param list<array<string, mixed>>         $itemsData
+     * @param array{icon: int, pathPattern: int} $rejected  values dropped as unsafe (icons) or invalid (path patterns)
      */
-    private function writeCollection(?BreadcrumbCollection $existing, array $colData, array $itemsData, int &$rejectedIcons): void
+    private function writeCollection(?BreadcrumbCollection $existing, array $colData, array $itemsData, array &$rejected): void
     {
         if ($existing instanceof BreadcrumbCollection) {
             foreach ($this->itemRepository->findAllForCollection($existing) as $item) {
                 $this->entityManager->remove($item);
             }
             $this->entityManager->flush();
-            $this->applyCollectionData($existing, $colData, $rejectedIcons);
+            $this->applyCollectionData($existing, $colData, $rejected);
             $collection = $existing;
         } else {
             $collection = new BreadcrumbCollection();
-            $this->applyCollectionData($collection, $colData, $rejectedIcons);
+            $this->applyCollectionData($collection, $colData, $rejected);
             $this->entityManager->persist($collection);
             $this->entityManager->flush();
         }
 
-        $this->persistItemTree($itemsData, $collection, null, $rejectedIcons);
+        $this->persistItemTree($itemsData, $collection, null, $rejected);
         $this->entityManager->flush();
     }
 
@@ -234,16 +238,17 @@ final readonly class BreadcrumbImporter
     }
 
     /**
-     * @param array<string, mixed> $colData
+     * @param array<string, mixed>               $colData
+     * @param array{icon: int, pathPattern: int} $rejected
      */
-    private function applyCollectionData(BreadcrumbCollection $collection, array $colData, int &$rejectedIcons): void
+    private function applyCollectionData(BreadcrumbCollection $collection, array $colData, array &$rejected): void
     {
         $collection->setCode(isset($colData['code']) && \is_string($colData['code']) ? trim($colData['code']) : '');
         $collection->setContextKey($this->contextKeyFromData($colData));
         if (isset($colData['name'])) {
             $collection->setName(\is_string($colData['name']) && '' !== trim($colData['name']) ? trim($colData['name']) : null);
         }
-        $collection->setHomeIcon($this->iconOrNull($colData['homeIcon'] ?? null, $rejectedIcons));
+        $collection->setHomeIcon($this->iconOrNull($colData['homeIcon'] ?? null, $rejected));
         $collection->setSeparatorIcon($this->stringOrNull($colData['separatorIcon'] ?? null));
         if (\array_key_exists('responsiveConfig', $colData)) {
             $collection->setResponsiveConfig(\is_array($colData['responsiveConfig']) ? $colData['responsiveConfig'] : null);
@@ -256,9 +261,10 @@ final readonly class BreadcrumbImporter
     }
 
     /**
-     * @param list<array<string, mixed>> $itemsData
+     * @param list<array<string, mixed>>         $itemsData
+     * @param array{icon: int, pathPattern: int} $rejected
      */
-    private function persistItemTree(array $itemsData, BreadcrumbCollection $collection, ?BreadcrumbItem $parent, int &$rejectedIcons): void
+    private function persistItemTree(array $itemsData, BreadcrumbCollection $collection, ?BreadcrumbItem $parent, array &$rejected): void
     {
         foreach ($itemsData as $row) {
             $routeName = isset($row['routeName']) && \is_string($row['routeName']) ? trim($row['routeName']) : '';
@@ -270,18 +276,18 @@ final readonly class BreadcrumbImporter
             $item->setParent($parent);
             $item->setRouteName($routeName);
             $item->setStaticRouteParams($this->staticParamsFromRow($row));
-            $item->setPathPattern($this->stringOrNull($row['pathPattern'] ?? null));
+            $item->setPathPattern($this->pathPatternOrNull($row['pathPattern'] ?? null, $rejected));
             $item->setMatchAttributes($this->matchAttributesFromRow($row));
             $item->setDynamicParamKeys($this->dynamicKeysFromRow($row));
             $item->setLinkEnabled(!isset($row['linkEnabled']) ? true : (bool) $row['linkEnabled']);
             $item->setLabel($this->stringOrNull($row['label'] ?? null));
             $item->setTranslations($this->translationsFromRow($row));
-            $item->setIcon($this->iconOrNull($row['icon'] ?? null, $rejectedIcons));
+            $item->setIcon($this->iconOrNull($row['icon'] ?? null, $rejected));
             $this->entityManager->persist($item);
 
             $children = isset($row['children']) && \is_array($row['children']) ? array_values($row['children']) : [];
             if ([] !== $children) {
-                $this->persistItemTree($children, $collection, $item, $rejectedIcons);
+                $this->persistItemTree($children, $collection, $item, $rejected);
             }
         }
     }
@@ -385,15 +391,35 @@ final readonly class BreadcrumbImporter
     /**
      * Icons are printed |raw on public pages: imported markup goes through the same allowlist as the form; an
      * unsafe value is dropped (stored as null) and counted so the import result reports it.
+     *
+     * @param array{icon: int, pathPattern: int} $rejected
      */
-    private function iconOrNull(mixed $v, int &$rejectedIcons): ?string
+    private function iconOrNull(mixed $v, array &$rejected): ?string
     {
         $icon = $this->stringOrNull($v);
         $sanitized = BreadcrumbIconSanitizer::sanitizeOrNull($icon);
         if (null !== $icon && null === $sanitized) {
-            ++$rejectedIcons;
+            ++$rejected['icon'];
         }
 
         return $sanitized;
+    }
+
+    /**
+     * Same check as the dashboard form: a pattern that does not compile or has nested quantifiers is dropped (the
+     * item then matches by route only) and counted with the rejected values.
+     *
+     * @param array{icon: int, pathPattern: int} $rejected
+     */
+    private function pathPatternOrNull(mixed $v, array &$rejected): ?string
+    {
+        $pattern = $this->stringOrNull($v);
+        if (null !== $pattern && !BreadcrumbPathPatternValidator::isAllowed($pattern)) {
+            ++$rejected['pathPattern'];
+
+            return null;
+        }
+
+        return $pattern;
     }
 }

@@ -332,6 +332,35 @@ final class BreadcrumbImporterTest extends TestCase
         self::assertSame('<i class="bi bi-journal"></i>', $persisted[2]->getIcon());
     }
 
+    public function testImportDropsInvalidPathPatternsAndReportsThem(): void
+    {
+        $colRepo = $this->createMock(BreadcrumbCollectionRepository::class);
+        $colRepo->method('findOneByCodeAndContextKey')->willReturn(null);
+
+        /** @var list<object> $persisted */
+        $persisted = [];
+        $em = $this->createMock(EntityManagerInterface::class);
+        $em->method('persist')->willReturnCallback(static function (object $entity) use (&$persisted): void {
+            $persisted[] = $entity;
+        });
+
+        $importer = new BreadcrumbImporter($colRepo, $this->createMock(BreadcrumbItemRepository::class), $em, $this->translator());
+
+        $result = $importer->import([
+            'collection' => ['code' => 'demo'],
+            'items' => [
+                ['routeName' => '*', 'pathPattern' => '^/(a+)+$'],
+                ['routeName' => 'shop', 'pathPattern' => '^/shop/.+'],
+            ],
+        ]);
+
+        self::assertSame(['import.error.path_pattern_rejected{"%code%":"demo","%count%":"1"}'], $result['errors']);
+        self::assertInstanceOf(BreadcrumbItem::class, $persisted[1]);
+        self::assertNull($persisted[1]->getPathPattern());
+        self::assertInstanceOf(BreadcrumbItem::class, $persisted[2]);
+        self::assertSame('^/shop/.+', $persisted[2]->getPathPattern());
+    }
+
     public function testImportLogsErrorAndRethrowsOnFailure(): void
     {
         $colRepo = $this->createMock(BreadcrumbCollectionRepository::class);

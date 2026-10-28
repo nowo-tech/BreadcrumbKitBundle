@@ -120,6 +120,7 @@ import:
     invalid_shape: 'Format attendu : { "collection", "items" } ou { "collections": [ ... ] }.'
     collection_code_required: Le code de collection est obligatoire.
     icon_rejected: 'Collection « %code% » : %count% icône(s) contenaient un balisage non sûr et ont été laissées vides.'
+    path_pattern_rejected: 'Collection « %code% » : %count% motif(s) de chemin ne compilaient pas ou utilisaient des quantificateurs imbriqués et ont été laissés vides.'
 
 form:
   icon:
@@ -169,6 +170,7 @@ form:
     path_pattern.label: Path pattern (PCRE)
     path_pattern.placeholder: '^/shop/.+'
     path_pattern.help: Optional regex against request path; use route * for path-only matches.
+    path_pattern.invalid: 'Motif de chemin invalide : il doit s’agir d’une expression régulière valide (utilisée comme #…#u) sans quantificateurs imbriqués comme (a+)+.'
     match_attributes.label: Request attributes (JSON)
     match_attributes.help: Extra request attributes that must match.
     dynamic_keys.label: Clés dynamiques (tableau JSON)

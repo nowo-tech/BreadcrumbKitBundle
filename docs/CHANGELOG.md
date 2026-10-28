@@ -55,6 +55,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Security
+
+- **Item `pathPattern` is validated on save.** The editor-supplied PCRE body is compiled as `#…#u` on every request
+  that reaches the matcher, but was only length-checked. A catastrophic-backtracking pattern such as `^/(a+)+$`
+  burned CPU up to PCRE's backtrack limit per request (denial of service by a dashboard user). The dashboard form now
+  rejects patterns that do not compile or use nested quantifiers (`form.breadcrumb_item.path_pattern.invalid`), and the
+  JSON import leaves them empty and reports `import.error.path_pattern_rejected` (`BreadcrumbPathPatternValidator`).
+
 ## [2.11.0] - 2026-10-28
 
 Security: breadcrumb icons are sanitized (stored XSS through item icon / collection homeIcon). See [UPGRADING](UPGRADING.md#to-2110).

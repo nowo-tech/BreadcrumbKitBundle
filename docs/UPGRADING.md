@@ -3,6 +3,7 @@
 ## Table of contents
 
 - [Unreleased](#unreleased)
+  - [Path patterns are validated](#path-patterns-are-validated)
 - [To 2.11.0](#to-2110)
   - [Breadcrumb icons are sanitized](#breadcrumb-icons-are-sanitized)
 - [To 2.10.0](#to-2100)
@@ -58,6 +59,12 @@
 - [General upgrade steps (any version)](#general-upgrade-steps-any-version)
 
 ## Unreleased
+
+### Path patterns are validated
+
+Item `pathPattern` values must compile as `#…#u` and must not use nested quantifiers (`(a+)+`, `(\w*)*`,
+`(x{1,5}){2,}`). The dashboard rejects other values and the JSON import leaves them empty (the item then matches by
+route only). Stored values are not changed: review existing patterns with `bin/console nowo_breadcrumb_kit:export`.
 
 ## To 2.11.0
 

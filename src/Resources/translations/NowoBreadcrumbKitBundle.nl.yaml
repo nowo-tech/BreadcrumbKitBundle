@@ -120,6 +120,7 @@ import:
     invalid_shape: 'Verwacht formaat: { "collection", "items" } of { "collections": [ ... ] }.'
     collection_code_required: Collectiecode is verplicht.
     icon_rejected: 'Collectie "%code%": %count% icoon/iconen bevatten onveilige markup en zijn leeg gelaten.'
+    path_pattern_rejected: 'Collectie "%code%": %count% padpatroon/-patronen compileerden niet of gebruikten geneste kwantoren en zijn leeg gelaten.'
 
 form:
   icon:
@@ -169,6 +170,7 @@ form:
     path_pattern.label: Path pattern (PCRE)
     path_pattern.placeholder: '^/shop/.+'
     path_pattern.help: Optional regex against request path; use route * for path-only matches.
+    path_pattern.invalid: 'Ongeldig padpatroon: het moet een geldige reguliere expressie zijn (gebruikt als #…#u) zonder geneste kwantoren zoals (a+)+.'
     match_attributes.label: Request attributes (JSON)
     match_attributes.help: Extra request attributes that must match.
     dynamic_keys.label: Dynamische sleutels (JSON-array)

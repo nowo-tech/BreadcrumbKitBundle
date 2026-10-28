@@ -70,7 +70,7 @@ final class BreadcrumbItemType extends AbstractType
                 'placeholder' => false,
                 'help' => 'form.breadcrumb_item.path_pattern.help',
                 'required' => false,
-                'constraints' => [new Length(max: 512)],
+                'constraints' => [new Length(max: 512), BreadcrumbPathPatternConstraint::create()],
                 'attr' => ['placeholder' => 'form.breadcrumb_item.path_pattern.placeholder', 'class' => 'nowo-ui-input nowo-ui-input--full nowo-ui-code'],
             ]);
             $this->addTextareaField('matchAttributes', [
