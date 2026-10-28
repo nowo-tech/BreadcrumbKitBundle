@@ -75,6 +75,9 @@ Dashboard look-and-feel composes **UiKitBundle**; dashboard Symfony forms compos
 ### HTTP — dashboard
 
 - **FR-CTRL-001**: Collection/item CRUD, index, import/export controllers; shared dashboard traits.
+- **FR-SEC-002**: `CsrfProtectionPass` fails the container build when the dashboard is enabled without Symfony form CSRF protection (fail closed).
+- **FR-SEC-003**: `BreadcrumbIconSanitizer` allowlists icons (text/emoji/tokens, inline SVG, simple inline HTML, never script); applied on forms, JSON import and the loader, since themes print icons with `|raw`.
+- **FR-SEC-004**: `BreadcrumbPathPatternValidator` rejects `pathPattern` values that do not compile as `#…#u` or contain nested quantifiers (ReDoS) before they are stored.
 - **FR-SEC-001**: Dashboard access via `security.access_roles` / optional `access_checker` / `allow_unauthenticated` (demo); `DashboardAccessSubscriber` + `DashboardSecurityPass`.
 
 ### FrankenPHP worker (kernel not reset)
@@ -85,6 +88,7 @@ Dashboard look-and-feel composes **UiKitBundle**; dashboard Symfony forms compos
 
 - **FR-FORM-001**: Collection/item types, dashboard search/delete/import forms.
 - **FR-FORM-002**: `JsonObjectTransformer`, `JsonStringListTransformer` for JSON fields (empty/null-friendly UX; preferred over FormKit `addJsonField` where entity null semantics matter).
+- **FR-FORM-004**: `BreadcrumbIconConstraint` / `BreadcrumbPathPatternConstraint` validate the editor-supplied `icon` / `homeIcon` and `pathPattern` fields on the dashboard and import forms.
 - **FR-FORM-003**: CRUD form types (`BreadcrumbItemType`, `BreadcrumbCollectionType`, `ImportBreadcrumbType`) use FormKit `FormOptionsTrait` + `#[FormKitConfig('breadcrumb_kit')]`; registered as `form.type` services so `FormOptionsMerger` is injected.
 
 ### Twig & UI composition
@@ -117,7 +121,7 @@ Dashboard look-and-feel composes **UiKitBundle**; dashboard Symfony forms compos
 
 ## Success Criteria
 
-- **SC-001**: **92/92** production files under `src/` mapped in [`code-inventory.md`](code-inventory.md).
+- **SC-001**: **97/97** production files under `src/` mapped in [`code-inventory.md`](code-inventory.md).
 - **SC-002**: Config keys match `docs/CONFIGURATION.md` (incl. UiKit / FormKit prepend notes).
 - **SC-003**: QA/CI green (`make release-check` / PHPUnit / PHPStan / coverage floor).
 - **SC-004**: Hosts registering the dashboard can resolve UiKit macros/CSS and FormKit profile `breadcrumb_kit` without forking BreadcrumbKit form PHP for basic field chrome.

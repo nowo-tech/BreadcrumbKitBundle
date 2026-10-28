@@ -2,7 +2,7 @@
 
 **Baseline spec**: [`spec.md`](spec.md)  
 **Package**: `nowo-tech/breadcrumb-kit-bundle`  
-**Last audited**: 2026-10-20 (wave-1 refresh: UiKit page contract, cache invalidator, configured locales)  
+**Last audited**: 2026-10-28 (security fixes 2.11.0–2.12.0: icon sanitizer, path pattern validator, CSRF pass)  
 **Audit**: `find src -type f | wc -l` → **92** (matches summary total)
 
 ## Symfony config
@@ -22,6 +22,7 @@
 | `DependencyInjection/Compiler/BreadcrumbInlineEditAccessLocatorPass.php` | Bundle & DI | FR-DI-002 |
 | `DependencyInjection/Compiler/DashboardSecurityPass.php` | Bundle & DI | FR-SEC-001 |
 | `DependencyInjection/Compiler/TwigPathsPass.php` | Bundle & DI | FR-TWIG-001 |
+| `DependencyInjection/Compiler/CsrfProtectionPass.php` | Bundle & DI | FR-SEC-002 |
 | `DependencyInjection/Configuration.php` | Bundle & DI | FR-CFG-001, FR-PHP-001 |
 | `NowoBreadcrumbKitBundle.php` | Bundle & DI | FR-BUNDLE-001 |
 | `Dashboard/DashboardChrome.php` | Bundle & DI | FR-TWIG-004 |
@@ -43,6 +44,8 @@
 | `EventSubscriber/DashboardEntityManagerSubscriber.php` | Security & contracts | FR-WORKER-001 |
 | `Security/BreadcrumbKitAccessCheckerInterface.php` | Security & contracts | FR-SEC-001 |
 | `Security/ConfigurableBreadcrumbKitAccessChecker.php` | Security & contracts | FR-SEC-001 |
+| `Security/BreadcrumbIconSanitizer.php` | Security & contracts | FR-SEC-003 |
+| `Security/BreadcrumbPathPatternValidator.php` | Security & contracts | FR-SEC-004 |
 
 ## Entities & persistence
 
@@ -111,6 +114,8 @@
 | --- | --- | --- |
 | `Form/BreadcrumbCollectionType.php` | Forms | FR-FORM-001, FR-FORM-003 |
 | `Form/BreadcrumbItemType.php` | Forms | FR-FORM-001, FR-FORM-003 |
+| `Form/BreadcrumbIconConstraint.php` | Forms | FR-FORM-004, FR-SEC-003 |
+| `Form/BreadcrumbPathPatternConstraint.php` | Forms | FR-FORM-004, FR-SEC-004 |
 | `Form/Dashboard/DashboardGetSearchType.php` | Forms | FR-FORM-001, FR-FORM-004 |
 | `Form/Dashboard/DashboardPostDeleteType.php` | Forms | FR-FORM-001 |
 | `Form/Dashboard/ImportBreadcrumbType.php` | Forms | FR-FORM-001, FR-FORM-003 |
@@ -201,16 +206,16 @@ BreadcrumbKit prepends FormKit profile `breadcrumb_kit` and may seed FormKit/UiK
 | Category | Files | Mapped |
 | --- | ---: | ---: |
 | Symfony config | 4 | 4 |
-| Bundle & DI | 7 | 7 |
+| Bundle & DI | 8 | 8 |
 | Enums | 3 | 3 |
-| Security & contracts | 5 | 5 |
+| Security & contracts | 7 | 7 |
 | Entities & persistence | 5 | 5 |
 | DTOs | 4 | 4 |
 | Services | 10 | 10 |
 | Controllers — dashboard | 7 | 7 |
 | Commands | 4 | 4 |
 | Events | 1 | 1 |
-| Forms | 7 | 7 |
+| Forms | 9 | 9 |
 | Twig PHP | 3 | 3 |
 | Profiler | 3 | 3 |
 | Public assets | 3 | 3 |
@@ -218,4 +223,4 @@ BreadcrumbKit prepends FormKit profile `breadcrumb_kit` and may seed FormKit/UiK
 | Twig views — public | 4 | 4 |
 | Twig views — profiler | 2 | 2 |
 | Twig views — dashboard | 13 | 13 |
-| **Total production sources** | **92** | **92** |
+| **Total production sources** | **97** | **97** |
