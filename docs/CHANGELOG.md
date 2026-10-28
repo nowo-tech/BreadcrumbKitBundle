@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## Table of contents
 
 - [[Unreleased]](#unreleased)
+- [[2.10.0] - 2026-10-28](#2100---2026-10-28)
 - [[2.9.0] - 2026-10-20](#290---2026-10-20)
 - [[2.8.0] - 2026-10-19](#280---2026-10-19)
 - [[2.7.2] - 2026-10-18](#272---2026-10-18)
@@ -52,6 +53,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - [[1.0.0] - 2026-07-03](#100---2026-07-03)
 
 ## [Unreleased]
+
+## [2.10.0] - 2026-10-28
+
+Security: the admin UI refuses to compile without form CSRF protection (CsrfProtectionPass, fail closed). See [UPGRADING](UPGRADING.md#to-2100).
 
 ### Security
 

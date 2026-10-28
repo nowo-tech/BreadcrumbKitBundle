@@ -3,6 +3,8 @@
 ## Table of contents
 
 - [Unreleased](#unreleased)
+- [To 2.10.0](#to-2100)
+  - [Dashboard requires form CSRF protection at compile time](#dashboard-requires-form-csrf-protection-at-compile-time)
 - [To 2.9.0](#to-290)
 - [To 2.8.0](#to-280)
   - [Item label translations: locale tabs instead of JSON](#item-label-translations-locale-tabs-instead-of-json)
@@ -54,6 +56,14 @@
 - [General upgrade steps (any version)](#general-upgrade-steps-any-version)
 
 ## Unreleased
+
+## To 2.10.0
+
+From **2.9.0**:
+
+```bash
+composer update nowo-tech/breadcrumb-kit-bundle
+```
 
 ### Dashboard requires form CSRF protection at compile time
 
