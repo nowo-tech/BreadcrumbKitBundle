@@ -10,6 +10,7 @@ use Nowo\BreadcrumbKitBundle\Entity\BreadcrumbItem;
 use Nowo\BreadcrumbKitBundle\NowoBreadcrumbKitBundle;
 use Nowo\BreadcrumbKitBundle\Repository\BreadcrumbCollectionRepository;
 use Nowo\BreadcrumbKitBundle\Repository\BreadcrumbItemRepository;
+use Nowo\BreadcrumbKitBundle\Security\BreadcrumbIconSanitizer;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 use Symfony\Contracts\Translation\TranslatorInterface;
@@ -172,8 +173,9 @@ final readonly class BreadcrumbImporter
         // One transaction per collection: a failure while re-creating the tree must not leave a "replace"
         // import with its old items deleted and the new ones missing.
         $this->entityManager->beginTransaction();
+        $rejectedIcons = 0;
         try {
-            $this->writeCollection($existing, $colData, $itemsData);
+            $this->writeCollection($existing, $colData, $itemsData, $rejectedIcons);
             $this->entityManager->commit();
         } catch (Throwable $e) {
             $this->entityManager->rollback();
@@ -188,29 +190,33 @@ final readonly class BreadcrumbImporter
         } else {
             ++$result['created'];
         }
+        if ($rejectedIcons > 0) {
+            $result['errors'][] = $this->t('import.error.icon_rejected', ['%code%' => $code, '%count%' => (string) $rejectedIcons]);
+        }
     }
 
     /**
      * @param array<string, mixed>       $colData
      * @param list<array<string, mixed>> $itemsData
+     * @param int                        $rejectedIcons incremented for every icon dropped as unsafe markup
      */
-    private function writeCollection(?BreadcrumbCollection $existing, array $colData, array $itemsData): void
+    private function writeCollection(?BreadcrumbCollection $existing, array $colData, array $itemsData, int &$rejectedIcons): void
     {
         if ($existing instanceof BreadcrumbCollection) {
             foreach ($this->itemRepository->findAllForCollection($existing) as $item) {
                 $this->entityManager->remove($item);
             }
             $this->entityManager->flush();
-            $this->applyCollectionData($existing, $colData);
+            $this->applyCollectionData($existing, $colData, $rejectedIcons);
             $collection = $existing;
         } else {
             $collection = new BreadcrumbCollection();
-            $this->applyCollectionData($collection, $colData);
+            $this->applyCollectionData($collection, $colData, $rejectedIcons);
             $this->entityManager->persist($collection);
             $this->entityManager->flush();
         }
 
-        $this->persistItemTree($itemsData, $collection, null);
+        $this->persistItemTree($itemsData, $collection, null, $rejectedIcons);
         $this->entityManager->flush();
     }
 
@@ -230,14 +236,14 @@ final readonly class BreadcrumbImporter
     /**
      * @param array<string, mixed> $colData
      */
-    private function applyCollectionData(BreadcrumbCollection $collection, array $colData): void
+    private function applyCollectionData(BreadcrumbCollection $collection, array $colData, int &$rejectedIcons): void
     {
         $collection->setCode(isset($colData['code']) && \is_string($colData['code']) ? trim($colData['code']) : '');
         $collection->setContextKey($this->contextKeyFromData($colData));
         if (isset($colData['name'])) {
             $collection->setName(\is_string($colData['name']) && '' !== trim($colData['name']) ? trim($colData['name']) : null);
         }
-        $collection->setHomeIcon($this->stringOrNull($colData['homeIcon'] ?? null));
+        $collection->setHomeIcon($this->iconOrNull($colData['homeIcon'] ?? null, $rejectedIcons));
         $collection->setSeparatorIcon($this->stringOrNull($colData['separatorIcon'] ?? null));
         if (\array_key_exists('responsiveConfig', $colData)) {
             $collection->setResponsiveConfig(\is_array($colData['responsiveConfig']) ? $colData['responsiveConfig'] : null);
@@ -252,7 +258,7 @@ final readonly class BreadcrumbImporter
     /**
      * @param list<array<string, mixed>> $itemsData
      */
-    private function persistItemTree(array $itemsData, BreadcrumbCollection $collection, ?BreadcrumbItem $parent): void
+    private function persistItemTree(array $itemsData, BreadcrumbCollection $collection, ?BreadcrumbItem $parent, int &$rejectedIcons): void
     {
         foreach ($itemsData as $row) {
             $routeName = isset($row['routeName']) && \is_string($row['routeName']) ? trim($row['routeName']) : '';
@@ -270,12 +276,12 @@ final readonly class BreadcrumbImporter
             $item->setLinkEnabled(!isset($row['linkEnabled']) ? true : (bool) $row['linkEnabled']);
             $item->setLabel($this->stringOrNull($row['label'] ?? null));
             $item->setTranslations($this->translationsFromRow($row));
-            $item->setIcon($this->stringOrNull($row['icon'] ?? null));
+            $item->setIcon($this->iconOrNull($row['icon'] ?? null, $rejectedIcons));
             $this->entityManager->persist($item);
 
             $children = isset($row['children']) && \is_array($row['children']) ? array_values($row['children']) : [];
             if ([] !== $children) {
-                $this->persistItemTree($children, $collection, $item);
+                $this->persistItemTree($children, $collection, $item, $rejectedIcons);
             }
         }
     }
@@ -374,5 +380,20 @@ final readonly class BreadcrumbImporter
         $t = trim($v);
 
         return '' === $t ? null : $t;
+    }
+
+    /**
+     * Icons are printed |raw on public pages: imported markup goes through the same allowlist as the form; an
+     * unsafe value is dropped (stored as null) and counted so the import result reports it.
+     */
+    private function iconOrNull(mixed $v, int &$rejectedIcons): ?string
+    {
+        $icon = $this->stringOrNull($v);
+        $sanitized = BreadcrumbIconSanitizer::sanitizeOrNull($icon);
+        if (null !== $icon && null === $sanitized) {
+            ++$rejectedIcons;
+        }
+
+        return $sanitized;
     }
 }

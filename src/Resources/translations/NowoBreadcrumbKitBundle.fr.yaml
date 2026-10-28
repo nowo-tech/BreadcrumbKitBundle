@@ -119,8 +119,12 @@ import:
     invalid_root: 'N''utilisez pas un tableau JSON racine nu ; exportez depuis le panneau ou utilisez { "collections": [ ... ] }.'
     invalid_shape: 'Format attendu : { "collection", "items" } ou { "collections": [ ... ] }.'
     collection_code_required: Le code de collection est obligatoire.
+    icon_rejected: 'Collection « %code% » : %count% icône(s) contenaient un balisage non sûr et ont été laissées vides.'
 
 form:
+  icon:
+    invalid: 'Icône non autorisée : utilisez du texte, un emoji, du SVG en ligne ou du HTML en ligne simple (p. ex. <i class="bi bi-house"></i>) sans scripts, gestionnaires d’événements ni liens externes.'
+
   delete:
     csrf_invalid: Jeton CSRF invalide.
 

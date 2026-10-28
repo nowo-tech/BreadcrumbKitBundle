@@ -54,6 +54,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Security
+
+- **Stored XSS through breadcrumb icons.** The item `icon` and the collection `homeIcon` are printed with `|raw` on
+  every page that renders a trail, but were stored without sanitizing (dashboard form and JSON import). A dashboard
+  user could store `<img src=x onerror=…>` and run script in the session of every visitor and admin viewing the
+  trail. Default `security.access_roles: [ROLE_ADMIN]` keeps this to trusted users; hosts that delegate the dashboard
+  to editors were exposed. Icons now go through `BreadcrumbIconSanitizer` (allowlist: text/emoji/tokens, inline
+  SVG, simple inline HTML such as `<i class="bi bi-house"></i>`; no event handlers, scripts or external links):
+  - the dashboard forms reject unsafe values (`form.icon.invalid`);
+  - the JSON import stores them as empty and reports `import.error.icon_rejected`;
+  - the loader re-sanitizes stored values before rendering, so rows saved by older versions cannot render script.
+  The configured `presentation.home_icon` (application config) is still trusted and printed as is.
+- The PSR-6 item cache key prefix changed (`nowo_breadcrumb_kit.items.v2.`) so trails cached by older versions are
+  rebuilt with sanitized icons.
+
 ## [2.10.0] - 2026-10-28
 
 Security: the admin UI refuses to compile without form CSRF protection (CsrfProtectionPass, fail closed). See [UPGRADING](UPGRADING.md#to-2100).

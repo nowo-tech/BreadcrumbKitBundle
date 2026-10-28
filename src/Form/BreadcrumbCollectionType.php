@@ -55,7 +55,7 @@ final class BreadcrumbCollectionType extends AbstractType
                 'placeholder' => false,
                 'help' => 'form.breadcrumb_collection.home_icon.help',
                 'required' => false,
-                'constraints' => [new Length(max: 128)],
+                'constraints' => [new Length(max: 128), BreadcrumbIconConstraint::create()],
             ]);
             $this->addTextField('separatorIcon', [
                 'label' => 'form.breadcrumb_collection.separator_icon.label',

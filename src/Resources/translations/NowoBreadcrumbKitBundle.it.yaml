@@ -119,8 +119,12 @@ import:
     invalid_root: 'Non usare un array JSON radice nudo; esporta dal pannello o usa { "collections": [ ... ] }.'
     invalid_shape: 'Formato atteso: { "collection", "items" } o { "collections": [ ... ] }.'
     collection_code_required: Il codice della collezione è obbligatorio.
+    icon_rejected: 'Collezione "%code%": %count% icona/e contenevano markup non sicuro e sono state lasciate vuote.'
 
 form:
+  icon:
+    invalid: 'Icona non consentita: usa testo, un emoji, SVG inline o HTML inline semplice (ad es. <i class="bi bi-house"></i>) senza script, gestori di eventi o link esterni.'
+
   delete:
     csrf_invalid: Token CSRF non valido.
 

@@ -125,7 +125,7 @@ final class BreadcrumbItemType extends AbstractType
                 'placeholder' => false,
                 'help' => false,
                 'required' => false,
-                'constraints' => [new Length(max: 128)],
+                'constraints' => [new Length(max: 128), BreadcrumbIconConstraint::create()],
             ]);
             $this->addWithDefaults($this->boundBuilder(), 'parent', EntityType::class, [
                 'class' => BreadcrumbItem::class,

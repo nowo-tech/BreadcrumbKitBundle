@@ -13,6 +13,7 @@ use Nowo\BreadcrumbKitBundle\Event\BreadcrumbTrailBuiltEvent;
 use Nowo\BreadcrumbKitBundle\Profiler\BreadcrumbProfilerRecorder;
 use Nowo\BreadcrumbKitBundle\Repository\BreadcrumbCollectionRepository;
 use Nowo\BreadcrumbKitBundle\Repository\BreadcrumbItemRepository;
+use Nowo\BreadcrumbKitBundle\Security\BreadcrumbIconSanitizer;
 use Psr\Cache\CacheItemPoolInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
@@ -23,7 +24,8 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
  */
 final readonly class BreadcrumbLoader
 {
-    private const CACHE_PREFIX = 'nowo_breadcrumb_kit.items.';
+    // v2 (2.11): cached rows carry sanitized icons; entries written by older versions are not read.
+    private const CACHE_PREFIX = 'nowo_breadcrumb_kit.items.v2.';
 
     public function __construct(
         private BreadcrumbCollectionRepository $collectionRepository,
@@ -135,7 +137,7 @@ final readonly class BreadcrumbLoader
 
         $view = new BreadcrumbTrailView(
             nodes: $nodes,
-            homeIcon: $collection->getHomeIcon() ?? $this->defaultHomeIcon,
+            homeIcon: $this->homeIcon($collection),
             separatorIcon: $collection->getSeparatorIcon(),
             classList: $collection->getClassList(),
             classItem: $collection->getClassItem(),
@@ -200,13 +202,21 @@ final readonly class BreadcrumbLoader
         return $this->itemRepository->find($intId);
     }
 
+    /**
+     * Collection home icon (editor-supplied, sanitized) or the configured presentation.home_icon (trusted config).
+     */
+    private function homeIcon(BreadcrumbCollection $collection): ?string
+    {
+        return BreadcrumbIconSanitizer::sanitizeOrNull($collection->getHomeIcon()) ?? $this->defaultHomeIcon;
+    }
+
     private function emptyView(BreadcrumbCollection $collection): BreadcrumbTrailView
     {
         $responsive = $collection->getResponsiveConfig();
 
         return new BreadcrumbTrailView(
             [],
-            $collection->getHomeIcon() ?? $this->defaultHomeIcon,
+            $this->homeIcon($collection),
             $collection->getSeparatorIcon(),
             $collection->getClassList(),
             $collection->getClassItem(),
@@ -371,7 +381,9 @@ final readonly class BreadcrumbLoader
             'link_enabled' => $item->isLinkEnabled(),
             'label' => $item->getLabel(),
             'translations' => $item->getTranslations() ?? [],
-            'icon' => $item->getIcon(),
+            // Printed |raw by the themes: values stored before 2.11 (or written around the form/import) are
+            // re-sanitized here; invalid markup renders no icon.
+            'icon' => BreadcrumbIconSanitizer::sanitizeOrNull($item->getIcon()),
         ];
     }
 

@@ -3,6 +3,7 @@
 ## Table of contents
 
 - [Unreleased](#unreleased)
+  - [Breadcrumb icons are sanitized](#breadcrumb-icons-are-sanitized)
 - [To 2.10.0](#to-2100)
   - [Dashboard requires form CSRF protection at compile time](#dashboard-requires-form-csrf-protection-at-compile-time)
 - [To 2.9.0](#to-290)
@@ -56,6 +57,19 @@
 - [General upgrade steps (any version)](#general-upgrade-steps-any-version)
 
 ## Unreleased
+
+### Breadcrumb icons are sanitized
+
+Item `icon` and collection `homeIcon` values must now be plain text / emoji / icon tokens, inline SVG or simple
+inline HTML (`span`, `i`, `b`, `strong`, `em`, `small`) without event handlers, `<script>`, `style` attributes or
+non-fragment links. Unknown attributes are dropped. The dashboard rejects other values, the JSON import leaves them
+empty (reported in the import result) and stored values that fail the check render no icon.
+
+- Check existing icons after upgrading: `bin/console nowo_breadcrumb_kit:export` (or the dashboard export) and
+  look for icons that are no longer shown. Markup must be well-formed XML (`<i class="x"></i>`, not `<i class=x>`;
+  no named entities such as `&nbsp;`).
+- `presentation.home_icon` (configuration) is unchanged and still printed as is.
+- Cached trails are rebuilt once: the cache key prefix changed.
 
 ## To 2.10.0
 

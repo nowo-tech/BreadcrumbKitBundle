@@ -49,11 +49,11 @@ Global defaults live under `nowo_breadcrumb_kit.presentation` (see [CONFIGURATIO
 
 | Option | Effect |
 |--------|--------|
-| `home_icon` | Fallback icon/HTML for the first crumb when the collection has no `homeIcon`. |
+| `home_icon` | Fallback icon/HTML for the first crumb when the collection has no `homeIcon` (or when it fails the icon allowlist). |
 | `home_icon_replaces_label` | When `true` (default), first crumb shows the icon only; `aria-label` keeps the text label. |
 | `hide_when_single_root` | When `true`, no trail is rendered if the only matched crumb is the root and it is the current page. |
 
-Per collection, set `homeIcon` in the dashboard and optionally `hide_when_single_root` inside **Responsive (JSON)**:
+Per collection, set `homeIcon` in the dashboard (text, emoji, inline SVG or simple inline HTML such as `<i class="bi bi-house"></i>`; event handlers, scripts and external links are rejected) and optionally `hide_when_single_root` inside **Responsive (JSON)**:
 
 ```json
 { "hide_when_single_root": true, "breakpoint": "md" }

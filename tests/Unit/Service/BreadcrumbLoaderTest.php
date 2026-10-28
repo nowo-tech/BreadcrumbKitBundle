@@ -92,6 +92,55 @@ final class BreadcrumbLoaderTest extends TestCase
         self::assertTrue($view->nodes[1]->current);
     }
 
+    public function testLoadTrailViewSanitizesStoredIcons(): void
+    {
+        $collection = new BreadcrumbCollection();
+        $collection->setCode('default');
+        $collection->setContextKey('');
+        // Stored before 2.11 (no form/import validation): never rendered.
+        $collection->setHomeIcon('<img src=x onerror=alert(1)>');
+
+        $root = new BreadcrumbItem();
+        $root->setCollection($collection);
+        $root->setRouteName('app_home');
+        $root->setLabel('Home');
+        $root->setIcon('<i class="bi bi-house" onmouseover="alert(1)"></i>');
+
+        $leaf = new BreadcrumbItem();
+        $leaf->setCollection($collection);
+        $leaf->setParent($root);
+        $leaf->setRouteName('product_show');
+        $leaf->setLabel('Product');
+        $leaf->setIcon('<span aria-hidden="true" data-x="1">📦</span>');
+
+        $ref = new ReflectionProperty(BreadcrumbItem::class, 'id');
+        $ref->setValue($root, 1);
+        $ref->setValue($leaf, 2);
+        (new ReflectionProperty(BreadcrumbCollection::class, 'id'))->setValue($collection, 10);
+
+        $colRepo = $this->createMock(BreadcrumbCollectionRepository::class);
+        $colRepo->method('findOneByCodeAndContextKey')->willReturn($collection);
+        $itemRepo = $this->createMock(BreadcrumbItemRepository::class);
+        $itemRepo->method('findAllForCollection')->willReturn([$root, $leaf]);
+        $urlResolver = $this->createMock(BreadcrumbUrlResolverInterface::class);
+        $urlResolver->method('resolve')->willReturn(['/', []]);
+
+        $request = Request::create('/product');
+        $request->attributes->set('_route', 'product_show');
+        $stack = new RequestStack();
+        $stack->push($request);
+
+        $loader = new BreadcrumbLoader($colRepo, $itemRepo, $urlResolver, $stack, 'en', null, 60, defaultHomeIcon: '<b>⌂</b>');
+
+        $view = $loader->loadTrailView('default', '');
+
+        self::assertCount(2, $view->nodes);
+        self::assertNull($view->nodes[0]->icon);
+        self::assertSame('<span aria-hidden="true">📦</span>', $view->nodes[1]->icon);
+        // Unsafe collection value falls back to the configured (trusted) presentation.home_icon.
+        self::assertSame('<b>⌂</b>', $view->homeIcon);
+    }
+
     public function testLoadTrailViewReturnsEmptyWhenNoCollection(): void
     {
         $colRepo = $this->createMock(BreadcrumbCollectionRepository::class);

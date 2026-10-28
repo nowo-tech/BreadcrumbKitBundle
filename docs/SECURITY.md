@@ -29,7 +29,7 @@ It does **not** cover your application’s routes, authentication, or hosting en
 | **Dashboard HTTP** (when `web_ui.enabled: true`) | CRUD routes under `web_ui.path_prefix`: collections, items, JSON export/import. Forms use CSRF. Bundle-level access is enforced via `security.access_roles` / optional `security.access_checker` (REQ-UI-002) unless `security.allow_unauthenticated` is true (demo only). |
 | **JSON import uploads** | Dashboard import accepts a JSON file bounded by `dashboard.import_max_bytes` (default 2 MiB). |
 | **Database** | `BreadcrumbCollection` and `BreadcrumbItem` rows (labels, JSON translations, route names, parameters). |
-| **Twig rendering** | Output uses labels and resolved URLs produced by the loader and `RouterInterface`. |
+| **Twig rendering** | Output uses labels and resolved URLs produced by the loader and `RouterInterface`. Item `icon` / collection `homeIcon` are printed raw (markup icons) after `BreadcrumbIconSanitizer`. |
 | **Inline edit iframe** | When `inline_edit.query_param` is set and access checks pass, the default breadcrumb template may embed the dashboard item form in an `<iframe>`. |
 
 When the dashboard is enabled, HTTP endpoints are registered; protect `web_ui.path_prefix` in your application (firewall, `access_control`, VPN, etc.). When disabled, exposure depends on how your app renders breadcrumbs and who can change database content.
@@ -39,7 +39,7 @@ When the dashboard is enabled, HTTP endpoints are registered; protect `web_ui.pa
 | Threat | Risk notes |
 |--------|------------|
 | **Injection (SQL)** | Mitigated by Doctrine ORM when using parameterized APIs; avoid raw SQL on bundle tables without binding. |
-| **XSS** | Labels and URLs are passed to Twig; use Symfony/Twig auto-escaping in templates. Do not disable escaping for untrusted DB content. |
+| **XSS** | Labels and URLs are auto-escaped by Twig. Icons are markup and printed raw: `BreadcrumbIconSanitizer` (allowlist of SVG / inline HTML elements and attributes, no event handlers, scripts or external URLs) validates them in the dashboard forms, cleans them on JSON import and re-sanitizes stored values in `BreadcrumbLoader` before rendering. `presentation.home_icon` comes from application config and is trusted. Do not disable escaping for other DB content in overridden templates. |
 | **Open redirect / unsafe URLs** | URLs are generated only via Symfony’s router from configured route names and request parameters; external URLs are not supported by design. |
 | **Cache poisoning** | PSR-6 cache keys are derived from collection code, context, and locale. Ensure only trusted actors can change breadcrumb rows or cache configuration. |
 | **Denial of service** | Large trees or frequent cache misses increase DB load; use sensible TTL and pool sizing. |

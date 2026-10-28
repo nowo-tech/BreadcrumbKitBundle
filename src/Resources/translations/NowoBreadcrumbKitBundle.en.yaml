@@ -119,8 +119,12 @@ import:
     invalid_root: 'Do not use a bare JSON root array; export from the panel or use { "collections": [ ... ] }.'
     invalid_shape: 'Expected format: { "collection", "items" } or { "collections": [ ... ] }.'
     collection_code_required: Collection code is required.
+    icon_rejected: 'Collection "%code%": %count% icon(s) contained unsafe markup and were left empty.'
 
 form:
+  icon:
+    invalid: 'Icon not allowed: use text, an emoji, inline SVG or simple inline HTML (e.g. <i class="bi bi-house"></i>) without scripts, event handlers or external links.'
+
   delete:
     csrf_invalid: Invalid CSRF token.
 

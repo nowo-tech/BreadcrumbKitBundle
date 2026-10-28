@@ -119,8 +119,12 @@ import:
     invalid_root: 'Gebruik geen kale JSON-rootarray; exporteer vanuit het paneel of gebruik { "collections": [ ... ] }.'
     invalid_shape: 'Verwacht formaat: { "collection", "items" } of { "collections": [ ... ] }.'
     collection_code_required: Collectiecode is verplicht.
+    icon_rejected: 'Collectie "%code%": %count% icoon/iconen bevatten onveilige markup en zijn leeg gelaten.'
 
 form:
+  icon:
+    invalid: 'Icoon niet toegestaan: gebruik tekst, een emoji, inline SVG of eenvoudige inline HTML (bijv. <i class="bi bi-house"></i>) zonder scripts, event handlers of externe links.'
+
   delete:
     csrf_invalid: Ongeldig CSRF-token.
 
