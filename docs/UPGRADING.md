@@ -3,6 +3,7 @@
 ## Table of contents
 
 - [Unreleased](#unreleased)
+- [To 2.12.0](#to-2120)
   - [Path patterns are validated](#path-patterns-are-validated)
 - [To 2.11.0](#to-2110)
   - [Breadcrumb icons are sanitized](#breadcrumb-icons-are-sanitized)
@@ -59,6 +60,14 @@
 - [General upgrade steps (any version)](#general-upgrade-steps-any-version)
 
 ## Unreleased
+
+## To 2.12.0
+
+From **2.11.0**:
+
+```bash
+composer update nowo-tech/breadcrumb-kit-bundle
+```
 
 ### Path patterns are validated
 
