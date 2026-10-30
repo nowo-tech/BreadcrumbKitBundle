@@ -56,6 +56,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- **Dashboard routes are opt-in again (REQ-SF-004 rule 7).** On Symfony >= 7.3 autoconfiguration tagged the dashboard
+  controllers (`#[Route]`) with `routing.controller`, so a host's default `config/routes.yaml`
+  (`controllers: { resource: routing.controllers }`) registered them without importing `routing/dashboard.yaml`, at
+  the host root (`/collections`, …) instead of under `web_ui.path_prefix`. The controllers are no longer autoconfigured
+  (explicit `controller.service_arguments` + `container.service_subscriber` tags); access is still checked by the
+  dashboard access subscriber.
+
 ## [2.12.0] - 2026-10-28
 
 Security: item pathPattern is validated on save (no uncompilable or catastrophic-backtracking patterns). See [UPGRADING](UPGRADING.md#to-2120).
