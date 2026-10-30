@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## Table of contents
 
 - [[Unreleased]](#unreleased)
+- [[2.12.1] - 2026-10-30](#2121---2026-10-30)
 - [[2.12.0] - 2026-10-28](#2120---2026-10-28)
 - [[2.11.0] - 2026-10-28](#2110---2026-10-28)
 - [[2.10.0] - 2026-10-28](#2100---2026-10-28)
@@ -55,6 +56,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - [[1.0.0] - 2026-07-03](#100---2026-07-03)
 
 ## [Unreleased]
+
+## [2.12.1] - 2026-10-30
+
+Bundle routes are opt-in again: controllers are no longer autoconfigured, so a host's routing.controllers import does not expose them (REQ-SF-004 rule 7). See [UPGRADING](UPGRADING.md#to-2121).
 
 ### Fixed
 

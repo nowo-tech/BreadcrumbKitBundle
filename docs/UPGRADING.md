@@ -3,6 +3,7 @@
 ## Table of contents
 
 - [Unreleased](#unreleased)
+- [To 2.12.1](#to-2121)
 - [To 2.12.0](#to-2120)
   - [Path patterns are validated](#path-patterns-are-validated)
 - [To 2.11.0](#to-2110)
@@ -60,6 +61,14 @@
 - [General upgrade steps (any version)](#general-upgrade-steps-any-version)
 
 ## Unreleased
+
+## To 2.12.1
+
+From **2.12.0**:
+
+```bash
+composer update nowo-tech/breadcrumb-kit-bundle
+```
 
 The dashboard routes are only registered by the documented import of
 `@NowoBreadcrumbKitBundle/Resources/config/routing/dashboard.yaml` (prefix `%nowo_breadcrumb_kit.web_ui.path_prefix%`).
