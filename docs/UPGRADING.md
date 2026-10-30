@@ -3,6 +3,7 @@
 ## Table of contents
 
 - [Unreleased](#unreleased)
+- [To 2.12.2](#to-2122)
 - [To 2.12.1](#to-2121)
 - [To 2.12.0](#to-2120)
   - [Path patterns are validated](#path-patterns-are-validated)
@@ -61,6 +62,14 @@
 - [General upgrade steps (any version)](#general-upgrade-steps-any-version)
 
 ## Unreleased
+
+## To 2.12.2
+
+From **2.12.1**:
+
+```bash
+composer update nowo-tech/breadcrumb-kit-bundle
+```
 
 No action needed. `DashboardPostDeleteType` is now a FormKit Type bound to the `breadcrumb_kit` profile (REQ-TWIG-005
 rule 11); its fields (`_token`, `confirm`), per-row `csrf_token_id` and rendered markup are unchanged.
