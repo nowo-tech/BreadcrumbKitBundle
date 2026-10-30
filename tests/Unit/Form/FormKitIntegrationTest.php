@@ -32,12 +32,12 @@ final class FormKitIntegrationTest extends TestCase
         $iterator = new RecursiveIteratorIterator(new RecursiveDirectoryIterator($src.'/Form'));
         /** @var SplFileInfo $file */
         foreach ($iterator as $file) {
-            if (!$file->isFile() || !\str_ends_with($file->getFilename(), 'Type.php')) {
+            if (!$file->isFile() || !str_ends_with($file->getFilename(), 'Type.php')) {
                 continue;
             }
-            $relative = \substr($file->getPathname(), \strlen($src) + 1, -4);
-            $class = 'Nowo\\BreadcrumbKitBundle\\'.\str_replace('/', '\\', $relative);
-            if (!\class_exists($class)) {
+            $relative = substr($file->getPathname(), \strlen($src) + 1, -4);
+            $class = 'Nowo\\BreadcrumbKitBundle\\'.str_replace('/', '\\', $relative);
+            if (!class_exists($class)) {
                 continue;
             }
             $reflection = new ReflectionClass($class);
@@ -63,7 +63,7 @@ final class FormKitIntegrationTest extends TestCase
             return;
         }
 
-        self::assertContains(FormOptionsTrait::class, \class_uses($class), $class.' must use FormOptionsTrait');
+        self::assertContains(FormOptionsTrait::class, class_uses($class), $class.' must use FormOptionsTrait');
         $attributes = $reflection->getAttributes(FormKitConfig::class);
         self::assertCount(1, $attributes, $class.' must carry #[FormKitConfig]');
         self::assertSame(self::PROFILE, $attributes[0]->newInstance()->name);
