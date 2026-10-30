@@ -57,6 +57,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- **All page form types are FormKit Types (REQ-TWIG-005 rule 11):** `DashboardPostDeleteType` (row delete confirm) now carries `#[FormKitConfig('breadcrumb_kit')]` + `FormOptionsTrait` like the other dashboard forms. It stays unnamed with the root fields `_token` and `confirm`, the per-row `csrf_token_id` and the same markup. A unit test asserts every `src/Form/**/*Type.php` is bound to the `breadcrumb_kit` profile.
+
 ## [2.12.1] - 2026-10-30
 
 Bundle routes are opt-in again: controllers are no longer autoconfigured, so a host's routing.controllers import does not expose them (REQ-SF-004 rule 7). See [UPGRADING](UPGRADING.md#to-2121).

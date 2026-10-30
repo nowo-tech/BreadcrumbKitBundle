@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace Nowo\BreadcrumbKitBundle\Form\Dashboard;
 
 use Nowo\BreadcrumbKitBundle\NowoBreadcrumbKitBundle;
+use Nowo\FormKitBundle\Attribute\FormKitConfig;
+use Nowo\FormKitBundle\Form\FormOptionsTrait;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\HiddenType;
@@ -18,8 +20,11 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
  *
  * @extends AbstractType<null>
  */
+#[FormKitConfig('breadcrumb_kit')]
 final class DashboardPostDeleteType extends AbstractType
 {
+    use FormOptionsTrait;
+
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder->add('confirm', HiddenType::class, ['mapped' => false, 'data' => '1']);

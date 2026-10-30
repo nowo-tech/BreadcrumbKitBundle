@@ -147,7 +147,18 @@ nowo_ui_kit:
 
 ### Form Kit (`nowo_form_kit`)
 
-Dashboard CRUD forms use [FormKitBundle](https://github.com/nowo-tech/FormKitBundle) (`FormOptionsTrait` + profile `breadcrumb_kit`). When FormKit is present and the host has not defined `profiles.breadcrumb_kit`, BreadcrumbKit prepends that profile (`translation_domain: NowoBreadcrumbKitBundle`, `nowo-ui-input nowo-ui-input--full` + Bootstrap field classes). FormKit `css_framework` is seeded from the deprecated `dashboard.css_framework` when set (else `bootstrap`), mapped to FormKit’s allowed set (`bootstrap` | `tailwind` | `foundation` | `none`). Host `default_profile` is not changed.
+Every dashboard form type (collection and item CRUD, import, search `DashboardGetSearchType`, delete `DashboardPostDeleteType`) is a [FormKitBundle](https://github.com/nowo-tech/FormKitBundle) Type: `#[FormKitConfig('breadcrumb_kit')]` + `FormOptionsTrait` (REQ-TWIG-005 rule 11). When FormKit is present and the host has not defined `profiles.breadcrumb_kit`, BreadcrumbKit prepends that profile (`translation_domain: NowoBreadcrumbKitBundle`, `nowo-ui-input nowo-ui-input--full` + Bootstrap field classes). FormKit `css_framework` is seeded from the deprecated `dashboard.css_framework` when set (else `bootstrap`), mapped to FormKit’s allowed set (`bootstrap` | `tailwind` | `foundation` | `none`). Host `default_profile` is not changed. To override, define the same profile key (host values are never overwritten):
+
+```yaml
+nowo_form_kit:
+    profiles:
+        breadcrumb_kit:
+            alias: breadcrumb_kit
+            translation_domain: NowoBreadcrumbKitBundle
+            defaults:
+                attr: { class: 'form-control' }
+                row_attr: { class: 'mb-3' }
+```
 
 ### Deprecated dashboard keys
 
