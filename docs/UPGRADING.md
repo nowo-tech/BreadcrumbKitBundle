@@ -61,6 +61,11 @@
 
 ## Unreleased
 
+The dashboard routes are only registered by the documented import of
+`@NowoBreadcrumbKitBundle/Resources/config/routing/dashboard.yaml` (prefix `%nowo_breadcrumb_kit.web_ui.path_prefix%`).
+On Symfony >= 7.3 a host without that import got them through `routing.controllers`, unprefixed; add the import if
+you relied on it.
+
 ## To 2.12.0
 
 From **2.11.0**:

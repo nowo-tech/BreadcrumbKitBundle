@@ -4,9 +4,13 @@ services:
     autoconfigure: true
     public: false
 
+  # REQ-SF-004 rule 7: controllers are NOT autoconfigured. On Symfony >= 7.3 autoconfiguration tags every #[Route]
+  # class with routing.controller, and the host's default `routing.controllers` import would then register the
+  # dashboard routes without the documented import (no path_prefix). Tags are explicit instead.
   Nowo\BreadcrumbKitBundle\Controller\Dashboard\:
     resource: '../../Controller/Dashboard/'
-    tags: ['controller.service_arguments']
+    autoconfigure: false
+    tags: ['controller.service_arguments', 'container.service_subscriber']
 
   # REQ-UI-003: view models, per-page templates and the layout override of the dashboard pages.
   Nowo\BreadcrumbKitBundle\Dashboard\DashboardPages:
@@ -30,15 +34,21 @@ services:
     tags: ['twig.extension']
 
   Nowo\BreadcrumbKitBundle\Controller\Dashboard\CollectionCrudController:
+    autoconfigure: false
+    tags: ['controller.service_arguments', 'container.service_subscriber']
     arguments:
       $paginationEnabled: '%nowo_breadcrumb_kit.dashboard.pagination.enabled%'
       $paginationPerPage: '%nowo_breadcrumb_kit.dashboard.pagination.per_page%'
 
   Nowo\BreadcrumbKitBundle\Controller\Dashboard\ItemCrudController:
+    autoconfigure: false
+    tags: ['controller.service_arguments', 'container.service_subscriber']
     arguments:
       $paginationEnabled: '%nowo_breadcrumb_kit.dashboard.pagination.enabled%'
       $paginationPerPage: '%nowo_breadcrumb_kit.dashboard.pagination.per_page%'
 
   Nowo\BreadcrumbKitBundle\Controller\Dashboard\ImportExportController:
+    autoconfigure: false
+    tags: ['controller.service_arguments', 'container.service_subscriber']
     arguments:
       $importMaxBytes: '%nowo_breadcrumb_kit.dashboard.import_max_bytes%'
