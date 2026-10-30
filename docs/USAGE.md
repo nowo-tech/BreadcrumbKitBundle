@@ -227,7 +227,7 @@ Prefer the upgrade-safe path, lightest first:
 
 **Dashboard look and feel (REQ-UI-003):** the pages extend the UiKit 2.1 scaffolds; theme them once in `nowo_ui_kit` (layouts, theme slots, tokens) — see [CONFIGURATION.md](CONFIGURATION.md#look-and-feel-uikit-page-contract) and [TEMPLATES.md](TEMPLATES.md).
 
-**Dashboard forms (FormKit):** CRUD types use [FormKitBundle](https://github.com/nowo-tech/FormKitBundle) (`FormOptionsTrait`, profile `breadcrumb_kit`). Search and delete forms are Symfony Form Types (`DashboardGetSearchType`, `DashboardPostDeleteType`) rendered by the UiKit filters region and the UiKit action / confirm partials. Register `NowoFormKitBundle`; optional host `nowo_form_kit` YAML — see [CONFIGURATION.md](CONFIGURATION.md).
+**Dashboard forms (FormKit):** every dashboard form type is a [FormKitBundle](https://github.com/nowo-tech/FormKitBundle) Type (`#[FormKitConfig('breadcrumb_kit')]` + `FormOptionsTrait`), including the search and delete forms (`DashboardGetSearchType`, `DashboardPostDeleteType`) rendered by the UiKit filters region and the UiKit action / confirm partials. Register `NowoFormKitBundle`; optional host `nowo_form_kit` YAML — see [CONFIGURATION.md](CONFIGURATION.md).
 
 ### Overriding translations (REQ-I18N-001)
 

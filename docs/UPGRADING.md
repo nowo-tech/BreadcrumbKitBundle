@@ -62,6 +62,11 @@
 
 ## Unreleased
 
+No action needed. `DashboardPostDeleteType` is now a FormKit Type bound to the `breadcrumb_kit` profile (REQ-TWIG-005
+rule 11); its fields (`_token`, `confirm`), per-row `csrf_token_id` and rendered markup are unchanged.
+`nowo-tech/form-kit-bundle` was already a required dependency; override the dashboard form options through
+`nowo_form_kit.profiles.breadcrumb_kit` (see [CONFIGURATION.md](CONFIGURATION.md#form-kit-nowo_form_kit)).
+
 ## To 2.12.1
 
 From **2.12.0**:
