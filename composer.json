@@ -51,6 +51,7 @@
         "twig/string-extra": "^3.12"
     },
     "suggest": {
+        "phpunit/phpunit": "require-dev: Testing\\BreadcrumbRouteCoverageTrait (every page route has a breadcrumb row)",
         "symfony/framework-bundle": "Profiler data collector (Symfony 7.2+): TemplateAwareDataCollectorInterface lives here.",
         "symfony/web-profiler-bundle": "Registers the Breadcrumb Kit panel in the Symfony profiler (dev)."
     },

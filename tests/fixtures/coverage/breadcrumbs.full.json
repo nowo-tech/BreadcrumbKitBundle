@@ -1,0 +1,18 @@
+{
+    "collection": {"code": "main", "contextKey": ""},
+    "items": [
+        {
+            "routeName": "app_home",
+            "label": "Home",
+            "children": [
+                {
+                    "routeName": "app_items",
+                    "label": "Items",
+                    "children": [
+                        {"routeName": "app_item_show", "label": "Item", "dynamicParamKeys": ["id"]}
+                    ]
+                }
+            ]
+        }
+    ]
+}

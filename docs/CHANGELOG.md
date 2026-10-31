@@ -59,6 +59,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- **Breadcrumb coverage test helper:** `Nowo\BreadcrumbKitBundle\Testing\BreadcrumbRouteCoverageTrait` asserts that every page route has a breadcrumb row (failure lists the missing routes) and that every row names an existing route and parent. Rows come from the bundle tables or a JSON / YAML fixture (`BreadcrumbRows`: export shape or flat `route` / `parent` rows); `NonPageRouteFilter` skips non-pages (non-GET, `_`-internal, `breadcrumb: false` option, format routes, file extensions, `RedirectController`, JSON / redirect / file / streamed controller return types) plus host route / path patterns and a predicate. See [USAGE](USAGE.md#testing-breadcrumb-coverage). `phpunit/phpunit` is only needed in the host's `require-dev`.
+
 ## [2.12.3] - 2026-10-31
 
 Twig templates pass twig-cs-fixer (formatting only, rendered HTML unchanged); twig lint in CI and release-check. See [UPGRADING](UPGRADING.md#to-2123).
