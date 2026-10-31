@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## Table of contents
 
 - [[Unreleased]](#unreleased)
+- [[2.12.3] - 2026-10-31](#2123---2026-10-31)
 - [[2.12.2] - 2026-10-30](#2122---2026-10-30)
 - [[2.12.1] - 2026-10-30](#2121---2026-10-30)
 - [[2.12.0] - 2026-10-28](#2120---2026-10-28)
@@ -57,6 +58,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - [[1.0.0] - 2026-07-03](#100---2026-07-03)
 
 ## [Unreleased]
+
+## [2.12.3] - 2026-10-31
+
+Twig templates pass twig-cs-fixer (formatting only, rendered HTML unchanged); twig lint in CI and release-check. See [UPGRADING](UPGRADING.md#to-2123).
 
 ### Fixed
 
