@@ -9,7 +9,7 @@
             </svg>
         {% endset %}
         <div class="sf-toolbar-block sf-toolbar-block-nowo-breadcrumb-kit sf-toolbar-status-{{ collector.lastNodeCount > 0 ? 'green' : 'yellow' }}">
-            <a href="{{ path('_profiler', { token: token }) }}?panel={{ collector.name|e('url') }}">
+            <a href="{{ path('_profiler', {token: token}) }}?panel={{ collector.name|e('url') }}">
                 <div class="sf-toolbar-icon">{{ icon|raw }}</div>
                 <span class="sf-toolbar-label">Breadcrumb</span>
                 <span class="sf-toolbar-value">{{ collector.lastNodeCount }}</span>
