@@ -3,6 +3,7 @@
 ## Table of contents
 
 - [Unreleased](#unreleased)
+- [To 2.13.0](#to-2130)
 - [To 2.12.3](#to-2123)
 - [To 2.12.2](#to-2122)
 - [To 2.12.1](#to-2121)
@@ -63,6 +64,14 @@
 - [General upgrade steps (any version)](#general-upgrade-steps-any-version)
 
 ## Unreleased
+
+## To 2.13.0
+
+From **2.12.3**:
+
+```bash
+composer update nowo-tech/breadcrumb-kit-bundle
+```
 
 ## To 2.12.3
 
