@@ -58,6 +58,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- **Twig lint clean:** the 11 pre-existing `twig-cs-fixer` errors (hash brace spacing, `include` tag → `include()` function) are fixed with byte-identical rendered HTML; `make release-check` and CI now run `composer twig:lint`.
+
 ## [2.12.2] - 2026-10-30
 
 Post-delete form type is a FormKit type (REQ-TWIG-005 rule 11, no markup change). See [UPGRADING](UPGRADING.md#to-2122).

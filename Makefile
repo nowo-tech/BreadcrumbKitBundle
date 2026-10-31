@@ -138,7 +138,7 @@ igor: ensure-up
 	@$(COMPOSE) exec -T $(SERVICE_PHP) composer igor
 
 # REQ-MAKE-002 order.
-release-check: ensure-up check-no-cursor-coauthor check-open-prs check-twig-extra check-no-raw-html-form composer-sync cs-fix cs-check rector-dry phpstan igor validate-translations test-coverage
+release-check: ensure-up check-no-cursor-coauthor check-open-prs check-twig-extra check-no-raw-html-form twig-lint composer-sync cs-fix cs-check rector-dry phpstan igor validate-translations test-coverage
 	@if [ -d demo ]; then $(MAKE) -C demo release-check; fi
 
 # REQ-TEST-011 — boot demo stack and assert one HTTP 200

@@ -21,16 +21,16 @@
   <nav class="{{ trail.classList|default('breadcrumb') }}{{ _bk_nav_class ? ' ' ~ _bk_nav_class }}" aria-label="{{ 'breadcrumb.aria_label'|trans }}"{% if trail.responsiveConfig.breakpoint is defined %} data-breadcrumb-breakpoint="{{ trail.responsiveConfig.breakpoint }}"{% endif %}{{ _bk_theme ? _bk_theme.renderAttributes('breadcrumbs')|raw }}>
     <ol class="breadcrumb-list">
       {% for node in trail.nodes %}
-        {% if collapse and node.current %}{% include '@NowoBreadcrumbKitBundle/_breadcrumb_collapse.html.twig' with { trail: trail } only %}{% endif %}{% if not loop.first %}
+        {% if collapse and node.current %}{{ include('@NowoBreadcrumbKitBundle/_breadcrumb_collapse.html.twig', {trail: trail}, false) }}{% endif %}{% if not loop.first %}
           <li class="{{ trail.classSeparator|default('breadcrumb-separator') }}{{ _bk_sep_class ? ' ' ~ _bk_sep_class }}" aria-hidden="true"{{ _bk_theme ? _bk_theme.renderAttributes('breadcrumb_separator')|raw }}>{% if trail.separatorIcon %}<span class="breadcrumb-sep-icon">{{ trail.separatorIcon }}</span>{% else %}<span>/</span>{% endif %}</li>
         {% endif %}
         <li class="{{ trail.classItem|default('breadcrumb-item') }}{% if node.current %} {{ trail.classCurrent|default('is-current') }}{% endif %}">
-          {% include '@NowoBreadcrumbKitBundle/_breadcrumb_crumb.html.twig' with { node: node, trail: trail, is_first: loop.first } %}
+          {{ include('@NowoBreadcrumbKitBundle/_breadcrumb_crumb.html.twig', {node: node, trail: trail, is_first: loop.first}) }}{# eats the newline, like the include tag did #}
         </li>
       {% endfor %}
     </ol>
   </nav>
-  {% endif %}{% if collapse %}{% include '@NowoBreadcrumbKitBundle/_breadcrumb_collapse_assets.html.twig' with { breakpoint: trail.collapse.breakpoint } %}{% endif %}
+  {% endif %}{% if collapse %}{{ include('@NowoBreadcrumbKitBundle/_breadcrumb_collapse_assets.html.twig', {breakpoint: trail.collapse.breakpoint}) }}{% endif %}
   {% if breadcrumb_inline_edit.show %}
   <div class="breadcrumb-kit__inline-toolbar">
     <button type="button" class="breadcrumb-kit__inline-open" data-bk-inline-open aria-haspopup="dialog">{{ 'breadcrumb.inline_edit.open'|trans }}</button>
