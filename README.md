@@ -5,6 +5,7 @@
 > ⭐ **Found this useful?** Install from [Packagist](https://packagist.org/packages/nowo-tech/breadcrumb-kit-bundle) and consider starring the [GitHub repository](https://github.com/nowo-tech/BreadcrumbKitBundle).
 
 Symfony bundle for **database-driven breadcrumb trails**: match the current route by name + static parameters, walk a **parent chain**, support **i18n** (JSON translations on entities), **optional links**, per-**collection** presentation (icons, CSS, responsive JSON), and **PSR-6 caching** of serialized item rows.
+A **test helper** (`Testing\BreadcrumbRouteCoverageTrait`) fails the host's test suite when a page route has no breadcrumb row ([USAGE](docs/USAGE.md#testing-breadcrumb-coverage)).
 Design aligns with [DashboardMenuBundle](https://github.com/nowo-tech/DashboardMenuBundle) (Doctrine, YAML defaults, cache pool, Twig namespace overrides).
 
 ![FrankenPHP Friendly Worker Mode](docs/images/frankenphp-friendly.png)

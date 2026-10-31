@@ -1,0 +1,5 @@
+# Flat rows naming their parent route: app_items has no row, app_gone is not a route.
+items:
+    - { route: app_home, parent: ~ }
+    - { route: app_item_show, parent: app_items }
+    - { route: app_gone, parent: app_home }

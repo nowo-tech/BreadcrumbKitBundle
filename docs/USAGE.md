@@ -14,6 +14,7 @@
 - [Customising the dashboard](#customising-the-dashboard)
 - [Data model (summary)](#data-model-summary)
 - [Caching](#caching)
+- [Testing: breadcrumb coverage](#testing-breadcrumb-coverage)
 
 ## Twig functions
 
@@ -313,3 +314,84 @@ Breadcrumb definitions are stored with Doctrine (`BreadcrumbCollection`, `Breadc
 ## Caching
 
 When `cache.pool` points to a valid service and the pool exists in the container, `BreadcrumbLoader` caches serialized item lists per collection/context to reduce database reads. Set `pool` to `''` to disable that cache.
+
+## Testing: breadcrumb coverage
+
+`Nowo\BreadcrumbKitBundle\Testing\BreadcrumbRouteCoverageTrait` fails a test when a page route of the application has
+no breadcrumb row, listing every missing route, and when a row names a route that does not exist or a parent that has
+no row. It ships in the package (namespace `Nowo\BreadcrumbKitBundle\Testing`, normal autoload) and needs
+`phpunit/phpunit` in the host's `require-dev`.
+
+```php
+<?php
+// tests/Integration/BreadcrumbCoverageTest.php
+
+declare(strict_types=1);
+
+namespace App\Tests\Integration;
+
+use Nowo\BreadcrumbKitBundle\Testing\BreadcrumbRouteCoverageTrait;
+use Nowo\BreadcrumbKitBundle\Testing\NonPageRouteFilter;
+use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
+use Symfony\Component\Routing\Route;
+
+final class BreadcrumbCoverageTest extends KernelTestCase
+{
+    use BreadcrumbRouteCoverageTrait;
+
+    public function testEveryPageHasABreadcrumb(): void
+    {
+        $this->assertEveryPageRouteHasBreadcrumb();
+    }
+
+    // Rows: a JSON / YAML fixture. Remove this method to read the bundle tables of the test database instead.
+    protected function breadcrumbCoverageFixturePath(): ?string
+    {
+        return \dirname(__DIR__, 2).'/fixtures/breadcrumbs.json';
+    }
+
+    // Non-pages the default rules cannot see (controllers returning a plain Response, guest pages, fragments).
+    protected function breadcrumbCoverageFilter(): NonPageRouteFilter
+    {
+        return new NonPageRouteFilter(
+            ignoredRoutes: ['app_login', 'app_invitation_accept', 'legal_*', '*_fragment'],
+            ignoredPaths: ['/api/*'],
+            isNonPage: static fn (string $name, Route $route): bool => str_ends_with($name, '_panel'),
+        );
+    }
+}
+```
+
+On failure the message lists the routes to add, one per line:
+
+```text
+2 page route(s) have no breadcrumb row. Add them to /app/fixtures/breadcrumbs.json, or mark them as non-pages (route option "breadcrumb: false", NonPageRouteFilter ignoredRoutes / ignoredPaths / isNonPage):
+  - app_invoice_show GET /invoices/{id}
+  - app_reports ANY /reports
+```
+
+**Rows.** `breadcrumbCoverageRows()` returns a map "route name => parent route name (null for a root)". By default it
+reads `breadcrumbCoverageFixturePath()` with `BreadcrumbRows::fromFile()`, or, when the path is null, the bundle tables
+through `doctrine.orm.entity_manager` with `BreadcrumbRows::fromEntityManager()` (limited to
+`breadcrumbCoverageCollection()` when that returns a collection code). A fixture may be the export of the dashboard or
+of `nowo_breadcrumb_kit:export` (nested `children`; one collection or `collections`), or a flat list of rows naming
+their parent (`{"items": [{"route": "app_items", "parent": "app_home"}]}`), in JSON or YAML. Override
+`breadcrumbCoverageRows()` for any other provider. `breadcrumbCoverageChecksRows()` returning false skips the row
+checks. Rows whose route is `*` (path-pattern rows) are not checked against the router.
+
+**Which routes are pages.** `NonPageRouteFilter` skips, without requesting anything:
+
+| Rule | Examples |
+|------|----------|
+| No GET among the route methods | `POST`-only form handlers |
+| Name starting with `_` or path starting with `/_` | profiler, `_wdt`, error previews |
+| Route option `breadcrumb: false` | `#[Route('/healthz', options: ['breadcrumb' => false])]` |
+| `_format` requirement, non-HTML `_format` default, `.{…}` in the path | `/feed.{_format}` |
+| Path ending with a non-HTML extension (`NonPageRouteFilter::DEFAULT_EXTENSIONS`, or `nonPageExtensions`) | `/export.csv`, `/manifest.webmanifest` |
+| Symfony `RedirectController` | YAML `redirect` / `urlRedirect` routes |
+| Controller return type `JsonResponse`, `RedirectResponse`, `BinaryFileResponse`, `StreamedResponse` (or a subclass); off with `inspectControllerReturnTypes: false` | JSON endpoints, downloads, signed join links that redirect |
+| `ignoredRoutes` / `ignoredPaths` (exact or `fnmatch()` patterns), `isNonPage` predicate | host list |
+
+`$filter->nonPageReason($name, $route)` tells why a route is skipped. The static assertions
+(`assertBreadcrumbCoverage()`, `assertBreadcrumbRowsAreConsistent()`, `missingBreadcrumbRoutes()`) take a
+`RouteCollection` and a row map and work in any PHPUnit test.
