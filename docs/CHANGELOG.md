@@ -69,11 +69,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
-- `BreadcrumbUrlResolver` checks route requirements and host variables whatever `framework.router.strict_requirements` says. Under `null`, the production recipe, a value breaking a requirement produced a link, and a value in a host variable could produce an off-site link (`//evil.test#.example.test/t`). Also in 2.13.0 and earlier. See [UPGRADING](UPGRADING.md#unreleased).
+- `BreadcrumbUrlResolver` checks route requirements and host variables whatever `framework.router.strict_requirements` says. Under `null`, the production recipe, a value breaking a requirement produced a link, and a value in a host variable could produce an off-site link (`//evil.test#.example.test/t`). This includes a localized route named by its base name. Also in 2.13.0 and earlier. See [UPGRADING](UPGRADING.md#unreleased).
 
 ### Security
 
-- Audit status of both additions (Appendix HD, 2026-11-06, `c769e8c`): Pass (good) / Low. Its findings are fixed after that head: re-verification pending. See [SECURITY](SECURITY.md).
+- Audit status of both additions (Appendix HD, 2026-11-06): audited at `c769e8c`, fixes re-verified at `f24f4d7`: **Pass (good) / Low**, no open Critical, High or Medium. The localized-route fix (HD-L6) came after that head: re-verification pending. See [SECURITY](SECURITY.md).
 
 ## [2.13.0] - 2026-10-31
 

@@ -115,6 +115,37 @@ final class LinkAccessKernelTest extends TestCase
         self::assertStringContainsString('href="//team-1.example.test/t"', $this->render('wiki_host', ['spaceSlug' => 'team-1--Name']));
     }
 
+    /**
+     * @return iterable<string, array{string, string, string}>
+     */
+    public static function localizedRoutes(): iterable
+    {
+        yield 'requirement, base name' => ['wiki_loc_num', 'abc--x', 'Number base'];
+        yield 'requirement, full name' => ['wiki_loc_num_full', 'abc--x', 'Number full'];
+        yield 'host variable, base name' => ['wiki_loc_host', 'evil.test#--x', 'Host base'];
+        yield 'host variable, full name' => ['wiki_loc_host_full', 'evil.test#--x', 'Host full'];
+    }
+
+    #[DataProvider('localizedRoutes')]
+    public function testLocalizedRouteGivesNoLinkForABadValue(string $page, string $slug, string $label): void
+    {
+        $this->boot(null);
+
+        $html = $this->render($page, ['spaceSlug' => $slug]);
+
+        self::assertStringContainsString($label, $html);
+        self::assertStringNotContainsString('/en/', $html);
+        self::assertStringNotContainsString('evil', $html);
+    }
+
+    public function testLocalizedRouteNamedByItsBaseNameStillLinks(): void
+    {
+        $this->boot(null);
+
+        self::assertStringContainsString('href="/en/n/5"', $this->render('wiki_loc_num', ['spaceSlug' => '5--x']));
+        self::assertStringContainsString('href="//acme.example.test/en/h"', $this->render('wiki_loc_host', ['spaceSlug' => 'acme--x']));
+    }
+
     public function testRequestAttributesAreNotReadWithoutDeclaringThem(): void
     {
         $this->boot(null);
@@ -155,10 +186,18 @@ final class LinkAccessKernelTest extends TestCase
         $number = ['routeName' => 'num_show', 'label' => 'Number', 'params' => ['id' => '@spaceSlug|before:--'], 'children' => [['routeName' => 'wiki_num', 'label' => 'Page']]];
         $host = ['routeName' => 'host_show', 'label' => 'Host', 'params' => ['sub' => '@spaceSlug|before:--'], 'children' => [['routeName' => 'wiki_host', 'label' => 'Page']]];
 
+        $localized = [];
+        foreach (['Base' => '', 'Full' => '.en'] as $label => $suffix) {
+            $name = strtolower($label);
+            $child = '' === $suffix ? '' : '_full';
+            $localized[] = ['routeName' => 'loc_num'.$suffix, 'label' => 'Number '.$name, 'params' => ['id' => '@spaceSlug|before:--'], 'children' => [['routeName' => 'wiki_loc_num'.$child, 'label' => 'Page']]];
+            $localized[] = ['routeName' => 'loc_host'.$suffix, 'label' => 'Host '.$name, 'params' => ['sub' => '@spaceSlug|before:--'], 'children' => [['routeName' => 'wiki_loc_host'.$child, 'label' => 'Page']]];
+        }
+
         $importer = $this->service(BreadcrumbImporter::class);
         self::assertInstanceOf(BreadcrumbImporter::class, $importer);
         $result = $importer->import(['collection' => ['code' => 'default'], 'items' => [
-            ['routeName' => 'home', 'label' => 'Home', 'children' => [$project, $number, $host]],
+            ['routeName' => 'home', 'label' => 'Home', 'children' => [$project, $number, $host, ...$localized]],
         ]]);
         self::assertSame([], $result['errors']);
 

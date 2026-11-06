@@ -20,6 +20,7 @@ final readonly class BreadcrumbUrlResolver implements BreadcrumbUrlResolverInter
         private UrlGeneratorInterface $urlGenerator,
         private RequestStack $requestStack,
         private RouterInterface $router,
+        private ?string $routerDefaultLocale = null,
     ) {
     }
 
@@ -73,7 +74,8 @@ final readonly class BreadcrumbUrlResolver implements BreadcrumbUrlResolverInter
         }
 
         try {
-            if ($route instanceof Route && !$this->satisfiesRoute($route, $params)) {
+            $generated = $this->routeToGenerate($routeName, $params);
+            if ($generated instanceof Route && !$this->satisfiesRoute($generated, $params)) {
                 return [null, $params];
             }
 
@@ -83,6 +85,33 @@ final readonly class BreadcrumbUrlResolver implements BreadcrumbUrlResolverInter
         } catch (Exception) {
             return [null, $params];
         }
+    }
+
+    /**
+     * The route the generator will use: a localized route named by its base name (`x` for `x.en`) is only in the collection
+     * under its full names. Same order as the generator: `_locale` parameter, context, default; `en_GB` tries `x.en_GB`, then `x.en`.
+     *
+     * @param array<string, scalar|null> $params
+     */
+    private function routeToGenerate(string $name, array $params): ?Route
+    {
+        try {
+            $routes = $this->router->getRouteCollection();
+        } catch (Exception) {
+            return null;
+        }
+
+        $locale = $params['_locale'] ?? $this->urlGenerator->getContext()->getParameter('_locale') ?: $this->routerDefaultLocale;
+        if (\is_string($locale)) {
+            do {
+                $route = $routes->get($name.'.'.$locale);
+                if (null !== $route && ($route->getDefault('_canonical_route') === $name || null !== $routes->getAlias($name.'.'.$locale))) {
+                    return $route;
+                }
+            } while (false !== $locale = strstr($locale, '_', true));
+        }
+
+        return $routes->get($name);
     }
 
     /**

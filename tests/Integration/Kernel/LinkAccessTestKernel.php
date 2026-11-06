@@ -93,10 +93,16 @@ final class LinkAccessTestKernel extends Kernel
             'wiki_page' => '/wiki/{spaceSlug}/pages/{id}',
             'wiki_num' => '/wiki-num/{spaceSlug}',
             'wiki_host' => '/wiki-host/{spaceSlug}',
+            'wiki_loc_num' => '/wiki-loc-num/{spaceSlug}',
+            'wiki_loc_num_full' => '/wiki-loc-num-full/{spaceSlug}',
+            'wiki_loc_host' => '/wiki-loc-host/{spaceSlug}',
+            'wiki_loc_host_full' => '/wiki-loc-host-full/{spaceSlug}',
         ] as $name => $path) {
             $routes->add($name, $path)->controller('kernel::noop');
         }
         $routes->add('num_show', '/n/{id}')->controller('kernel::noop')->requirements(['id' => '\d+']);
+        $routes->add('loc_num', ['en' => '/en/n/{id}', 'es' => '/es/n/{id}'])->controller('kernel::noop')->requirements(['id' => '\d+']);
+        $routes->add('loc_host', ['en' => '/en/h', 'es' => '/es/h'])->controller('kernel::noop')->host('{sub}.example.test');
         $routes->add('host_show', '/t')->controller('kernel::noop')->host('{sub}.example.test');
     }
 }

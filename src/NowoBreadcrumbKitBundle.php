@@ -10,6 +10,7 @@ use Nowo\BreadcrumbKitBundle\DependencyInjection\Compiler\CsrfProtectionPass;
 use Nowo\BreadcrumbKitBundle\DependencyInjection\Compiler\DashboardSecurityPass;
 use Nowo\BreadcrumbKitBundle\DependencyInjection\Compiler\LinkAccessCheckerPass;
 use Nowo\BreadcrumbKitBundle\DependencyInjection\Compiler\TwigPathsPass;
+use Symfony\Component\DependencyInjection\Compiler\PassConfig;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Extension\ExtensionInterface;
 use Symfony\Component\HttpKernel\Bundle\Bundle;
@@ -27,7 +28,8 @@ final class NowoBreadcrumbKitBundle extends Bundle
         $container->addCompilerPass(new BreadcrumbInlineEditAccessLocatorPass());
         $container->addCompilerPass(new DashboardSecurityPass());
         $container->addCompilerPass(new CsrfProtectionPass());
-        $container->addCompilerPass(new LinkAccessCheckerPass());
+        // After decoration: a decorator of the checker is what the loader receives.
+        $container->addCompilerPass(new LinkAccessCheckerPass(), PassConfig::TYPE_BEFORE_REMOVING);
     }
 
     public function getContainerExtension(): ExtensionInterface

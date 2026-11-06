@@ -114,6 +114,91 @@ final class BreadcrumbUrlResolverRequirementsTest extends TestCase
         self::assertSame('/es/x', $this->resolver($route, null, $context)->resolve('target', [], null)[0]);
     }
 
+    /**
+     * @return iterable<string, array{array<string, mixed>, string|null, string|null, string|null}>
+     */
+    public static function localizedBaseName(): iterable
+    {
+        yield 'context locale, valid' => [['id' => '5'], 'en', null, '/en/n/5'];
+        yield 'context locale, breaks the requirement' => [['id' => 'abc'], 'en', null, null];
+        yield 'other context locale, its own requirement' => [['id' => 'abc'], 'es', null, '/es/n/abc'];
+        yield 'regional context locale is cut' => [['id' => 'abc'], 'en_GB', null, null];
+        yield 'regional context locale is cut, valid' => [['id' => '5'], 'en_GB', null, '/en/n/5'];
+        yield 'parameter wins over the context' => [['id' => 'abc', '_locale' => 'en'], 'es', null, null];
+        yield 'parameter wins over the context, valid' => [['id' => 'abc', '_locale' => 'es'], 'en', null, '/es/n/abc'];
+        yield 'default locale when no other' => [['id' => 'abc'], null, 'en', null];
+        yield 'default locale when no other, valid' => [['id' => '5'], null, 'en', '/en/n/5'];
+        yield 'no locale at all: no such route' => [['id' => '5'], null, null, null];
+        yield 'locale with no copy: no such route' => [['id' => '5'], 'fr', null, null];
+    }
+
+    /**
+     * @param array<string, mixed> $params
+     */
+    #[DataProvider('localizedBaseName')]
+    public function testLocalizedRouteNamedByItsBaseName(array $params, ?string $contextLocale, ?string $defaultLocale, ?string $expected): void
+    {
+        $routes = new RouteCollection();
+        $routes->add('loc.en', new Route('/en/n/{id}', ['_canonical_route' => 'loc', '_locale' => 'en'], ['id' => '\d+', '_locale' => 'en']));
+        $routes->add('loc.es', new Route('/es/n/{id}', ['_canonical_route' => 'loc', '_locale' => 'es'], ['_locale' => 'es']));
+
+        self::assertSame($expected, $this->resolverFor($routes, $contextLocale, $defaultLocale)->resolve('loc', $params, null)[0]);
+    }
+
+    public function testLocalizedRouteWithAHostVariableNamedByItsBaseName(): void
+    {
+        $routes = new RouteCollection();
+        $routes->add('loc.en', new Route('/en/h', ['_canonical_route' => 'loc', '_locale' => 'en'], ['_locale' => 'en'], [], '{sub}.example.test'));
+
+        $resolver = $this->resolverFor($routes, 'en', null);
+
+        self::assertNull($resolver->resolve('loc', ['sub' => 'evil.test#'], null)[0]);
+        self::assertNull($resolver->resolve('loc', ['sub' => 'evil#'], null)[0]);
+        self::assertSame('//acme.example.test/en/h', $resolver->resolve('loc', ['sub' => 'acme'], null)[0]);
+    }
+
+    public function testFullNameOfALocalizedRouteIsChecked(): void
+    {
+        $routes = new RouteCollection();
+        $routes->add('loc.en', new Route('/en/n/{id}', ['_canonical_route' => 'loc', '_locale' => 'en'], ['id' => '\d+', '_locale' => 'en']));
+
+        self::assertNull($this->resolverFor($routes, 'es', null)->resolve('loc.en', ['id' => 'abc'], null)[0]);
+        self::assertSame('/en/n/5', $this->resolverFor($routes, 'es', null)->resolve('loc.en', ['id' => '5'], null)[0]);
+    }
+
+    public function testRouteNamedLikeACopyButNotCanonicalIsNotTheTarget(): void
+    {
+        $routes = new RouteCollection();
+        $routes->add('plain', new Route('/p/{id}', [], ['id' => '\d+']));
+        $routes->add('plain.en', new Route('/other/{id}'));
+
+        self::assertNull($this->resolverFor($routes, 'en', null)->resolve('plain', ['id' => 'abc'], null)[0]);
+    }
+
+    public function testAliasOfALocaleCopyIsFollowed(): void
+    {
+        $routes = new RouteCollection();
+        $routes->add('real', new Route('/r/{id}', [], ['id' => '\d+']));
+        $routes->addAlias('al.en', 'real');
+
+        self::assertNull($this->resolverFor($routes, 'en', null)->resolve('al', ['id' => 'abc'], null)[0]);
+        self::assertSame('/r/5', $this->resolverFor($routes, 'en', null)->resolve('al', ['id' => '5'], null)[0]);
+    }
+
+    private function resolverFor(RouteCollection $routes, ?string $contextLocale, ?string $defaultLocale): BreadcrumbUrlResolver
+    {
+        $context = new RequestContext();
+        if (null !== $contextLocale) {
+            $context->setParameter('_locale', $contextLocale);
+        }
+        $generator = new UrlGenerator($routes, $context, null, $defaultLocale);
+        $generator->setStrictRequirements(null);
+        $router = $this->createMock(RouterInterface::class);
+        $router->method('getRouteCollection')->willReturn($routes);
+
+        return new BreadcrumbUrlResolver($generator, new RequestStack(), $router, $defaultLocale);
+    }
+
     private function resolver(Route $route, ?Request $request = null, ?RequestContext $context = null): BreadcrumbUrlResolver
     {
         $routes = new RouteCollection();

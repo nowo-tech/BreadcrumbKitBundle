@@ -12,6 +12,8 @@ services:
 
   Nowo\BreadcrumbKitBundle\Service\BreadcrumbUrlResolver:
     public: true
+    arguments:
+      $routerDefaultLocale: '%kernel.default_locale%'
 
   Nowo\BreadcrumbKitBundle\Service\BreadcrumbUrlResolverInterface:
     alias: Nowo\BreadcrumbKitBundle\Service\BreadcrumbUrlResolver

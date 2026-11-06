@@ -339,8 +339,8 @@ that gives the parent crumb `/projects/{id}` the **issue** id. Map the parameter
 - A value in `staticRouteParams` wins over the mapping.
 - Names start with a letter and hold letters, digits and `_`, up to 64 characters. Attributes such as `_route` or
   `_controller` cannot be read, and parameters such as `_fragment` cannot be set.
-- A value that breaks the target route's requirement gives a crumb with no link, whatever
-  `framework.router.strict_requirements` says. So does a host variable holding anything but letters, digits, `.`, `_`
+- A value that breaks the target route's requirement gives a crumb with no link and `linkEnabled` still true, whatever
+  `framework.router.strict_requirements` says, so a custom template should test `url`. So does a host variable holding anything but letters, digits, `.`, `_`
   and `-`.
 
 The mapping is stored in the item's `dynamicParamKeys` as `target=@source,@source`, the form to use in the dashboard

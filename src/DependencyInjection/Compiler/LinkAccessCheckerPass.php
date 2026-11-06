@@ -6,41 +6,36 @@ namespace Nowo\BreadcrumbKitBundle\DependencyInjection\Compiler;
 
 use InvalidArgumentException;
 use Nowo\BreadcrumbKitBundle\Contract\BreadcrumbLinkAccessCheckerInterface;
-use Nowo\BreadcrumbKitBundle\Service\BreadcrumbLoader;
-use Symfony\Component\DependencyInjection\ChildDefinition;
 use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
-use Symfony\Component\DependencyInjection\Reference;
 
 /**
  * Refuses to compile when `link_access_checker` names a service that does not implement the interface: at runtime that
  * is a TypeError on every page that builds Twig, since Twig builds all its extensions and one of them needs the loader.
- * A service whose class cannot be known here (no class, synthetic) is left to the constructor's type.
+ *
+ * Registered at TYPE_BEFORE_REMOVING: decorators and child definitions are resolved by then, so the id leads to what the
+ * loader will receive. A service whose class cannot be known here (a synthetic service with no class) is left to the
+ * constructor's type.
  */
 final class LinkAccessCheckerPass implements CompilerPassInterface
 {
+    public const PARAMETER = 'nowo_breadcrumb_kit.link_access_checker';
+
     public function process(ContainerBuilder $container): void
     {
-        if (!$container->hasDefinition(BreadcrumbLoader::class)) {
-            return;
-        }
-        $arguments = $container->getDefinition(BreadcrumbLoader::class)->getArguments();
-        $reference = $arguments['$linkAccessChecker'] ?? null;
-        if (!$reference instanceof Reference) {
+        $id = $container->hasParameter(self::PARAMETER) ? $container->getParameter(self::PARAMETER) : null;
+        if (!\is_string($id)) {
             return;
         }
 
-        $id = (string) $reference;
-        $definition = $container->findDefinition($id);
-        while (null === $definition->getClass() && $definition instanceof ChildDefinition) {
-            $definition = $container->findDefinition($definition->getParent());
-        }
-        if (null === $definition->getClass()) {
+        $declared = $container->findDefinition($id)->getClass();
+        if (null === $declared) {
             return;
         }
 
-        $class = $container->getParameterBag()->resolveValue($definition->getClass());
-        if (!\is_string($class) || !is_subclass_of($class, BreadcrumbLinkAccessCheckerInterface::class)) {
+        $class = $container->getParameterBag()->resolveValue($declared);
+        // is_a: a factory service may declare the interface itself as its class.
+        if (!\is_string($class) || !is_a($class, BreadcrumbLinkAccessCheckerInterface::class, true)) {
             throw new InvalidArgumentException(\sprintf('NowoBreadcrumbKitBundle: the service "%s" set in nowo_breadcrumb_kit.link_access_checker must implement "%s".', $id, BreadcrumbLinkAccessCheckerInterface::class));
         }
     }
