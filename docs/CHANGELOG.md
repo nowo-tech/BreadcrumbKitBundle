@@ -60,6 +60,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- **`link_access_checker`** (default `null`): service id implementing the new `Contract\BreadcrumbLinkAccessCheckerInterface` (`canLink(string $route, array $params): bool`), asked per crumb that would link; `false` keeps the label and drops the link. Hosts no longer need to decorate `BreadcrumbUrlResolverInterface` for this. See [USAGE](USAGE.md#links-the-user-cannot-open).
+- **Per-item parameter mapping**: an item can take a route parameter from a differently named parameter of the current route, with `params: {id: '@projectId'}` in the collection JSON. A list tries several sources in order and `|before:<separator>` keeps what precedes a separator. Stored inside `dynamicParamKeys` as `id=@projectId`, so there is **no schema change**. See [USAGE](USAGE.md#parameters-named-differently-in-the-current-route).
+- Import reports invalid `params` pairs with the new message `import.error.params_rejected`.
+- **`param_map.attributes`** (default `[]`): request attributes a mapping source may read. By default sources read only the current route parameters.
+
+### Fixed
+
+- `BreadcrumbUrlResolver` checks route requirements and host variables whatever `framework.router.strict_requirements` says. Under `null`, the production recipe, a value breaking a requirement produced a link, and a value in a host variable could produce an off-site link (`//evil.test#.example.test/t`). This includes a localized route named by its base name. Also in 2.13.0 and earlier. See [UPGRADING](UPGRADING.md#unreleased).
+
+### Security
+
+- Audit status of both additions (Appendix HD, 2026-11-06): audited at `c769e8c`, fixes re-verified at `47f44d9`: **Pass (good) / Low**, no open Critical, High or Medium. See [SECURITY](SECURITY.md).
+
 ## [2.13.0] - 2026-10-31
 
 Testing: BreadcrumbRouteCoverageTrait asserts every GET page route has a breadcrumb row (configurable non-page filter, DB or fixture rows). See [UPGRADING](UPGRADING.md#to-2130).

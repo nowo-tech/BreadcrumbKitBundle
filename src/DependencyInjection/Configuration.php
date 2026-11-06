@@ -11,6 +11,7 @@ use Nowo\BreadcrumbKitBundle\Dto\BreadcrumbCollapse;
 use Nowo\BreadcrumbKitBundle\Enum\CssFramework;
 use Nowo\BreadcrumbKitBundle\Enum\IconSet;
 use Nowo\BreadcrumbKitBundle\Enum\ModalSize;
+use Nowo\BreadcrumbKitBundle\Service\BreadcrumbParamMap;
 use Symfony\Component\Config\Definition\Builder\TreeBuilder;
 use Symfony\Component\Config\Definition\ConfigurationInterface;
 
@@ -85,6 +86,30 @@ final class Configuration implements ConfigurationInterface
                 ->scalarNode('default_collection')
                     ->info('Collection code used when none is passed to Twig/helpers.')
                     ->defaultValue('default')
+                ->end()
+                ->scalarNode('link_access_checker')
+                    ->info('Service id implementing BreadcrumbLinkAccessCheckerInterface, asked per crumb: false keeps the label and drops the link. null = every crumb links.')
+                    ->defaultNull()
+                    ->validate()
+                        // A blank value must not silently mean "every crumb links" (an empty parameter, for example).
+                        ->ifTrue(static fn (mixed $v): bool => null !== $v && (!\is_string($v) || '' === trim($v)))
+                        ->thenInvalid('Invalid nowo_breadcrumb_kit.link_access_checker %s: use a service id or null.')
+                    ->end()
+                ->end()
+                ->arrayNode('param_map')
+                    ->info('Per-item parameter mapping (params: {id: "@projectId"}). Sources read the current route parameters.')
+                    ->addDefaultsIfNotSet()
+                    ->children()
+                        ->arrayNode('attributes')
+                            ->info('Request attributes a source may also read. Item editors can then place these values in crumb URLs: declare none that hold secrets.')
+                            ->scalarPrototype()
+                                ->validate()
+                                    ->ifTrue(static fn (mixed $v): bool => !BreadcrumbParamMap::isName($v))
+                                    ->thenInvalid('Invalid nowo_breadcrumb_kit.param_map.attributes entry %s: a name starts with a letter and holds letters, digits and "_".')
+                                ->end()
+                            ->end()
+                        ->end()
+                    ->end()
                 ->end()
                 ->arrayNode('presentation')
                     ->info('Default trail presentation; collection homeIcon and responsiveConfig can override per collection.')

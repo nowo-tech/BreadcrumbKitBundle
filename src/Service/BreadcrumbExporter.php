@@ -111,12 +111,14 @@ final readonly class BreadcrumbExporter
      */
     private function itemToArray(BreadcrumbItem $item): array
     {
+        [$dynamicKeys, $paramMap] = BreadcrumbParamMap::split($item->getDynamicParamKeys());
         $data = [
             'routeName' => $item->getRouteName(),
             'pathPattern' => $item->getPathPattern(),
             'matchAttributes' => $item->getMatchAttributes(),
             'staticRouteParams' => $item->getStaticRouteParams() ?? [],
-            'dynamicParamKeys' => $item->getDynamicParamKeys() ?? [],
+            'dynamicParamKeys' => $dynamicKeys ?? [],
+            'params' => BreadcrumbParamMap::export($paramMap),
             'linkEnabled' => $item->isLinkEnabled(),
             'label' => $item->getLabel(),
             'translations' => $item->getTranslations(),

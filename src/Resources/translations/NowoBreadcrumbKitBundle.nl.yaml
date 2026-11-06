@@ -121,6 +121,7 @@ import:
     collection_code_required: Collectiecode is verplicht.
     icon_rejected: 'Collectie "%code%": %count% icoon/iconen bevatten onveilige markup en zijn leeg gelaten.'
     path_pattern_rejected: 'Collectie "%code%": %count% padpatroon/-patronen compileerden niet of gebruikten geneste kwantoren en zijn leeg gelaten.'
+    params_rejected: 'Collectie "%code%": %count% routeparameter-koppeling(en) (params) waren ongeldig en zijn genegeerd.'
 
 form:
   icon:

@@ -20,6 +20,7 @@ final readonly class BreadcrumbUrlResolver implements BreadcrumbUrlResolverInter
         private UrlGeneratorInterface $urlGenerator,
         private RequestStack $requestStack,
         private RouterInterface $router,
+        private ?string $routerDefaultLocale = null,
     ) {
     }
 
@@ -41,6 +42,7 @@ final readonly class BreadcrumbUrlResolver implements BreadcrumbUrlResolverInter
         $params = $staticParams;
         $request = $this->requestStack->getCurrentRequest();
         $routeNeedsLocale = false;
+        $route = null;
 
         try {
             $route = $this->router->getRouteCollection()->get($routeName);
@@ -72,11 +74,109 @@ final readonly class BreadcrumbUrlResolver implements BreadcrumbUrlResolverInter
         }
 
         try {
+            $generated = $this->routeToGenerate($routeName, $params);
+            if ($generated instanceof Route && !$this->satisfiesRoute($generated, $params)) {
+                return [null, $params];
+            }
+
             $url = $this->urlGenerator->generate($routeName, $params, UrlGeneratorInterface::ABSOLUTE_PATH);
 
             return [$url, $params];
         } catch (Exception) {
             return [null, $params];
         }
+    }
+
+    /**
+     * The route the generator will use: a localized route named by its base name (`x` for `x.en`) is only in the collection
+     * under its full names. Same order as the generator: `_locale` parameter, context, default; `en_GB` tries `x.en_GB`, then `x.en`.
+     *
+     * @param array<string, scalar|null> $params
+     */
+    private function routeToGenerate(string $name, array $params): ?Route
+    {
+        try {
+            $routes = $this->router->getRouteCollection();
+        } catch (Exception) {
+            return null;
+        }
+
+        $locale = $params['_locale'] ?? $this->urlGenerator->getContext()->getParameter('_locale') ?: $this->routerDefaultLocale;
+        if (\is_string($locale)) {
+            do {
+                $route = $routes->get($name.'.'.$locale);
+                if (null !== $route && ($route->getDefault('_canonical_route') === $name || null !== $routes->getAlias($name.'.'.$locale))) {
+                    return $route;
+                }
+            } while (false !== $locale = strstr($locale, '_', true));
+        }
+
+        return $routes->get($name);
+    }
+
+    /**
+     * The generator's own requirement check, whatever `framework.router.strict_requirements` says: `null` (the production
+     * recipe) turns it off, and values here can come from the URL of the current request. Host variables must also hold
+     * only host name characters: the generator does not encode them, and `evil#` passes the default requirement.
+     *
+     * @param array<string, scalar|null> $params
+     */
+    private function satisfiesRoute(Route $route, array $params): bool
+    {
+        $compiled = $route->compile();
+        $defaults = $route->getDefaults();
+        $merged = array_replace($defaults, $this->urlGenerator->getContext()->getParameters(), $params);
+        if (isset($defaults['_canonical_route'], $defaults['_locale'])) {
+            $merged['_locale'] = $params['_locale'] ?? $defaults['_locale'];
+        }
+
+        $optional = true;
+        foreach ($compiled->getTokens() as $token) {
+            if ('variable' !== $token[0]) {
+                $optional = false;
+
+                continue;
+            }
+            $name = $token[3];
+            if (!\array_key_exists($name, $merged)) {
+                continue; // the generator reports the missing parameter
+            }
+            $isDefault = \array_key_exists($name, $defaults) && (null === $merged[$name] || self::text($merged[$name]) === self::text($defaults[$name]));
+            if ($optional && !($token[5] ?? false) && $isDefault) {
+                continue; // left out of the URL, as the generator does
+            }
+            if (!self::matchesToken($token, $merged[$name])) {
+                return false;
+            }
+            $optional = false;
+        }
+
+        foreach ($compiled->getHostTokens() as $token) {
+            if ('variable' === $token[0] && \array_key_exists($token[3], $merged)
+                && (!self::matchesToken($token, $merged[$token[3]]) || 1 !== preg_match('/^[\p{L}\p{N}._-]+$/Du', self::text($merged[$token[3]])))) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    /**
+     * @param array<int, mixed> $token a variable token of a compiled route
+     */
+    private static function matchesToken(array $token, mixed $value): bool
+    {
+        if (!\is_scalar($value) && null !== $value) {
+            return false;
+        }
+        // Look-around patterns are ignored, as in Symfony's UrlGenerator: they refer to text around the variable.
+        $requirement = preg_replace('/\(\?(?:=|<=|!|<!)((?:[^()\\\\]+|\\\\.|\((?1)\))*)\)/', '', (string) $token[2]);
+
+        return 1 === preg_match('#^(?:'.$requirement.')$#Di'.(empty($token[4]) ? '' : 'u'), self::text($value));
+    }
+
+    private static function text(mixed $value): string
+    {
+        return \is_scalar($value) ? (string) $value : '';
     }
 }

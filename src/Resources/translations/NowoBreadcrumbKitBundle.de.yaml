@@ -121,6 +121,7 @@ import:
     collection_code_required: Sammlungscode ist erforderlich.
     icon_rejected: 'Sammlung "%code%": %count% Icon(s) enthielten unsicheres Markup und wurden leer gelassen.'
     path_pattern_rejected: 'Sammlung "%code%": %count% Pfadmuster ließen sich nicht kompilieren oder enthielten verschachtelte Quantoren und wurden leer gelassen.'
+    params_rejected: 'Sammlung "%code%": %count% Routenparameter-Zuordnung(en) (params) waren ungültig und wurden ignoriert.'
 
 form:
   icon:

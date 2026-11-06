@@ -6,6 +6,7 @@ namespace Nowo\BreadcrumbKitBundle\DependencyInjection;
 
 use Nowo\BreadcrumbKitBundle\Dashboard\DashboardChrome;
 use Nowo\BreadcrumbKitBundle\Dashboard\DashboardPages;
+use Nowo\BreadcrumbKitBundle\DependencyInjection\Compiler\LinkAccessCheckerPass;
 use Nowo\BreadcrumbKitBundle\Dto\BreadcrumbCollapse;
 use Nowo\BreadcrumbKitBundle\Enum\CssFramework;
 use Nowo\BreadcrumbKitBundle\Enum\IconSet;
@@ -342,6 +343,17 @@ final class BreadcrumbKitExtension extends Extension implements PrependExtension
                 '%nowo_breadcrumb_kit.presentation.collapse.min_items%',
                 '%nowo_breadcrumb_kit.presentation.collapse.breakpoint%',
             ]));
+
+        // Set explicitly: autowiring must not pick up a host's alias of the interface while this option is null.
+        // Its type is checked by LinkAccessCheckerPass: the host's services are not visible here.
+        $linkAccessChecker = \is_string($config['link_access_checker'] ?? null) ? trim($config['link_access_checker']) : null;
+        $container->setParameter(LinkAccessCheckerPass::PARAMETER, $linkAccessChecker);
+        if (null !== $linkAccessChecker) {
+            $container->getDefinition(BreadcrumbLoader::class)
+                ->setArgument('$linkAccessChecker', new Reference($linkAccessChecker));
+        }
+        $container->getDefinition(BreadcrumbLoader::class)
+            ->setArgument('$paramMapAttributes', array_values($config['param_map']['attributes']));
 
         if ($runtimeLocales && null === $defaultLocale) {
             $container->getDefinition(BreadcrumbLoader::class)->setArgument('$defaultLocale', (new Definition('string'))

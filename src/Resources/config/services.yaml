@@ -12,6 +12,8 @@ services:
 
   Nowo\BreadcrumbKitBundle\Service\BreadcrumbUrlResolver:
     public: true
+    arguments:
+      $routerDefaultLocale: '%kernel.default_locale%'
 
   Nowo\BreadcrumbKitBundle\Service\BreadcrumbUrlResolverInterface:
     alias: Nowo\BreadcrumbKitBundle\Service\BreadcrumbUrlResolver
@@ -30,6 +32,7 @@ services:
       $hideWhenSingleRoot: '%nowo_breadcrumb_kit.presentation.hide_when_single_root%'
       $homeIconReplacesLabel: '%nowo_breadcrumb_kit.presentation.home_icon_replaces_label%'
       $defaultHomeIcon: '%nowo_breadcrumb_kit.presentation.home_icon%'
+      $linkAccessChecker: null
 
   # Doctrine onFlush/postFlush listener (AsDoctrineListener): drops cached item lists of changed collections.
   Nowo\BreadcrumbKitBundle\Service\BreadcrumbCacheInvalidator:

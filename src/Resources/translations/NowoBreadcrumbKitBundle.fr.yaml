@@ -121,6 +121,7 @@ import:
     collection_code_required: Le code de collection est obligatoire.
     icon_rejected: 'Collection « %code% » : %count% icône(s) contenaient un balisage non sûr et ont été laissées vides.'
     path_pattern_rejected: 'Collection « %code% » : %count% motif(s) de chemin ne compilaient pas ou utilisaient des quantificateurs imbriqués et ont été laissés vides.'
+    params_rejected: 'Collection « %code% » : %count% correspondance(s) de paramètres de route (params) n’étaient pas valides et ont été ignorées.'
 
 form:
   icon:

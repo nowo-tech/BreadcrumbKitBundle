@@ -121,6 +121,7 @@ import:
     collection_code_required: El código de colección es obligatorio.
     icon_rejected: 'Colección "%code%": %count% icono(s) contenían marcado no seguro y se han dejado vacíos.'
     path_pattern_rejected: 'Colección "%code%": %count% patrón(es) de ruta no compilaban o usaban cuantificadores anidados y se han dejado vacíos.'
+    params_rejected: 'Colección "%code%": %count% asignación(es) de parámetros de ruta (params) no eran válidas y se han ignorado.'
 
 form:
   icon:
