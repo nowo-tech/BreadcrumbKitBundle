@@ -3,6 +3,7 @@
 ## Table of contents
 
 - [Unreleased](#unreleased)
+- [To 2.14.0](#to-2140)
 - [To 2.13.0](#to-2130)
 - [To 2.12.3](#to-2123)
 - [To 2.12.2](#to-2122)
@@ -64,6 +65,14 @@
 - [General upgrade steps (any version)](#general-upgrade-steps-any-version)
 
 ## Unreleased
+
+## To 2.14.0
+
+From **2.13.0**:
+
+```bash
+composer update nowo-tech/breadcrumb-kit-bundle
+```
 
 No schema change. One behaviour change, in the fix below; everything else is unchanged until you use one of the additions.
 

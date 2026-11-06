@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## Table of contents
 
 - [[Unreleased]](#unreleased)
+- [[2.14.0] - 2026-11-06](#2140---2026-11-06)
 - [[2.13.0] - 2026-10-31](#2130---2026-10-31)
 - [[2.12.3] - 2026-10-31](#2123---2026-10-31)
 - [[2.12.2] - 2026-10-30](#2122---2026-10-30)
@@ -60,6 +61,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.14.0] - 2026-11-06
+
 ### Added
 
 - **`link_access_checker`** (default `null`): service id implementing the new `Contract\BreadcrumbLinkAccessCheckerInterface` (`canLink(string $route, array $params): bool`), asked per crumb that would link; `false` keeps the label and drops the link. Hosts no longer need to decorate `BreadcrumbUrlResolverInterface` for this. See [USAGE](USAGE.md#links-the-user-cannot-open).
@@ -69,7 +72,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
-- `BreadcrumbUrlResolver` checks route requirements and host variables whatever `framework.router.strict_requirements` says. Under `null`, the production recipe, a value breaking a requirement produced a link, and a value in a host variable could produce an off-site link (`//evil.test#.example.test/t`). This includes a localized route named by its base name. Also in 2.13.0 and earlier. See [UPGRADING](UPGRADING.md#unreleased).
+- `BreadcrumbUrlResolver` checks route requirements and host variables whatever `framework.router.strict_requirements` says. Under `null`, the production recipe, a value breaking a requirement produced a link, and a value in a host variable could produce an off-site link (`//evil.test#.example.test/t`). This includes a localized route named by its base name. Also in 2.13.0 and earlier. See [UPGRADING](UPGRADING.md#to-2140).
 
 ### Security
 
