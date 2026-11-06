@@ -63,7 +63,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - **`link_access_checker`** (default `null`): service id implementing the new `Contract\BreadcrumbLinkAccessCheckerInterface` (`canLink(string $route, array $params): bool`), asked per crumb that would link; `false` keeps the label and drops the link. Hosts no longer need to decorate `BreadcrumbUrlResolverInterface` for this. See [USAGE](USAGE.md#links-the-user-cannot-open).
-- **Per-item parameter mapping**: an item can take a route parameter from a differently named request attribute, with `params: {id: '@projectId'}` in the collection JSON. A list tries several sources in order and `|before:<separator>` keeps what precedes a separator. Stored inside `dynamicParamKeys` as `id=@projectId`, so there is **no schema change**. See [USAGE](USAGE.md#parameters-named-differently-in-the-current-route).
+- **Per-item parameter mapping**: an item can take a route parameter from a differently named parameter of the current route, with `params: {id: '@projectId'}` in the collection JSON. A list tries several sources in order and `|before:<separator>` keeps what precedes a separator. Stored inside `dynamicParamKeys` as `id=@projectId`, so there is **no schema change**. See [USAGE](USAGE.md#parameters-named-differently-in-the-current-route).
 - Import reports invalid `params` pairs with the new message `import.error.params_rejected`.
 - **`param_map.attributes`** (default `[]`): request attributes a mapping source may read. By default sources read only the current route parameters.
 

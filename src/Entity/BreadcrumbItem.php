@@ -61,7 +61,7 @@ class BreadcrumbItem
 
     /**
      * Route parameter names copied from the current request when generating the link. An entry
-     * {@code target=@source} takes the parameter from a differently named request attribute
+     * {@code target=@source} takes the parameter from a differently named parameter of the current route
      * (see {@see BreadcrumbParamMap}).
      *
      * @var list<string>|null
