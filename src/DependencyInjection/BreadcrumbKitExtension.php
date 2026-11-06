@@ -343,6 +343,13 @@ final class BreadcrumbKitExtension extends Extension implements PrependExtension
                 '%nowo_breadcrumb_kit.presentation.collapse.breakpoint%',
             ]));
 
+        // Set explicitly: autowiring must not pick up a host's alias of the interface while this option is null.
+        $linkAccessChecker = trim((string) ($config['link_access_checker'] ?? ''));
+        if ('' !== $linkAccessChecker) {
+            $container->getDefinition(BreadcrumbLoader::class)
+                ->setArgument('$linkAccessChecker', new Reference($linkAccessChecker));
+        }
+
         if ($runtimeLocales && null === $defaultLocale) {
             $container->getDefinition(BreadcrumbLoader::class)->setArgument('$defaultLocale', (new Definition('string'))
                 ->setFactory([ConfiguredLocales::class, 'defaultLocale'])

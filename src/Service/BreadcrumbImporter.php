@@ -174,7 +174,7 @@ final readonly class BreadcrumbImporter
         // One transaction per collection: a failure while re-creating the tree must not leave a "replace"
         // import with its old items deleted and the new ones missing.
         $this->entityManager->beginTransaction();
-        $rejected = ['icon' => 0, 'pathPattern' => 0];
+        $rejected = ['icon' => 0, 'pathPattern' => 0, 'params' => 0];
         try {
             $this->writeCollection($existing, $colData, $itemsData, $rejected);
             $this->entityManager->commit();
@@ -197,12 +197,15 @@ final readonly class BreadcrumbImporter
         if ($rejected['pathPattern'] > 0) {
             $result['errors'][] = $this->t('import.error.path_pattern_rejected', ['%code%' => $code, '%count%' => (string) $rejected['pathPattern']]);
         }
+        if ($rejected['params'] > 0) {
+            $result['errors'][] = $this->t('import.error.params_rejected', ['%code%' => $code, '%count%' => (string) $rejected['params']]);
+        }
     }
 
     /**
-     * @param array<string, mixed>               $colData
-     * @param list<array<string, mixed>>         $itemsData
-     * @param array{icon: int, pathPattern: int} $rejected  values dropped as unsafe (icons) or invalid (path patterns)
+     * @param array<string, mixed>                            $colData
+     * @param list<array<string, mixed>>                      $itemsData
+     * @param array{icon: int, pathPattern: int, params: int} $rejected  values dropped as unsafe (icons) or invalid (path patterns)
      */
     private function writeCollection(?BreadcrumbCollection $existing, array $colData, array $itemsData, array &$rejected): void
     {
@@ -238,8 +241,8 @@ final readonly class BreadcrumbImporter
     }
 
     /**
-     * @param array<string, mixed>               $colData
-     * @param array{icon: int, pathPattern: int} $rejected
+     * @param array<string, mixed>                            $colData
+     * @param array{icon: int, pathPattern: int, params: int} $rejected
      */
     private function applyCollectionData(BreadcrumbCollection $collection, array $colData, array &$rejected): void
     {
@@ -261,8 +264,8 @@ final readonly class BreadcrumbImporter
     }
 
     /**
-     * @param list<array<string, mixed>>         $itemsData
-     * @param array{icon: int, pathPattern: int} $rejected
+     * @param list<array<string, mixed>>                      $itemsData
+     * @param array{icon: int, pathPattern: int, params: int} $rejected
      */
     private function persistItemTree(array $itemsData, BreadcrumbCollection $collection, ?BreadcrumbItem $parent, array &$rejected): void
     {
@@ -278,7 +281,7 @@ final readonly class BreadcrumbImporter
             $item->setStaticRouteParams($this->staticParamsFromRow($row));
             $item->setPathPattern($this->pathPatternOrNull($row['pathPattern'] ?? null, $rejected));
             $item->setMatchAttributes($this->matchAttributesFromRow($row));
-            $item->setDynamicParamKeys($this->dynamicKeysFromRow($row));
+            $item->setDynamicParamKeys($this->dynamicKeysFromRow($row, $rejected));
             $item->setLinkEnabled(!isset($row['linkEnabled']) ? true : (bool) $row['linkEnabled']);
             $item->setLabel($this->stringOrNull($row['label'] ?? null));
             $item->setTranslations($this->translationsFromRow($row));
@@ -339,19 +342,33 @@ final readonly class BreadcrumbImporter
     }
 
     /**
-     * @param array<string, mixed> $row
+     * `dynamicParamKeys` plus the `params` map, stored together (see {@see BreadcrumbParamMap}). A pair that cannot be
+     * read as a mapping is dropped and counted with the rejected values.
+     *
+     * @param array<string, mixed>                            $row
+     * @param array{icon: int, pathPattern: int, params: int} $rejected
      *
      * @return list<string>|null
      */
-    private function dynamicKeysFromRow(array $row): ?array
+    private function dynamicKeysFromRow(array $row, array &$rejected): ?array
     {
-        if (!isset($row['dynamicParamKeys']) || !\is_array($row['dynamicParamKeys'])) {
-            return null;
-        }
         $out = [];
-        foreach ($row['dynamicParamKeys'] as $v) {
+        foreach (\is_array($row['dynamicParamKeys'] ?? null) ? $row['dynamicParamKeys'] : [] as $v) {
             if (\is_string($v) && '' !== $v) {
                 $out[] = $v;
+            }
+        }
+        $params = $row['params'] ?? [];
+        if (!\is_array($params)) {
+            ++$rejected['params'];
+            $params = [];
+        }
+        foreach ($params as $target => $sources) {
+            $entry = BreadcrumbParamMap::encode($target, $sources);
+            if (null === $entry) {
+                ++$rejected['params'];
+            } else {
+                $out[] = $entry;
             }
         }
 
@@ -392,7 +409,7 @@ final readonly class BreadcrumbImporter
      * Icons are printed |raw on public pages: imported markup goes through the same allowlist as the form; an
      * unsafe value is dropped (stored as null) and counted so the import result reports it.
      *
-     * @param array{icon: int, pathPattern: int} $rejected
+     * @param array{icon: int, pathPattern: int, params: int} $rejected
      */
     private function iconOrNull(mixed $v, array &$rejected): ?string
     {
@@ -409,7 +426,7 @@ final readonly class BreadcrumbImporter
      * Same check as the dashboard form: a pattern that does not compile or has nested quantifiers is dropped (the
      * item then matches by route only) and counted with the rejected values.
      *
-     * @param array{icon: int, pathPattern: int} $rejected
+     * @param array{icon: int, pathPattern: int, params: int} $rejected
      */
     private function pathPatternOrNull(mixed $v, array &$rejected): ?string
     {

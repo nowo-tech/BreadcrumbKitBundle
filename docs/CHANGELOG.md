@@ -60,6 +60,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- **`link_access_checker`** (default `null`): service id implementing the new `Contract\BreadcrumbLinkAccessCheckerInterface` (`canLink(string $route, array $params): bool`), asked per crumb that would link; `false` keeps the label and drops the link. Hosts no longer need to decorate `BreadcrumbUrlResolverInterface` for this. See [USAGE](USAGE.md#links-the-user-cannot-open).
+- **Per-item parameter mapping**: an item can take a route parameter from a differently named request attribute, with `params: {id: '@projectId'}` in the collection JSON. A list tries several sources in order and `|before:<separator>` keeps what precedes a separator. Stored inside `dynamicParamKeys` as `id=@projectId`, so there is **no schema change**. See [USAGE](USAGE.md#parameters-named-differently-in-the-current-route).
+- Import reports invalid `params` pairs with the new message `import.error.params_rejected`.
+
+### Security
+
+- Audit status of both additions: re-verification pending. See [SECURITY](SECURITY.md).
+
 ## [2.13.0] - 2026-10-31
 
 Testing: BreadcrumbRouteCoverageTrait asserts every GET page route has a breadcrumb row (configurable non-page filter, DB or fixture rows). See [UPGRADING](UPGRADING.md#to-2130).

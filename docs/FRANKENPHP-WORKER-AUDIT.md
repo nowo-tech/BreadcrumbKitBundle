@@ -54,6 +54,7 @@ A bundle that is safe under **B** is safe under **A** and under classic mode / P
 |---------|--------|---------------|------------|------------|
 | `Service\BreadcrumbLoader` | yes (public) | none (`final readonly`; optional PSR-6 pool) | ✅ | ✅ (W-02 resolved) |
 | `Service\BreadcrumbUrlResolver` | yes (public) | none (`final readonly`) | ✅ | ✅ |
+| `Service\BreadcrumbParamMap` | not a service | none (static functions; reads the request passed per call) | ✅ | ✅ |
 | `Service\BreadcrumbInlineEditResolver` | yes | none (`final readonly`; reads token per call, only when a firewall ran) | ✅ | ✅ (W-04 resolved) |
 | `Service\BreadcrumbTrailPreview` | yes | none; pushes a synthetic request and pops it in `finally` (`src/Service/BreadcrumbTrailPreview.php:48-53`) | ✅ | ✅ |
 | `Service\BreadcrumbExporter` | yes | none (`final readonly`) | ✅ | ✅ |
@@ -109,6 +110,7 @@ No other findings. Good patterns observed: services read the current request and
 
 - Keeping Symfony's `services_resetter` enabled (default in FrankenPHP's Symfony runtime) is still recommended. Without it the bundle is safe, but the application must clear its EntityManager between requests to bound memory (W-02).
 - Custom `BreadcrumbInlineEditAccessCheckerInterface` / `BreadcrumbKitAccessCheckerInterface` implementations and `BreadcrumbTrailBuiltEvent` subscribers must stay stateless (or implement `ResetInterface`). They receive the request and user per call; do not store them in properties.
+- A custom `BreadcrumbLinkAccessCheckerInterface` must stay stateless too, or implement `ResetInterface`. It is asked on every trail build and the bundle keeps no answer, so do not keep per-user answers in properties either.
 - Do not store `BreadcrumbTrailView` or entities returned by the loader in your own services between requests.
 - The demo ships a worker-mode Caddyfile (`demo/symfony8/docker/frankenphp/Caddyfile`, `worker { … }` block) that can be used to reproduce behaviour.
 

@@ -43,6 +43,7 @@ Configuration root key: `nowo_breadcrumb_kit` (see `Nowo\BreadcrumbKitBundle\Dep
 | `web_ui.dialog_sizes.item_form` | `string` | `lg` | Dialog size of the item form dialog. |
 | `web_ui.dialog_sizes.import` | `string` | `md` | Dialog size of the JSON import dialog. |
 | `dashboard.*` | — | — | **Deprecated since 2.7** (removed in 3.0), see [Deprecated dashboard keys](#deprecated-dashboard-keys). |
+| `link_access_checker` | `string\|null` | `null` | Optional service id implementing `BreadcrumbLinkAccessCheckerInterface`, asked per crumb that would link: `false` keeps the label and drops the link (see [USAGE](USAGE.md#links-the-user-cannot-open)). `null` = every crumb links. |
 | `security.access_roles` | `string[]` | `['ROLE_ADMIN']` | User must be granted **at least one** role for dashboard routes (REQ-UI-002). Empty list disables bundle-level role checks. |
 | `security.access_checker` | `string\|null` | `null` | Optional service id implementing `BreadcrumbKitAccessCheckerInterface`. `null` = built-in role checker. |
 | `security.allow_unauthenticated` | `bool` | `false` | **DEV/DEMO only.** Skip SecurityBundle requirement and dashboard access subscriber. Never `true` in production. |
@@ -204,6 +205,7 @@ nowo_breadcrumb_kit:
             enabled: false
             min_items: 3
             breakpoint: '40rem'
+    link_access_checker: null        # service id, BreadcrumbLinkAccessCheckerInterface
     web_ui:
         enabled: false
         path_prefix: /breadcrumb-kit-admin

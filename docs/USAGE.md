@@ -13,6 +13,8 @@
 - [Theme slots of the trail](#theme-slots-of-the-trail)
 - [Customising the dashboard](#customising-the-dashboard)
 - [Data model (summary)](#data-model-summary)
+- [Parameters named differently in the current route](#parameters-named-differently-in-the-current-route)
+- [Links the user cannot open](#links-the-user-cannot-open)
 - [Caching](#caching)
 - [Testing: breadcrumb coverage](#testing-breadcrumb-coverage)
 
@@ -310,6 +312,59 @@ Pages, view models, data blocks and dialogs: [TEMPLATES.md](TEMPLATES.md). The 1
 ## Data model (summary)
 
 Breadcrumb definitions are stored with Doctrine (`BreadcrumbCollection`, `BreadcrumbItem`). Items reference a Symfony route name (or `*` when constrained by path/attributes), optional static route parameters, optional `pathPattern` (PCRE against the request path) and `matchAttributes` (JSON map of request attributes), optional `parent` for trail order (root → leaf), JSON translations per locale, and optional URL generation via `dynamicParamKeys`. See the bundle `README.md` for the conceptual model.
+
+## Parameters named differently in the current route
+
+A crumb normally copies its route parameters from the current route, by name. On `/projects/{projectId}/issues/{id}`
+that gives the parent crumb `/projects/{id}` the **issue** id. Map the parameter on the item, in the collection JSON:
+
+```json
+{
+    "routeName": "project_show",
+    "label": "Project",
+    "dynamicParamKeys": ["id"],
+    "params": {"id": ["@projectId", "@tenantSlug", "@spaceSlug|before:--"]}
+}
+```
+
+- `@name` reads the current request attribute `name`, then the current `_route_params`. Empty values and values that
+  are not a string or an integer count as missing.
+- A list tries each source in order. When none has a value, the crumb behaves as without the mapping: on
+  `/projects/{id}` itself it copies `id`.
+- `|before:<separator>` keeps what precedes the separator (1 to 16 characters, no spaces, `,` or `|`): `p3--Team` gives
+  `p3`. Without the separator in the value, the whole value is used.
+- A value in `staticRouteParams` wins over the mapping.
+- Names start with a letter and hold letters, digits and `_`, up to 64 characters. Attributes such as `_route` or
+  `_controller` cannot be read, and parameters such as `_fragment` cannot be set.
+
+The mapping is stored in the item's `dynamicParamKeys` as `target=@source,@source`, the form to use in the dashboard
+textarea (`["id", "id=@projectId,@tenantSlug"]`) and in code that writes `setDynamicParamKeys()`. Import and export
+convert it to and from `params`. Import reports an invalid `params` pair and drops it. In the dashboard a malformed entry
+is kept as a plain name, which does nothing.
+
+## Links the user cannot open
+
+So that a trail never leads to a 403, name a service in `nowo_breadcrumb_kit.link_access_checker`:
+
+```php
+final readonly class PermissionLinkChecker implements BreadcrumbLinkAccessCheckerInterface
+{
+    public function __construct(private AuthorizationCheckerInterface $security)
+    {
+    }
+
+    public function canLink(string $route, array $params): bool
+    {
+        return !str_starts_with($route, 'admin_') || $this->security->isGranted('ROLE_ADMIN');
+    }
+}
+```
+
+`false` keeps the label and drops the link, also in the collapsed "…" menu. `$params` holds the parameters the link was
+generated with. It is asked on every trail build and only for crumbs that would link, so not for the current page, for
+items with links disabled or for URLs that cannot be generated. The bundle does not cache the answer or catch exceptions
+from the service. Keep the service stateless in worker mode. It also runs for `nowo_breadcrumb_kit:preview`, where there
+is usually no user.
 
 ## Caching
 

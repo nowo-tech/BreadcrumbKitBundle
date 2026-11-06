@@ -65,6 +65,12 @@
 
 ## Unreleased
 
+Nothing to do: no schema change, and output is unchanged until you use one of the additions below.
+
+- **`link_access_checker`**: replaces a decorator of `BreadcrumbUrlResolverInterface` that returned a `null` URL for pages the user cannot open. Implement `BreadcrumbLinkAccessCheckerInterface` and set its service id. The service is used only when this option names it, an alias of the interface is not enough. A service that does not implement the interface fails when the loader is built.
+- **`params` / `id=@source` entries**: replaces a decorator that rewrote route parameters. Export and re-import keep them. An older bundle version ignores the entries, so the crumb falls back to the plain copy from the current route.
+- An existing `dynamicParamKeys` entry only changes meaning if it has the exact shape `name=@source`. No route parameter can have such a name, so such an entry did nothing until now.
+
 ## To 2.13.0
 
 From **2.12.3**:

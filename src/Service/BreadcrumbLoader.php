@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Nowo\BreadcrumbKitBundle\Service;
 
+use Nowo\BreadcrumbKitBundle\Contract\BreadcrumbLinkAccessCheckerInterface;
 use Nowo\BreadcrumbKitBundle\Dto\BreadcrumbCollapse;
 use Nowo\BreadcrumbKitBundle\Dto\BreadcrumbNode;
 use Nowo\BreadcrumbKitBundle\Dto\BreadcrumbTrailView;
@@ -41,6 +42,7 @@ final readonly class BreadcrumbLoader
         private ?string $defaultHomeIcon = null,
         private ?EventDispatcherInterface $eventDispatcher = null,
         private BreadcrumbCollapse $defaultCollapse = new BreadcrumbCollapse(),
+        private ?BreadcrumbLinkAccessCheckerInterface $linkAccessChecker = null,
     ) {
     }
 
@@ -110,11 +112,16 @@ final readonly class BreadcrumbLoader
             if ($row['link_enabled']) {
                 $rowRoute = (string) ($row['route_name'] ?? '');
                 if ('*' !== $rowRoute && '' !== $rowRoute) {
+                    [$dynamicKeys, $paramMap] = BreadcrumbParamMap::split($this->castDynamicKeys($row['dynamic_keys'] ?? null));
                     [$url, $merged] = $this->urlResolver->resolve(
                         $rowRoute,
-                        \is_array($row['static_params']) ? $row['static_params'] : [],
-                        $this->castDynamicKeys($row['dynamic_keys'] ?? null),
+                        // Static values win over mapped ones; the resolver only copies what is still missing.
+                        (\is_array($row['static_params']) ? $row['static_params'] : []) + BreadcrumbParamMap::resolve($paramMap, $request),
+                        $dynamicKeys,
                     );
+                    if (null !== $url && !$isLast && !($this->linkAccessChecker?->canLink($rowRoute, $merged) ?? true)) {
+                        $url = null;
+                    }
                 }
                 if ($isLast) {
                     $url = null;

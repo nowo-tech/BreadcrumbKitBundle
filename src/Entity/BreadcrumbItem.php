@@ -7,6 +7,7 @@ namespace Nowo\BreadcrumbKitBundle\Entity;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Nowo\BreadcrumbKitBundle\Repository\BreadcrumbItemRepository;
+use Nowo\BreadcrumbKitBundle\Service\BreadcrumbParamMap;
 
 /**
  * One crumb: matches a route name (+ optional path / request attributes) and static param subset;
@@ -59,7 +60,9 @@ class BreadcrumbItem
     private ?array $staticRouteParams = null;
 
     /**
-     * Route parameter names copied from the current request when generating the link.
+     * Route parameter names copied from the current request when generating the link. An entry
+     * {@code target=@source} takes the parameter from a differently named request attribute
+     * (see {@see BreadcrumbParamMap}).
      *
      * @var list<string>|null
      */

@@ -121,6 +121,7 @@ import:
     collection_code_required: Collection code is required.
     icon_rejected: 'Collection "%code%": %count% icon(s) contained unsafe markup and were left empty.'
     path_pattern_rejected: 'Collection "%code%": %count% path pattern(s) did not compile or used nested quantifiers and were left empty.'
+    params_rejected: 'Collection "%code%": %count% route parameter mapping(s) (params) were not valid and were ignored.'
 
 form:
   icon:

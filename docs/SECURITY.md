@@ -28,7 +28,7 @@ It does **not** cover your application’s routes, authentication, or hosting en
 | **HTTP requests** | The loader reads the current `Request` (route name, route parameters) to match items and generate URLs. |
 | **Dashboard HTTP** (when `web_ui.enabled: true`) | CRUD routes under `web_ui.path_prefix`: collections, items, JSON export/import. Forms use CSRF. Bundle-level access is enforced via `security.access_roles` / optional `security.access_checker` (REQ-UI-002) unless `security.allow_unauthenticated` is true (demo only). |
 | **JSON import uploads** | Dashboard import accepts a JSON file bounded by `dashboard.import_max_bytes` (default 2 MiB). |
-| **Database** | `BreadcrumbCollection` and `BreadcrumbItem` rows (labels, JSON translations, route names, parameters). |
+| **Database** | `BreadcrumbCollection` and `BreadcrumbItem` rows (labels, JSON translations, route names, parameters, parameter mappings). |
 | **Twig rendering** | Output uses labels and resolved URLs produced by the loader and `RouterInterface`. Item `icon` / collection `homeIcon` are printed raw (markup icons) after `BreadcrumbIconSanitizer`. |
 | **Inline edit iframe** | When `inline_edit.query_param` is set and access checks pass, the default breadcrumb template may embed the dashboard item form in an `<iframe>`. |
 
@@ -41,6 +41,8 @@ When the dashboard is enabled, HTTP endpoints are registered; protect `web_ui.pa
 | **Injection (SQL)** | Mitigated by Doctrine ORM when using parameterized APIs; avoid raw SQL on bundle tables without binding. |
 | **XSS** | Labels and URLs are auto-escaped by Twig. Icons are markup and printed raw: `BreadcrumbIconSanitizer` (allowlist of SVG / inline HTML elements and attributes, no event handlers, scripts or external URLs) validates them in the dashboard forms, cleans them on JSON import and re-sanitizes stored values in `BreadcrumbLoader` before rendering. `presentation.home_icon` comes from application config and is trusted. Do not disable escaping for other DB content in overridden templates. |
 | **Open redirect / unsafe URLs** | URLs are generated only via Symfony’s router from configured route names and request parameters; external URLs are not supported by design. |
+| **Unreachable links** | `link_access_checker` hides links, it does not protect pages: the target routes keep their own access checks. Its answer is never cached (the item cache holds rows, not URLs or answers), so a trail cannot show one user's links to another. The option is opt-in; an alias of the interface is not picked up without it. An exception from the checker propagates instead of showing the link. |
+| **Parameter mapping** (`params`, `target=@source`) | Whoever can edit items (dashboard, JSON import, `setDynamicParamKeys()`) chooses which request attribute goes into a crumb URL. Names starting with `_` are refused on both sides, so framework attributes (`_controller`, `_firewall_context`) cannot be read and generator parameters (`_fragment`, `_scheme`) cannot be set. Only non-empty strings and integers are used. Values come from the current request and reach only the router, which encodes them and validates route requirements (a failure gives a crumb with no link), and Twig, which escapes the URL. An attribute a host puts on the request (for example `csp_nonce`) can be printed in that same request's own page by an editor, so keep item editing to trusted roles. The `before:` modifier is a plain string cut, with no regular expression. |
 | **Cache poisoning** | PSR-6 cache keys are derived from collection code, context, and locale. Ensure only trusted actors can change breadcrumb rows or cache configuration. |
 | **Denial of service** | Large trees or frequent cache misses increase DB load; use sensible TTL and pool sizing. Editor-supplied `pathPattern` regexes are compiled per request: `BreadcrumbPathPatternValidator` rejects patterns that do not compile or use nested quantifiers (catastrophic backtracking) in the dashboard form and the JSON import. |
 | **Unauthenticated dashboard** | Mitigated by default `security.access_roles: [ROLE_ADMIN]` + `DashboardAccessSubscriber`. `allow_unauthenticated: true` disables that gate (demo only). Still add host `access_control` on `web_ui.path_prefix`. |
@@ -105,7 +107,7 @@ Before tagging a release, confirm:
 | 10 | Permissions for changing breadcrumb data are appropriate | [ ] |
 | 11 | Public exposure of admin routes (if any) reviewed in the app | [ ] |
 | 12 | Rate limits / DoS considerations for DB-heavy pages (app-level) | [ ] |
-| — | **AI security audit (REQ-SEC-004)** | Grade **Pass (conditional)** / risk **Medium** (2026-07-28). Recorded in the Nowo monorepo `BUNDLES_SECURITY_ANALYSIS.md`. |
+| — | **AI security audit (REQ-SEC-004)** | Grade **Pass (conditional)** / risk **Medium** (2026-07-28). Recorded in the Nowo monorepo `BUNDLES_SECURITY_ANALYSIS.md`. `link_access_checker` and parameter mapping ([Unreleased]): re-verification pending. |
 
 For responsible disclosure, see [`.github/SECURITY.md`](../.github/SECURITY.md).
 
