@@ -73,6 +73,58 @@ final class LinkAccessKernelTest extends TestCase
         self::assertContains(['project_show', ['id' => 'p1']], $checker->asked);
     }
 
+    public function testValueBreakingARequirementGivesNoLinkUnderTheProductionRecipe(): void
+    {
+        $this->boot(null);
+
+        $html = $this->render('wiki_num', ['spaceSlug' => 'abc--Team']);
+        self::assertStringContainsString('Number', $html);
+        self::assertStringNotContainsString('/n/', $html);
+
+        self::assertStringContainsString('href="/n/42"', $this->render('wiki_num', ['spaceSlug' => '42--Team']));
+    }
+
+    /**
+     * @return iterable<string, array{string}>
+     */
+    public static function hostValues(): iterable
+    {
+        yield 'dots and a fragment' => ['evil.test%23--x'];
+        yield 'fragment, passes the default requirement' => ['evil#--x'];
+        yield 'query' => ['evil?--x'];
+        yield 'path' => ['evil/--x'];
+        yield 'userinfo' => ['evil@--x'];
+    }
+
+    #[DataProvider('hostValues')]
+    public function testHostVariableCannotLeaveTheSite(string $slug): void
+    {
+        $this->boot(null);
+
+        $html = $this->render('wiki_host', ['spaceSlug' => rawurldecode($slug)]);
+
+        self::assertStringContainsString('Host', $html);
+        self::assertStringNotContainsString('example.test', $html);
+        self::assertStringNotContainsString('evil', $html);
+    }
+
+    public function testValidHostVariableStillLinks(): void
+    {
+        $this->boot(null);
+
+        self::assertStringContainsString('href="//team-1.example.test/t"', $this->render('wiki_host', ['spaceSlug' => 'team-1--Name']));
+    }
+
+    public function testRequestAttributesAreNotReadWithoutDeclaringThem(): void
+    {
+        $this->boot(null);
+
+        $html = $this->render('issue_show', ['projectId' => 'p1', 'id' => 'i9'], ['tenantSlug' => 'not-a-route-param']);
+
+        self::assertStringContainsString('href="/projects/p1"', $html);
+        self::assertStringNotContainsString('not-a-route-param', $html);
+    }
+
     public function testHostServiceIsNotUsedUntilTheOptionNamesIt(): void
     {
         $checker = $this->boot(null);
@@ -100,10 +152,13 @@ final class LinkAccessKernelTest extends TestCase
             $project['params'] = ['id' => ['@projectId', '@tenantSlug', '@spaceSlug|before:--']];
         }
 
+        $number = ['routeName' => 'num_show', 'label' => 'Number', 'params' => ['id' => '@spaceSlug|before:--'], 'children' => [['routeName' => 'wiki_num', 'label' => 'Page']]];
+        $host = ['routeName' => 'host_show', 'label' => 'Host', 'params' => ['sub' => '@spaceSlug|before:--'], 'children' => [['routeName' => 'wiki_host', 'label' => 'Page']]];
+
         $importer = $this->service(BreadcrumbImporter::class);
         self::assertInstanceOf(BreadcrumbImporter::class, $importer);
         $result = $importer->import(['collection' => ['code' => 'default'], 'items' => [
-            ['routeName' => 'home', 'label' => 'Home', 'children' => [$project]],
+            ['routeName' => 'home', 'label' => 'Home', 'children' => [$project, $number, $host]],
         ]]);
         self::assertSame([], $result['errors']);
 
@@ -115,11 +170,12 @@ final class LinkAccessKernelTest extends TestCase
 
     /**
      * @param array<string, string> $params
+     * @param array<string, string> $attributes extra request attributes, not route parameters
      */
-    private function render(string $route, array $params): string
+    private function render(string $route, array $params, array $attributes = []): string
     {
         $request = Request::create('/');
-        $request->attributes->add($params);
+        $request->attributes->add($params + $attributes);
         $request->attributes->set('_route', $route);
         $request->attributes->set('_route_params', $params);
         $stack = $this->service('request_stack');

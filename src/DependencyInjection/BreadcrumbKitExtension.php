@@ -344,11 +344,13 @@ final class BreadcrumbKitExtension extends Extension implements PrependExtension
             ]));
 
         // Set explicitly: autowiring must not pick up a host's alias of the interface while this option is null.
-        $linkAccessChecker = trim((string) ($config['link_access_checker'] ?? ''));
-        if ('' !== $linkAccessChecker) {
+        // Its type is checked by LinkAccessCheckerPass: the host's services are not visible here.
+        if (\is_string($config['link_access_checker'] ?? null)) {
             $container->getDefinition(BreadcrumbLoader::class)
-                ->setArgument('$linkAccessChecker', new Reference($linkAccessChecker));
+                ->setArgument('$linkAccessChecker', new Reference(trim($config['link_access_checker'])));
         }
+        $container->getDefinition(BreadcrumbLoader::class)
+            ->setArgument('$paramMapAttributes', array_values($config['param_map']['attributes']));
 
         if ($runtimeLocales && null === $defaultLocale) {
             $container->getDefinition(BreadcrumbLoader::class)->setArgument('$defaultLocale', (new Definition('string'))

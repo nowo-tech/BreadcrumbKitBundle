@@ -44,6 +44,7 @@ final class BreadcrumbParamMapTest extends TestCase
         yield 'empty separator' => ['id=@a|before:'];
         yield 'separator too long' => ['id=@a|before:'.str_repeat('-', 17)];
         yield 'trailing newline' => ["id=@a\n"];
+        yield 'more than 16 sources' => ['id='.implode(',', array_fill(0, 17, '@a'))];
     }
 
     #[DataProvider('notMappings')]
@@ -52,31 +53,53 @@ final class BreadcrumbParamMapTest extends TestCase
         self::assertSame([[$entry], []], BreadcrumbParamMap::split([$entry]));
     }
 
+    public function testEntriesThatAreNotStringsAreSkipped(): void
+    {
+        self::assertSame([['id'], ['a' => ['@b']]], BreadcrumbParamMap::split([1, 'id', null, ['x'], 'a=@b']));
+    }
+
+    public function testSixteenSourcesAreAccepted(): void
+    {
+        $sources = array_fill(0, 16, '@a');
+
+        self::assertSame([[], ['id' => $sources]], BreadcrumbParamMap::split(['id='.implode(',', $sources)]));
+        self::assertNull(BreadcrumbParamMap::encode('id', [...$sources, '@a']));
+    }
+
     public function testFirstSourceWithAValueWins(): void
     {
-        $request = new Request(attributes: ['empty' => '', 'tenantSlug' => 'tenant', 'projectId' => 'project', 'number' => 7]);
+        $request = new Request(attributes: ['_route_params' => ['empty' => '', 'tenantSlug' => 'tenant', 'projectId' => 'project', 'number' => 7]]);
         $map = ['id' => ['@missing', '@empty', '@tenantSlug', '@projectId'], 'count' => ['@number'], 'gone' => ['@missing']];
 
         self::assertSame(['id' => 'tenant', 'count' => 7], BreadcrumbParamMap::resolve($map, $request));
     }
 
-    public function testSourceIsReadFromRouteParamsWhenTheAttributeIsNotSet(): void
+    public function testRequestAttributesAreNotReadUnlessDeclared(): void
     {
-        $request = new Request(attributes: ['_route_params' => ['projectId' => 'p1']]);
+        $request = new Request(attributes: ['csp_nonce' => 'secret', 'projectId' => 'attribute', '_route_params' => []]);
+        $map = ['n' => ['@csp_nonce'], 'id' => ['@projectId']];
 
-        self::assertSame(['id' => 'p1'], BreadcrumbParamMap::resolve(['id' => ['@projectId']], $request));
+        self::assertSame([], BreadcrumbParamMap::resolve($map, $request));
+        self::assertSame(['id' => 'attribute'], BreadcrumbParamMap::resolve($map, $request, ['projectId']));
+    }
+
+    public function testARouteParameterWinsOverADeclaredAttribute(): void
+    {
+        $request = new Request(attributes: ['slug' => 'attribute', '_route_params' => ['slug' => 'route']]);
+
+        self::assertSame(['s' => 'route'], BreadcrumbParamMap::resolve(['s' => ['@slug']], $request, ['slug']));
     }
 
     public function testValuesThatCannotBeARouteParameterAreSkipped(): void
     {
-        $request = new Request(attributes: ['object' => new stdClass(), 'list' => ['a'], 'flag' => true, 'null' => null, 'ok' => 'yes']);
+        $request = new Request(attributes: ['_route_params' => ['object' => new stdClass(), 'list' => ['a'], 'flag' => true, 'null' => null, 'ok' => 'yes']]);
 
         self::assertSame(['id' => 'yes'], BreadcrumbParamMap::resolve(['id' => ['@object', '@list', '@flag', '@null', '@ok']], $request));
     }
 
     public function testBeforeKeepsWhatPrecedesTheSeparator(): void
     {
-        $request = new Request(attributes: ['named' => 'uuid--Team wiki', 'bare' => 'uuid', 'lead' => '--name', 'number' => 7]);
+        $request = new Request(attributes: ['_route_params' => ['named' => 'uuid--Team wiki', 'bare' => 'uuid', 'lead' => '--name', 'number' => 7, 'fallback' => 'fallback']]);
 
         self::assertSame(
             ['a' => 'uuid', 'b' => 'uuid', 'c' => 'fallback', 'd' => 7],
@@ -85,8 +108,16 @@ final class BreadcrumbParamMapTest extends TestCase
                 'b' => ['@bare|before:--'],
                 'c' => ['@lead|before:--', '@fallback'],
                 'd' => ['@number|before:--'],
-            ], $request->duplicate(attributes: $request->attributes->all() + ['fallback' => 'fallback'])),
+            ], $request),
         );
+    }
+
+    public function testIsName(): void
+    {
+        self::assertTrue(BreadcrumbParamMap::isName('projectId'));
+        self::assertFalse(BreadcrumbParamMap::isName('_route'));
+        self::assertFalse(BreadcrumbParamMap::isName("a\n"));
+        self::assertFalse(BreadcrumbParamMap::isName(5));
     }
 
     public function testEncodeAndExportAreReverses(): void

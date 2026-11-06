@@ -66,7 +66,8 @@ final class LinkAccessTestKernel extends Kernel
             'secret' => 'test',
             'test' => true,
             'http_method_override' => false,
-            'router' => ['utf8' => true, 'resource' => 'kernel::loadRoutes', 'type' => 'service'],
+            // The production recipe: the generator does not check requirements at all.
+            'router' => ['utf8' => true, 'resource' => 'kernel::loadRoutes', 'type' => 'service', 'strict_requirements' => null],
         ]);
         $container->extension('doctrine', [
             'dbal' => ['url' => 'sqlite:///:memory:'],
@@ -90,9 +91,13 @@ final class LinkAccessTestKernel extends Kernel
             'issue_show' => '/projects/{projectId}/issues/{id}',
             'monitor_show' => '/uptime/{tenantSlug}/monitors/{id}',
             'wiki_page' => '/wiki/{spaceSlug}/pages/{id}',
+            'wiki_num' => '/wiki-num/{spaceSlug}',
+            'wiki_host' => '/wiki-host/{spaceSlug}',
         ] as $name => $path) {
             $routes->add($name, $path)->controller('kernel::noop');
         }
+        $routes->add('num_show', '/n/{id}')->controller('kernel::noop')->requirements(['id' => '\d+']);
+        $routes->add('host_show', '/t')->controller('kernel::noop')->host('{sub}.example.test');
     }
 }
 

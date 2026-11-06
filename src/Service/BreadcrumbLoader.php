@@ -16,9 +16,12 @@ use Nowo\BreadcrumbKitBundle\Repository\BreadcrumbCollectionRepository;
 use Nowo\BreadcrumbKitBundle\Repository\BreadcrumbItemRepository;
 use Nowo\BreadcrumbKitBundle\Security\BreadcrumbIconSanitizer;
 use Psr\Cache\CacheItemPoolInterface;
+use Psr\Log\LoggerInterface;
+use Psr\Log\NullLogger;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
+use Throwable;
 
 /**
  * Loads item definitions (optional cache), picks the best route match, walks parents, resolves labels/URLs.
@@ -28,6 +31,9 @@ final readonly class BreadcrumbLoader
     // v2 (2.11): cached rows carry sanitized icons; entries written by older versions are not read.
     private const CACHE_PREFIX = 'nowo_breadcrumb_kit.items.v2.';
 
+    /**
+     * @param list<string> $paramMapAttributes request attributes a mapped parameter may read (param_map.attributes)
+     */
     public function __construct(
         private BreadcrumbCollectionRepository $collectionRepository,
         private BreadcrumbItemRepository $itemRepository,
@@ -43,6 +49,8 @@ final readonly class BreadcrumbLoader
         private ?EventDispatcherInterface $eventDispatcher = null,
         private BreadcrumbCollapse $defaultCollapse = new BreadcrumbCollapse(),
         private ?BreadcrumbLinkAccessCheckerInterface $linkAccessChecker = null,
+        private array $paramMapAttributes = [],
+        private LoggerInterface $logger = new NullLogger(),
     ) {
     }
 
@@ -109,18 +117,21 @@ final readonly class BreadcrumbLoader
             $isLast = $i === $n - 1;
             $merged = [];
             $url = null;
-            if ($row['link_enabled']) {
+            $linkEnabled = (bool) $row['link_enabled'];
+            if ($linkEnabled) {
                 $rowRoute = (string) ($row['route_name'] ?? '');
                 if ('*' !== $rowRoute && '' !== $rowRoute) {
                     [$dynamicKeys, $paramMap] = BreadcrumbParamMap::split($this->castDynamicKeys($row['dynamic_keys'] ?? null));
                     [$url, $merged] = $this->urlResolver->resolve(
                         $rowRoute,
                         // Static values win over mapped ones; the resolver only copies what is still missing.
-                        (\is_array($row['static_params']) ? $row['static_params'] : []) + BreadcrumbParamMap::resolve($paramMap, $request),
+                        (\is_array($row['static_params']) ? $row['static_params'] : []) + BreadcrumbParamMap::resolve($paramMap, $request, $this->paramMapAttributes),
                         $dynamicKeys,
                     );
-                    if (null !== $url && !$isLast && !($this->linkAccessChecker?->canLink($rowRoute, $merged) ?? true)) {
+                    if (null !== $url && !$isLast && !$this->canLink($rowRoute, $merged)) {
                         $url = null;
+                        $merged = [];
+                        $linkEnabled = false;
                     }
                 }
                 if ($isLast) {
@@ -131,7 +142,7 @@ final readonly class BreadcrumbLoader
             $nodes[] = new BreadcrumbNode(
                 label: $label,
                 url: $url,
-                linkEnabled: (bool) $row['link_enabled'],
+                linkEnabled: $linkEnabled,
                 current: $isLast,
                 icon: isset($row['icon']) ? (string) $row['icon'] : null,
                 routeParams: $merged,
@@ -163,6 +174,32 @@ final readonly class BreadcrumbLoader
             $request,
             isset($best['route_name']) ? (string) $best['route_name'] : null,
         );
+    }
+
+    /**
+     * A checker that fails drops the link and keeps the page: the trail is decoration, a permission backend outage must
+     * not turn every page into a 500.
+     *
+     * @param array<string, scalar|null> $params
+     */
+    private function canLink(string $route, array $params): bool
+    {
+        if (null === $this->linkAccessChecker) {
+            return true;
+        }
+
+        try {
+            return $this->linkAccessChecker->canLink($route, $params);
+        } catch (Throwable $e) {
+            $this->logger->error('Breadcrumb link access checker failed, link dropped.', [
+                'bundle' => 'NowoBreadcrumbKitBundle',
+                'action' => 'link_access_checker',
+                'route' => $route,
+                'exception' => $e::class,
+            ]);
+
+            return false;
+        }
     }
 
     /**

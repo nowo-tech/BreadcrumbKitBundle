@@ -14,9 +14,14 @@ use Nowo\BreadcrumbKitBundle\Repository\BreadcrumbItemRepository;
 use Nowo\BreadcrumbKitBundle\Service\BreadcrumbLoader;
 use Nowo\BreadcrumbKitBundle\Service\BreadcrumbUrlResolverInterface;
 use PHPUnit\Framework\TestCase;
+use Psr\Log\AbstractLogger;
+use Psr\Log\LoggerInterface;
+use Psr\Log\NullLogger;
 use ReflectionProperty;
+use Stringable;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
+use TypeError;
 
 /**
  * BK-1 (link_access_checker) and BK-2 (parameter mapping) at the loader, with a stub URL resolver.
@@ -40,7 +45,51 @@ final class BreadcrumbLoaderLinkAccessTest extends TestCase
         self::assertSame(['Home', 'Parent', 'Leaf'], array_map(static fn ($n): string => $n->label, $view->nodes));
         self::assertSame('/home', $view->nodes[0]->url);
         self::assertNull($view->nodes[1]->url);
-        self::assertTrue($view->nodes[1]->linkEnabled);
+        self::assertFalse($view->nodes[1]->linkEnabled, 'a template testing only linkEnabled must not print an anchor');
+        self::assertSame([], $view->nodes[1]->routeParams);
+        self::assertTrue($view->nodes[0]->linkEnabled);
+    }
+
+    public function testACheckerThatFailsDropsTheLinkKeepsThePageAndIsLogged(): void
+    {
+        $logger = new class extends AbstractLogger {
+            /** @var list<array{mixed, string, array<array-key, mixed>}> */
+            public array $logged = [];
+
+            public function log($level, string|Stringable $message, array $context = []): void
+            {
+                $this->logged[] = [$level, (string) $message, $context];
+            }
+        };
+        $checker = $this->checker(static function (string $route): bool {
+            throw new TypeError('secret detail of '.$route);
+        });
+
+        $view = $this->loader($checker, [], $logger)->loadTrailView('main');
+
+        self::assertSame(['Home', 'Parent', 'Leaf'], array_map(static fn ($n): string => $n->label, $view->nodes));
+        self::assertNull($view->nodes[0]->url);
+        self::assertNull($view->nodes[1]->url);
+        self::assertCount(2, $logger->logged);
+        self::assertSame('error', $logger->logged[0][0]);
+        self::assertSame(['bundle' => 'NowoBreadcrumbKitBundle', 'action' => 'link_access_checker', 'route' => 'home', 'exception' => TypeError::class], $logger->logged[0][2]);
+        self::assertStringNotContainsString('secret', json_encode($logger->logged, \JSON_THROW_ON_ERROR));
+    }
+
+    public function testDeclaredAttributesReachTheMapping(): void
+    {
+        $calls = [];
+        $resolver = $this->createMock(BreadcrumbUrlResolverInterface::class);
+        $resolver->method('resolve')->willReturnCallback(static function (string $route, array $static) use (&$calls): array {
+            $calls[$route] = $static;
+
+            return ['/'.$route, $static];
+        });
+        $item = (new BreadcrumbItem())->setRouteName('parent')->setLabel('Parent')->setDynamicParamKeys(['a=@declared', 'b=@undeclared']);
+
+        $this->loaderWith($resolver, null, [$item], ['declared'])->loadTrailView('main');
+
+        self::assertSame(['a' => 'attr'], $calls['parent']);
     }
 
     public function testCheckerGetsTheMergedParamsAndIsNotAskedAboutCrumbsThatWouldNotLink(): void
@@ -140,22 +189,23 @@ final class BreadcrumbLoaderLinkAccessTest extends TestCase
     /**
      * @param list<BreadcrumbItem> $extra
      */
-    private function loader(?BreadcrumbLinkAccessCheckerInterface $checker, array $extra): BreadcrumbLoader
+    private function loader(?BreadcrumbLinkAccessCheckerInterface $checker, array $extra, ?LoggerInterface $logger = null): BreadcrumbLoader
     {
         $resolver = $this->createMock(BreadcrumbUrlResolverInterface::class);
         $resolver->method('resolve')->willReturnCallback(
             static fn (string $route): array => 'broken' === $route ? [null, []] : ['/'.$route, ['merged' => $route]],
         );
 
-        return $this->loaderWith($resolver, $checker, $extra);
+        return $this->loaderWith($resolver, $checker, $extra, [], $logger);
     }
 
     /**
      * Trail: home > parent > $extra… > leaf (the current page); $extra may hold its own `parent` item.
      *
      * @param list<BreadcrumbItem> $extra
+     * @param list<string>         $attributes
      */
-    private function loaderWith(BreadcrumbUrlResolverInterface $resolver, ?BreadcrumbLinkAccessCheckerInterface $checker, array $extra): BreadcrumbLoader
+    private function loaderWith(BreadcrumbUrlResolverInterface $resolver, ?BreadcrumbLinkAccessCheckerInterface $checker, array $extra, array $attributes = [], ?LoggerInterface $logger = null): BreadcrumbLoader
     {
         $collection = (new BreadcrumbCollection())->setCode('main');
         (new ReflectionProperty(BreadcrumbCollection::class, 'id'))->setValue($collection, 1);
@@ -187,7 +237,8 @@ final class BreadcrumbLoaderLinkAccessTest extends TestCase
         $request = Request::create('/leaf');
         $request->attributes->set('_route', 'leaf');
         $request->attributes->set('_route_params', ['projectId' => 'p1']);
-        $request->attributes->set('projectId', 'p1');
+        $request->attributes->set('declared', 'attr');
+        $request->attributes->set('undeclared', 'secret');
         $stack = new RequestStack();
         $stack->push($request);
 
@@ -198,6 +249,8 @@ final class BreadcrumbLoaderLinkAccessTest extends TestCase
             $stack,
             'en',
             linkAccessChecker: $checker,
+            paramMapAttributes: $attributes,
+            logger: $logger ?? new NullLogger(),
         );
     }
 }

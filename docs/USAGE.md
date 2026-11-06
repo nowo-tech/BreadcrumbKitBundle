@@ -327,15 +327,21 @@ that gives the parent crumb `/projects/{id}` the **issue** id. Map the parameter
 }
 ```
 
-- `@name` reads the current request attribute `name`, then the current `_route_params`. Empty values and values that
-  are not a string or an integer count as missing.
-- A list tries each source in order. When none has a value, the crumb behaves as without the mapping: on
+- `@name` reads the parameter `name` of the current route (`_route_params`). Empty values and values that are not a
+  string or an integer count as missing.
+- Request attributes are read only if you declare their names in `nowo_breadcrumb_kit.param_map.attributes`. A route
+  parameter wins over a declared attribute. Editors can place a declared value in a crumb URL, where it reaches access
+  logs and browser history, so declare none that hold secrets.
+- A list tries each source in order, up to 16. When none has a value, the crumb behaves as without the mapping: on
   `/projects/{id}` itself it copies `id`.
 - `|before:<separator>` keeps what precedes the separator (1 to 16 characters, no spaces, `,` or `|`): `p3--Team` gives
   `p3`. Without the separator in the value, the whole value is used.
 - A value in `staticRouteParams` wins over the mapping.
 - Names start with a letter and hold letters, digits and `_`, up to 64 characters. Attributes such as `_route` or
   `_controller` cannot be read, and parameters such as `_fragment` cannot be set.
+- A value that breaks the target route's requirement gives a crumb with no link, whatever
+  `framework.router.strict_requirements` says. So does a host variable holding anything but letters, digits, `.`, `_`
+  and `-`.
 
 The mapping is stored in the item's `dynamicParamKeys` as `target=@source,@source`, the form to use in the dashboard
 textarea (`["id", "id=@projectId,@tenantSlug"]`) and in code that writes `setDynamicParamKeys()`. Import and export
@@ -360,10 +366,13 @@ final readonly class PermissionLinkChecker implements BreadcrumbLinkAccessChecke
 }
 ```
 
-`false` keeps the label and drops the link, also in the collapsed "…" menu. `$params` holds the parameters the link was
-generated with. It is asked on every trail build and only for crumbs that would link, so not for the current page, for
-items with links disabled or for URLs that cannot be generated. The bundle does not cache the answer or catch exceptions
-from the service. Keep the service stateless in worker mode. It also runs for `nowo_breadcrumb_kit:preview`, where there
+`false` keeps the label and drops the link, also in the collapsed "…" menu. The crumb then has a `null` URL,
+`linkEnabled: false` and no route parameters; a custom template should test `url`. `$params` holds the parameters the link
+was generated with, so decide on them rather than on the current request. It is asked on every trail build and only for
+crumbs that would link, so not for the current page, for items with links disabled or for URLs that cannot be generated.
+The bundle does not cache the answer, so do not keep a trail in a cache shared between users. A `Throwable` from the
+service is logged (level `error`, class name only) and drops the link. A blank option or a service that does not
+implement the interface stops the container from compiling. Keep the service stateless in worker mode. It also runs for `nowo_breadcrumb_kit:preview`, where there
 is usually no user.
 
 ## Caching

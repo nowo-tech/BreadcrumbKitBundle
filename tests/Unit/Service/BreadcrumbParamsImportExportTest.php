@@ -90,6 +90,16 @@ final class BreadcrumbParamsImportExportTest extends TestCase
         self::assertSame(['routeName' => 'c', 'dynamicParamKeys' => ['id=5'], 'linkEnabled' => true], $items[2]);
     }
 
+    public function testExportSkipsEntriesThatAreNotStrings(): void
+    {
+        $collection = (new BreadcrumbCollection())->setCode('main');
+        $item = (new BreadcrumbItem())->setCollection($collection)->setRouteName('a');
+        // Written around the form and the import (direct SQL, setter): one such row must not stop the export.
+        (new ReflectionProperty(BreadcrumbItem::class, 'dynamicParamKeys'))->setValue($item, [1, 'id', null]);
+
+        self::assertSame(['id'], $this->exporter([$item])->exportCollection($collection)['items'][0]['dynamicParamKeys']);
+    }
+
     /**
      * @param list<BreadcrumbItem> $items
      */

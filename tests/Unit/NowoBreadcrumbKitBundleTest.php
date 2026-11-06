@@ -8,6 +8,7 @@ use Nowo\BreadcrumbKitBundle\DependencyInjection\BreadcrumbKitExtension;
 use Nowo\BreadcrumbKitBundle\DependencyInjection\Compiler\BreadcrumbInlineEditAccessLocatorPass;
 use Nowo\BreadcrumbKitBundle\DependencyInjection\Compiler\CsrfProtectionPass;
 use Nowo\BreadcrumbKitBundle\DependencyInjection\Compiler\DashboardSecurityPass;
+use Nowo\BreadcrumbKitBundle\DependencyInjection\Compiler\LinkAccessCheckerPass;
 use Nowo\BreadcrumbKitBundle\DependencyInjection\Compiler\TwigPathsPass;
 use Nowo\BreadcrumbKitBundle\NowoBreadcrumbKitBundle;
 use PHPUnit\Framework\TestCase;
@@ -28,6 +29,7 @@ final class NowoBreadcrumbKitBundleTest extends TestCase
         self::assertContains(BreadcrumbInlineEditAccessLocatorPass::class, $classNames);
         self::assertContains(DashboardSecurityPass::class, $classNames);
         self::assertContains(CsrfProtectionPass::class, $classNames);
+        self::assertContains(LinkAccessCheckerPass::class, $classNames);
     }
 
     /**

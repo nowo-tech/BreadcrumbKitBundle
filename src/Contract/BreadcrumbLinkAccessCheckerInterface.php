@@ -9,7 +9,8 @@ namespace Nowo\BreadcrumbKitBundle\Contract;
  *
  * Asked once per crumb that would render a link, on every trail build (the answer is never cached by the bundle). The
  * current page's crumb, crumbs with links disabled and crumbs whose URL cannot be generated are not asked. Implementations
- * must stay stateless between requests (FrankenPHP worker mode), or implement ResetInterface.
+ * must stay stateless between requests (FrankenPHP worker mode), or implement ResetInterface. A Throwable from canLink()
+ * is logged and drops the link.
  */
 interface BreadcrumbLinkAccessCheckerInterface
 {

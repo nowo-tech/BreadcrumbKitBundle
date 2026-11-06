@@ -23,7 +23,6 @@ final class LinkAccessCheckerConfigTest extends TestCase
     {
         yield 'not configured' => [[]];
         yield 'null' => [['link_access_checker' => null]];
-        yield 'empty' => [['link_access_checker' => ' ']];
     }
 
     /**
@@ -43,23 +42,49 @@ final class LinkAccessCheckerConfigTest extends TestCase
         self::assertSame('app.link_checker', (string) $argument);
     }
 
-    public function testNonStringIsRefused(): void
+    /**
+     * @return iterable<string, array{mixed}>
+     */
+    public static function invalidCheckers(): iterable
+    {
+        yield 'integer' => [5];
+        yield 'false' => [false];
+        yield 'empty' => [''];
+        yield 'blank' => ['   '];
+    }
+
+    #[DataProvider('invalidCheckers')]
+    public function testInvalidValueIsRefused(mixed $value): void
     {
         $this->expectException(InvalidConfigurationException::class);
         $this->expectExceptionMessage('link_access_checker');
 
-        (new Processor())->processConfiguration(new Configuration(), [['link_access_checker' => 5]]);
+        (new Processor())->processConfiguration(new Configuration(), [['link_access_checker' => $value]]);
+    }
+
+    public function testParamMapAttributesReachTheLoader(): void
+    {
+        self::assertSame([], $this->loaderArgument([], '$paramMapAttributes'));
+        self::assertSame(['projectId'], $this->loaderArgument(['param_map' => ['attributes' => ['projectId']]], '$paramMapAttributes'));
+    }
+
+    public function testReservedAttributeNameIsRefused(): void
+    {
+        $this->expectException(InvalidConfigurationException::class);
+        $this->expectExceptionMessage('param_map.attributes');
+
+        (new Processor())->processConfiguration(new Configuration(), [['param_map' => ['attributes' => ['_controller']]]]);
     }
 
     /**
      * @param array<string, mixed> $config
      */
-    private function loaderArgument(array $config): mixed
+    private function loaderArgument(array $config, string $argument = '$linkAccessChecker'): mixed
     {
         $container = new ContainerBuilder();
         $container->setParameter('kernel.debug', false);
         (new BreadcrumbKitExtension())->load([$config], $container);
 
-        return $container->getDefinition(BreadcrumbLoader::class)->getArgument('$linkAccessChecker');
+        return $container->getDefinition(BreadcrumbLoader::class)->getArgument($argument);
     }
 }

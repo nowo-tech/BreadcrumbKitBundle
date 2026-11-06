@@ -65,11 +65,13 @@
 
 ## Unreleased
 
-Nothing to do: no schema change, and output is unchanged until you use one of the additions below.
+No schema change. One behaviour change, in the fix below; everything else is unchanged until you use one of the additions.
 
-- **`link_access_checker`**: replaces a decorator of `BreadcrumbUrlResolverInterface` that returned a `null` URL for pages the user cannot open. Implement `BreadcrumbLinkAccessCheckerInterface` and set its service id. The service is used only when this option names it, an alias of the interface is not enough. A service that does not implement the interface fails when the loader is built.
+- **Route requirements are now checked under `strict_requirements: null`**. A crumb whose value breaks its route's requirement, or whose host variable holds anything but letters, digits, `.`, `_` and `-`, no longer links; its label stays. Under `true` or `false` such a crumb already had no link, except for the host name characters. If a crumb loses its link after upgrading, its parameters were producing a URL that the route would not match: use `params` or `staticRouteParams` to give it the right value.
+
+- **`link_access_checker`**: replaces a decorator of `BreadcrumbUrlResolverInterface` that returned a `null` URL for pages the user cannot open. Implement `BreadcrumbLinkAccessCheckerInterface` and set its service id. The service is used only when this option names it, an alias of the interface is not enough. A blank value or a service that does not implement the interface stops the container from compiling. A custom template should test `node.url`; a hidden crumb also has `linkEnabled: false`.
 - **`params` / `id=@source` entries**: replaces a decorator that rewrote route parameters. Export and re-import keep them. An older bundle version ignores the entries, so the crumb falls back to the plain copy from the current route.
-- An existing `dynamicParamKeys` entry only changes meaning if it has the exact shape `name=@source`. No route parameter can have such a name, so such an entry did nothing until now.
+- An existing `dynamicParamKeys` entry only changes meaning if it has the exact shape `name=@source`. No route parameter can have such a name, so such an entry did nothing until now. Search stored `dynamicParamKeys` for `=@` before upgrading: such an entry starts working with this version.
 
 ## To 2.13.0
 
