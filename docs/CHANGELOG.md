@@ -73,7 +73,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Security
 
-- Audit status of both additions (Appendix HD, 2026-11-06): audited at `c769e8c`, fixes re-verified at `f24f4d7`: **Pass (good) / Low**, no open Critical, High or Medium. The localized-route fix (HD-L6) came after that head: re-verification pending. See [SECURITY](SECURITY.md).
+- Audit status of both additions (Appendix HD, 2026-11-06): audited at `c769e8c`, fixes re-verified at `47f44d9`: **Pass (good) / Low**, no open Critical, High or Medium. See [SECURITY](SECURITY.md).
 
 ## [2.13.0] - 2026-10-31
 
