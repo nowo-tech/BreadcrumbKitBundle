@@ -58,9 +58,14 @@
 {{ narrow }}
       }
     }
-    @media (prefers-reduced-motion: no-preference) {
-      .breadcrumb-collapse__details[open] > .breadcrumb-collapse__menu { animation: breadcrumb-kit-collapse-in 120ms ease-out; }
-      @keyframes breadcrumb-kit-collapse-in { from { opacity: 0; transform: translateY(-0.25rem); } }
+    {# Motion scale of UiKit's --nowo-ui-motion-* tokens, read with own fallbacks; breadcrumb-collapse.js waits for the close. #}
+    .breadcrumb-collapse__menu { --breadcrumb-kit-motion-open: var(--nowo-ui-motion-small, 150ms); --breadcrumb-kit-motion-close: var(--nowo-ui-motion-small-close, 110ms); --breadcrumb-kit-motion-lift: var(--nowo-ui-motion-lift, 4px); }
+    .breadcrumb-collapse__details[open] > .breadcrumb-collapse__menu { animation: breadcrumb-kit-collapse-in var(--breadcrumb-kit-motion-open) var(--nowo-ui-motion-ease-out, cubic-bezier(0.2, 0, 0, 1)); }
+    .breadcrumb-collapse__details[data-bk-closing] > .breadcrumb-collapse__menu { animation: none; opacity: 0; transform: translateY(var(--breadcrumb-kit-motion-lift)); transition: opacity var(--breadcrumb-kit-motion-close) var(--nowo-ui-motion-ease-in, cubic-bezier(0.4, 0, 1, 1)), transform var(--breadcrumb-kit-motion-close) var(--nowo-ui-motion-ease-in, cubic-bezier(0.4, 0, 1, 1)); }
+    @keyframes breadcrumb-kit-collapse-in { from { opacity: 0; transform: translateY(var(--breadcrumb-kit-motion-lift)); } }
+    @media (prefers-reduced-motion: reduce) {
+      html:not([data-motion='full']) .breadcrumb-collapse__menu { --breadcrumb-kit-motion-open: var(--nowo-ui-motion-small, 80ms); --breadcrumb-kit-motion-close: var(--nowo-ui-motion-small-close, 80ms); --breadcrumb-kit-motion-lift: 0px; }
     }
+    [data-motion='reduce'] .breadcrumb-collapse__menu { --breadcrumb-kit-motion-open: var(--nowo-ui-motion-small, 80ms); --breadcrumb-kit-motion-close: var(--nowo-ui-motion-small-close, 80ms); --breadcrumb-kit-motion-lift: 0px; }
   </style>
   <script src="{{ asset('js/breadcrumb-collapse.js', 'nowo_breadcrumb_kit') }}" defer></script>
