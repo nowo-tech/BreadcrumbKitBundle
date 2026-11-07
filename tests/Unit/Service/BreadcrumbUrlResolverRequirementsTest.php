@@ -10,11 +10,15 @@ use PHPUnit\Framework\TestCase;
 use stdClass;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
+use Symfony\Component\Routing\Generator\CompiledUrlGenerator;
+use Symfony\Component\Routing\Generator\Dumper\CompiledUrlGeneratorDumper;
 use Symfony\Component\Routing\Generator\UrlGenerator;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Routing\RequestContext;
 use Symfony\Component\Routing\Route;
 use Symfony\Component\Routing\RouteCollection;
 use Symfony\Component\Routing\RouterInterface;
+use TypeError;
 
 /**
  * Real generator with strict_requirements null (the production recipe), which checks nothing by itself.
@@ -183,6 +187,151 @@ final class BreadcrumbUrlResolverRequirementsTest extends TestCase
 
         self::assertNull($this->resolverFor($routes, 'en', null)->resolve('al', ['id' => 'abc'], null)[0]);
         self::assertSame('/r/5', $this->resolverFor($routes, 'en', null)->resolve('al', ['id' => '5'], null)[0]);
+    }
+
+    /**
+     * HD-I15: the route under `x.en` and the route `x` disagree, and which one is generated depends on the generator.
+     *
+     * @return iterable<string, array{RouteCollection, string}>
+     */
+    public static function namesTheGeneratorsReadDifferently(): iterable
+    {
+        $host = new Route('/al', [], [], [], '{sub}.example.test');
+
+        $routes = new RouteCollection();
+        $routes->add('real', new Route('/real/{sub}'));
+        $routes->add('al', $host);
+        $routes->addAlias('al.en', 'real');
+        yield 'alias x.en beside a route x with a host variable' => [$routes, 'al'];
+
+        $routes = new RouteCollection();
+        $routes->add('nc', new Route('/nc/{sub}'));
+        $routes->add('nc.en', new Route('/en/nc', [], [], [], '{sub}.example.test'));
+        yield 'route x.en with a host variable, not a copy of x' => [$routes, 'nc'];
+
+        $routes = new RouteCollection();
+        $routes->add('nca.en', new Route('/en/nca', [], [], [], '{sub}.example.test'));
+        yield 'route x.en with a host variable, not a copy, no x' => [$routes, 'nca'];
+    }
+
+    #[DataProvider('namesTheGeneratorsReadDifferently')]
+    public function testNoLinkLeavesTheSiteWhicheverRouteTheGeneratorReads(RouteCollection $routes, string $name): void
+    {
+        foreach ($this->generators($routes) as $class => $generator) {
+            $router = $this->createMock(RouterInterface::class);
+            $router->method('getRouteCollection')->willReturn($routes);
+            $resolver = new BreadcrumbUrlResolver($generator, new RequestStack(), $router);
+
+            foreach (['evil.test#', 'evil#', 'evil/'] as $value) {
+                self::assertNull($resolver->resolve($name, ['sub' => $value], null)[0], $class.' with '.$value);
+            }
+        }
+    }
+
+    public function testCopyOfARouteDecidesAloneEvenBesideATighterBaseRoute(): void
+    {
+        $routes = new RouteCollection();
+        $routes->add('loc', new Route('/loc/{id}', [], ['id' => '\d+']));
+        $routes->add('loc.en', new Route('/en/{id}', ['_canonical_route' => 'loc', '_locale' => 'en'], ['_locale' => 'en']));
+
+        self::assertSame('/en/abc', $this->resolverFor($routes, 'en', null)->resolve('loc', ['id' => 'abc'], null)[0]);
+    }
+
+    public function testRegionalCopyFallsBackToTheLanguageCopyPastAnUnrelatedRoute(): void
+    {
+        $routes = new RouteCollection();
+        $routes->add('loc.en_GB', new Route('/unrelated/{id}'));
+        $routes->add('loc.en', new Route('/en/{id}', ['_canonical_route' => 'loc', '_locale' => 'en'], ['id' => '\d+', '_locale' => 'en']));
+
+        $resolver = $this->resolverFor($routes, 'en_GB', null);
+
+        self::assertNull($resolver->resolve('loc', ['id' => 'abc'], null)[0]);
+        self::assertSame('/en/5', $resolver->resolve('loc', ['id' => '5'], null)[0]);
+    }
+
+    /**
+     * HD-I16: both generators cast a scalar `_locale`, so `li.5` is the route they use.
+     *
+     * @return iterable<string, array{int|bool|float, string}>
+     */
+    public static function scalarLocales(): iterable
+    {
+        yield 'integer' => [5, 'li.5'];
+        yield 'true' => [true, 'li.1'];
+        yield 'float' => [1.5, 'li.1.5'];
+    }
+
+    #[DataProvider('scalarLocales')]
+    public function testScalarLocaleParameterFindsTheRouteTheGeneratorUses(int|bool|float $locale, string $copy): void
+    {
+        $routes = new RouteCollection();
+        $routes->add('li', new Route('/li/{id}'));
+        $routes->add($copy, new Route('/li5/{id}', ['_canonical_route' => 'li'], ['id' => '\d+']));
+
+        foreach ($this->generators($routes) as $class => $generator) {
+            $router = $this->createMock(RouterInterface::class);
+            $router->method('getRouteCollection')->willReturn($routes);
+            $resolver = new BreadcrumbUrlResolver($generator, new RequestStack(), $router);
+
+            self::assertNull($resolver->resolve('li', ['id' => 'abc', '_locale' => $locale], null)[0], $class);
+            self::assertStringStartsWith('/li5/5', (string) $resolver->resolve('li', ['id' => '5', '_locale' => $locale], null)[0], $class);
+        }
+    }
+
+    /**
+     * HD-I17: the dashboard form's JSON field does not filter to scalars.
+     */
+    public function testArrayLocaleGivesNoLinkInsteadOfATypeError(): void
+    {
+        $routes = new RouteCollection();
+        $routes->add('plain', new Route('/plain'));
+
+        foreach ($this->generators($routes) as $class => $generator) {
+            $router = $this->createMock(RouterInterface::class);
+            $router->method('getRouteCollection')->willReturn($routes);
+            $resolver = new BreadcrumbUrlResolver($generator, new RequestStack(), $router);
+
+            // @: array to string conversion on the way to the TypeError, a warning this test is not about.
+            self::assertNull(@$resolver->resolve('plain', self::paramsTheFormCanStore(), null)[0], $class);
+        }
+    }
+
+    public function testAnErrorFromTheGeneratorGivesNoLink(): void
+    {
+        $generator = $this->createMock(UrlGeneratorInterface::class);
+        $generator->method('generate')->willThrowException(new TypeError('from the generator'));
+        $routes = new RouteCollection();
+        $routes->add('plain', new Route('/plain'));
+        $router = $this->createMock(RouterInterface::class);
+        $router->method('getRouteCollection')->willReturn($routes);
+
+        $result = (new BreadcrumbUrlResolver($generator, new RequestStack(), $router))->resolve('plain', ['a' => 1], null);
+
+        self::assertSame([null, ['a' => 1]], $result);
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private static function paramsTheFormCanStore(): array
+    {
+        return ['_locale' => ['en']];
+    }
+
+    /**
+     * @return array<string, UrlGeneratorInterface> the two a Symfony application can run on, under the production recipe
+     */
+    private function generators(RouteCollection $routes): array
+    {
+        $plain = new UrlGenerator($routes, new RequestContext());
+        $plain->setStrictRequirements(null);
+        $context = new RequestContext();
+        $context->setParameter('_locale', 'en');
+        $plain->setContext($context);
+        $compiled = new CompiledUrlGenerator((new CompiledUrlGeneratorDumper($routes))->getCompiledRoutes(), $context);
+        $compiled->setStrictRequirements(null);
+
+        return ['UrlGenerator' => $plain, 'CompiledUrlGenerator' => $compiled];
     }
 
     private function resolverFor(RouteCollection $routes, ?string $contextLocale, ?string $defaultLocale): BreadcrumbUrlResolver

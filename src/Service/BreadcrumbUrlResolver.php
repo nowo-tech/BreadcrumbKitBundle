@@ -10,12 +10,20 @@ use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Routing\Route;
 use Symfony\Component\Routing\RouterInterface;
+use Throwable;
 
 /**
  * Builds URLs for breadcrumb items from named routes + merged static/dynamic params.
  */
 final readonly class BreadcrumbUrlResolver implements BreadcrumbUrlResolverInterface
 {
+    /**
+     * @param string|null $routerDefaultLocale the default locale the router's generator was given (`%kernel.default_locale%`
+     *                                         through the container). Pass it when building this class by hand: with no
+     *                                         `_locale` in the parameters or the request context, a localized route
+     *                                         named by its base name cannot be found, so its requirements and host
+     *                                         variables are not checked
+     */
     public function __construct(
         private UrlGeneratorInterface $urlGenerator,
         private RequestStack $requestStack,
@@ -74,44 +82,62 @@ final readonly class BreadcrumbUrlResolver implements BreadcrumbUrlResolverInter
         }
 
         try {
-            $generated = $this->routeToGenerate($routeName, $params);
-            if ($generated instanceof Route && !$this->satisfiesRoute($generated, $params)) {
-                return [null, $params];
+            foreach ($this->routesToCheck($routeName, $params) as $generated) {
+                if (!$this->satisfiesRoute($generated, $params)) {
+                    return [null, $params];
+                }
             }
 
             $url = $this->urlGenerator->generate($routeName, $params, UrlGeneratorInterface::ABSOLUTE_PATH);
 
             return [$url, $params];
-        } catch (Exception) {
+        } catch (Throwable) {
+            // Throwable: an array `_locale` is a TypeError in the generator, and the form lets one reach here.
             return [null, $params];
         }
     }
 
     /**
-     * The route the generator will use: a localized route named by its base name (`x` for `x.en`) is only in the collection
-     * under its full names. Same order as the generator: `_locale` parameter, context, default; `en_GB` tries `x.en_GB`, then `x.en`.
+     * The routes the generator may use. A localized route named by its base name (`x` for `x.en`) is only in the collection
+     * under its full names. Same locale order as the generator: `_locale` parameter, context, default, with scalars cast;
+     * `en_GB` tries `x.en_GB`, then `x.en`. A locale copy (`_canonical_route`) is what every generator uses. Anything else
+     * under such a name (an alias, or an unrelated route called `x.en`) is used by some generators and not others, so
+     * every route found has to pass, along with `x`.
      *
      * @param array<string, scalar|null> $params
+     *
+     * @return list<Route>
      */
-    private function routeToGenerate(string $name, array $params): ?Route
+    private function routesToCheck(string $name, array $params): array
     {
         try {
             $routes = $this->router->getRouteCollection();
         } catch (Exception) {
-            return null;
+            return [];
         }
 
+        $candidates = [];
         $locale = $params['_locale'] ?? $this->urlGenerator->getContext()->getParameter('_locale') ?: $this->routerDefaultLocale;
-        if (\is_string($locale)) {
+        if (\is_scalar($locale)) {
+            $locale = (string) $locale;
             do {
                 $route = $routes->get($name.'.'.$locale);
-                if (null !== $route && ($route->getDefault('_canonical_route') === $name || null !== $routes->getAlias($name.'.'.$locale))) {
-                    return $route;
+                if (null === $route) {
+                    continue;
                 }
+                if ($route->getDefault('_canonical_route') === $name) {
+                    return [$route];
+                }
+                $candidates[] = $route;
             } while (false !== $locale = strstr($locale, '_', true));
         }
 
-        return $routes->get($name);
+        $base = $routes->get($name);
+        if (null !== $base) {
+            $candidates[] = $base;
+        }
+
+        return $candidates;
     }
 
     /**

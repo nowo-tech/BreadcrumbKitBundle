@@ -66,6 +66,8 @@
 
 ## Unreleased
 
+Nothing to do. One narrow behaviour change: with a route alias or an unrelated route named `x.<locale>` beside a route `x` (not locale copies of it), where `<locale>` is the current locale or its language (`x.en_GB`, `x.en`), a crumb naming `x` now needs a value valid for all of them, or it has no link; its label stays. Locale copies of a route (`_canonical_route`) are not affected.
+
 ## To 2.14.0
 
 From **2.13.0**:
