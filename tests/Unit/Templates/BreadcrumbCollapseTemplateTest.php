@@ -137,8 +137,19 @@ final class BreadcrumbCollapseTemplateTest extends TestCase
         self::assertStringContainsString('.breadcrumb-kit[data-breadcrumb-collapse="36.5em"] .breadcrumb-list > li:not(.breadcrumb-collapse):not(.breadcrumb-collapse ~ li) { display: none; }', $html);
         self::assertStringContainsString('var(--breadcrumb-kit-collapse-bg, Canvas)', $html);
         self::assertStringContainsString('prefers-reduced-motion', $html);
+        self::assertStringContainsString('var(--nowo-ui-motion-small, 150ms)', $html);
+        self::assertStringContainsString('var(--nowo-ui-motion-small-close, 110ms)', $html);
+        self::assertStringContainsString('.breadcrumb-collapse__details[data-bk-closing] > .breadcrumb-collapse__menu', $html);
+        self::assertStringNotContainsString('!important', $html);
         self::assertStringContainsString('<script src="/assets/nowo_breadcrumb_kit/js/breadcrumb-collapse.js" defer></script>', $html);
         self::assertSame(1, substr_count($html, 'breadcrumb-collapse.js'));
+    }
+
+    public function testScriptFinishesRunningFadesBeforeTurboCachesThePage(): void
+    {
+        $script = (string) file_get_contents(__DIR__.'/../../../src/Resources/public/js/breadcrumb-collapse.js');
+
+        self::assertStringContainsString("addEventListener('turbo:before-cache'", $script);
     }
 
     public function testStyleWithoutNonceWhenRequestHasNone(): void
