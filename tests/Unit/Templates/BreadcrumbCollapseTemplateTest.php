@@ -145,6 +145,13 @@ final class BreadcrumbCollapseTemplateTest extends TestCase
         self::assertSame(1, substr_count($html, 'breadcrumb-collapse.js'));
     }
 
+    public function testScriptFinishesRunningFadesBeforeTurboCachesThePage(): void
+    {
+        $script = (string) file_get_contents(__DIR__ . '/../../../src/Resources/public/js/breadcrumb-collapse.js');
+
+        self::assertStringContainsString("addEventListener('turbo:before-cache'", $script);
+    }
+
     public function testStyleWithoutNonceWhenRequestHasNone(): void
     {
         $html = $this->render($this->collapsibleTrail());

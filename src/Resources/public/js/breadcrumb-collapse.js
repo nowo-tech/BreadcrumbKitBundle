@@ -88,6 +88,14 @@
     return Array.prototype.slice.call(document.querySelectorAll(SELECTOR + '[open]:not([' + CLOSING_ATTR + '])'));
   }
 
+  // Turbo clones the page right after this event: a cached page must not hold a half-closed menu.
+  document.addEventListener('turbo:before-cache', function () {
+    Array.prototype.slice.call(document.querySelectorAll(SELECTOR + '[' + CLOSING_ATTR + ']')).forEach(function (details) {
+      var finish = closing.get(details);
+      if (finish) finish();
+    });
+  });
+
   document.addEventListener('keydown', function (ev) {
     if (ev.key !== 'Escape' && ev.key !== 'Esc') return;
     var menus = openMenus();
