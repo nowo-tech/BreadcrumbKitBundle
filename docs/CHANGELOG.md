@@ -62,6 +62,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- **Collapse menu motion:** opens and closes on UiKit's `--nowo-ui-motion-small*`, `--nowo-ui-motion-lift` and easing tokens (own fallbacks: 150 ms in, 110 ms out, 4 px lift). `js/breadcrumb-collapse.js` waits for the fade before `details.open = false`, with a timer if `transitionend` never fires, and also takes the "…" toggle's own close. Without JavaScript the menu still works, and closes at once. Reduced motion keeps an 80 ms fade with no movement; `html[data-motion="full"]` keeps the full effect. No `!important`. Focus goes where it did.
+
 ## [2.14.1] - 2026-11-07
 
 ### Fixed
