@@ -69,7 +69,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Security
 
-- Audit status of these fixes (Appendix HD, HD-I15 to HD-I17): re-verification pending. See [SECURITY](SECURITY.md).
+- Audit status of these fixes (Appendix HD, HD-I15 to HD-I17, 2026-11-07, `7ecae34`): **Pass (good) / Low**, no open Critical, High or Medium. See [SECURITY](SECURITY.md).
 
 ## [2.14.0] - 2026-11-06
 
