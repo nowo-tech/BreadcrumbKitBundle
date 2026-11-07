@@ -291,16 +291,8 @@ final class BreadcrumbUrlResolverRequirementsTest extends TestCase
             $router->method('getRouteCollection')->willReturn($routes);
             $resolver = new BreadcrumbUrlResolver($generator, new RequestStack(), $router);
 
-            // Array to string conversion on the way to the TypeError: a warning, not what this test is about.
-            set_error_handler(static fn (): bool => true, \E_WARNING);
-
-            try {
-                /** @var array<string, scalar|null> $params what the form can store, against the declared type */
-                $params = ['_locale' => ['en']];
-                self::assertNull($resolver->resolve('plain', $params, null)[0], $class);
-            } finally {
-                restore_error_handler();
-            }
+            // @: array to string conversion on the way to the TypeError, a warning this test is not about.
+            self::assertNull(@$resolver->resolve('plain', self::paramsTheFormCanStore(), null)[0], $class);
         }
     }
 
@@ -316,6 +308,14 @@ final class BreadcrumbUrlResolverRequirementsTest extends TestCase
         $result = (new BreadcrumbUrlResolver($generator, new RequestStack(), $router))->resolve('plain', ['a' => 1], null);
 
         self::assertSame([null, ['a' => 1]], $result);
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private static function paramsTheFormCanStore(): array
+    {
+        return ['_locale' => ['en']];
     }
 
     /**
