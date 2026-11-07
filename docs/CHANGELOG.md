@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## Table of contents
 
 - [[Unreleased]](#unreleased)
+- [[2.14.1] - 2026-11-07](#2141---2026-11-07)
 - [[2.14.0] - 2026-11-06](#2140---2026-11-06)
 - [[2.13.0] - 2026-10-31](#2130---2026-10-31)
 - [[2.12.3] - 2026-10-31](#2123---2026-10-31)
@@ -61,9 +62,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.14.1] - 2026-11-07
+
 ### Fixed
 
-- The route check reads every route the generator may use: an alias or an unrelated route called `x.en` beside `x` could pass the check while the generator used the other one (`//evil.test#.example.test/al` under `strict_requirements: null`). See [UPGRADING](UPGRADING.md#unreleased).
+- The route check reads every route the generator may use: an alias or an unrelated route called `x.en` beside `x` could pass the check while the generator used the other one (`//evil.test#.example.test/al` under `strict_requirements: null`). See [UPGRADING](UPGRADING.md#to-2141).
 - A scalar `_locale` that is not a string (`5`, `true`) finds the same locale copy of a route as the generator.
 - An array `_locale` gives a crumb with no link instead of a `TypeError`: the resolver catches `Throwable` around URL generation.
 
