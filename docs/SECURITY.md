@@ -109,7 +109,7 @@ Before tagging a release, confirm:
 | 11 | Public exposure of admin routes (if any) reviewed in the app | [ ] |
 | 12 | Rate limits / DoS considerations for DB-heavy pages (app-level) | [ ] |
 | — | **AI security audit (REQ-SEC-004)** | Grade **Pass (conditional)** / risk **Medium** (2026-07-28). Recorded in the Nowo monorepo `BUNDLES_SECURITY_ANALYSIS.md`. `link_access_checker` and parameter mapping (2.14.0): Appendix HD (2026-11-06, PR #71): audited at `c769e8c`, fixes re-verified at `47f44d9`: **Pass (good) / Low**, no open Critical, High or Medium. Route lookup fixes (2.14.1): Appendix HD (2026-11-07, PR #72, `7ecae34`): **Pass (good) / Low**, no open Critical, High or Medium. |
-| — | **Motion batch (REQ-SEC-004)** | Independent audit 2026-11-07 (Appendix HW, PR #73 at `9cb7cd0`): **Pass (good).** Can tag. HW-L4 fixed afterwards at `<final SHA>`, a commit outside that audit. |
+| — | **Motion batch (REQ-SEC-004)** | Batch audit Appendix HW (2026-11-07), at `9cb7cd0`: Pass (good). HW-L4 fixed at `e5a1d1d`; delta audit: **Pass (good)**. |
 
 For responsible disclosure, see [`.github/SECURITY.md`](../.github/SECURITY.md).
 
