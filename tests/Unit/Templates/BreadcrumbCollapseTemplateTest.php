@@ -147,7 +147,7 @@ final class BreadcrumbCollapseTemplateTest extends TestCase
 
     public function testScriptFinishesRunningFadesBeforeTurboCachesThePage(): void
     {
-        $script = (string) file_get_contents(__DIR__ . '/../../../src/Resources/public/js/breadcrumb-collapse.js');
+        $script = (string) file_get_contents(__DIR__.'/../../../src/Resources/public/js/breadcrumb-collapse.js');
 
         self::assertStringContainsString("addEventListener('turbo:before-cache'", $script);
     }
