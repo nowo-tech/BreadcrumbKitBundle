@@ -7,6 +7,7 @@
 - [Collapse on narrow screens](#collapse-on-narrow-screens)
 - [Console commands](#console-commands)
 - [Trail enrichers (events)](#trail-enrichers-events)
+- [Using it from a DDD / hexagonal application](#using-it-from-a-ddd--hexagonal-application)
 - [Overriding templates and translations](#overriding-templates-and-translations)
   - [Twig templates (REQ-TWIG-001)](#twig-templates-req-twig-001)
   - [Overriding translations (REQ-I18N-001)](#overriding-translations-req-i18n-001)
@@ -184,6 +185,63 @@ final class EnrichBreadcrumbsSubscriber implements EventSubscriberInterface
     }
 }
 ```
+
+## Using it from a DDD / hexagonal application
+
+**Layer:** a self-contained bounded context (navigation catalogue) with its own presentation. Breadcrumb Kit owns
+two tables (`dashboard_breadcrumb_collection`, `dashboard_breadcrumb_item`) and two entities. They never
+reference your entities, so no `resolve_target_entities`, traits or base classes are involved. Your domain does
+not need to know the bundle exists.
+
+**Keeping the domain free of the bundle**
+
+- Render trails in templates (`breadcrumb_render()` / `breadcrumb_trail()`) and keep breadcrumb concerns out of
+  your application services.
+- Route parameters reach crumb URLs only as scalars from `_route_params`, or from request attributes you list in
+  `param_map.attributes`. Entities resolved into request attributes are ignored.
+- Domain-derived labels, such as a project name, go in a `BreadcrumbTrailBuiltEvent` subscriber that calls your
+  own query port:
+
+```php
+final class ProjectCrumbLabels implements EventSubscriberInterface
+{
+    public function __construct(private ProjectNames $names) {} // your read-model port
+
+    public static function getSubscribedEvents(): array
+    {
+        return [BreadcrumbTrailBuiltEvent::class => 'onTrail'];
+    }
+
+    public function onTrail(BreadcrumbTrailBuiltEvent $event): void
+    {
+        $projectId = $event->request?->attributes->get('_route_params')['projectId'] ?? null;
+        if (!\is_string($projectId)) {
+            return;
+        }
+        $view  = $event->getView();
+        $nodes = array_map(
+            fn (BreadcrumbNode $n) => $n->label === '{project}'
+                ? new BreadcrumbNode($this->names->of($projectId), $n->url, $n->linkEnabled, $n->current, $n->icon, $n->routeParams)
+                : $n,
+            $view->nodes,
+        );
+        $event->setView(new BreadcrumbTrailView($nodes, $view->homeIcon, $view->separatorIcon, $view->classList,
+            $view->classItem, $view->classSeparator, $view->classCurrent, $view->responsiveConfig,
+            $view->homeIconReplacesLabel, $view->collapse));
+    }
+}
+```
+
+- Authorisation lives in your ports: `BreadcrumbLinkAccessCheckerInterface` decides whether each crumb links,
+  `BreadcrumbKitAccessCheckerInterface` guards the dashboard and `BreadcrumbInlineEditAccessCheckerInterface`
+  guards the inline editor.
+
+**Known limitations**
+
+- Definitions are read only from the bundle's Doctrine tables, which share an entity manager with your
+  application. There is no pluggable definition source.
+- No event is dispatched when collections or items change.
+- FormKit and UiKit are installed as hard dependencies even if you only render trails.
 
 ## Overriding templates and translations
 
