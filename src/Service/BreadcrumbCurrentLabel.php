@@ -72,7 +72,9 @@ final class BreadcrumbCurrentLabel implements BreadcrumbCurrentLabelInterface, B
     }
 
     /**
-     * Outside a routed request (command, message, fragment without a route) there is no trail to name: no-op.
+     * Blank or null: clears the label. Outside a routed request (command, message, `controller()` fragment without a
+     * route) there is no trail to name: no-op, an existing label is kept. There is a single slot: a routed fragment that
+     * sets a label replaces the page's.
      */
     public function setCurrentLabel(
         string|Stringable|TranslatableInterface|null $label,
@@ -84,12 +86,16 @@ final class BreadcrumbCurrentLabel implements BreadcrumbCurrentLabelInterface, B
         if (!$label instanceof TranslatableInterface) {
             $label = self::normalize(null === $label ? '' : (string) $label);
         }
+        if ('' === $label) {
+            $this->clearCurrentLabel();
+
+            return;
+        }
+
         $request = $this->requestStack?->getCurrentRequest();
         $main = $this->requestStack?->getMainRequest();
         $route = $request instanceof Request ? self::routeOf($request) : null;
-        if ('' === $label || null === $route || !$main instanceof Request) {
-            $this->clearCurrentLabel();
-
+        if (null === $route || !$main instanceof Request) {
             return;
         }
 
@@ -99,7 +105,7 @@ final class BreadcrumbCurrentLabel implements BreadcrumbCurrentLabelInterface, B
             'domain' => null === $translationDomain || '' === $translationDomain ? null : $translationDomain,
             'parameters' => $translationParameters,
             'route' => $route,
-            'routeParams' => self::routeParamsOf($request),
+            'routeParams' => self::scalarParams($request->attributes->get('_route_params')),
             'collection' => $collection,
             'contextKey' => $contextKey,
         ];
@@ -128,7 +134,7 @@ final class BreadcrumbCurrentLabel implements BreadcrumbCurrentLabelInterface, B
         $this->owner = null;
     }
 
-    public function currentLabelFor(Request $request, string $collectionCode, string $contextKey, ?string $locale = null): ?string
+    public function currentLabelFor(string $routeName, array $routeParams, string $collectionCode, string $contextKey, ?string $locale = null): ?string
     {
         $pending = $this->pending;
         if (null === $pending) {
@@ -143,8 +149,8 @@ final class BreadcrumbCurrentLabel implements BreadcrumbCurrentLabelInterface, B
             return null;
         }
 
-        if ($pending['route'] !== self::routeOf($request)
-            || $pending['routeParams'] !== self::routeParamsOf($request)
+        if ($pending['route'] !== $routeName
+            || $pending['routeParams'] !== self::scalarParams($routeParams)
             || (null !== $pending['collection'] && $pending['collection'] !== $collectionCode)
             || (null !== $pending['contextKey'] && $pending['contextKey'] !== $contextKey)) {
             return null;
@@ -195,9 +201,8 @@ final class BreadcrumbCurrentLabel implements BreadcrumbCurrentLabelInterface, B
     /**
      * @return array<string, scalar|null>
      */
-    private static function routeParamsOf(Request $request): array
+    private static function scalarParams(mixed $params): array
     {
-        $params = $request->attributes->get('_route_params');
         $scalars = [];
         foreach (\is_array($params) ? $params : [] as $name => $value) {
             if (\is_string($name) && (null === $value || \is_scalar($value))) {

@@ -24,10 +24,11 @@ label the trail is unchanged.
 
 ## Requirements
 
-- **FR-001** `Service\BreadcrumbCurrentLabelInterface` (`setCurrentLabel(string|Stringable|TranslatableInterface|null $label, ?string $translationDomain = null, array $translationParameters = [], ?string $collection = null, ?string $contextKey = null)`, `clearCurrentLabel()`) is the write port; `Service\BreadcrumbCurrentLabelProviderInterface::currentLabelFor(Request, collection, contextKey, locale)` is the read port the loader is typed on. Both are aliased to `Service\BreadcrumbCurrentLabel`.
+- **FR-001** `Service\BreadcrumbCurrentLabelInterface` (`setCurrentLabel(string|Stringable|TranslatableInterface|null $label, ?string $translationDomain = null, array $translationParameters = [], ?string $collection = null, ?string $contextKey = null)`, `clearCurrentLabel()`) is the write port; `Service\BreadcrumbCurrentLabelProviderInterface::currentLabelFor(string $routeName, array $routeParams, string $collectionCode, string $contextKey, ?string $locale)` is the read port the loader is typed on (scalars only, REQ-ARCH-001 rule 3; audit MF-M2). Both are aliased to `Service\BreadcrumbCurrentLabel`.
 - **FR-002** Twig `breadcrumb_current_label(label, domain = null, parameters = {})`, outputs nothing.
 - **FR-003** `BreadcrumbLoader` replaces only the label of the last crumb of a trail built for the route and scalar route parameters of the request that set the label, when the matched item names that route (not `*`) and the optional collection / context key match, before `BreadcrumbTrailBuiltEvent`; link, icon and parameters stay.
 - **FR-004** Plain one-line text: format characters (`\p{Cf}`: bidi, zero-width) are removed, control characters and line breaks become spaces, whitespace collapses, at most 255 characters; a label that is not valid UTF-8 is ignored as a whole; HTML is escaped on output, never stripped. Null or blank restores the item label.
+- **FR-006** A blank or null label clears the slot; a call outside a routed request (command, message, `controller()` fragment) is a no-op and keeps the existing label. There is a single slot: a routed fragment that sets a label replaces the page's (audit MF-L5).
 - **FR-005** Cleared on main `kernel.request`, `kernel.exception`, `kernel.terminate`, `console.command`, `console.terminate` and Messenger `WorkerMessageReceived/Handled/Failed`; applied only while the main request it was set for is current; `reset()` also clears it.
 
 ## Success criteria

@@ -113,14 +113,18 @@ $this->breadcrumbLabel->setCurrentLabel(new TranslatableMessage('wiki.crumb.page
   parameters. It names the current crumb only in a trail built for that route, and only when the matched item names
   that route itself: a generic item (`*` with a path pattern or attributes) is a section and keeps its label. Trails
   of fragments and sub-requests for another route or other parameters (`render(path(...))`, ESI), and calls made
-  outside a routed request (commands, messages), are not affected. Its link, icon and route parameters stay.
+  outside a routed request (commands, messages), are not affected.
+- **One slot per request.** A call from a fragment without a route (`render(controller(...))`) or outside HTTP does
+  nothing and keeps the page's label; a blank label clears it. A routed fragment (`render(path(...))`) that sets a
+  label replaces the page's: set it from the page, not from its fragments. Its link, icon and route parameters stay.
   `BreadcrumbTrailBuiltEvent` subscribers run afterwards and see the new label.
 - **Several trails on one page.** By default every trail built for the route gets the label (for example a header and
   a footer trail). Restrict it with the collection code and / or context key:
   `{% do breadcrumb_current_label(page.title, collection = 'default') %}` or
   `setCurrentLabel($title, collection: 'default', contextKey: 'wiki')`.
 - **Ports.** `BreadcrumbCurrentLabelInterface` is the write port (pages); `BreadcrumbCurrentLabelProviderInterface` is
-  the read port the loader asks. The bundle's `BreadcrumbCurrentLabel` implements both; to replace it, alias both
+  the read port the loader asks, with plain scalars only
+  (`currentLabelFor($routeName, $routeParams, $collectionCode, $contextKey, $locale)`). The bundle's `BreadcrumbCurrentLabel` implements both; to replace it, alias both
   interfaces to your service.
 - **Worker mode (FrankenPHP, kernel reset false):** the label belongs to one main request. It is cleared when a main
   request starts, fails or terminates, when a console command starts or ends and when a Messenger worker receives or

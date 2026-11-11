@@ -33,8 +33,8 @@ final class BreadcrumbCurrentLabelTest extends TestCase
 
     public function testNothingSetResolvesToNull(): void
     {
-        self::assertNull($this->label()->currentLabelFor($this->page, 'default', ''));
-        self::assertNull((new BreadcrumbCurrentLabel())->currentLabelFor($this->page, 'default', ''));
+        self::assertNull(self::ask($this->label(), $this->page, 'default', ''));
+        self::assertNull(self::ask(new BreadcrumbCurrentLabel(), $this->page, 'default', ''));
     }
 
     public function testLabelAppliesToTheTrailOfItsRoute(): void
@@ -42,8 +42,8 @@ final class BreadcrumbCurrentLabelTest extends TestCase
         $label = $this->label();
         $label->setCurrentLabel('Release notes');
 
-        self::assertSame('Release notes', $label->currentLabelFor($this->page, 'default', '', 'en'));
-        self::assertSame('Release notes', $label->currentLabelFor($this->page, 'admin', 'shop'), 'no restriction: any collection');
+        self::assertSame('Release notes', self::ask($label, $this->page, 'default', '', 'en'));
+        self::assertSame('Release notes', self::ask($label, $this->page, 'admin', 'shop'), 'no restriction: any collection');
     }
 
     public function testOtherRouteOrOtherParametersKeepTheirLabels(): void
@@ -51,39 +51,55 @@ final class BreadcrumbCurrentLabelTest extends TestCase
         $label = $this->label();
         $label->setCurrentLabel('Intro');
 
-        self::assertNull($label->currentLabelFor(self::routed('wiki_space', ['slug' => 'intro']), 'default', ''));
-        self::assertNull($label->currentLabelFor(self::routed('wiki_page', ['slug' => 'other']), 'default', ''));
-        self::assertNull($label->currentLabelFor(new Request(), 'default', ''), 'fragment without a route');
-        self::assertSame('Intro', $label->currentLabelFor(self::routed('wiki_page', ['slug' => 'intro']), 'default', ''), 'same route and scalar params');
+        self::assertNull(self::ask($label, self::routed('wiki_space', ['slug' => 'intro']), 'default', ''));
+        self::assertNull(self::ask($label, self::routed('wiki_page', ['slug' => 'other']), 'default', ''));
+        self::assertNull(self::ask($label, new Request(), 'default', ''), 'fragment without a route');
+        self::assertSame('Intro', self::ask($label, self::routed('wiki_page', ['slug' => 'intro']), 'default', ''), 'same route and scalar params');
     }
 
     public function testCollectionAndContextKeyRestrictTheLabel(): void
     {
         $label = $this->label();
         $label->setCurrentLabel('Intro', null, [], 'default');
-        self::assertSame('Intro', $label->currentLabelFor($this->page, 'default', 'any'));
-        self::assertNull($label->currentLabelFor($this->page, 'sidebar', ''));
+        self::assertSame('Intro', self::ask($label, $this->page, 'default', 'any'));
+        self::assertNull(self::ask($label, $this->page, 'sidebar', ''));
 
         $label->setCurrentLabel('Intro', null, [], null, 'wiki');
-        self::assertSame('Intro', $label->currentLabelFor($this->page, 'sidebar', 'wiki'));
-        self::assertNull($label->currentLabelFor($this->page, 'default', ''));
+        self::assertSame('Intro', self::ask($label, $this->page, 'sidebar', 'wiki'));
+        self::assertNull(self::ask($label, $this->page, 'default', ''));
     }
 
     public function testSetOutsideARoutedRequestIsANoOp(): void
     {
         $label = new BreadcrumbCurrentLabel(new RequestStack());
         $label->setCurrentLabel('From a command');
-        self::assertNull($label->currentLabelFor($this->page, 'default', ''));
+        self::assertNull(self::ask($label, $this->page, 'default', ''));
 
         $stack = new RequestStack();
         $stack->push(new Request());
         $label = new BreadcrumbCurrentLabel($stack);
         $label->setCurrentLabel('Unrouted');
-        self::assertNull($label->currentLabelFor(new Request(), 'default', ''));
+        self::assertNull(self::ask($label, new Request(), 'default', ''));
 
         $label = new BreadcrumbCurrentLabel();
         $label->setCurrentLabel('No stack');
-        self::assertNull($label->currentLabelFor($this->page, 'default', ''));
+        self::assertNull(self::ask($label, $this->page, 'default', ''));
+    }
+
+    public function testUnroutedFragmentKeepsThePageLabel(): void
+    {
+        $label = $this->label();
+        $label->setCurrentLabel('Page title');
+
+        // controller() fragment: a sub-request without a route calls the function too.
+        $this->stack->push(new Request());
+        $label->setCurrentLabel('From the fragment');
+        $this->stack->pop();
+
+        self::assertSame('Page title', $this->resolve($label));
+
+        $label->setCurrentLabel('   ');
+        self::assertNull($this->resolve($label), 'a blank label still clears');
     }
 
     public function testSetInsideAFragmentIsScopedToTheFragmentRoute(): void
@@ -93,8 +109,8 @@ final class BreadcrumbCurrentLabelTest extends TestCase
         $label = $this->label();
         $label->setCurrentLabel('Sidebar');
 
-        self::assertSame('Sidebar', $label->currentLabelFor($fragment, 'default', ''));
-        self::assertNull($label->currentLabelFor($this->page, 'default', ''));
+        self::assertSame('Sidebar', self::ask($label, $fragment, 'default', ''));
+        self::assertNull(self::ask($label, $this->page, 'default', ''));
     }
 
     public function testLabelIsNormalisedToOneLine(): void
@@ -229,7 +245,7 @@ final class BreadcrumbCurrentLabelTest extends TestCase
         $next = self::routed('wiki_page', ['slug' => 'intro']);
         $this->stack->pop();
         $this->stack->push($next);
-        self::assertNull($label->currentLabelFor($next, 'default', ''));
+        self::assertNull(self::ask($label, $next, 'default', ''));
 
         $this->stack->pop();
         $this->stack->push($this->page);
@@ -288,6 +304,14 @@ final class BreadcrumbCurrentLabelTest extends TestCase
         self::assertArrayHasKey(ConsoleEvents::TERMINATE, $events);
     }
 
+    private static function ask(BreadcrumbCurrentLabel $label, Request $request, string $collection, string $contextKey, ?string $locale = null): ?string
+    {
+        $route = $request->attributes->get('_route');
+        $params = $request->attributes->get('_route_params');
+
+        return $label->currentLabelFor(\is_string($route) ? $route : '', \is_array($params) ? $params : [], $collection, $contextKey, $locale);
+    }
+
     private function label(?TranslatorInterface $translator = null): BreadcrumbCurrentLabel
     {
         return new BreadcrumbCurrentLabel($this->stack, $translator);
@@ -295,7 +319,7 @@ final class BreadcrumbCurrentLabelTest extends TestCase
 
     private function resolve(BreadcrumbCurrentLabel $label, ?string $locale = null): ?string
     {
-        return $label->currentLabelFor($this->page, 'default', '', $locale);
+        return self::ask($label, $this->page, 'default', '', $locale);
     }
 
     /**

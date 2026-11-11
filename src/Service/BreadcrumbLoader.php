@@ -150,7 +150,7 @@ final readonly class BreadcrumbLoader implements BreadcrumbLoaderInterface
             );
         }
 
-        $nodes = $this->withCurrentLabel($nodes, $request, $collectionCode, $contextKey, $locale, $routeName === ($best['route_name'] ?? null));
+        $nodes = $this->withCurrentLabel($nodes, $routeName, $routeParams, $collectionCode, $contextKey, $locale, $routeName === ($best['route_name'] ?? null));
         $nodes = $this->finalizeNodes($nodes, $collection);
 
         $responsive = $collection->getResponsiveConfig();
@@ -183,17 +183,18 @@ final readonly class BreadcrumbLoader implements BreadcrumbLoaderInterface
      * current (last) crumb; without one the trail is unchanged. Only when the matched item names the request route
      * itself: a generic (`*` + path / attributes) item is a section, not the page (audit MF-M1).
      *
-     * @param list<BreadcrumbNode> $nodes
+     * @param list<BreadcrumbNode>       $nodes
+     * @param array<string, scalar|null> $routeParams
      *
      * @return list<BreadcrumbNode>
      */
-    private function withCurrentLabel(array $nodes, Request $request, string $collectionCode, string $contextKey, string $locale, bool $matchedByRoute): array
+    private function withCurrentLabel(array $nodes, string $routeName, array $routeParams, string $collectionCode, string $contextKey, string $locale, bool $matchedByRoute): array
     {
         if (!$matchedByRoute) {
             return $nodes;
         }
 
-        $label = $this->currentLabel?->currentLabelFor($request, $collectionCode, $contextKey, $locale);
+        $label = $this->currentLabel?->currentLabelFor($routeName, $routeParams, $collectionCode, $contextKey, $locale);
         $last = array_key_last($nodes);
         // The walked chain always ends with the matched (current) item.
         if (null === $label || null === $last) {

@@ -73,13 +73,13 @@ final class BreadcrumbLoaderCurrentLabelTest extends TestCase
     public function testCustomProviderIsAsked(): void
     {
         $provider = new class implements BreadcrumbCurrentLabelProviderInterface {
-            public function currentLabelFor(Request $request, string $collectionCode, string $contextKey, ?string $locale = null): string
+            public function currentLabelFor(string $routeName, array $routeParams, string $collectionCode, string $contextKey, ?string $locale = null): string
             {
-                return $collectionCode.'/'.$contextKey.'/'.$locale;
+                return $routeName.'/'.json_encode($routeParams).'/'.$collectionCode.'/'.$contextKey.'/'.$locale;
             }
         };
 
-        self::assertSame(['Home', 'default//en'], $this->labels($this->loader($this->routeRows(), $provider), 'default'));
+        self::assertSame(['Home', 'wiki_page/{"id":"7"}/default//en'], $this->labels($this->loader($this->routeRows(), $provider), 'default'));
     }
 
     /**
