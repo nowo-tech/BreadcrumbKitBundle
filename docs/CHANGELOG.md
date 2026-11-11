@@ -63,6 +63,27 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+Target 2.16.0 (architecture bar, wave W1: standard Symfony and DDD hosts).
+
+### Added
+
+- **`doctrine.entity_manager`** option: map the breadcrumb entities on a dedicated Doctrine entity manager only (also
+  when the default manager has `auto_mapping: true`). The dashboard controllers, the importer, the migration command
+  and the closed-manager recovery use it; an unknown manager fails the build. Default `null`: unchanged.
+- **`BreadcrumbCollectionChangedEvent`** (collection id, code, context key, deleted flag): once per changed collection,
+  after the commit — dashboard CRUD, imports (after the importer's per-collection transaction) and any custom flush.
+- **`BreadcrumbLoaderInterface`** (`loadTrailView()`), aliased to `BreadcrumbLoader`.
+- `BreadcrumbTrailBuiltEvent::$routeName` and `$routeParameters` (scalars of `_route` / `_route_params`; `$request`
+  stays).
+- Kernel tests for a standard host, two managers with `auto_mapping`, a host without `default_entity_manager`, an
+  unknown manager and the recovery of the bundle manager only.
+
+### Changed
+
+- The dashboard controllers, `BreadcrumbImporter` and `nowo_breadcrumb_kit:generate-migration` get the manager of the
+  breadcrumb entities (`nowo_breadcrumb_kit.entity_manager`) instead of the autowired default `EntityManagerInterface`
+  (the same manager in a standard host).
+
 ### Documentation
 
 - USAGE: new section "Using it from a DDD / hexagonal application" (where the bundle sits in a hexagonal host, the ports, events and DTOs to build an anti-corruption layer on, and the known limitations).

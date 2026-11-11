@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Nowo\BreadcrumbKitBundle;
 
 use Nowo\BreadcrumbKitBundle\DependencyInjection\BreadcrumbKitExtension;
+use Nowo\BreadcrumbKitBundle\DependencyInjection\Compiler\BreadcrumbEntityManagerPass;
 use Nowo\BreadcrumbKitBundle\DependencyInjection\Compiler\BreadcrumbInlineEditAccessLocatorPass;
 use Nowo\BreadcrumbKitBundle\DependencyInjection\Compiler\CsrfProtectionPass;
 use Nowo\BreadcrumbKitBundle\DependencyInjection\Compiler\DashboardSecurityPass;
@@ -30,6 +31,8 @@ final class NowoBreadcrumbKitBundle extends Bundle
         $container->addCompilerPass(new CsrfProtectionPass());
         // After decoration: a decorator of the checker is what the loader receives.
         $container->addCompilerPass(new LinkAccessCheckerPass(), PassConfig::TYPE_BEFORE_REMOVING);
+        // doctrine.entity_manager (2.16): the entities on that manager only.
+        $container->addCompilerPass(new BreadcrumbEntityManagerPass(), PassConfig::TYPE_BEFORE_OPTIMIZATION, -10);
     }
 
     public function getContainerExtension(): ExtensionInterface

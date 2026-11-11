@@ -20,6 +20,7 @@ Configuration root key: `nowo_breadcrumb_kit` (see `Nowo\BreadcrumbKitBundle\Dep
 |--------|------|---------|-------------|
 | `project` | `string\|null` | `null` | Optional identifier when several apps share one database. |
 | `doctrine.connection` | `string` | `default` | Doctrine connection name for entity metadata. |
+| `doctrine.entity_manager` | `string\|null` | `null` | **2.16.** Doctrine entity manager the breadcrumb entities are mapped on (e.g. a dedicated `breadcrumb` manager). Mapped on that manager only, also when the default manager has `auto_mapping: true`; the dashboard, the importer, the migration command and the recovery reset use it. Unknown manager = build error. `null` = the manager that maps the entities (unchanged). |
 | `doctrine.table_prefix` | `string` | `''` | Prefix for table names (`dashboard_breadcrumb_collection`, `dashboard_breadcrumb_item`). |
 | `cache.ttl` | `int` | `60` | TTL in seconds for the PSR-6 cache of serialized breadcrumb items (0 disables TTL semantics per pool). |
 | `cache.pool` | `string` | `cache.app` | PSR-6 cache pool service id. Empty string keeps the loader without a pool (no item-list cache); an id that does not exist in the container also disables the cache. Entries are deleted automatically on Doctrine writes (dashboard, import); raw SQL changes wait for `cache.ttl`. |
@@ -191,6 +192,7 @@ nowo_breadcrumb_kit:
     project: null
     doctrine:
         connection: default
+        entity_manager: null   # 2.16: e.g. breadcrumb (dedicated manager)
         table_prefix: ''
     cache:
         ttl: 60

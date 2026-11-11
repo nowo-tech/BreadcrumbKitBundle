@@ -26,7 +26,7 @@ use Throwable;
 /**
  * Loads item definitions (optional cache), picks the best route match, walks parents, resolves labels/URLs.
  */
-final readonly class BreadcrumbLoader
+final readonly class BreadcrumbLoader implements BreadcrumbLoaderInterface
 {
     // v2 (2.11): cached rows carry sanitized icons; entries written by older versions are not read.
     private const CACHE_PREFIX = 'nowo_breadcrumb_kit.items.v2.';
@@ -204,6 +204,7 @@ final readonly class BreadcrumbLoader
 
     /**
      * Returns the breadcrumb item entity that matches the current request for the given collection, if any.
+     * Standard-host helper (entity); not part of {@see BreadcrumbLoaderInterface}.
      */
     public function findMatchingItemForCurrentRequest(string $collectionCode, string $contextKey = ''): ?BreadcrumbItem
     {

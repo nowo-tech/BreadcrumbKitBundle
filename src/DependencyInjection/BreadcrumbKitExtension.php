@@ -34,6 +34,9 @@ use Symfony\Component\DependencyInjection\ServiceLocator;
  */
 final class BreadcrumbKitExtension extends Extension implements PrependExtensionInterface
 {
+    /** Container parameter holding `doctrine.entity_manager` (null: the manager that maps the entities), 2.16. */
+    public const ENTITY_MANAGER_PARAMETER = 'nowo_breadcrumb_kit.doctrine.entity_manager';
+
     public function getAlias(): string
     {
         return Configuration::ALIAS;
@@ -224,6 +227,8 @@ final class BreadcrumbKitExtension extends Extension implements PrependExtension
 
         $container->setParameter(Configuration::ALIAS.'.project', $config['project']);
         $container->setParameter(Configuration::ALIAS.'.doctrine.connection', $config['doctrine']['connection']);
+        $entityManagerName = $config['doctrine']['entity_manager'] ?? null;
+        $container->setParameter(self::ENTITY_MANAGER_PARAMETER, \is_string($entityManagerName) && '' !== $entityManagerName ? $entityManagerName : null);
         $container->setParameter(Configuration::ALIAS.'.doctrine.table_prefix', $config['doctrine']['table_prefix']);
         $container->setParameter(Configuration::ALIAS.'.table_prefix', $config['doctrine']['table_prefix']);
         $container->setParameter(Configuration::ALIAS.'.locales', $locales);

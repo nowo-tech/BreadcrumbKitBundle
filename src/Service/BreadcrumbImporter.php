@@ -34,6 +34,7 @@ final readonly class BreadcrumbImporter
         private EntityManagerInterface $entityManager,
         private TranslatorInterface $translator,
         private LoggerInterface $logger = new NullLogger(),
+        private ?BreadcrumbCacheInvalidator $changeNotifier = null,
     ) {
     }
 
@@ -178,7 +179,10 @@ final readonly class BreadcrumbImporter
         try {
             $this->writeCollection($existing, $colData, $itemsData, $rejected);
             $this->entityManager->commit();
+            // 2.16: the collection-changed events of this transaction, now that it is committed.
+            $this->changeNotifier?->dispatchPendingEvents();
         } catch (Throwable $e) {
+            $this->changeNotifier?->reset();
             $this->entityManager->rollback();
             // Same as EntityManager::wrapInTransaction(): the unit of work is no longer consistent.
             $this->entityManager->close();

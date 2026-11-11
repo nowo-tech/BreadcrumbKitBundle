@@ -3,6 +3,9 @@ services:
     autowire: true
     autoconfigure: true
     public: false
+    bind:
+      # 2.16 (rule 6): the manager of the breadcrumb entities, never the host's default manager by accident.
+      Doctrine\ORM\EntityManagerInterface $entityManager: '@nowo_breadcrumb_kit.entity_manager'
 
   Nowo\BreadcrumbKitBundle\Repository\BreadcrumbCollectionRepository:
     public: true
@@ -35,6 +38,10 @@ services:
       $linkAccessChecker: null
 
   # Doctrine onFlush/postFlush listener (AsDoctrineListener): drops cached item lists of changed collections.
+  Nowo\BreadcrumbKitBundle\Service\BreadcrumbLoaderInterface:
+    alias: Nowo\BreadcrumbKitBundle\Service\BreadcrumbLoader
+    public: true
+
   Nowo\BreadcrumbKitBundle\Service\BreadcrumbCacheInvalidator:
     arguments:
       $cachePool: null
@@ -48,7 +55,13 @@ services:
 
   Nowo\BreadcrumbKitBundle\Service\BreadcrumbExporter: ~
 
-  Nowo\BreadcrumbKitBundle\Service\BreadcrumbEntityManagerResetter: ~
+  Nowo\BreadcrumbKitBundle\Service\BreadcrumbEntityManagerResetter:
+    arguments:
+      $managerName: '%nowo_breadcrumb_kit.doctrine.entity_manager%'
+
+  nowo_breadcrumb_kit.entity_manager:
+    class: Doctrine\ORM\EntityManagerInterface
+    factory: ['@Nowo\BreadcrumbKitBundle\Service\BreadcrumbEntityManagerResetter', 'entityManager']
 
   Nowo\BreadcrumbKitBundle\EventSubscriber\DashboardEntityManagerSubscriber: ~
 
@@ -58,6 +71,7 @@ services:
 
   Nowo\BreadcrumbKitBundle\Command\GenerateBreadcrumbKitMigrationCommand:
     arguments:
+      $em: '@nowo_breadcrumb_kit.entity_manager'
       $connectionName: '%nowo_breadcrumb_kit.doctrine.connection%'
       $tablePrefix: '%nowo_breadcrumb_kit.table_prefix%'
     tags: ['console.command']
