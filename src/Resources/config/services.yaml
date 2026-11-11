@@ -46,6 +46,14 @@ services:
     arguments:
       $cachePool: null
 
+  # 2.16 (LI-BC-M1): per-transaction outbox of the collection-changed events, told about the real transactions of
+  # the bundle's connection by the DBAL middleware (AfterCommitMiddlewarePass sets the connection).
+  Nowo\BreadcrumbKitBundle\Doctrine\BreadcrumbChangeOutbox: ~
+
+  Nowo\BreadcrumbKitBundle\Doctrine\AfterCommitMiddleware:
+    arguments: ['@Nowo\BreadcrumbKitBundle\Doctrine\BreadcrumbChangeOutbox']
+    tags: ['doctrine.middleware']
+
   Nowo\BreadcrumbKitBundle\Service\BreadcrumbInlineEditResolver:
     arguments:
       $inlineEditAccessCheckerLocator: '@nowo_breadcrumb_kit.inline_edit.access_checker_locator'

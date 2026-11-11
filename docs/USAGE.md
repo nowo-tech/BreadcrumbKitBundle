@@ -242,7 +242,9 @@ final class ProjectCrumbLabels implements EventSubscriberInterface
   needed). Standard hosts leave it null: the entities stay on the manager that maps them.
 - **Definition changes (2.16):** `BreadcrumbCollectionChangedEvent` (collection id, code, context key, deleted) fires
   once per changed collection after the commit, from the dashboard, imports or your own flushes — warm caches or feed
-  an outbox from it. Breadcrumb writes are the dashboard's and the importer's own (no host command handler writes
+  an outbox from it. It follows the real transaction of the bundle's connection: a rollback (also of a savepoint)
+  drops it, and after your own commit it is dispatched at the next flush or at the end of the request, command or
+  message; call `BreadcrumbCacheInvalidator::dispatchPending()` right after your commit to get it at once. Breadcrumb writes are the dashboard's and the importer's own (no host command handler writes
   them), so there is no separate "host controls the transaction" mode.
 - Authorisation lives in your ports: `BreadcrumbLinkAccessCheckerInterface` decides whether each crumb links,
   `BreadcrumbKitAccessCheckerInterface` guards the dashboard and `BreadcrumbInlineEditAccessCheckerInterface`

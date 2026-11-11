@@ -71,7 +71,12 @@ Target 2.16.0 (architecture bar, wave W1: standard Symfony and DDD hosts).
   when the default manager has `auto_mapping: true`). The dashboard controllers, the importer, the migration command
   and the closed-manager recovery use it; an unknown manager fails the build. Default `null`: unchanged.
 - **`BreadcrumbCollectionChangedEvent`** (collection id, code, context key, deleted flag): once per changed collection,
-  after the commit — dashboard CRUD, imports (after the importer's per-collection transaction) and any custom flush.
+  after the **real** commit — dashboard CRUD, imports and any custom flush. A DBAL middleware on the bundle's connection
+  feeds a per-transaction outbox (the PageBuilderKit / InstanceSettings design): events of a flush inside a
+  transaction wait for the outermost commit (the host's or the importer's), a rollback — also of a savepoint — drops
+  them, and a flush that threw announces nothing. Committed events are dispatched at the next safe point where DBAL
+  reports no open transaction: after a flush, `BreadcrumbCacheInvalidator::dispatchPending()`, and the end of the
+  request / command / message. A listener failure after the commit is logged; the other listeners still run.
 - **`BreadcrumbLoaderInterface`** (`loadTrailView()`), aliased to `BreadcrumbLoader`.
 - `BreadcrumbTrailBuiltEvent::$routeName` and `$routeParameters` (scalars of `_route` / `_route_params`; `$request`
   stays).

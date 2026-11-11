@@ -96,6 +96,15 @@ final class DedicatedEntityManagerKernelTest extends TestCase
         self::assertTrue($host->contains($note));
         self::assertNotSame([], $events);
         self::assertSame('main', $events[0]->collectionCode);
+
+        // LI-BC-M1 through the container: the middleware sits on the bundle connection; a rolled-back import is silent.
+        $events = [];
+        $bundle->getConnection()->beginTransaction();
+        $importer->import(['collection' => ['code' => 'rolled-back'], 'items' => [['routeName' => 'home', 'label' => 'Home']]]);
+        $bundle->getConnection()->rollBack();
+        $bundle->clear();
+        $importer->import(['collection' => ['code' => 'after'], 'items' => [['routeName' => 'home', 'label' => 'Home']]]);
+        self::assertSame(['after'], array_values(array_unique(array_map(static fn (BreadcrumbCollectionChangedEvent $e): string => $e->collectionCode, $events))));
     }
 
     public function testHostWithoutADefaultManagerNameKeepsItsOwnDefault(): void

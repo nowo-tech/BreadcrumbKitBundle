@@ -5,12 +5,16 @@ declare(strict_types=1);
 namespace Nowo\BreadcrumbKitBundle\Tests\Integration;
 
 use Doctrine\Common\EventManager;
+use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\DriverManager;
+use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\Events;
 use Doctrine\ORM\ORMSetup;
 use Doctrine\ORM\Tools\SchemaTool;
 use Doctrine\Persistence\ManagerRegistry;
+use Nowo\BreadcrumbKitBundle\Doctrine\AfterCommitMiddleware;
+use Nowo\BreadcrumbKitBundle\Doctrine\BreadcrumbChangeOutbox;
 use Nowo\BreadcrumbKitBundle\Entity\BreadcrumbCollection;
 use Nowo\BreadcrumbKitBundle\Entity\BreadcrumbItem;
 use Nowo\BreadcrumbKitBundle\Event\BreadcrumbCollectionChangedEvent;
@@ -19,9 +23,10 @@ use Nowo\BreadcrumbKitBundle\Repository\BreadcrumbItemRepository;
 use Nowo\BreadcrumbKitBundle\Service\BreadcrumbCacheInvalidator;
 use Nowo\BreadcrumbKitBundle\Service\BreadcrumbImporter;
 use PHPUnit\Framework\TestCase;
+use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
+use RuntimeException;
 use Symfony\Component\EventDispatcher\EventDispatcher;
-use Symfony\Component\HttpKernel\KernelEvents;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 /**
@@ -32,6 +37,7 @@ final class CollectionChangedEventDoctrineTest extends TestCase
 {
     private EntityManager $entityManager;
     private BreadcrumbCacheInvalidator $invalidator;
+    private BreadcrumbChangeOutbox $outbox;
 
     /** @var list<array{event: BreadcrumbCollectionChangedEvent, inTransaction: bool}> */
     private array $events = [];
@@ -42,6 +48,9 @@ final class CollectionChangedEventDoctrineTest extends TestCase
         if (\PHP_VERSION_ID >= 80400) {
             $configuration->enableNativeLazyObjects(true);
         }
+        // The DBAL middleware tells the outbox about the real transactions (LI-BC-M1).
+        $this->outbox = new BreadcrumbChangeOutbox();
+        $configuration->setMiddlewares([new AfterCommitMiddleware($this->outbox)]);
         $connection = DriverManager::getConnection(['driver' => 'pdo_sqlite', 'memory' => true], $configuration);
         $eventManager = new EventManager();
         $this->entityManager = new EntityManager($connection, $configuration, $eventManager);
@@ -54,7 +63,7 @@ final class CollectionChangedEventDoctrineTest extends TestCase
         $dispatcher->addListener(BreadcrumbCollectionChangedEvent::class, function (BreadcrumbCollectionChangedEvent $event): void {
             $this->events[] = ['event' => $event, 'inTransaction' => $this->entityManager->getConnection()->isTransactionActive()];
         });
-        $this->invalidator = new BreadcrumbCacheInvalidator(null, $dispatcher);
+        $this->invalidator = new BreadcrumbCacheInvalidator(null, $dispatcher, $this->outbox);
         $eventManager->addEventListener([Events::onFlush, Events::postFlush], $this->invalidator);
     }
 
@@ -87,38 +96,147 @@ final class CollectionChangedEventDoctrineTest extends TestCase
         $this->entityManager->persist($collection);
         $this->entityManager->flush();
         self::assertSame([], $this->events);
+        self::assertSame(0, $this->invalidator->dispatchPending(), 'never inside the transaction');
         $this->entityManager->commit();
-        $this->invalidator->dispatchPendingEvents();
-        self::assertSame([[(int) $collection->getId(), 'main', '', false, false]], $this->summary());
 
-        // A transaction that never commits: the events are dropped at the end of the request.
+        // The host commit made it committed; the next safe point dispatches it (here: the end of the request).
+        self::assertSame([], $this->events);
+        $this->invalidator->onBoundary();
+        self::assertSame([[(int) $collection->getId(), 'main', '', false, false]], $this->summary());
+    }
+
+    /**
+     * LI-BC-M1: a rolled-back flush is never announced, not even by the next flush outside the transaction.
+     */
+    public function testRolledBackChangesAreDropped(): void
+    {
+        $committed = $this->persistCollection('committed');
         $this->events = [];
+
         $this->entityManager->beginTransaction();
-        $collection->setCode('renamed');
+        $this->entityManager->persist((new BreadcrumbCollection())->setCode('rolled-back'));
         $this->entityManager->flush();
         $this->entityManager->rollback();
-        self::assertSame([KernelEvents::TERMINATE => ['reset', -1024]], BreadcrumbCacheInvalidator::getSubscribedEvents());
-        $this->invalidator->reset();
-        $this->invalidator->dispatchPendingEvents();
+        $this->entityManager->clear();
+
+        $reloaded = $this->entityManager->find(BreadcrumbCollection::class, $committed->getId());
+        self::assertInstanceOf(BreadcrumbCollection::class, $reloaded);
+        $reloaded->setCode('committed-renamed');
+        $this->entityManager->flush();
+
+        self::assertSame([[(int) $committed->getId(), 'committed-renamed', '', false, false]], $this->summary());
+        $this->invalidator->onBoundary();
+        self::assertSame(1, $this->eventCount());
+    }
+
+    public function testHostCommitDispatchesAtTheNextFlushOrOnRequest(): void
+    {
+        $this->entityManager->beginTransaction();
+        $first = $this->persistCollection('first');
+        $this->entityManager->commit();
         self::assertSame([], $this->events);
+
+        // Any later flush outside a transaction is a safe point; so is an explicit call after the host commit.
+        $second = $this->persistCollection('second');
+        self::assertSame([[(int) $first->getId(), 'first'], [(int) $second->getId(), 'second']], array_map(static fn (array $r): array => [$r[0], $r[1]], $this->summary()));
+
+        $this->events = [];
+        $this->entityManager->beginTransaction();
+        $third = $this->persistCollection('third');
+        $this->entityManager->commit();
+        self::assertSame(1, $this->invalidator->dispatchPending());
+        self::assertSame([[(int) $third->getId(), 'third', '', false, false]], $this->summary());
+    }
+
+    public function testSavepointRollbackDropsOnlyItsChanges(): void
+    {
+        $this->entityManager->beginTransaction();
+        $kept = $this->persistCollection('kept');
+        $this->entityManager->beginTransaction();
+        $this->entityManager->persist((new BreadcrumbCollection())->setCode('nested'));
+        $this->entityManager->flush();
+        $this->entityManager->rollback();
+        $this->entityManager->commit();
+        $this->invalidator->onBoundary();
+
+        self::assertSame([[(int) $kept->getId(), 'kept', '', false, false]], $this->summary());
+    }
+
+    public function testCollectionsOfAFlushThatThrewAreNotReplayed(): void
+    {
+        $this->persistCollection('taken');
+        $this->events = [];
+
+        $this->entityManager->persist((new BreadcrumbCollection())->setCode('taken'));
+        try {
+            $this->entityManager->flush();
+            self::fail('unique constraint expected');
+        } catch (UniqueConstraintViolationException) {
+        }
+
+        // A fresh manager (the failed flush closed it) on the same connection and listener.
+        $eventManager = $this->entityManager->getEventManager();
+        self::assertInstanceOf(EventManager::class, $eventManager);
+        $fresh = new EntityManager($this->entityManager->getConnection(), $this->entityManager->getConfiguration(), $eventManager);
+        $other = (new BreadcrumbCollection())->setCode('other');
+        $fresh->persist($other);
+        $fresh->flush();
+
+        self::assertSame([[(int) $other->getId(), 'other', '', false, false]], $this->summary());
+        $this->invalidator->onBoundary();
+        self::assertSame(1, $this->eventCount(), 'nothing left over from the failed flush');
+    }
+
+    public function testResetDropsHeldAndCommittedEvents(): void
+    {
+        $this->entityManager->beginTransaction();
+        $this->persistCollection('pending');
+        $this->entityManager->commit();
+        $this->invalidator->reset();
+        $this->invalidator->onBoundary();
+
+        self::assertSame([], $this->events);
+        self::assertSame(0, $this->outbox->countHeld() + $this->outbox->countCommitted());
+        self::assertSame(['onBoundary', -1024], BreadcrumbCacheInvalidator::getSubscribedEvents()['kernel.terminate']);
+    }
+
+    public function testListenerFailureAfterTheCommitIsLoggedAndTheOthersStillRun(): void
+    {
+        $dispatcher = new EventDispatcher();
+        $seen = [];
+        $dispatcher->addListener(BreadcrumbCollectionChangedEvent::class, static function (BreadcrumbCollectionChangedEvent $event) use (&$seen): void {
+            $seen[] = $event->collectionCode;
+            if ('boom' === $event->collectionCode) {
+                throw new RuntimeException('listener failed');
+            }
+        });
+        $logger = $this->createMock(LoggerInterface::class);
+        $logger->expects(self::once())->method('error')->with('Breadcrumb Kit: a listener failed after the commit.');
+        $outbox = new BreadcrumbChangeOutbox();
+        $invalidator = new BreadcrumbCacheInvalidator(null, $dispatcher, $outbox, null, $logger);
+
+        $outbox->hold(new BreadcrumbCollectionChangedEvent(1, 'boom', ''), new BreadcrumbCollectionChangedEvent(2, 'fine', ''), new BreadcrumbCollectionChangedEvent(1, 'boom', '', true));
+        $active = $this->createStub(Connection::class);
+        $active->method('isTransactionActive')->willReturn(true);
+        self::assertSame(0, $invalidator->dispatchPending($active), 'not while DBAL reports a transaction');
+
+        self::assertSame(2, $invalidator->dispatchPending(), 'one event per collection');
+        self::assertSame(['boom', 'fine'], $seen);
+    }
+
+    public function testImporterInsideAHostTransactionWaitsForTheHostCommit(): void
+    {
+        $this->entityManager->beginTransaction();
+        $this->importer()->import(['collection' => ['code' => 'nested-import'], 'items' => [['routeName' => 'app_home', 'label' => 'Home']]]);
+        self::assertSame([], $this->events, 'the importer commit is a savepoint release inside the host transaction');
+        $this->entityManager->rollback();
+        $this->invalidator->onBoundary();
+        self::assertSame([], $this->events, 'the host rolled back');
     }
 
     public function testImporterDispatchesAfterItsCommit(): void
     {
-        $registry = $this->createMock(ManagerRegistry::class);
-        $registry->method('getManagerForClass')->willReturn($this->entityManager);
-        $translator = $this->createMock(TranslatorInterface::class);
-        $translator->method('trans')->willReturnArgument(0);
-        $importer = new BreadcrumbImporter(
-            new BreadcrumbCollectionRepository($registry),
-            new BreadcrumbItemRepository($registry),
-            $this->entityManager,
-            $translator,
-            new NullLogger(),
-            $this->invalidator,
-        );
-
-        $result = $importer->import([
+        $result = $this->importer()->import([
             'collection' => ['code' => 'imported'],
             'items' => [['routeName' => 'app_home', 'label' => 'Home']],
         ]);
@@ -137,8 +255,39 @@ final class CollectionChangedEventDoctrineTest extends TestCase
         $this->entityManager->getEventManager()->addEventListener([Events::onFlush, Events::postFlush], $invalidator);
         $this->entityManager->persist((new BreadcrumbCollection())->setCode('quiet'));
         $this->entityManager->flush();
-        $invalidator->dispatchPendingEvents();
+        $invalidator->dispatchPending();
         self::assertCount(1, $this->events, 'only the dispatcher-backed invalidator reported it');
+    }
+
+    private function importer(): BreadcrumbImporter
+    {
+        $registry = $this->createStub(ManagerRegistry::class);
+        $registry->method('getManagerForClass')->willReturn($this->entityManager);
+        $translator = $this->createStub(TranslatorInterface::class);
+        $translator->method('trans')->willReturnArgument(0);
+
+        return new BreadcrumbImporter(
+            new BreadcrumbCollectionRepository($registry),
+            new BreadcrumbItemRepository($registry),
+            $this->entityManager,
+            $translator,
+            new NullLogger(),
+            $this->invalidator,
+        );
+    }
+
+    private function eventCount(): int
+    {
+        return \count($this->events);
+    }
+
+    private function persistCollection(string $code): BreadcrumbCollection
+    {
+        $collection = (new BreadcrumbCollection())->setCode($code);
+        $this->entityManager->persist($collection);
+        $this->entityManager->flush();
+
+        return $collection;
     }
 
     /**
