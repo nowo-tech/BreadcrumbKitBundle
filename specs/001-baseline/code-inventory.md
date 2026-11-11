@@ -79,6 +79,8 @@
 | `Service/BreadcrumbUrlResolver.php` | Services | FR-SVC-002 |
 | `Service/BreadcrumbUrlResolverInterface.php` | Services | FR-SVC-002 |
 | `Service/BreadcrumbCacheInvalidator.php` | Services | FR-SVC-001, FR-WORKER-001 |
+| `Service/BreadcrumbCurrentLabel.php` | Services | 006 FR-001..FR-005, FR-WORKER-001 |
+| `Service/BreadcrumbCurrentLabelInterface.php` | Services | 006 FR-001 |
 | `Service/ConfiguredLocales.php` | Services | FR-CFG-001 |
 
 ## Controllers — dashboard

@@ -36,7 +36,7 @@ final class BreadcrumbExtensionTest extends TestCase
 
         $names = array_map(static fn ($fn) => $fn->getName(), $extension->getFunctions());
 
-        self::assertSame(['breadcrumb_trail', 'breadcrumb_render'], $names);
+        self::assertSame(['breadcrumb_trail', 'breadcrumb_render', 'breadcrumb_current_label'], $names);
     }
 
     public function testTrailUsesDefaultCollectionWhenCodeIsNull(): void

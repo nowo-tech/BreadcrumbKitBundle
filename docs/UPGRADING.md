@@ -69,6 +69,22 @@
 
 ## Unreleased
 
+Target **2.17.0**. From **2.16.0**: no configuration, schema or template change; existing trails render exactly as
+before until a page sets a label.
+
+```bash
+composer update nowo-tech/breadcrumb-kit-bundle
+```
+
+- **New:** name the current crumb from the page — Twig `{% do breadcrumb_current_label(page.title) %}` at the top of
+  the child template (outside blocks), or PHP `BreadcrumbCurrentLabelInterface::setCurrentLabel($title)`. See
+  [USAGE](USAGE.md#current-crumb-label-page-title), including the render-order rule.
+- Hosts that replaced the last crumb's label in a `BreadcrumbTrailBuiltEvent` subscriber can switch to the new call;
+  subscribers keep working and run after the label is applied.
+- A host that defines its own Twig function named `breadcrumb_current_label` must rename it.
+- Code that builds `BreadcrumbLoader` or `BreadcrumbExtension` by hand: both gained an optional last constructor
+  argument (`$currentLabel`, default `null` = feature off).
+
 ## To 2.16.0
 
 From **2.15.0**: no configuration or schema change for standard hosts.

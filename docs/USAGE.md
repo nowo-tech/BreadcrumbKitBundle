@@ -3,6 +3,7 @@
 ## Table of contents
 
 - [Twig functions](#twig-functions)
+- [Current crumb label (page title)](#current-crumb-label-page-title)
 - [Presentation (home icon, hide on home)](#presentation-home-icon-hide-on-home)
 - [Collapse on narrow screens](#collapse-on-narrow-screens)
 - [Console commands](#console-commands)
@@ -46,6 +47,74 @@ Optional dashboard link in your admin shell:
 {% set url = breadcrumb_kit_dashboard_collections_url() %}
 {% if url %}<a href="{{ url }}">Breadcrumb Kit</a>{% endif %}
 ```
+
+## Current crumb label (page title)
+
+Since 2.17 the page being rendered can name the current (last) crumb for the current request, e.g. a Wiki page title
+instead of the item's static label "Page". Without a label nothing changes.
+
+**Twig:** call it at the top of the page template, **outside any block**:
+
+```twig
+{% extends 'wiki/layout.html.twig' %}
+{% do breadcrumb_current_label(page.title) %}
+
+{% block content %}<h1>{{ page.title }}</h1>{% endblock %}
+```
+
+Twig runs the top-level code of a child template before its layout renders anything, so this works whether the layout
+prints `{{ breadcrumb_render() }}` before or after the content block.
+
+**PHP:** inject `Nowo\BreadcrumbKitBundle\Service\BreadcrumbCurrentLabelInterface` (controller, application service or
+view-model builder):
+
+```php
+use Nowo\BreadcrumbKitBundle\Service\BreadcrumbCurrentLabelInterface;
+
+final class ShowPageController
+{
+    public function __construct(private BreadcrumbCurrentLabelInterface $breadcrumbLabel) {}
+
+    public function __invoke(Page $page): Response
+    {
+        $this->breadcrumbLabel->setCurrentLabel($page->getTitle());
+
+        return $this->render('wiki/page.html.twig', ['page' => $page]);
+    }
+}
+```
+
+**Render order.** The label must be set before the trail is built. Safe places: the controller, or the top of the
+child template (above). Setting it **inside a block** only works when that block renders before the trail; with the
+trail in the layout header and the call inside `{% block content %}`, the trail is already printed and keeps the item
+label.
+
+**Translation (optional).** By default the label is plain text and is not translated. Pass a domain to treat it as a
+message key, translated in the request locale; a `TranslatableInterface` (e.g. `t('wiki.page', {...}, 'wiki')`) is
+translated as well:
+
+```twig
+{% do breadcrumb_current_label('wiki.crumb.page', 'wiki', {'%title%': page.title}) %}
+```
+
+```php
+$this->breadcrumbLabel->setCurrentLabel('wiki.crumb.page', 'wiki', ['%title%' => $page->getTitle()]);
+$this->breadcrumbLabel->setCurrentLabel(new TranslatableMessage('wiki.crumb.page', ['%title%' => $title], 'wiki'));
+```
+
+**Rules.**
+
+- Plain one-line text: line breaks and control characters become spaces, whitespace collapses, invalid UTF-8 is
+  dropped and the label is cut at 255 characters. HTML is **not** stripped: the bundle templates escape it, so
+  `<b>` shows as text. A custom template that prints `node.label|raw` loses that protection.
+- `null` or a blank string (or `clearCurrentLabel()`) restores the item's own label.
+- Only the label of the last crumb of a matched trail changes; its link, icon and route parameters stay. Nothing is
+  shown when no item matches the route. `BreadcrumbTrailBuiltEvent` subscribers run afterwards and see the new label.
+- Sub-requests (`render(controller())`, ESI) share the label of their main request.
+- **Worker mode (FrankenPHP, kernel reset false):** the label belongs to one main request. It is cleared when a main
+  request starts, fails or terminates, when a console command starts or ends and when a Messenger worker receives or
+  finishes a message; it is also ignored once the main request it was set for is no longer the current one. None of
+  this depends on `kernel.reset`.
 
 ## Presentation (home icon, hide on home)
 
@@ -233,6 +302,10 @@ final class ProjectCrumbLabels implements EventSubscriberInterface
 ```
 
 - Type-hint `BreadcrumbLoaderInterface` (2.16) when your presentation code builds trails itself.
+- **Current crumb label (2.17):** the presentation layer (controller or view-model builder) calls
+  `BreadcrumbCurrentLabelInterface::setCurrentLabel($view->title)` with a value it already has; application and domain
+  services never need it. The interface takes plain strings, so the call needs no bundle type beyond the port. See
+  [Current crumb label](#current-crumb-label-page-title).
 - `BreadcrumbTrailBuiltEvent::$routeName` / `$routeParameters` (2.16) give the matched route as scalars, without the
   HTTP request.
 - **Dedicated entity manager (2.16):** `nowo_breadcrumb_kit.doctrine.entity_manager: breadcrumb` maps the two entities

@@ -51,6 +51,7 @@ final readonly class BreadcrumbLoader implements BreadcrumbLoaderInterface
         private ?BreadcrumbLinkAccessCheckerInterface $linkAccessChecker = null,
         private array $paramMapAttributes = [],
         private LoggerInterface $logger = new NullLogger(),
+        private ?BreadcrumbCurrentLabel $currentLabel = null,
     ) {
     }
 
@@ -149,6 +150,7 @@ final readonly class BreadcrumbLoader implements BreadcrumbLoaderInterface
             );
         }
 
+        $nodes = $this->withCurrentLabel($nodes, $locale);
         $nodes = $this->finalizeNodes($nodes, $collection);
 
         $responsive = $collection->getResponsiveConfig();
@@ -174,6 +176,29 @@ final readonly class BreadcrumbLoader implements BreadcrumbLoaderInterface
             $request,
             isset($best['route_name']) ? (string) $best['route_name'] : null,
         );
+    }
+
+    /**
+     * 2.17: the label the page set for this request ({@see BreadcrumbCurrentLabelInterface}) replaces the label of the
+     * current (last) crumb; without one the trail is unchanged.
+     *
+     * @param list<BreadcrumbNode> $nodes
+     *
+     * @return list<BreadcrumbNode>
+     */
+    private function withCurrentLabel(array $nodes, string $locale): array
+    {
+        $label = $this->currentLabel?->resolve($locale);
+        $last = array_key_last($nodes);
+        // The walked chain always ends with the matched (current) item.
+        if (null === $label || null === $last) {
+            return $nodes;
+        }
+
+        $node = $nodes[$last];
+        $nodes[$last] = new BreadcrumbNode($label, $node->url, $node->linkEnabled, $node->current, $node->icon, $node->routeParams);
+
+        return $nodes;
     }
 
     /**

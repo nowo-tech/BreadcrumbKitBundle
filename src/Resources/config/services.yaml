@@ -36,6 +36,19 @@ services:
       $homeIconReplacesLabel: '%nowo_breadcrumb_kit.presentation.home_icon_replaces_label%'
       $defaultHomeIcon: '%nowo_breadcrumb_kit.presentation.home_icon%'
       $linkAccessChecker: null
+      $currentLabel: '@Nowo\BreadcrumbKitBundle\Service\BreadcrumbCurrentLabel'
+
+  # 2.17: request-scoped label of the current crumb (Twig breadcrumb_current_label(), setCurrentLabel() in PHP).
+  # Cleared at main request / command / message boundaries by its own subscriber, never only by kernel.reset.
+  Nowo\BreadcrumbKitBundle\Service\BreadcrumbCurrentLabel:
+    public: true
+    arguments:
+      $requestStack: '@request_stack'
+      $translator: '@?translator'
+
+  Nowo\BreadcrumbKitBundle\Service\BreadcrumbCurrentLabelInterface:
+    alias: Nowo\BreadcrumbKitBundle\Service\BreadcrumbCurrentLabel
+    public: true
 
   # Doctrine onFlush/postFlush listener (AsDoctrineListener): drops cached item lists of changed collections.
   Nowo\BreadcrumbKitBundle\Service\BreadcrumbLoaderInterface:
@@ -96,6 +109,7 @@ services:
   Nowo\BreadcrumbKitBundle\Twig\BreadcrumbExtension:
     arguments:
       $defaultCollection: '%nowo_breadcrumb_kit.default_collection%'
+      $currentLabel: '@Nowo\BreadcrumbKitBundle\Service\BreadcrumbCurrentLabelInterface'
     tags:
       - { name: twig.extension }
 

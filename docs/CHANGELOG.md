@@ -64,6 +64,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+Target version: **2.17.0** (minor, no configuration or schema change). See [UPGRADING](UPGRADING.md#unreleased).
+
+### Added
+
+- **Dynamic label of the current crumb** (Beacon request: a Wiki page showed "Page" instead of its title). Twig
+  `{% do breadcrumb_current_label(page.title) %}` (at the top of a child template it runs before the layout renders
+  the trail, in either block order) and PHP `Service\BreadcrumbCurrentLabelInterface::setCurrentLabel()` for
+  controllers and view-model builders (standard and DDD hosts). Only the last crumb of a matched trail changes, before
+  `BreadcrumbTrailBuiltEvent`. Escaped by the bundle templates; normalised to one line of at most 255 characters.
+  Optional translation: a domain (and parameters) or a `TranslatableInterface`. See
+  [USAGE](USAGE.md#current-crumb-label-page-title).
+- The label is request-scoped and worker-safe without `kernel.reset`: cleared at main request start / exception /
+  terminate, console command start / end and Messenger message received / handled / failed, and ignored once its main
+  request is no longer current. Kernel test with one booted kernel serving many requests and a console command.
+
 ## [2.16.0] - 2026-11-11
 
 Real `entity_manager` option, collection-changed event dispatched only after commit, and a loader interface. See [UPGRADING](https://github.com/nowo-tech/BreadcrumbKitBundle/blob/v2.16.0/docs/UPGRADING.md#to-2160).
