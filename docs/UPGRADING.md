@@ -3,6 +3,7 @@
 ## Table of contents
 
 - [Unreleased](#unreleased)
+- [To 2.18.0](#to-2180)
 - [To 2.17.0](#to-2170)
 - [To 2.16.0](#to-2160)
 - [To 2.15.0](#to-2150)
@@ -69,6 +70,44 @@
 - [General upgrade steps (any version)](#general-upgrade-steps-any-version)
 
 ## Unreleased
+
+## To 2.18.0
+
+Target **2.18.0**. From **2.17.0**: no configuration, schema or template change; nothing breaks.
+
+```bash
+composer update nowo-tech/breadcrumb-kit-bundle
+```
+
+**Deprecated (removed in 3.0):**
+
+| Deprecated | Replacement |
+|------------|-------------|
+| `Contract\BreadcrumbInlineEditAccessCheckerInterface::canUseInlineBreadcrumbEditor(Request, ?UserInterface)` | `Contract\BreadcrumbEditAccessCheckerInterface::canEditInline(Dto\BreadcrumbEditContext)` |
+| `BreadcrumbTrailBuiltEvent::$request` | `BreadcrumbTrailBuiltEvent::getRouteContext()` (`Dto\BreadcrumbRouteContext`), or `$routeName` / `$routeParameters` |
+
+**Migrating an inline-edit checker.** Keep the service id under `inline_edit.access_services`; change the interface
+and read the context instead of the request and the user:
+
+| Before | After |
+|--------|-------|
+| `null !== $user` | `$context->isAuthenticated()` |
+| `$user->getUserIdentifier()` | `$context->userIdentifier` (null when anonymous) |
+| `\in_array('ROLE_X', $user->getRoles(), true)` | `$context->hasRole('ROLE_X')` |
+| `$request->attributes->get('_route')` | `$context->routeName` |
+| `$request->attributes->get('_route_params')` | `$context->routeParameters` (scalars only) |
+| `$request->getLocale()` / `getPathInfo()` | `$context->locale` / `$context->path` |
+
+The context also names the collection (`collectionCode`, `contextKey`). The user is resolved exactly as before
+(firewall user of the current request; no firewall, no token or no SecurityBundle means anonymous), so a policy ported
+line by line gives the same answer. A checker that needs something else from the request (a header, the query
+string) must get it from its own port. While a service implements only the legacy interface, every check triggers a
+deprecation (`nowo-tech/breadcrumb-kit-bundle` 2.18). A service implementing both is asked through the new port only.
+
+The inline editor is shown only when the checker returns exactly `true` (both ports).
+
+**Trail enrichers:** replace `$event->request?->attributes->get('_route_params')` with
+`$event->getRouteContext()?->routeParameters`.
 
 ## To 2.17.0
 

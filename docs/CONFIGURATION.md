@@ -50,7 +50,7 @@ Configuration root key: `nowo_breadcrumb_kit` (see `Nowo\BreadcrumbKitBundle\Dep
 | `security.access_checker` | `string\|null` | `null` | Optional service id implementing `BreadcrumbKitAccessCheckerInterface`. `null` = built-in role checker. |
 | `security.allow_unauthenticated` | `bool` | `false` | **DEV/DEMO only.** Skip SecurityBundle requirement and dashboard access subscriber. Never `true` in production. |
 | `inline_edit.query_param` | `string\|null` | `null` | When non-empty, a truthy value for this query key (`1`, `true`, `yes`, `on`) enables the optional inline editor UI in `breadcrumb_render()` (requires `web_ui.enabled`, a collection `inline_edit_access_key`, and a passing access checker). |
-| `inline_edit.access_services` | `array<string,string>` | `[]` | Map of **logical keys** to **service ids** implementing `BreadcrumbInlineEditAccessCheckerInterface`. Each collection selects one key in the dashboard; the service receives the current `Request` and `?UserInterface` (or `null` if anonymous / no Security). |
+| `inline_edit.access_services` | `array<string,string>` | `[]` | Map of **logical keys** to **service ids** implementing `BreadcrumbEditAccessCheckerInterface` (2.18; receives a `BreadcrumbEditContext` VO: route, scalar parameters, locale, path, collection, user identifier and roles, `null` / `[]` when anonymous) or the deprecated `BreadcrumbInlineEditAccessCheckerInterface` (current `Request` and `?UserInterface`). Each collection selects one key in the dashboard. Deny by default: an unknown key, a service implementing neither interface or any answer but `true` hides the editor. |
 
 To override dashboard or form UI strings from your application, see [USAGE.md](USAGE.md#overriding-translations-req-i18n-001) (domain `NowoBreadcrumbKitBundle`, files `translations/NowoBreadcrumbKitBundle.{locale}.yaml`).
 
@@ -75,7 +75,7 @@ keeps the `en` fallback). Values are trimmed and de-duplicated; empty entries ar
 ## Inline edit (modal)
 
 1. Set `inline_edit.query_param` (e.g. `breadcrumb_edit`).
-2. Register one or more checker services and list them under `inline_edit.access_services` (`demo_key: app.my_checker`).
+2. Register one or more checker services implementing `BreadcrumbEditAccessCheckerInterface` and list them under `inline_edit.access_services` (`demo_key: app.my_checker`).
 3. Enable the dashboard and import its routes (see below).
 4. In the collection form, choose a checker key (or leave disabled). The default `breadcrumb.html.twig` renders a button + `<dialog>` + `<iframe>` pointing at the item edit URL for the matched route (or the “new item” URL if there is no row yet).
 

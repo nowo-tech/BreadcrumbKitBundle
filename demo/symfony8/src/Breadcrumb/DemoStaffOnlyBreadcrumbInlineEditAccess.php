@@ -4,17 +4,16 @@ declare(strict_types=1);
 
 namespace App\Breadcrumb;
 
-use Nowo\BreadcrumbKitBundle\Contract\BreadcrumbInlineEditAccessCheckerInterface;
-use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\Security\Core\User\UserInterface;
+use Nowo\BreadcrumbKitBundle\Contract\BreadcrumbEditAccessCheckerInterface;
+use Nowo\BreadcrumbKitBundle\Dto\BreadcrumbEditContext;
 
 /**
  * Demo checker: only authenticated users may use inline edit (this demo has no firewall, so always false).
  */
-final class DemoStaffOnlyBreadcrumbInlineEditAccess implements BreadcrumbInlineEditAccessCheckerInterface
+final class DemoStaffOnlyBreadcrumbInlineEditAccess implements BreadcrumbEditAccessCheckerInterface
 {
-    public function canUseInlineBreadcrumbEditor(Request $request, ?UserInterface $user): bool
+    public function canEditInline(BreadcrumbEditContext $context): bool
     {
-        return null !== $user;
+        return $context->isAuthenticated();
     }
 }

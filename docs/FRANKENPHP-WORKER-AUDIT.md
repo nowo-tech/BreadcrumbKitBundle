@@ -110,7 +110,8 @@ No other findings. Good patterns observed: services read the current request and
 ## Usage recommendations in worker mode
 
 - Keeping Symfony's `services_resetter` enabled (default in FrankenPHP's Symfony runtime) is still recommended. Without it the bundle is safe, but the application must clear its EntityManager between requests to bound memory (W-02).
-- Custom `BreadcrumbInlineEditAccessCheckerInterface` / `BreadcrumbKitAccessCheckerInterface` implementations and `BreadcrumbTrailBuiltEvent` subscribers must stay stateless (or implement `ResetInterface`). They receive the request and user per call; do not store them in properties.
+- Custom `BreadcrumbEditAccessCheckerInterface` (2.18; deprecated `BreadcrumbInlineEditAccessCheckerInterface`) / `BreadcrumbKitAccessCheckerInterface` implementations and `BreadcrumbTrailBuiltEvent` subscribers must stay stateless (or implement `ResetInterface`). They receive the context (or the request and user) per call; do not store them in properties.
+- 2.18: `BreadcrumbEditContext` / `BreadcrumbRouteContext` are built per call by the stateless `BreadcrumbRequestContextFactory` (static methods, no properties) and never stored by a service. `DddHostInlineEditKernelTest::testKeptAliveKernelGivesEachUserItsOwnDecision` runs 600 inline-edit checks in one kernel without the services resetter, alternating anonymous / an editor / a reader, asserts each decision and a memory margin of 2 MB.
 - A custom `BreadcrumbLinkAccessCheckerInterface` must stay stateless too, or implement `ResetInterface`. It is asked on every trail build and the bundle keeps no answer, so do not keep per-user answers in properties either.
 - Do not store `BreadcrumbTrailView` or entities returned by the loader in your own services between requests.
 - The demo ships a worker-mode Caddyfile (`demo/symfony8/docker/frankenphp/Caddyfile`, `worker { … }` block) that can be used to reproduce behaviour.

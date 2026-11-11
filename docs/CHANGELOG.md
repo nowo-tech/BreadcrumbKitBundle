@@ -65,6 +65,37 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+Target version: **2.18.0** (minor, no configuration, schema or template change). See
+[UPGRADING](UPGRADING.md#to-2180).
+
+### Added
+
+- **Framework-free inline-edit port** (REQ-ARCH-001 rule 3): `Contract\BreadcrumbEditAccessCheckerInterface::canEditInline(Dto\BreadcrumbEditContext)`.
+  The context VO carries the route name, scalar route parameters, locale, path, collection code, context key, user
+  identifier and roles; no Symfony type. Registered under `inline_edit.access_services` like the legacy checker. A
+  service implementing both interfaces is asked through the new port only. The user is the same one the legacy port
+  received (firewall user of the current request; anonymous, no firewall or no Security give `null` / `[]`), so a
+  policy ported 1:1 gives the same decision (equivalence tests in `BreadcrumbInlineEditResolverTest`).
+- `BreadcrumbTrailBuiltEvent::getRouteContext()`: route, scalar parameters, locale and path as a
+  `Dto\BreadcrumbRouteContext` VO (null without a request).
+- DDD host kernel test `DddHostInlineEditKernelTest`: dedicated manager, host entities on the host manager, policy on
+  the new port only, plus a kept-alive kernel loop (600 checks, three identities alternating, no services resetter,
+  memory margin 2 MB).
+- Docs: "Standard Symfony host" section in USAGE, inline-edit policy in the DDD section; README links both.
+
+### Deprecated
+
+- `Contract\BreadcrumbInlineEditAccessCheckerInterface` (`Request` + `?UserInterface`): implement
+  `BreadcrumbEditAccessCheckerInterface` instead. Still honoured; using it triggers a deprecation. Removed in 3.0.
+- `BreadcrumbTrailBuiltEvent::$request`: read `getRouteContext()` (or `$routeName` / `$routeParameters`). Removed in
+  3.0.
+
+### Changed
+
+- Inline editor: deny by default is explicit, only a strict `true` from the checker shows it (both ports).
+- Demo checkers moved to the new port. USAGE "Known limitations" no longer claims there is no change event or that the
+  tables must share your manager (both changed in 2.16).
+
 ## [2.17.0] - 2026-11-11
 
 Target version: **2.17.0** (minor, no configuration or schema change). See [UPGRADING](UPGRADING.md#unreleased).
