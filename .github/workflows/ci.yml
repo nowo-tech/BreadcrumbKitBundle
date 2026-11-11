@@ -85,7 +85,8 @@ jobs:
             composer config platform.php "${{ matrix.php }}"
           fi
           # REQ-SF-002: pin every symfony/* package of composer.json to the cell's minor (no caret drift to 8.x).
-          PACKAGES=$(jq -r --arg c '${{ matrix.symfony }}.*' '(.require + ."require-dev") | keys[] | select(startswith("symfony/")) | . + ":" + $c' composer.json)
+          # *-contracts packages are versioned on their own (3.x) and keep their constraint.
+          PACKAGES=$(jq -r --arg c '${{ matrix.symfony }}.*' '(.require + ."require-dev") | keys[] | select(startswith("symfony/") and (endswith("-contracts") | not)) | . + ":" + $c' composer.json)
           composer require $PACKAGES --no-interaction --no-update
           composer update --with-all-dependencies --no-interaction --prefer-dist --no-progress
       - name: Composer audit (Critical/High)
@@ -232,7 +233,7 @@ jobs:
 
       - name: Install dependencies (Symfony 7.4)
         run: |
-          PACKAGES=$(jq -r '(.require + ."require-dev") | keys[] | select(startswith("symfony/")) | . + ":7.4.*"' composer.json)
+          PACKAGES=$(jq -r '(.require + ."require-dev") | keys[] | select(startswith("symfony/") and (endswith("-contracts") | not)) | . + ":7.4.*"' composer.json)
           composer require $PACKAGES --no-interaction --no-update
           composer update --with-all-dependencies --no-interaction --prefer-dist --no-progress
 

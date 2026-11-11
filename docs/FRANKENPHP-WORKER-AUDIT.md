@@ -52,6 +52,7 @@ A bundle that is safe under **B** is safe under **A** and under classic mode / P
 
 | Service | Shared | Mutable state | Scenario A | Scenario B |
 |---------|--------|---------------|------------|------------|
+| `Service\BreadcrumbCurrentLabel` (2.17) | yes (public) | request-scoped label of the current crumb + weak reference to its main request | ✅ | ✅ cleared on main `kernel.request` / `kernel.exception` / `kernel.terminate`, `console.command` / `console.terminate`, Messenger received / handled / failed; ignored once its main request is no longer current; `reset()` too, not relied on (`CurrentLabelKernelTest`) |
 | `Service\BreadcrumbLoader` | yes (public) | none (`final readonly`; optional PSR-6 pool) | ✅ | ✅ (W-02 resolved) |
 | `Service\BreadcrumbUrlResolver` | yes (public) | none (`final readonly`) | ✅ | ✅ |
 | `Service\BreadcrumbParamMap` | not a service | none (static functions; reads the request passed per call) | ✅ | ✅ |
