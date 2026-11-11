@@ -63,6 +63,32 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+Target 2.16.0 (architecture bar, wave W1: standard Symfony and DDD hosts).
+
+### Added
+
+- **`doctrine.entity_manager`** option: map the breadcrumb entities on a dedicated Doctrine entity manager only (also
+  when the default manager has `auto_mapping: true`). The dashboard controllers, the importer, the migration command
+  and the closed-manager recovery use it; an unknown manager fails the build. Default `null`: unchanged.
+- **`BreadcrumbCollectionChangedEvent`** (collection id, code, context key, deleted flag): once per changed collection,
+  after the **real** commit — dashboard CRUD, imports and any custom flush. A DBAL middleware on the bundle's connection
+  feeds a per-transaction outbox (the PageBuilderKit / InstanceSettings design): events of a flush inside a
+  transaction wait for the outermost commit (the host's or the importer's), a rollback — also of a savepoint — drops
+  them, and a flush that threw announces nothing. Committed events are dispatched at the next safe point where DBAL
+  reports no open transaction: after a flush, `BreadcrumbCacheInvalidator::dispatchPending()`, and the end of the
+  request / command / message. A listener failure after the commit is logged; the other listeners still run.
+- **`BreadcrumbLoaderInterface`** (`loadTrailView()`), aliased to `BreadcrumbLoader`.
+- `BreadcrumbTrailBuiltEvent::$routeName` and `$routeParameters` (scalars of `_route` / `_route_params`; `$request`
+  stays).
+- Kernel tests for a standard host, two managers with `auto_mapping`, a host without `default_entity_manager`, an
+  unknown manager and the recovery of the bundle manager only.
+
+### Changed
+
+- The dashboard controllers, `BreadcrumbImporter` and `nowo_breadcrumb_kit:generate-migration` get the manager of the
+  breadcrumb entities (`nowo_breadcrumb_kit.entity_manager`) instead of the autowired default `EntityManagerInterface`
+  (the same manager in a standard host).
+
 ### Documentation
 
 - USAGE: new section "Using it from a DDD / hexagonal application" (where the bundle sits in a hexagonal host, the ports, events and DTOs to build an anti-corruption layer on, and the known limitations).

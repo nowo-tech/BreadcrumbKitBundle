@@ -34,6 +34,7 @@ final readonly class BreadcrumbImporter
         private EntityManagerInterface $entityManager,
         private TranslatorInterface $translator,
         private LoggerInterface $logger = new NullLogger(),
+        private ?BreadcrumbCacheInvalidator $changeNotifier = null,
     ) {
     }
 
@@ -179,12 +180,15 @@ final readonly class BreadcrumbImporter
             $this->writeCollection($existing, $colData, $itemsData, $rejected);
             $this->entityManager->commit();
         } catch (Throwable $e) {
+            // The rollback drops the collection-changed events of this transaction (BreadcrumbChangeOutbox).
             $this->entityManager->rollback();
             // Same as EntityManager::wrapInTransaction(): the unit of work is no longer consistent.
             $this->entityManager->close();
 
             throw $e;
         }
+        // 2.16: the events of this transaction once it is really committed (still held inside a host transaction).
+        $this->changeNotifier?->dispatchPending();
 
         if ($existing instanceof BreadcrumbCollection) {
             ++$result['updated'];

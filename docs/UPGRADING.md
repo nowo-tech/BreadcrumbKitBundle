@@ -68,6 +68,19 @@
 
 ## Unreleased
 
+### To 2.16.0
+
+From **2.15.0**: no configuration or schema change for standard hosts.
+
+- **Optional `doctrine.entity_manager`**: maps the breadcrumb entities on that manager only (declare it under
+  `doctrine.orm.entity_managers`) and makes the bundle use it everywhere. Move the two breadcrumb tables to its
+  connection (or point it at the same database); generate their migrations for that manager.
+- **New `BreadcrumbCollectionChangedEvent`** after committed changes of a collection or its items.
+- **New `BreadcrumbLoaderInterface`**: type-hint it instead of the final `BreadcrumbLoader`.
+- `BreadcrumbTrailBuiltEvent` gained `routeName` / `routeParameters`.
+- Code that replaced the dashboard controllers or the importer and relied on the autowired default
+  `EntityManagerInterface` now receives `nowo_breadcrumb_kit.entity_manager` (the same object in a standard host).
+
 ## To 2.15.0
 
 From **2.14.1**:
