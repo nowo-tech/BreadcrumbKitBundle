@@ -14,6 +14,7 @@ use Symfony\Component\HttpKernel\KernelEvents;
 use Symfony\Contracts\Service\ResetInterface;
 use Symfony\Contracts\Translation\TranslatableInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
+use Symfony\Contracts\Translation\TranslatorTrait;
 use WeakReference;
 
 /**
@@ -116,10 +117,14 @@ final class BreadcrumbCurrentLabel implements BreadcrumbCurrentLabelInterface, E
         }
 
         $label = $this->pending['label'];
+        // Without a translator: message keys stay as they are, parameters are still substituted.
+        $translator = $this->translator ?? new class implements TranslatorInterface {
+            use TranslatorTrait;
+        };
         if ($label instanceof TranslatableInterface) {
-            $text = null === $this->translator ? self::fallbackText($label) : $label->trans($this->translator, $locale);
-        } elseif (null !== $this->pending['domain'] && null !== $this->translator) {
-            $text = $this->translator->trans($label, $this->pending['parameters'], $this->pending['domain'], $locale);
+            $text = $label->trans($translator, $locale);
+        } elseif (null !== $this->pending['domain']) {
+            $text = $translator->trans($label, $this->pending['parameters'], $this->pending['domain'], $locale);
         } else {
             $text = $label;
         }
@@ -156,10 +161,5 @@ final class BreadcrumbCurrentLabel implements BreadcrumbCurrentLabelInterface, E
         }
 
         return $main instanceof Request && $owner === $main;
-    }
-
-    private static function fallbackText(TranslatableInterface $label): string
-    {
-        return $label instanceof Stringable ? (string) $label : '';
     }
 }

@@ -16,7 +16,6 @@ use Symfony\Component\HttpKernel\Event\RequestEvent;
 use Symfony\Component\HttpKernel\HttpKernelInterface;
 use Symfony\Component\HttpKernel\KernelEvents;
 use Symfony\Component\Translation\TranslatableMessage;
-use Symfony\Contracts\Translation\TranslatableInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 final class BreadcrumbCurrentLabelTest extends TestCase
@@ -128,9 +127,9 @@ final class BreadcrumbCurrentLabelTest extends TestCase
     public function testDomainWithoutTranslatorKeepsTheText(): void
     {
         $label = new BreadcrumbCurrentLabel();
-        $label->setCurrentLabel('wiki.page.title', 'wiki');
+        $label->setCurrentLabel('Page %t%', 'wiki', ['%t%' => 'Intro']);
 
-        self::assertSame('wiki.page.title', $label->resolve('es'));
+        self::assertSame('Page Intro', $label->resolve('es'));
     }
 
     public function testTranslatableIsTranslated(): void
@@ -144,19 +143,12 @@ final class BreadcrumbCurrentLabelTest extends TestCase
         self::assertSame('Page X', $label->resolve('fr'));
     }
 
-    public function testTranslatableWithoutTranslator(): void
+    public function testTranslatableWithoutTranslatorKeepsTheKeyWithItsParameters(): void
     {
         $label = new BreadcrumbCurrentLabel();
-        $label->setCurrentLabel(new TranslatableMessage('page.title'));
-        self::assertSame('page.title', $label->resolve());
+        $label->setCurrentLabel(new TranslatableMessage('Page %t%', ['%t%' => 'Intro']));
 
-        $label->setCurrentLabel(new class implements TranslatableInterface {
-            public function trans(TranslatorInterface $translator, ?string $locale = null): string
-            {
-                return 'never';
-            }
-        });
-        self::assertNull($label->resolve(), 'not Stringable, no translator: no text');
+        self::assertSame('Page Intro', $label->resolve());
     }
 
     public function testTranslationToBlankKeepsTheItemLabel(): void
