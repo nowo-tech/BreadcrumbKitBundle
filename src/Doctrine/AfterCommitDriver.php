@@ -27,7 +27,7 @@ final class AfterCommitDriver extends AbstractDriverMiddleware
         TransactionObserverInterface ...$observers,
     ) {
         parent::__construct($driver);
-        $this->observers = \array_values($observers);
+        $this->observers = array_values($observers);
     }
 
     /**

@@ -35,7 +35,7 @@ final class AfterCommitMiddlewarePass implements CompilerPassInterface
         }
         $id = \sprintf('doctrine.orm.%s_entity_manager', \is_string($manager) ? $manager : 'default');
         $argument = $container->hasDefinition($id) ? ($container->getDefinition($id)->getArguments()[0] ?? null) : null;
-        $connection = $argument instanceof Reference && 1 === \preg_match('/^doctrine\.dbal\.(.+)_connection$/D', (string) $argument, $match) ? $match[1] : null;
+        $connection = $argument instanceof Reference && 1 === preg_match('/^doctrine\.dbal\.(.+)_connection$/D', (string) $argument, $match) ? $match[1] : null;
         if (null === $connection) {
             $default = $container->hasParameter('doctrine.default_connection') ? $container->getParameter('doctrine.default_connection') : null;
             $connection = \is_string($default) ? $default : 'default';

@@ -65,7 +65,7 @@ final class BreadcrumbChangeOutbox implements TransactionObserverInterface, Rese
             $connection = $open;
         }
 
-        $events = \array_values($events);
+        $events = array_values($events);
         if (null === $connection) {
             $this->committed = [...$this->committed, ...$events];
 
@@ -166,7 +166,7 @@ final class BreadcrumbChangeOutbox implements TransactionObserverInterface, Rese
     {
         $levels = $this->transactions[$connection] ?? [];
         foreach ($levels as $index => [$level]) {
-            if ($index > 0 && null !== $level && 0 === \strcasecmp($level, $name)) {
+            if ($index > 0 && null !== $level && 0 === strcasecmp($level, $name)) {
                 $closed = $this->flatten(\array_slice($levels, $index));
                 $levels = \array_slice($levels, 0, $index);
                 if ($committed) {

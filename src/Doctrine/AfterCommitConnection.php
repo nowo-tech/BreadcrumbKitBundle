@@ -34,7 +34,7 @@ final class AfterCommitConnection extends AbstractConnectionMiddleware
         TransactionObserverInterface ...$observers,
     ) {
         parent::__construct($connection);
-        $this->observers = \array_values($observers);
+        $this->observers = array_values($observers);
     }
 
     /**
@@ -82,12 +82,12 @@ final class AfterCommitConnection extends AbstractConnectionMiddleware
     public function exec(string $sql): int|string
     {
         $result = parent::exec($sql);
-        if (1 === \preg_match(self::SAVEPOINT_PATTERN, $sql, $match)) {
-            $verb = \strtoupper($match[1]);
+        if (1 === preg_match(self::SAVEPOINT_PATTERN, $sql, $match)) {
+            $verb = strtoupper($match[1]);
             $name = $match[2];
             $this->notify(static fn (TransactionObserverInterface $observer, self $connection) => match (true) {
-                \str_starts_with($verb, 'RELEASE') => $observer->savepointReleased($connection, $name),
-                \str_starts_with($verb, 'ROLLBACK') => $observer->savepointRolledBack($connection, $name),
+                str_starts_with($verb, 'RELEASE') => $observer->savepointReleased($connection, $name),
+                str_starts_with($verb, 'ROLLBACK') => $observer->savepointRolledBack($connection, $name),
                 default => $observer->savepointCreated($connection, $name),
             });
         }

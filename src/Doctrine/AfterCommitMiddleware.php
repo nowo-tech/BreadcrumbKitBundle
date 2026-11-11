@@ -25,7 +25,7 @@ final readonly class AfterCommitMiddleware implements Middleware
      */
     public function __construct(TransactionObserverInterface ...$observers)
     {
-        $this->observers = \array_values($observers);
+        $this->observers = array_values($observers);
     }
 
     /**
