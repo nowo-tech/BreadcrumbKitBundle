@@ -3,6 +3,7 @@
 ## Table of contents
 
 - [Unreleased](#unreleased)
+- [To 2.16.0](#to-2160)
 - [To 2.15.0](#to-2150)
 - [To 2.14.1](#to-2141)
 - [To 2.14.0](#to-2140)
@@ -68,7 +69,7 @@
 
 ## Unreleased
 
-### To 2.16.0
+## To 2.16.0
 
 From **2.15.0**: no configuration or schema change for standard hosts.
 

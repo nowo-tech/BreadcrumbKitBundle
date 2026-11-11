@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## Table of contents
 
 - [[Unreleased]](#unreleased)
+- [[2.16.0] - 2026-11-11](#2160---2026-11-11)
 - [[2.15.0] - 2026-11-07](#2150---2026-11-07)
 - [[2.14.1] - 2026-11-07](#2141---2026-11-07)
 - [[2.14.0] - 2026-11-06](#2140---2026-11-06)
@@ -63,7 +64,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-Target 2.16.0 (architecture bar, wave W1: standard Symfony and DDD hosts).
+## [2.16.0] - 2026-11-11
+
+Real `entity_manager` option, collection-changed event dispatched only after commit, and a loader interface. See [UPGRADING](https://github.com/nowo-tech/BreadcrumbKitBundle/blob/v2.16.0/docs/UPGRADING.md#to-2160).
+
 
 ### Added
 
