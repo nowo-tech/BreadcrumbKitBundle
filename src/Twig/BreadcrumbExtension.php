@@ -36,13 +36,19 @@ final class BreadcrumbExtension extends AbstractExtension
     /**
      * 2.17: names the current crumb for this request, e.g. `{% do breadcrumb_current_label(page.title) %}` at the top
      * of a child template (runs before its layout renders any block). Outputs nothing; null or blank restores the
-     * item's label. With `domain`, the string is a message key translated in that domain.
+     * item's label. With `domain`, the string is a message key translated in that domain; `collection` / `contextKey`
+     * restrict it to the trails of that collection / context key.
      *
      * @param array<string, mixed> $parameters
      */
-    public function currentLabel(string|Stringable|TranslatableInterface|null $label, ?string $domain = null, array $parameters = []): string
-    {
-        $this->currentLabel?->setCurrentLabel($label, $domain, $parameters);
+    public function currentLabel(
+        string|Stringable|TranslatableInterface|null $label,
+        ?string $domain = null,
+        array $parameters = [],
+        ?string $collection = null,
+        ?string $contextKey = null,
+    ): string {
+        $this->currentLabel?->setCurrentLabel($label, $domain, $parameters, $collection, $contextKey);
 
         return '';
     }

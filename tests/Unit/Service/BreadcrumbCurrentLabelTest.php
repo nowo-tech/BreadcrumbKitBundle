@@ -20,52 +20,125 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 
 final class BreadcrumbCurrentLabelTest extends TestCase
 {
-    public function testNothingSetResolvesToNull(): void
+    private RequestStack $stack;
+
+    private Request $page;
+
+    protected function setUp(): void
     {
-        self::assertNull((new BreadcrumbCurrentLabel())->resolve());
+        $this->page = self::routed('wiki_page', ['slug' => 'intro', 'object' => new stdClass()]);
+        $this->stack = new RequestStack();
+        $this->stack->push($this->page);
     }
 
-    public function testLabelOutsideHttpResolvesWhileNoRequestRuns(): void
+    public function testNothingSetResolvesToNull(): void
     {
-        $label = new BreadcrumbCurrentLabel(new RequestStack());
+        self::assertNull($this->label()->currentLabelFor($this->page, 'default', ''));
+        self::assertNull((new BreadcrumbCurrentLabel())->currentLabelFor($this->page, 'default', ''));
+    }
+
+    public function testLabelAppliesToTheTrailOfItsRoute(): void
+    {
+        $label = $this->label();
         $label->setCurrentLabel('Release notes');
 
-        self::assertSame('Release notes', $label->resolve('en'));
+        self::assertSame('Release notes', $label->currentLabelFor($this->page, 'default', '', 'en'));
+        self::assertSame('Release notes', $label->currentLabelFor($this->page, 'admin', 'shop'), 'no restriction: any collection');
+    }
+
+    public function testOtherRouteOrOtherParametersKeepTheirLabels(): void
+    {
+        $label = $this->label();
+        $label->setCurrentLabel('Intro');
+
+        self::assertNull($label->currentLabelFor(self::routed('wiki_space', ['slug' => 'intro']), 'default', ''));
+        self::assertNull($label->currentLabelFor(self::routed('wiki_page', ['slug' => 'other']), 'default', ''));
+        self::assertNull($label->currentLabelFor(new Request(), 'default', ''), 'fragment without a route');
+        self::assertSame('Intro', $label->currentLabelFor(self::routed('wiki_page', ['slug' => 'intro']), 'default', ''), 'same route and scalar params');
+    }
+
+    public function testCollectionAndContextKeyRestrictTheLabel(): void
+    {
+        $label = $this->label();
+        $label->setCurrentLabel('Intro', null, [], 'default');
+        self::assertSame('Intro', $label->currentLabelFor($this->page, 'default', 'any'));
+        self::assertNull($label->currentLabelFor($this->page, 'sidebar', ''));
+
+        $label->setCurrentLabel('Intro', null, [], null, 'wiki');
+        self::assertSame('Intro', $label->currentLabelFor($this->page, 'sidebar', 'wiki'));
+        self::assertNull($label->currentLabelFor($this->page, 'default', ''));
+    }
+
+    public function testSetOutsideARoutedRequestIsANoOp(): void
+    {
+        $label = new BreadcrumbCurrentLabel(new RequestStack());
+        $label->setCurrentLabel('From a command');
+        self::assertNull($label->currentLabelFor($this->page, 'default', ''));
+
+        $stack = new RequestStack();
+        $stack->push(new Request());
+        $label = new BreadcrumbCurrentLabel($stack);
+        $label->setCurrentLabel('Unrouted');
+        self::assertNull($label->currentLabelFor(new Request(), 'default', ''));
+
+        $label = new BreadcrumbCurrentLabel();
+        $label->setCurrentLabel('No stack');
+        self::assertNull($label->currentLabelFor($this->page, 'default', ''));
+    }
+
+    public function testSetInsideAFragmentIsScopedToTheFragmentRoute(): void
+    {
+        $fragment = self::routed('wiki_sidebar', []);
+        $this->stack->push($fragment);
+        $label = $this->label();
+        $label->setCurrentLabel('Sidebar');
+
+        self::assertSame('Sidebar', $label->currentLabelFor($fragment, 'default', ''));
+        self::assertNull($label->currentLabelFor($this->page, 'default', ''));
     }
 
     public function testLabelIsNormalisedToOneLine(): void
     {
-        $label = new BreadcrumbCurrentLabel();
+        $label = $this->label();
 
         $label->setCurrentLabel("  Line one\n\tline\u{2028}two \u{0007} ");
-        self::assertSame('Line one line two', $label->resolve());
+        self::assertSame('Line one line two', $this->resolve($label));
 
         $label->setCurrentLabel(str_repeat('é', BreadcrumbCurrentLabel::MAX_LENGTH + 10));
-        self::assertSame(BreadcrumbCurrentLabel::MAX_LENGTH, mb_strlen((string) $label->resolve()));
+        self::assertSame(BreadcrumbCurrentLabel::MAX_LENGTH, mb_strlen((string) $this->resolve($label)));
+    }
+
+    public function testBidiAndZeroWidthCharactersAreRemoved(): void
+    {
+        $label = $this->label();
+        $label->setCurrentLabel("Invoice\u{202E}fdp.exe\u{202C} \u{200B}2026\u{2066}x\u{2069}\u{FEFF}\u{00AD}");
+
+        self::assertSame('Invoicefdp.exe 2026x', $this->resolve($label));
+        self::assertSame('', BreadcrumbCurrentLabel::normalize("\u{200B}\u{200E}\u{200F}"));
     }
 
     public function testHtmlIsKeptAsTextForTheTemplateToEscape(): void
     {
-        $label = new BreadcrumbCurrentLabel();
+        $label = $this->label();
         $label->setCurrentLabel('<script>alert(1)</script>');
 
-        self::assertSame('<script>alert(1)</script>', $label->resolve());
+        self::assertSame('<script>alert(1)</script>', $this->resolve($label));
     }
 
-    public function testBlankNullOrInvalidUtf8RestoresTheItemLabel(): void
+    public function testBlankNullOrInvalidUtf8LabelIsIgnoredAsAWhole(): void
     {
-        $label = new BreadcrumbCurrentLabel();
+        $label = $this->label();
 
-        foreach ([null, '', "  \n ", "\xC3\x28"] as $value) {
+        foreach ([null, '', "  \n ", "Valid \xC3\x28 part"] as $value) {
             $label->setCurrentLabel('Title');
             $label->setCurrentLabel($value);
-            self::assertNull($label->resolve());
+            self::assertNull($this->resolve($label));
         }
     }
 
     public function testStringableIsAccepted(): void
     {
-        $label = new BreadcrumbCurrentLabel();
+        $label = $this->label();
         $label->setCurrentLabel(new class implements Stringable {
             public function __toString(): string
             {
@@ -73,20 +146,19 @@ final class BreadcrumbCurrentLabelTest extends TestCase
             }
         });
 
-        self::assertSame('From object', $label->resolve());
+        self::assertSame('From object', $this->resolve($label));
     }
 
     public function testClearForgetsTheLabel(): void
     {
-        $label = new BreadcrumbCurrentLabel();
+        $label = $this->label();
         $label->setCurrentLabel('Title');
         $label->clearCurrentLabel();
-
-        self::assertNull($label->resolve());
+        self::assertNull($this->resolve($label));
 
         $label->setCurrentLabel('Title');
         $label->reset();
-        self::assertNull($label->resolve());
+        self::assertNull($this->resolve($label));
     }
 
     public function testStringIsNotTranslatedWithoutADomain(): void
@@ -94,10 +166,12 @@ final class BreadcrumbCurrentLabelTest extends TestCase
         $translator = $this->createMock(TranslatorInterface::class);
         $translator->expects(self::never())->method('trans');
 
-        $label = new BreadcrumbCurrentLabel(null, $translator);
+        $label = $this->label($translator);
         $label->setCurrentLabel('wiki.page.title');
+        self::assertSame('wiki.page.title', $this->resolve($label, 'es'));
 
-        self::assertSame('wiki.page.title', $label->resolve('es'));
+        $label->setCurrentLabel('Key', '');
+        self::assertSame('Key', $this->resolve($label, 'es'), 'empty domain: no translation');
     }
 
     public function testStringWithADomainIsTranslatedInTheTrailLocale(): void
@@ -107,29 +181,20 @@ final class BreadcrumbCurrentLabelTest extends TestCase
             ->with('wiki.page.title', ['%name%' => 'Intro'], 'wiki', 'es')
             ->willReturn("Página\n Intro");
 
-        $label = new BreadcrumbCurrentLabel(null, $translator);
+        $label = $this->label($translator);
         $label->setCurrentLabel('wiki.page.title', 'wiki', ['%name%' => 'Intro']);
 
-        self::assertSame('Página Intro', $label->resolve('es'));
+        self::assertSame('Página Intro', $this->resolve($label, 'es'));
     }
 
-    public function testEmptyDomainMeansNoTranslation(): void
+    public function testDomainWithoutTranslatorKeepsTheKeyWithItsParameters(): void
     {
-        $translator = $this->createMock(TranslatorInterface::class);
-        $translator->expects(self::never())->method('trans');
-
-        $label = new BreadcrumbCurrentLabel(null, $translator);
-        $label->setCurrentLabel('Key', '');
-
-        self::assertSame('Key', $label->resolve('es'));
-    }
-
-    public function testDomainWithoutTranslatorKeepsTheText(): void
-    {
-        $label = new BreadcrumbCurrentLabel();
+        $label = $this->label();
         $label->setCurrentLabel('Page %t%', 'wiki', ['%t%' => 'Intro']);
+        self::assertSame('Page Intro', $this->resolve($label, 'es'));
 
-        self::assertSame('Page Intro', $label->resolve('es'));
+        $label->setCurrentLabel(new TranslatableMessage('Page %t%', ['%t%' => 'Intro']));
+        self::assertSame('Page Intro', $this->resolve($label));
     }
 
     public function testTranslatableIsTranslated(): void
@@ -137,99 +202,65 @@ final class BreadcrumbCurrentLabelTest extends TestCase
         $translator = $this->createMock(TranslatorInterface::class);
         $translator->method('trans')->with('page.title', ['%t%' => 'X'], 'wiki', 'fr')->willReturn('Page X');
 
-        $label = new BreadcrumbCurrentLabel(null, $translator);
+        $label = $this->label($translator);
         $label->setCurrentLabel(new TranslatableMessage('page.title', ['%t%' => 'X'], 'wiki'));
 
-        self::assertSame('Page X', $label->resolve('fr'));
-    }
-
-    public function testTranslatableWithoutTranslatorKeepsTheKeyWithItsParameters(): void
-    {
-        $label = new BreadcrumbCurrentLabel();
-        $label->setCurrentLabel(new TranslatableMessage('Page %t%', ['%t%' => 'Intro']));
-
-        self::assertSame('Page Intro', $label->resolve());
+        self::assertSame('Page X', $this->resolve($label, 'fr'));
     }
 
     public function testTranslationToBlankKeepsTheItemLabel(): void
     {
         $translator = $this->createMock(TranslatorInterface::class);
-        $translator->method('trans')->willReturn('  ');
+        $translator->method('trans')->willReturn("  \u{200B}");
 
-        $label = new BreadcrumbCurrentLabel(null, $translator);
+        $label = $this->label($translator);
         $label->setCurrentLabel('key', 'wiki');
 
-        self::assertNull($label->resolve());
+        self::assertNull($this->resolve($label));
     }
 
     public function testLabelOfAnotherMainRequestIsNeverApplied(): void
     {
-        $stack = new RequestStack();
-        $first = Request::create('/a');
-        $stack->push($first);
-
-        $label = new BreadcrumbCurrentLabel($stack);
+        $label = $this->label();
         $label->setCurrentLabel('Page A');
-        self::assertSame('Page A', $label->resolve());
+        self::assertSame('Page A', $this->resolve($label));
 
-        // Worker mode: the next request arrives and no boundary listener ran.
-        $stack->pop();
-        $stack->push(Request::create('/b'));
-        self::assertNull($label->resolve());
+        // Worker mode: the next request (same route and params) arrives and no boundary listener ran.
+        $next = self::routed('wiki_page', ['slug' => 'intro']);
+        $this->stack->pop();
+        $this->stack->push($next);
+        self::assertNull($label->currentLabelFor($next, 'default', ''));
 
-        $stack->pop();
-        $stack->push($first);
-        self::assertNull($label->resolve(), 'dropped once seen stale');
+        $this->stack->pop();
+        $this->stack->push($this->page);
+        self::assertNull($this->resolve($label), 'dropped once seen stale');
     }
 
-    public function testLabelSetDuringARequestIsNotAppliedOutsideIt(): void
+    public function testLabelIsNotAppliedOnceTheRequestIsGone(): void
     {
-        $stack = new RequestStack();
-        $stack->push(Request::create('/a'));
-        $label = new BreadcrumbCurrentLabel($stack);
+        $label = $this->label();
         $label->setCurrentLabel('Page A');
 
-        $stack->pop();
-        self::assertNull($label->resolve());
-    }
-
-    public function testLabelSetOutsideHttpIsNotAppliedInsideARequest(): void
-    {
-        $stack = new RequestStack();
-        $label = new BreadcrumbCurrentLabel($stack);
-        $label->setCurrentLabel('From a command');
-
-        $stack->push(Request::create('/a'));
-        self::assertNull($label->resolve());
-    }
-
-    public function testSubRequestsShareTheLabelOfTheirMainRequest(): void
-    {
-        $stack = new RequestStack();
-        $stack->push(Request::create('/a'));
-        $label = new BreadcrumbCurrentLabel($stack);
-        $label->setCurrentLabel('Page A');
-
-        $stack->push(Request::create('/_fragment'));
-        self::assertSame('Page A', $label->resolve());
+        $this->stack->pop();
+        self::assertNull($this->resolve($label));
     }
 
     public function testMainRequestBoundariesClearAndSubRequestsDoNot(): void
     {
         $kernel = $this->createMock(HttpKernelInterface::class);
-        $label = new BreadcrumbCurrentLabel();
+        $label = $this->label();
 
         $label->setCurrentLabel('Title');
         $label->onKernelBoundary(new RequestEvent($kernel, Request::create('/f'), HttpKernelInterface::SUB_REQUEST));
-        self::assertSame('Title', $label->resolve());
+        self::assertSame('Title', $this->resolve($label));
 
         $label->onKernelBoundary(new RequestEvent($kernel, Request::create('/'), HttpKernelInterface::MAIN_REQUEST));
-        self::assertNull($label->resolve());
+        self::assertNull($this->resolve($label));
     }
 
     public function testConsoleAndMessengerBoundariesClearThroughTheDispatcher(): void
     {
-        $label = new BreadcrumbCurrentLabel();
+        $label = $this->label();
         $dispatcher = new EventDispatcher();
         $dispatcher->addSubscriber($label);
 
@@ -242,7 +273,7 @@ final class BreadcrumbCurrentLabelTest extends TestCase
         ] as $eventName) {
             $label->setCurrentLabel('Title');
             $dispatcher->dispatch(new stdClass(), $eventName);
-            self::assertNull($label->resolve(), $eventName);
+            self::assertNull($this->resolve($label), $eventName);
         }
     }
 
@@ -255,5 +286,27 @@ final class BreadcrumbCurrentLabelTest extends TestCase
         }
         self::assertArrayHasKey(ConsoleEvents::COMMAND, $events);
         self::assertArrayHasKey(ConsoleEvents::TERMINATE, $events);
+    }
+
+    private function label(?TranslatorInterface $translator = null): BreadcrumbCurrentLabel
+    {
+        return new BreadcrumbCurrentLabel($this->stack, $translator);
+    }
+
+    private function resolve(BreadcrumbCurrentLabel $label, ?string $locale = null): ?string
+    {
+        return $label->currentLabelFor($this->page, 'default', '', $locale);
+    }
+
+    /**
+     * @param array<string, mixed> $params
+     */
+    private static function routed(string $route, array $params): Request
+    {
+        $request = Request::create('/x');
+        $request->attributes->set('_route', $route);
+        $request->attributes->set('_route_params', $params);
+
+        return $request;
     }
 }

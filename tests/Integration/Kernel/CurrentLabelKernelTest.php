@@ -48,6 +48,7 @@ final class CurrentLabelKernelTest extends TestCase
                 ['routeName' => 'wiki_php', 'label' => 'Page', 'linkEnabled' => false],
                 ['routeName' => 'wiki_twig', 'label' => 'Page', 'linkEnabled' => false],
                 ['routeName' => 'wiki_fail', 'label' => 'Page', 'linkEnabled' => false],
+                ['routeName' => 'wiki_frag', 'label' => 'Page', 'linkEnabled' => false],
             ]],
         ]]);
         self::assertSame([], $result['errors']);
@@ -89,6 +90,22 @@ final class CurrentLabelKernelTest extends TestCase
         self::assertStringContainsString('Page', $html);
     }
 
+    public function testSubRequestFragmentKeepsItsOwnLabel(): void
+    {
+        $kernel = $this->kernel;
+        self::assertNotNull($kernel);
+        $request = Request::create('/wiki/frag/delta');
+        $response = $kernel->handle($request);
+        $kernel->terminate($request, $response);
+        $html = (string) $response->getContent();
+        self::assertSame(200, $response->getStatusCode(), $html);
+
+        [$main, $fragment] = explode('<div id="fragment">', $html, 2);
+        self::assertSame(['Home', 'Main delta'], $this->parse($main));
+        self::assertSame(['Home', 'Page'], $this->parse($fragment));
+        self::assertTrue($this->isClear());
+    }
+
     public function testTwigLabelIsEscaped(): void
     {
         $kernel = $this->kernel;
@@ -107,11 +124,12 @@ final class CurrentLabelKernelTest extends TestCase
         $label = $this->service(BreadcrumbCurrentLabelInterface::class);
         self::assertInstanceOf(BreadcrumbCurrentLabel::class, $label);
 
-        $label->setCurrentLabel('Left over');
+        // A label left over by an earlier request on this worker (no request is running now, so seed it directly).
+        self::seed($label);
         $application = new Application($kernel);
         $application->setAutoExit(false);
         $command = new class($label) extends Command {
-            public ?string $seen = null;
+            public ?bool $clearedAtStart = null;
 
             public function __construct(private readonly BreadcrumbCurrentLabel $label)
             {
@@ -120,8 +138,8 @@ final class CurrentLabelKernelTest extends TestCase
 
             protected function execute(InputInterface $input, OutputInterface $output): int
             {
-                $this->seen = $this->label->resolve() ?? 'cleared';
-                $this->label->setCurrentLabel('From the command');
+                $this->clearedAtStart = null === (new ReflectionProperty(BreadcrumbCurrentLabel::class, 'pending'))->getValue($this->label);
+                CurrentLabelKernelTest::seed($this->label);
 
                 return Command::SUCCESS;
             }
@@ -129,7 +147,7 @@ final class CurrentLabelKernelTest extends TestCase
         $application->addCommand($command);
 
         self::assertSame(0, $application->run(new ArrayInput(['command' => 'app:current-label']), new BufferedOutput()));
-        self::assertSame('cleared', $command->seen, 'command start cleared it');
+        self::assertTrue($command->clearedAtStart, 'command start cleared it');
         self::assertTrue($this->isClear(), 'command end cleared it');
     }
 
@@ -145,9 +163,30 @@ final class CurrentLabelKernelTest extends TestCase
         $kernel->terminate($request, $response);
         self::assertSame($status, $response->getStatusCode(), (string) $response->getContent());
 
-        preg_match_all('#<li class="breadcrumb-item[^"]*">\s*(?:<span[^>]*>)?\s*(.*?)\s*(?:</span>|</a>|</li>)#s', (string) $response->getContent(), $m);
+        return $this->parse((string) $response->getContent());
+    }
+
+    /**
+     * @return list<string>
+     */
+    private function parse(string $html): array
+    {
+        preg_match_all('#<li class="breadcrumb-item[^"]*">\s*(?:<span[^>]*>)?\s*(.*?)\s*(?:</span>|</a>|</li>)#s', $html, $m);
 
         return array_map(static fn (string $s): string => trim(html_entity_decode(strip_tags($s))), $m[1]);
+    }
+
+    public static function seed(BreadcrumbCurrentLabel $label): void
+    {
+        (new ReflectionProperty(BreadcrumbCurrentLabel::class, 'pending'))->setValue($label, [
+            'label' => 'Left over',
+            'domain' => null,
+            'parameters' => [],
+            'route' => 'wiki_php',
+            'routeParams' => [],
+            'collection' => null,
+            'contextKey' => null,
+        ]);
     }
 
     private function isClear(): bool

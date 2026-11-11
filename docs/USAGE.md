@@ -104,13 +104,24 @@ $this->breadcrumbLabel->setCurrentLabel(new TranslatableMessage('wiki.crumb.page
 
 **Rules.**
 
-- Plain one-line text: line breaks and control characters become spaces, whitespace collapses, invalid UTF-8 is
-  dropped and the label is cut at 255 characters. HTML is **not** stripped: the bundle templates escape it, so
-  `<b>` shows as text. A custom template that prints `node.label|raw` loses that protection.
+- Plain one-line text: format characters (bidi controls such as U+202E, zero-width characters) are removed, line
+  breaks and control characters become spaces, whitespace collapses and the label is cut at 255 characters. A label
+  that is not valid UTF-8 is ignored as a whole: the item's own label stays. HTML is **not** stripped: the bundle
+  templates escape it, so `<b>` shows as text. A custom template that prints `node.label|raw` loses that protection.
 - `null` or a blank string (or `clearCurrentLabel()`) restores the item's own label.
-- Only the label of the last crumb of a matched trail changes; its link, icon and route parameters stay. Nothing is
-  shown when no item matches the route. `BreadcrumbTrailBuiltEvent` subscribers run afterwards and see the new label.
-- Sub-requests (`render(controller())`, ESI) share the label of their main request.
+- **Scope.** The label belongs to the route of the request being handled when you set it, with the same scalar route
+  parameters. It names the current crumb only in a trail built for that route, and only when the matched item names
+  that route itself: a generic item (`*` with a path pattern or attributes) is a section and keeps its label. Trails
+  of fragments and sub-requests for another route or other parameters (`render(path(...))`, ESI), and calls made
+  outside a routed request (commands, messages), are not affected. Its link, icon and route parameters stay.
+  `BreadcrumbTrailBuiltEvent` subscribers run afterwards and see the new label.
+- **Several trails on one page.** By default every trail built for the route gets the label (for example a header and
+  a footer trail). Restrict it with the collection code and / or context key:
+  `{% do breadcrumb_current_label(page.title, collection = 'default') %}` or
+  `setCurrentLabel($title, collection: 'default', contextKey: 'wiki')`.
+- **Ports.** `BreadcrumbCurrentLabelInterface` is the write port (pages); `BreadcrumbCurrentLabelProviderInterface` is
+  the read port the loader asks. The bundle's `BreadcrumbCurrentLabel` implements both; to replace it, alias both
+  interfaces to your service.
 - **Worker mode (FrankenPHP, kernel reset false):** the label belongs to one main request. It is cleared when a main
   request starts, fails or terminates, when a console command starts or ends and when a Messenger worker receives or
   finishes a message; it is also ignored once the main request it was set for is no longer the current one. None of

@@ -80,6 +80,19 @@ final class CurrentLabelTestKernel extends Kernel
         return new Response($this->twig()->render('page.html.twig', ['page' => ['title' => 'Twig '.$slug]]));
     }
 
+    /**
+     * Names its own crumb, then embeds another page as a sub-request (`render()` fragment): that fragment's trail must
+     * keep its own label.
+     */
+    public function fragmentPage(string $slug): Response
+    {
+        $this->currentLabel()->setCurrentLabel('Main '.$slug);
+
+        return new Response($this->twig()->createTemplate(
+            "<div id=\"main\">{{ breadcrumb_render() }}</div><div id=\"fragment\">{{ render(path('wiki_php', {slug: 'none'})) }}</div>",
+        )->render());
+    }
+
     /** Sets a label, then fails: the error must not leak it into the next request. */
     public function failingPage(): Response
     {
@@ -115,6 +128,7 @@ final class CurrentLabelTestKernel extends Kernel
         $routes->add('home', '/')->controller('kernel::phpPage')->defaults(['slug' => 'none']);
         $routes->add('wiki_php', '/wiki/php/{slug}')->controller('kernel::phpPage');
         $routes->add('wiki_twig', '/wiki/twig/{slug}')->controller('kernel::twigPage');
+        $routes->add('wiki_frag', '/wiki/frag/{slug}')->controller('kernel::fragmentPage');
         $routes->add('wiki_fail', '/wiki/fail')->controller('kernel::failingPage');
     }
 

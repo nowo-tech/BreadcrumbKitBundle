@@ -51,7 +51,7 @@ final readonly class BreadcrumbLoader implements BreadcrumbLoaderInterface
         private ?BreadcrumbLinkAccessCheckerInterface $linkAccessChecker = null,
         private array $paramMapAttributes = [],
         private LoggerInterface $logger = new NullLogger(),
-        private ?BreadcrumbCurrentLabel $currentLabel = null,
+        private ?BreadcrumbCurrentLabelProviderInterface $currentLabel = null,
     ) {
     }
 
@@ -150,7 +150,7 @@ final readonly class BreadcrumbLoader implements BreadcrumbLoaderInterface
             );
         }
 
-        $nodes = $this->withCurrentLabel($nodes, $locale);
+        $nodes = $this->withCurrentLabel($nodes, $request, $collectionCode, $contextKey, $locale, $routeName === ($best['route_name'] ?? null));
         $nodes = $this->finalizeNodes($nodes, $collection);
 
         $responsive = $collection->getResponsiveConfig();
@@ -180,15 +180,20 @@ final readonly class BreadcrumbLoader implements BreadcrumbLoaderInterface
 
     /**
      * 2.17: the label the page set for this request ({@see BreadcrumbCurrentLabelInterface}) replaces the label of the
-     * current (last) crumb; without one the trail is unchanged.
+     * current (last) crumb; without one the trail is unchanged. Only when the matched item names the request route
+     * itself: a generic (`*` + path / attributes) item is a section, not the page (audit MF-M1).
      *
      * @param list<BreadcrumbNode> $nodes
      *
      * @return list<BreadcrumbNode>
      */
-    private function withCurrentLabel(array $nodes, string $locale): array
+    private function withCurrentLabel(array $nodes, Request $request, string $collectionCode, string $contextKey, string $locale, bool $matchedByRoute): array
     {
-        $label = $this->currentLabel?->resolve($locale);
+        if (!$matchedByRoute) {
+            return $nodes;
+        }
+
+        $label = $this->currentLabel?->currentLabelFor($request, $collectionCode, $contextKey, $locale);
         $last = array_key_last($nodes);
         // The walked chain always ends with the matched (current) item.
         if (null === $label || null === $last) {

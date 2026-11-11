@@ -79,6 +79,16 @@ final class BreadcrumbCurrentLabelTwigTest extends TestCase
         self::assertStringContainsString('<nav>Home &gt; Page</nav>', $twig->render('page.html.twig'));
     }
 
+    public function testCollectionNamedArgumentRestrictsTheLabel(): void
+    {
+        $layout = '<nav>{{ breadcrumb_render(null, "trail.html.twig") }}</nav>';
+        $other = $this->twig($layout, "{% do breadcrumb_current_label(title, collection = 'sidebar') %}{% include 'layout.html.twig' %}", new BreadcrumbCurrentLabel($this->stack()));
+        self::assertStringContainsString('<nav>Home &gt; Page</nav>', $other->render('page.html.twig', ['title' => 'T']));
+
+        $same = $this->twig($layout, "{% do breadcrumb_current_label(title, collection = 'default', contextKey = '') %}{% include 'layout.html.twig' %}", new BreadcrumbCurrentLabel($this->stack()));
+        self::assertStringContainsString('<nav>Home &gt; T</nav>', $same->render('page.html.twig', ['title' => 'T']));
+    }
+
     public function testFunctionOutputsNothingAndIsANoOpWithoutTheService(): void
     {
         $extension = new BreadcrumbExtension($this->loader(null), $this->inlineResolver(), 'default');

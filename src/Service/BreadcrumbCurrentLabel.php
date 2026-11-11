@@ -20,20 +20,33 @@ use WeakReference;
 /**
  * Request-scoped label of the current crumb (2.17), read by {@see BreadcrumbLoader} when it builds a trail.
  *
+ * Scope (audit MF-M1): the label belongs to the route of the request being handled when it was set (and its scalar
+ * route parameters), optionally to one collection / context key; trails built for anything else keep their labels.
+ *
  * Worker safety (FrankenPHP, kernel reset false): the label is dropped when a main request starts, ends or fails, when a
  * console command starts or ends and when a Messenger worker receives or finishes a message; on top of that it only
  * applies while the main request it was set for is still the current one. `reset()` clears it too, but nothing relies on
  * kernel.reset.
  */
-final class BreadcrumbCurrentLabel implements BreadcrumbCurrentLabelInterface, EventSubscriberInterface, ResetInterface
+final class BreadcrumbCurrentLabel implements BreadcrumbCurrentLabelInterface, BreadcrumbCurrentLabelProviderInterface, EventSubscriberInterface, ResetInterface
 {
     /** Longest label kept (characters); longer labels are cut, the trail is navigation, not content. */
     public const MAX_LENGTH = 255;
 
-    /** @var array{label: string|TranslatableInterface, domain: ?string, parameters: array<string, mixed>}|null */
+    /**
+     * @var array{
+     *     label: string|TranslatableInterface,
+     *     domain: ?string,
+     *     parameters: array<string, mixed>,
+     *     route: string,
+     *     routeParams: array<string, scalar|null>,
+     *     collection: ?string,
+     *     contextKey: ?string,
+     * }|null
+     */
     private ?array $pending = null;
 
-    /** @var WeakReference<Request>|null main request the label was set for; null: set outside HTTP */
+    /** @var WeakReference<Request>|null main request the label was set for */
     private ?WeakReference $owner = null;
 
     public function __construct(
@@ -58,26 +71,40 @@ final class BreadcrumbCurrentLabel implements BreadcrumbCurrentLabelInterface, E
         ];
     }
 
-    public function setCurrentLabel(string|Stringable|TranslatableInterface|null $label, ?string $translationDomain = null, array $translationParameters = []): void
-    {
+    /**
+     * Outside a routed request (command, message, fragment without a route) there is no trail to name: no-op.
+     */
+    public function setCurrentLabel(
+        string|Stringable|TranslatableInterface|null $label,
+        ?string $translationDomain = null,
+        array $translationParameters = [],
+        ?string $collection = null,
+        ?string $contextKey = null,
+    ): void {
         if (!$label instanceof TranslatableInterface) {
             $label = self::normalize(null === $label ? '' : (string) $label);
         }
-        if ('' === $label) {
+        $request = $this->requestStack?->getCurrentRequest();
+        $main = $this->requestStack?->getMainRequest();
+        $route = $request instanceof Request ? self::routeOf($request) : null;
+        if ('' === $label || null === $route || !$main instanceof Request) {
             $this->clearCurrentLabel();
 
             return;
         }
 
-        $main = $this->requestStack?->getMainRequest();
         // @igor-ignore - Request-scoped; cleared at every request / command / message boundary and owner-checked.
         $this->pending = [
             'label' => $label,
             'domain' => null === $translationDomain || '' === $translationDomain ? null : $translationDomain,
             'parameters' => $translationParameters,
+            'route' => $route,
+            'routeParams' => self::routeParamsOf($request),
+            'collection' => $collection,
+            'contextKey' => $contextKey,
         ];
         // @igor-ignore - Request-scoped; cleared at every request / command / message boundary.
-        $this->owner = $main instanceof Request ? WeakReference::create($main) : null;
+        $this->owner = WeakReference::create($main);
     }
 
     public function clearCurrentLabel(): void
@@ -86,7 +113,7 @@ final class BreadcrumbCurrentLabel implements BreadcrumbCurrentLabelInterface, E
     }
 
     /**
-     * Sub-requests (fragments, ESI) keep the label of their main request; only main-request boundaries clear it.
+     * Sub-requests (fragments, ESI) never clear the label of their main request; only main-request boundaries do.
      */
     public function onKernelBoundary(KernelEvent $event): void
     {
@@ -101,30 +128,37 @@ final class BreadcrumbCurrentLabel implements BreadcrumbCurrentLabelInterface, E
         $this->owner = null;
     }
 
-    /**
-     * Label for the trail being built now, translated when asked to; null: keep the item's label.
-     */
-    public function resolve(?string $locale = null): ?string
+    public function currentLabelFor(Request $request, string $collectionCode, string $contextKey, ?string $locale = null): ?string
     {
-        if (null === $this->pending) {
+        $pending = $this->pending;
+        if (null === $pending) {
             return null;
         }
 
-        if (!$this->belongsToCurrentRequest()) {
+        $main = $this->requestStack?->getMainRequest();
+        if (!$main instanceof Request || $this->owner?->get() !== $main) {
+            // Stale: a later request on the same worker, or no request any more.
             $this->clearCurrentLabel();
 
             return null;
         }
 
-        $label = $this->pending['label'];
+        if ($pending['route'] !== self::routeOf($request)
+            || $pending['routeParams'] !== self::routeParamsOf($request)
+            || (null !== $pending['collection'] && $pending['collection'] !== $collectionCode)
+            || (null !== $pending['contextKey'] && $pending['contextKey'] !== $contextKey)) {
+            return null;
+        }
+
+        $label = $pending['label'];
         // Without a translator: message keys stay as they are, parameters are still substituted.
         $translator = $this->translator ?? new class implements TranslatorInterface {
             use TranslatorTrait;
         };
         if ($label instanceof TranslatableInterface) {
             $text = $label->trans($translator, $locale);
-        } elseif (null !== $this->pending['domain']) {
-            $text = $translator->trans($label, $this->pending['parameters'], $this->pending['domain'], $locale);
+        } elseif (null !== $pending['domain']) {
+            $text = $translator->trans($label, $pending['parameters'], $pending['domain'], $locale);
         } else {
             $text = $label;
         }
@@ -135,12 +169,13 @@ final class BreadcrumbCurrentLabel implements BreadcrumbCurrentLabelInterface, E
     }
 
     /**
-     * Plain one-line text: control characters (newlines included) become spaces, runs of whitespace collapse, ends are
-     * trimmed, invalid UTF-8 is dropped and the length is capped. HTML is not stripped: it is escaped on output.
+     * Plain one-line text: format characters (bidi controls, zero-width characters) are removed, control characters
+     * (newlines included) become spaces, runs of whitespace collapse, ends are trimmed and the length is capped. A label
+     * that is not valid UTF-8 is ignored as a whole (empty result). HTML is not stripped: it is escaped on output.
      */
     public static function normalize(string $label): string
     {
-        $clean = preg_replace('/[\p{Cc}\p{Zl}\p{Zp}\s]+/u', ' ', $label);
+        $clean = preg_replace(['/\p{Cf}+/u', '/[\p{Cc}\p{Zl}\p{Zp}\s]+/u'], ['', ' '], $label);
         if (null === $clean) {
             return '';
         }
@@ -150,16 +185,27 @@ final class BreadcrumbCurrentLabel implements BreadcrumbCurrentLabelInterface, E
         return mb_substr($clean, 0, self::MAX_LENGTH);
     }
 
-    private function belongsToCurrentRequest(): bool
+    private static function routeOf(Request $request): ?string
     {
-        $main = $this->requestStack?->getMainRequest();
-        $owner = $this->owner?->get();
+        $route = $request->attributes->get('_route');
 
-        if (null === $this->owner) {
-            // Set outside HTTP (command, message, unit code): valid while no request is running.
-            return !$main instanceof Request;
+        return \is_string($route) && '' !== $route ? $route : null;
+    }
+
+    /**
+     * @return array<string, scalar|null>
+     */
+    private static function routeParamsOf(Request $request): array
+    {
+        $params = $request->attributes->get('_route_params');
+        $scalars = [];
+        foreach (\is_array($params) ? $params : [] as $name => $value) {
+            if (\is_string($name) && (null === $value || \is_scalar($value))) {
+                $scalars[$name] = $value;
+            }
         }
+        ksort($scalars);
 
-        return $main instanceof Request && $owner === $main;
+        return $scalars;
     }
 }

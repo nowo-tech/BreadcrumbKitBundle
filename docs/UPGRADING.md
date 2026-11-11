@@ -81,6 +81,9 @@ composer update nowo-tech/breadcrumb-kit-bundle
   [USAGE](USAGE.md#current-crumb-label-page-title), including the render-order rule.
 - Hosts that replaced the last crumb's label in a `BreadcrumbTrailBuiltEvent` subscriber can switch to the new call;
   subscribers keep working and run after the label is applied.
+- The label only applies to trails built for the route of the request that set it (fragments of other pages and
+  generic `*` items keep their labels); pass `collection` / `contextKey` when a page renders several trails.
+- `symfony/translation-contracts` `^3.0` is now required directly (no change for Symfony hosts).
 - A host that defines its own Twig function named `breadcrumb_current_label` must rename it.
 - Code that builds `BreadcrumbLoader` or `BreadcrumbExtension` by hand: both gained an optional last constructor
   argument (`$currentLabel`, default `null` = feature off).

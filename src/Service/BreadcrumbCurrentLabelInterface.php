@@ -8,11 +8,12 @@ use Stringable;
 use Symfony\Contracts\Translation\TranslatableInterface;
 
 /**
- * Port for the page being rendered to name the current (last) crumb of the trail (2.17).
+ * Write port for the page being rendered to name the current (last) crumb of its trail (2.17).
  *
- * The label replaces the static label of the matched item for the current main request only; nothing is stored.
- * A controller, an application service (type-hint this interface) or the template (`breadcrumb_current_label()`)
- * sets it before the trail is built. Plain text: the bundle templates escape it.
+ * The label is scoped to the request being handled when it is set: it replaces the label of the matched item only in a
+ * trail built for that route (same scalar route parameters) during that main request; fragments, other routes and
+ * generic (`*`) items keep theirs. Nothing is stored. Plain text: the bundle templates escape it. The read side is
+ * {@see BreadcrumbCurrentLabelProviderInterface}.
  */
 interface BreadcrumbCurrentLabelInterface
 {
@@ -21,11 +22,19 @@ interface BreadcrumbCurrentLabelInterface
      * @param string|null                                  $translationDomain     when set, the string label is a message key
      *                                                                            translated in that domain (request locale)
      * @param array<string, mixed>                         $translationParameters parameters of that message
+     * @param string|null                                  $collection            only trails of this collection code (null: any)
+     * @param string|null                                  $contextKey            only trails of this context key (null: any)
      */
-    public function setCurrentLabel(string|Stringable|TranslatableInterface|null $label, ?string $translationDomain = null, array $translationParameters = []): void;
+    public function setCurrentLabel(
+        string|Stringable|TranslatableInterface|null $label,
+        ?string $translationDomain = null,
+        array $translationParameters = [],
+        ?string $collection = null,
+        ?string $contextKey = null,
+    ): void;
 
     /**
-     * Forgets the label of the current request: the matched item's label is shown again.
+     * Forgets the label: the matched item's label is shown again.
      */
     public function clearCurrentLabel(): void;
 }

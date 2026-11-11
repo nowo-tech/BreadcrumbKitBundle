@@ -72,12 +72,18 @@ Target version: **2.17.0** (minor, no configuration or schema change). See [UPGR
   `{% do breadcrumb_current_label(page.title) %}` (at the top of a child template it runs before the layout renders
   the trail, in either block order) and PHP `Service\BreadcrumbCurrentLabelInterface::setCurrentLabel()` for
   controllers and view-model builders (standard and DDD hosts). Only the last crumb of a matched trail changes, before
-  `BreadcrumbTrailBuiltEvent`. Escaped by the bundle templates; normalised to one line of at most 255 characters.
-  Optional translation: a domain (and parameters) or a `TranslatableInterface`. See
+  `BreadcrumbTrailBuiltEvent`. Escaped by the bundle templates; normalised to one line of at most 255 characters, with
+  bidi and zero-width characters removed; a label that is not valid UTF-8 is ignored. Optional translation: a domain (and parameters) or a `TranslatableInterface`. See
   [USAGE](USAGE.md#current-crumb-label-page-title).
 - The label is request-scoped and worker-safe without `kernel.reset`: cleared at main request start / exception /
   terminate, console command start / end and Messenger message received / handled / failed, and ignored once its main
   request is no longer current. Kernel test with one booted kernel serving many requests and a console command.
+- The label is scoped to its trail (audit MF-M1): only trails built for the route (and scalar route parameters) of the
+  request that set it, and only when the matched item names that route (generic `*` items keep their labels);
+  optional `collection` / `contextKey` restriction. Fragments of other pages keep their labels.
+- `Service\BreadcrumbCurrentLabelProviderInterface`: read port the loader is typed on (the write port stays
+  `BreadcrumbCurrentLabelInterface`).
+- `symfony/translation-contracts` (`^3.0`) is now a direct requirement (already installed through Symfony).
 
 ## [2.16.0] - 2026-11-11
 
