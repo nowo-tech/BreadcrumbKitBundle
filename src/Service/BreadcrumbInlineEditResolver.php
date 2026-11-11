@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Nowo\BreadcrumbKitBundle\Service;
 
+use Nowo\BreadcrumbKitBundle\Contract\BreadcrumbEditAccessCheckerInterface;
 use Nowo\BreadcrumbKitBundle\Contract\BreadcrumbInlineEditAccessCheckerInterface;
 use Nowo\BreadcrumbKitBundle\Dto\BreadcrumbInlineEditContext;
 use Nowo\BreadcrumbKitBundle\Entity\BreadcrumbCollection;
@@ -67,12 +68,7 @@ final readonly class BreadcrumbInlineEditResolver
         }
 
         $checker = $this->inlineEditAccessCheckerLocator->get($accessKey);
-        if (!$checker instanceof BreadcrumbInlineEditAccessCheckerInterface) {
-            return new BreadcrumbInlineEditContext();
-        }
-
-        $user = $this->resolveUser();
-        if (!$checker->canUseInlineBreadcrumbEditor($request, $user)) {
+        if (!$this->isAllowed($checker, $request, $collectionCode, $contextKey)) {
             return new BreadcrumbInlineEditContext();
         }
 
@@ -99,6 +95,27 @@ final readonly class BreadcrumbInlineEditResolver
             iframeUrl: $iframeUrl,
             modalTitle: $title,
         );
+    }
+
+    /**
+     * Deny by default: an unknown service type or any answer but `true` hides the editor. The framework-free port
+     * (2.18) wins when a service implements both; both receive the same user (null / anonymous in the same cases).
+     */
+    private function isAllowed(mixed $checker, Request $request, string $collectionCode, string $contextKey): bool
+    {
+        if ($checker instanceof BreadcrumbEditAccessCheckerInterface) {
+            $context = BreadcrumbRequestContextFactory::edit($request, $this->resolveUser(), $collectionCode, $contextKey);
+
+            return true === $checker->canEditInline($context);
+        }
+
+        if ($checker instanceof BreadcrumbInlineEditAccessCheckerInterface) {
+            trigger_deprecation('nowo-tech/breadcrumb-kit-bundle', '2.18', 'Implementing "%s" (class "%s") is deprecated, implement "%s" instead; the legacy interface is removed in 3.0.', BreadcrumbInlineEditAccessCheckerInterface::class, $checker::class, BreadcrumbEditAccessCheckerInterface::class);
+
+            return true === $checker->canUseInlineBreadcrumbEditor($request, $this->resolveUser());
+        }
+
+        return false;
     }
 
     private function buildDashboardUrl(int $collectionId, ?BreadcrumbItem $item): string

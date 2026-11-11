@@ -8,6 +8,7 @@
 - [Collapse on narrow screens](#collapse-on-narrow-screens)
 - [Console commands](#console-commands)
 - [Trail enrichers (events)](#trail-enrichers-events)
+- [Standard Symfony host](#standard-symfony-host)
 - [Using it from a DDD / hexagonal application](#using-it-from-a-ddd--hexagonal-application)
 - [Overriding templates and translations](#overriding-templates-and-translations)
   - [Twig templates (REQ-TWIG-001)](#twig-templates-req-twig-001)
@@ -270,6 +271,42 @@ final class EnrichBreadcrumbsSubscriber implements EventSubscriberInterface
 }
 ```
 
+## Standard Symfony host
+
+The zero-config default. Nothing below is required for a standard Symfony application:
+
+- The two entities are attribute-mapped and live on the entity manager that maps them (usually your default one);
+  `nowo_breadcrumb_kit.doctrine.entity_manager` stays null. Generate their migrations with
+  `nowo_breadcrumb_kit:generate-migration` or your usual `doctrine:migrations:diff`.
+- Render trails with `breadcrumb_render()` / `breadcrumb_trail()` and override templates under
+  `templates/bundles/NowoBreadcrumbKitBundle/`.
+- Ports you may implement as plain services: `BreadcrumbLinkAccessCheckerInterface` (which crumbs link),
+  `BreadcrumbKitAccessCheckerInterface` (dashboard access, or just `security.access_roles`) and
+  `BreadcrumbEditAccessCheckerInterface` (inline editor). They are wired by service id in the bundle config.
+- Inline editor policy (2.18): implement `Contract\BreadcrumbEditAccessCheckerInterface` and list the service under
+  `inline_edit.access_services`. The bundle builds a `Dto\BreadcrumbEditContext` from the current request and the
+  firewall user:
+
+```php
+use Nowo\BreadcrumbKitBundle\Contract\BreadcrumbEditAccessCheckerInterface;
+use Nowo\BreadcrumbKitBundle\Dto\BreadcrumbEditContext;
+
+final class EditorsOnly implements BreadcrumbEditAccessCheckerInterface
+{
+    public function canEditInline(BreadcrumbEditContext $context): bool
+    {
+        return $context->hasRole('ROLE_EDITOR'); // anonymous: userIdentifier null, roles []
+    }
+}
+```
+
+  The context carries `routeName`, `routeParameters` (scalars), `locale`, `path`, `collectionCode`, `contextKey`,
+  `userIdentifier` and `roles`. The user is the firewall's user of the current request; a request without a firewall
+  (or a host without SecurityBundle) is anonymous. Anything but `true` hides the editor. The legacy
+  `BreadcrumbInlineEditAccessCheckerInterface` (`Request` + `?UserInterface`) still works and is deprecated (removed in
+  3.0); a service implementing both is asked through the new port only. See [UPGRADING](UPGRADING.md#to-2180).
+- Trail enrichers subscribe to `BreadcrumbTrailBuiltEvent` (see [Trail enrichers](#trail-enrichers-events)).
+
 ## Using it from a DDD / hexagonal application
 
 **Layer:** a self-contained bounded context (navigation catalogue) with its own presentation. Breadcrumb Kit owns
@@ -298,7 +335,7 @@ final class ProjectCrumbLabels implements EventSubscriberInterface
 
     public function onTrail(BreadcrumbTrailBuiltEvent $event): void
     {
-        $projectId = $event->request?->attributes->get('_route_params')['projectId'] ?? null;
+        $projectId = $event->getRouteContext()?->routeParameters['projectId'] ?? null;
         if (!\is_string($projectId)) {
             return;
         }
@@ -321,8 +358,14 @@ final class ProjectCrumbLabels implements EventSubscriberInterface
   `BreadcrumbCurrentLabelInterface::setCurrentLabel($view->title)` with a value it already has; application and domain
   services never need it. The interface takes plain strings, so the call needs no bundle type beyond the port. See
   [Current crumb label](#current-crumb-label-page-title).
-- `BreadcrumbTrailBuiltEvent::$routeName` / `$routeParameters` (2.16) give the matched route as scalars, without the
-  HTTP request.
+- `BreadcrumbTrailBuiltEvent::getRouteContext()` (2.18) gives the matched route, its scalar parameters, the locale and
+  the path as a `Dto\BreadcrumbRouteContext` VO (null without a request), as do `$routeName` / `$routeParameters`
+  (2.16). The event's `$request` property is deprecated and leaves the event in 3.0.
+- **Inline editor policy (2.18):** implement `BreadcrumbEditAccessCheckerInterface::canEditInline(BreadcrumbEditContext)`
+  in your application layer; the context holds only scalars (route, parameters, locale, path, collection, user
+  identifier, roles), so your policy needs no Symfony type. Users are referenced by identifier; nothing of the bundle
+  touches your user entity. Covered by `tests/Integration/Kernel/DddHostInlineEditKernelTest.php` (dedicated manager,
+  host entities on the host manager, policy on the new port only).
 - **Dedicated entity manager (2.16):** `nowo_breadcrumb_kit.doctrine.entity_manager: breadcrumb` maps the two entities
   on that manager only (also when your default manager has `auto_mapping: true`) and makes the dashboard, the importer
   and the migration command write there. The bundle then never flushes, clears or resets your managers; a closed
@@ -335,14 +378,13 @@ final class ProjectCrumbLabels implements EventSubscriberInterface
   message; call `BreadcrumbCacheInvalidator::dispatchPending()` right after your commit to get it at once. Breadcrumb writes are the dashboard's and the importer's own (no host command handler writes
   them), so there is no separate "host controls the transaction" mode.
 - Authorisation lives in your ports: `BreadcrumbLinkAccessCheckerInterface` decides whether each crumb links,
-  `BreadcrumbKitAccessCheckerInterface` guards the dashboard and `BreadcrumbInlineEditAccessCheckerInterface`
-  guards the inline editor.
+  `BreadcrumbKitAccessCheckerInterface` guards the dashboard and `BreadcrumbEditAccessCheckerInterface` guards the
+  inline editor.
 
 **Known limitations**
 
-- Definitions are read only from the bundle's Doctrine tables, which share an entity manager with your
-  application. There is no pluggable definition source.
-- No event is dispatched when collections or items change.
+- Definitions are read only from the bundle's Doctrine tables (on your manager, or on a dedicated one with
+  `doctrine.entity_manager`). There is no pluggable definition source.
 - FormKit and UiKit are installed as hard dependencies even if you only render trails.
 
 ## Overriding templates and translations

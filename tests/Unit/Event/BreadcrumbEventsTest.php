@@ -28,10 +28,17 @@ final class BreadcrumbEventsTest extends TestCase
         self::assertSame('project_show', $event->routeName);
         self::assertSame(['id' => '42', 'page' => 2, 'flag' => null], $event->routeParameters);
         self::assertSame($request, $event->request);
+        $route = $event->getRouteContext();
+        self::assertNotNull($route);
+        self::assertSame('project_show', $route->routeName);
+        self::assertSame(['id' => '42', 'page' => 2, 'flag' => null], $route->routeParameters);
+        self::assertSame($request->getLocale(), $route->locale);
+        self::assertSame('/', $route->path);
 
         $withoutRequest = new BreadcrumbTrailBuiltEvent(new BreadcrumbTrailView([]), 'main', '', 'ok', null, null);
         self::assertNull($withoutRequest->routeName);
         self::assertSame([], $withoutRequest->routeParameters);
+        self::assertNull($withoutRequest->getRouteContext());
     }
 
     public function testResetterUsesAndResetsTheConfiguredManagerOnly(): void

@@ -128,6 +128,7 @@ renders in the demo host layout (`nowo_ui_kit.layouts.admin`). `make -C demo/sym
 
 - [PSR evaluation (REQ-CS-007)](docs/PSR.md)
 - [Templates](docs/TEMPLATES.md) — dashboard pages → UiKit scaffolds, data blocks, dialogs (REQ-UI-003)
+- Host kinds: [Standard Symfony host](docs/USAGE.md#standard-symfony-host) (zero-config default) and [DDD / hexagonal host](docs/USAGE.md#using-it-from-a-ddd--hexagonal-application) (opt-in: dedicated entity manager, framework-free ports) (USAGE)
 - [Customising the dashboard](docs/USAGE.md#customising-the-dashboard) and [theme slots of the trail](docs/USAGE.md#theme-slots-of-the-trail) (USAGE)
 - [DEMO-FRANKENPHP.md](docs/DEMO-FRANKENPHP.md) — FrankenPHP demo (`demo/symfony8`)
 - [FRANKENPHP-WORKER-AUDIT.md](docs/FRANKENPHP-WORKER-AUDIT.md) — worker mode without kernel reset
