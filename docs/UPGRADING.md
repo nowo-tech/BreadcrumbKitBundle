@@ -4,6 +4,7 @@
 
 - [Unreleased](#unreleased)
 - [To 2.18.0](#to-2180)
+- [To 2.18.0](#to-2180-1)
 - [To 2.17.0](#to-2170)
 - [To 2.16.0](#to-2160)
 - [To 2.15.0](#to-2150)
@@ -70,6 +71,14 @@
 - [General upgrade steps (any version)](#general-upgrade-steps-any-version)
 
 ## Unreleased
+
+## To 2.18.0
+
+From **2.17.0**:
+
+```bash
+composer update nowo-tech/breadcrumb-kit-bundle
+```
 
 ## To 2.18.0
 
