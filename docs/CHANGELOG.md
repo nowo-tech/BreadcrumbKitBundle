@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## Table of contents
 
 - [[Unreleased]](#unreleased)
+- [[2.17.0] - 2026-11-11](#2170---2026-11-11)
 - [[2.16.0] - 2026-11-11](#2160---2026-11-11)
 - [[2.15.0] - 2026-11-07](#2150---2026-11-07)
 - [[2.14.1] - 2026-11-07](#2141---2026-11-07)
@@ -64,6 +65,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.17.0] - 2026-11-11
+
 Target version: **2.17.0** (minor, no configuration or schema change). See [UPGRADING](UPGRADING.md#unreleased).
 
 ### Added
@@ -91,7 +94,6 @@ Target version: **2.17.0** (minor, no configuration or schema change). See [UPGR
 ## [2.16.0] - 2026-11-11
 
 Real `entity_manager` option, collection-changed event dispatched only after commit, and a loader interface. See [UPGRADING](https://github.com/nowo-tech/BreadcrumbKitBundle/blob/v2.16.0/docs/UPGRADING.md#to-2160).
-
 
 ### Added
 

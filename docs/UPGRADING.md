@@ -3,6 +3,7 @@
 ## Table of contents
 
 - [Unreleased](#unreleased)
+- [To 2.17.0](#to-2170)
 - [To 2.16.0](#to-2160)
 - [To 2.15.0](#to-2150)
 - [To 2.14.1](#to-2141)
@@ -68,6 +69,14 @@
 - [General upgrade steps (any version)](#general-upgrade-steps-any-version)
 
 ## Unreleased
+
+## To 2.17.0
+
+From **2.16.0**:
+
+```bash
+composer update nowo-tech/breadcrumb-kit-bundle
+```
 
 Target **2.17.0**. From **2.16.0**: no configuration, schema or template change; existing trails render exactly as
 before until a page sets a label.
