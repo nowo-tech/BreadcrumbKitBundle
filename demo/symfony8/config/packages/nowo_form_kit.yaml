@@ -1,7 +1,7 @@
 # Form Kit — profile `breadcrumb_kit` is prepended by BreadcrumbKitExtension.
 # Host can override here; keep NowoFormKitBundle registered in bundles.php.
 nowo_form_kit:
-    # css_framework defaults to bootstrap (seeded by BreadcrumbKitExtension when omitted).
+    # Profile classes are UiKit semantic classes (REQ-DEMO-014).
     default_profile: default
     profiles:
         default:
@@ -9,6 +9,6 @@ nowo_form_kit:
             translation_domain: messages
             defaults:
                 attr:
-                    class: form-control
+                    class: nowo-ui-input
                 row_attr:
-                    class: mb-3
+                    class: nowo-ui-form-row

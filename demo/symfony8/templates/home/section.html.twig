@@ -3,8 +3,11 @@
 
 {% block title %}{{ 'demo.section.title'|trans({'%section%': section|capitalize}) }}{% endblock %}
 
+{% block nowo_ui_page_header %}
+    {{ include(nowo_ui_partial('page_header'), {title: section|capitalize}) }}
+{% endblock %}
+
 {% block body %}
-    <h1>{{ section|capitalize }}</h1>
     <p>
         {{ 'demo.section.lead_html'|trans|raw }}
     </p>

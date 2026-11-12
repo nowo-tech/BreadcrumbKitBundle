@@ -1,4 +1,4 @@
-{# Demo override: bundle default + test classes (breadcrumb-app-override, --many) + inline edit modal + collapse on narrow screens (bundle partials). #}
+{# Demo override: bundle default + test classes (breadcrumb-app-override, --many) + inline edit modal (styled in public/demo-breadcrumb.css) + collapse on narrow screens (bundle partials). #}
 {% trans_default_domain 'NowoBreadcrumbKitBundle' %}
 {% set has_trail = trail.nodes is not empty %}
 {% set collapse = has_trail and trail.collapsible %}
@@ -27,30 +27,15 @@
   {% endif %}
   {% if breadcrumb_inline_edit.show %}
   <div class="breadcrumb-kit__inline-toolbar">
-    <button type="button" class="breadcrumb-kit__inline-open" data-bk-inline-open aria-haspopup="dialog">{{ 'breadcrumb.inline_edit.open'|trans }}</button>
+    <button type="button" class="breadcrumb-kit__inline-open nowo-ui-btn nowo-ui-btn--outline nowo-ui-btn--sm" data-bk-inline-open aria-haspopup="dialog">{{ 'breadcrumb.inline_edit.open'|trans }}</button>
     <dialog class="breadcrumb-kit__dialog" data-bk-inline-dialog aria-labelledby="breadcrumb-kit-inline-title">
       <div class="breadcrumb-kit__dialog-bar">
         <h2 id="breadcrumb-kit-inline-title" class="breadcrumb-kit__dialog-title">{{ breadcrumb_inline_edit.modal_title }}</h2>
-        <button type="button" class="breadcrumb-kit__dialog-close" data-bk-inline-close autofocus>{{ 'breadcrumb.inline_edit.close'|trans }}</button>
+        <button type="button" class="breadcrumb-kit__dialog-close nowo-ui-btn nowo-ui-btn--outline nowo-ui-btn--sm" data-bk-inline-close autofocus>{{ 'breadcrumb.inline_edit.close'|trans }}</button>
       </div>
       <iframe class="breadcrumb-kit__iframe" src="{{ breadcrumb_inline_edit.iframe_url }}" title="{{ breadcrumb_inline_edit.modal_title }}"></iframe>
     </dialog>
   </div>
-  <style>
-    .breadcrumb-kit { display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem 0.75rem; }
-    .breadcrumb-kit__inline-toolbar { flex: 0 0 auto; }
-    .breadcrumb-kit__inline-open {
-      font: inherit; font-size: 0.8rem; padding: 0.25rem 0.55rem; border-radius: 6px;
-      border: 1px solid rgba(0,0,0,.2); background: #f8fafc; cursor: pointer; color: #0f172a;
-    }
-    .breadcrumb-kit__inline-open:hover { background: #e2e8f0; }
-    .breadcrumb-kit__dialog { border: none; border-radius: 10px; padding: 0; max-width: min(96vw, 720px); width: 100%; box-shadow: 0 18px 48px rgba(0,0,0,.22); }
-    .breadcrumb-kit__dialog::backdrop { background: rgba(15,23,42,.45); }
-    .breadcrumb-kit__dialog-bar { display: flex; align-items: center; justify-content: space-between; gap: 0.75rem; padding: 0.65rem 0.85rem; border-bottom: 1px solid #e2e8f0; background: #f8fafc; }
-    .breadcrumb-kit__dialog-title { margin: 0; font-size: 1rem; font-weight: 600; color: #0f172a; }
-    .breadcrumb-kit__dialog-close { font: inherit; font-size: 0.8rem; padding: 0.2rem 0.5rem; border-radius: 6px; border: 1px solid #cbd5e1; background: #fff; cursor: pointer; }
-    .breadcrumb-kit__iframe { display: block; width: 100%; height: min(72vh, 640px); border: 0; background: #fff; }
-  </style>
   <script src="{{ asset('js/breadcrumb-inline.js', 'nowo_breadcrumb_kit') }}" defer></script>
   {% endif %}
 </div>

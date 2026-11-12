@@ -3,8 +3,11 @@
 
 {% block title %}{{ 'demo.product.title'|trans({'%id%': id}) }}{% endblock %}
 
+{% block nowo_ui_page_header %}
+    {{ include(nowo_ui_partial('page_header'), {title: 'demo.product.heading'|trans({'%id%': id})}) }}
+{% endblock %}
+
 {% block body %}
-    <h1>{{ 'demo.product.heading'|trans({'%id%': id}) }}</h1>
     <p>
         {{ 'demo.product.lead_html'|trans|raw }}
     </p>
