@@ -78,6 +78,9 @@ final class WorkerTestKernel extends Kernel
             'test' => true,
             'http_method_override' => false,
             'router' => ['utf8' => true, 'resource' => 'kernel::loadRoutes', 'type' => 'service'],
+            // symfony/messenger is a dev dependency for the worker tests; the framework's own worker listeners (typed on
+            // the real event classes) are the host's choice and stay off here, so the bundle's boundaries are tested alone.
+            'messenger' => ['enabled' => false],
         ]);
         $hostApp = ['HostApp' => [
             'type' => 'attribute',
