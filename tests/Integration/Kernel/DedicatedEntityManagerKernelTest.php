@@ -10,12 +10,15 @@ use Doctrine\Persistence\ManagerRegistry;
 use Nowo\BreadcrumbKitBundle\Controller\Dashboard\CollectionCrudController;
 use Nowo\BreadcrumbKitBundle\Controller\Dashboard\ItemCrudController;
 use Nowo\BreadcrumbKitBundle\Entity\BreadcrumbCollection;
+use Nowo\BreadcrumbKitBundle\Entity\BreadcrumbItem;
 use Nowo\BreadcrumbKitBundle\Event\BreadcrumbCollectionChangedEvent;
+use Nowo\BreadcrumbKitBundle\Repository\BreadcrumbCollectionRepository;
 use Nowo\BreadcrumbKitBundle\Service\BreadcrumbEntityManagerResetter;
 use Nowo\BreadcrumbKitBundle\Service\BreadcrumbImporter;
 use Nowo\BreadcrumbKitBundle\Service\BreadcrumbLoader;
 use Nowo\BreadcrumbKitBundle\Service\BreadcrumbLoaderInterface;
 use Nowo\BreadcrumbKitBundle\Tests\Integration\Kernel\Entity\HostNote;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use ReflectionProperty;
 use Symfony\Component\Config\Definition\Exception\InvalidConfigurationException;
@@ -107,6 +110,46 @@ final class DedicatedEntityManagerKernelTest extends TestCase
         self::assertSame(['after'], array_values(array_unique(array_map(static fn (BreadcrumbCollectionChangedEvent $e): string => $e->collectionCode, $events))));
     }
 
+    /**
+     * DoctrineBundle 3.4 regression: `auto_discover_entities` (on by default for a manager without `mappings` and
+     * `auto_mapping`) gives the host manager's chain a default attribute driver, which claims every `#[ORM\Entity]`
+     * class, so `getManagerForClass()` answered the host manager and the repositories queried its database. The
+     * explicit catch-all default driver reproduces it on every DoctrineBundle version.
+     */
+    #[DataProvider('hostManagersWithADefaultDriver')]
+    public function testDedicatedManagerWinsOverADefaultDriverOfTheHostManager(bool $explicitDefaultDriver): void
+    {
+        $doctrine = $this->dedicatedDoctrine();
+        unset($doctrine['orm']['entity_managers']['default']['auto_mapping'], $doctrine['orm']['entity_managers']['default']['mappings']);
+        $this->boot($doctrine, ['doctrine' => ['entity_manager' => 'breadcrumb']], $explicitDefaultDriver);
+        $bundle = $this->registry()->getManager('breadcrumb');
+
+        // Neither manager is initialized yet: DoctrineBundle 3.4 asks the metadata drivers.
+        self::assertSame($bundle, $this->registry()->getManagerForClass(BreadcrumbCollection::class));
+        self::assertSame($bundle, $this->registry()->getManagerForClass(BreadcrumbItem::class));
+
+        [$host, $bundle] = $this->managersWithSchema();
+        self::assertTrue($host->getMetadataFactory()->isTransient(BreadcrumbCollection::class), 'not mapped on the host manager');
+        self::assertSame($bundle, $this->registry()->getManagerForClass(BreadcrumbCollection::class));
+
+        $importer = $this->container()->get(BreadcrumbImporter::class);
+        self::assertInstanceOf(BreadcrumbImporter::class, $importer);
+        self::assertSame(1, $importer->import(['collection' => ['code' => 'main'], 'items' => [['routeName' => 'home', 'label' => 'Home']]])['created']);
+        self::assertSame(1, (int) $bundle->getConnection()->fetchOne('SELECT COUNT(*) FROM dashboard_breadcrumb_item'), 'written to the bundle database');
+        $repository = $this->container()->get(BreadcrumbCollectionRepository::class);
+        self::assertInstanceOf(BreadcrumbCollectionRepository::class, $repository);
+        self::assertInstanceOf(BreadcrumbCollection::class, $repository->findOneBy(['code' => 'main']), 'the repository reads the bundle database');
+    }
+
+    /**
+     * @return iterable<string, array{bool}>
+     */
+    public static function hostManagersWithADefaultDriver(): iterable
+    {
+        yield 'host manager without mappings (DoctrineBundle 3.4 auto-discovery)' => [false];
+        yield 'host manager with a catch-all default driver' => [true];
+    }
+
     public function testHostWithoutADefaultManagerNameKeepsItsOwnDefault(): void
     {
         $this->boot($this->dedicatedDoctrine('main', false), ['doctrine' => ['entity_manager' => 'breadcrumb']]);
@@ -181,9 +224,9 @@ final class DedicatedEntityManagerKernelTest extends TestCase
      * @param array<string, mixed> $doctrine
      * @param array<string, mixed> $breadcrumbKit
      */
-    private function boot(array $doctrine, array $breadcrumbKit = []): void
+    private function boot(array $doctrine, array $breadcrumbKit = [], bool $hostDefaultDriver = false): void
     {
-        $this->kernel = new EntityManagerTestKernel($doctrine, $breadcrumbKit);
+        $this->kernel = new EntityManagerTestKernel($doctrine, $breadcrumbKit, $hostDefaultDriver);
         $this->kernel->boot();
     }
 

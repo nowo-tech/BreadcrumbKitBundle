@@ -5,12 +5,16 @@ declare(strict_types=1);
 namespace Nowo\BreadcrumbKitBundle\Tests\Integration\Kernel;
 
 use Doctrine\Bundle\DoctrineBundle\DoctrineBundle;
+use Doctrine\ORM\Mapping\Driver\AttributeDriver;
 use Nowo\BreadcrumbKitBundle\NowoBreadcrumbKitBundle;
 use Nowo\FormKitBundle\NowoFormKitBundle;
 use Nowo\UiKitBundle\NowoUiKitBundle;
 use Symfony\Bundle\FrameworkBundle\FrameworkBundle;
 use Symfony\Bundle\FrameworkBundle\Kernel\MicroKernelTrait;
 use Symfony\Bundle\TwigBundle\TwigBundle;
+use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
+use Symfony\Component\DependencyInjection\ContainerBuilder;
+use Symfony\Component\DependencyInjection\Definition;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
 use Symfony\Component\HttpKernel\Kernel;
 use Symfony\Component\Routing\Loader\Configurator\RoutingConfigurator;
@@ -28,12 +32,15 @@ final class EntityManagerTestKernel extends Kernel
     /**
      * @param array<string, mixed> $doctrine
      * @param array<string, mixed> $breadcrumbKit
+     * @param bool                 $hostDefaultDriver the host gives its default manager's chain a catch-all default
+     *                                                driver (what DoctrineBundle 3.4 `auto_discover_entities` does)
      */
     public function __construct(
         private readonly array $doctrine,
         private readonly array $breadcrumbKit = [],
+        private readonly bool $hostDefaultDriver = false,
     ) {
-        $this->cacheKey = hash('xxh128', serialize([$doctrine, $breadcrumbKit]));
+        $this->cacheKey = hash('xxh128', serialize([$doctrine, $breadcrumbKit, $hostDefaultDriver]));
         parent::__construct('test', false);
     }
 
@@ -60,6 +67,22 @@ final class EntityManagerTestKernel extends Kernel
     public function getLogDir(): string
     {
         return sys_get_temp_dir().'/nowo-breadcrumb-kit-em/'.getmypid().'/'.$this->cacheKey.'/log';
+    }
+
+    protected function build(ContainerBuilder $container): void
+    {
+        if (!$this->hostDefaultDriver) {
+            return;
+        }
+
+        $container->addCompilerPass(new class implements CompilerPassInterface {
+            public function process(ContainerBuilder $container): void
+            {
+                // An attribute driver answers "not transient" for any class carrying #[ORM\Entity], whatever its paths.
+                $container->getDefinition('doctrine.orm.default_metadata_driver')
+                    ->addMethodCall('setDefaultDriver', [new Definition(AttributeDriver::class, [[__DIR__.'/Entity'], true])]);
+            }
+        });
     }
 
     private function configureContainer(ContainerConfigurator $container): void
