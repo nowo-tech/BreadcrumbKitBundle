@@ -63,7 +63,7 @@ final class WorkerKeptAliveKernelTest extends TestCase
             $this->kernel->shutdown();
         }
         $this->kernel = null;
-        (new Filesystem())->remove(\array_filter($directories, static fn (string $directory): bool => '' !== $directory));
+        (new Filesystem())->remove(array_filter($directories, static fn (string $directory): bool => '' !== $directory));
     }
 
     public function testTwoUsersAlternateOverManyRequestsWithIsolationAndFlatMemory(): void
@@ -349,7 +349,7 @@ final class WorkerKeptAliveKernelTest extends TestCase
         $kernel->terminate($request, $response);
 
         /** @var array{classList: string|null, nodes: list<array{0: string, 1: string|null}>} $body */
-        $body = \json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+        $body = json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
         $this->lastClassList = $body['classList'];
 
         return $body['nodes'];
@@ -357,7 +357,7 @@ final class WorkerKeptAliveKernelTest extends TestCase
 
     private function boot(string $mode): ContainerInterface
     {
-        $this->directory = \sys_get_temp_dir().'/nowo-breadcrumb-kit-worker-db/'.\getmypid().'/'.\uniqid('', true);
+        $this->directory = sys_get_temp_dir().'/nowo-breadcrumb-kit-worker-db/'.getmypid().'/'.uniqid('', true);
         (new Filesystem())->mkdir($this->directory);
         $this->kernel = new WorkerTestKernel($mode, $this->directory);
         $this->kernel->boot();
@@ -437,8 +437,8 @@ final class WorkerKeptAliveKernelTest extends TestCase
      */
     private function collectedMemory(): int
     {
-        \gc_collect_cycles();
+        gc_collect_cycles();
 
-        return \memory_get_usage();
+        return memory_get_usage();
     }
 }

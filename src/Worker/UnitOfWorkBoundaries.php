@@ -116,7 +116,7 @@ final class UnitOfWorkBoundaries implements EventSubscriberInterface
         if ($event->isMainRequest()) {
             $this->dropFailedFrames();
             // @igor-ignore - Count of the main requests in flight (no request data).
-            $this->requests = \max(0, $this->requests - 1);
+            $this->requests = max(0, $this->requests - 1);
         }
     }
 
@@ -260,7 +260,7 @@ final class UnitOfWorkBoundaries implements EventSubscriberInterface
         // @igor-ignore - Count of the main requests in flight, restored with the command frame.
         $this->requests = $this->frames[$index]['requests'];
         // @igor-ignore - Stack of the running commands (no request data).
-        \array_splice($this->frames, $index);
+        array_splice($this->frames, $index);
     }
 
     /**
