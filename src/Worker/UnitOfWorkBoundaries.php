@@ -251,7 +251,7 @@ final class UnitOfWorkBoundaries implements EventSubscriberInterface
         if (null !== $index) {
             // A previous run of the same worker whose stop never came.
             // @igor-ignore - Stack of the running workers (no message data).
-            \array_splice($this->workers, $index);
+            array_splice($this->workers, $index);
         }
 
         // @igor-ignore - Stack of the running workers (no message data), popped by their own stop.
@@ -267,7 +267,7 @@ final class UnitOfWorkBoundaries implements EventSubscriberInterface
         // @igor-ignore - Per-event verdict; the WeakMap entry dies with the event.
         $this->verdicts[$event] = !$this->messageInFlight();
         $received = $event instanceof WorkerMessageReceivedEvent ? WeakReference::create($event) : null;
-        $top = \array_key_last($this->workers);
+        $top = array_key_last($this->workers);
         if (null === $top || $this->workers[$top]['message']) {
             // @igor-ignore - A message received outside any worker the tracker saw start (no message data).
             $this->workers[] = ['worker' => null, 'message' => true, 'event' => $received];
@@ -343,7 +343,7 @@ final class UnitOfWorkBoundaries implements EventSubscriberInterface
 
         // Its own entry and the workers started above it that never stopped.
         // @igor-ignore - Stack of the running workers (no message data).
-        \array_splice($this->workers, $index);
+        array_splice($this->workers, $index);
     }
 
     /**
@@ -446,7 +446,7 @@ final class UnitOfWorkBoundaries implements EventSubscriberInterface
         for ($i = \count($this->requests) - 1; $i >= 0; --$i) {
             if ($this->requests[$i] === $request) {
                 // @igor-ignore - Stack of the main requests in flight (no request data kept).
-                \array_splice($this->requests, $i);
+                array_splice($this->requests, $i);
 
                 return;
             }
@@ -475,7 +475,7 @@ final class UnitOfWorkBoundaries implements EventSubscriberInterface
     {
         $worker = $this->workers[$index]['worker'];
         // @igor-ignore - Stack of the running workers (no message data).
-        \array_splice($this->workers, $index);
+        array_splice($this->workers, $index);
         if (null !== $worker) {
             // The worker keeps running, without a message.
             // @igor-ignore - Stack of the running workers (no message data).
@@ -499,7 +499,7 @@ final class UnitOfWorkBoundaries implements EventSubscriberInterface
 
             if (null === $entry['worker']->get() || ($entry['message'] && null !== $entry['event'] && null === $entry['event']->get())) {
                 // @igor-ignore - Stack of the running workers (no message data).
-                \array_splice($this->workers, $i);
+                array_splice($this->workers, $i);
 
                 return;
             }
@@ -522,9 +522,9 @@ final class UnitOfWorkBoundaries implements EventSubscriberInterface
      */
     private function popWorkerlessMessages(): void
     {
-        while ([] !== $this->workers && null === $this->workers[\array_key_last($this->workers)]['worker']) {
+        while ([] !== $this->workers && null === $this->workers[array_key_last($this->workers)]['worker']) {
             // @igor-ignore - Stack of the running workers (no message data).
-            \array_pop($this->workers);
+            array_pop($this->workers);
         }
     }
 
@@ -539,7 +539,7 @@ final class UnitOfWorkBoundaries implements EventSubscriberInterface
         // @igor-ignore - Main requests in flight, restored with the command frame.
         $this->requests = $this->frames[$index]['requests'];
         // @igor-ignore - Stack of the running commands (no request data).
-        \array_splice($this->frames, $index);
+        array_splice($this->frames, $index);
     }
 
     /**
