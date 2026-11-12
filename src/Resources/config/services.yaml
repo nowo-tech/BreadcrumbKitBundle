@@ -90,6 +90,9 @@ services:
 
   Nowo\BreadcrumbKitBundle\EventSubscriber\DashboardEntityManagerSubscriber: ~
 
+  # 2.19.0 (REQ-RUNTIME-002): outermost request / message / command tracker (process-lifetime, never reset).
+  Nowo\BreadcrumbKitBundle\Worker\UnitOfWorkBoundaries: ~
+
   Nowo\BreadcrumbKitBundle\Service\BreadcrumbImporter: ~
 
   Nowo\BreadcrumbKitBundle\Service\BreadcrumbTrailPreview: ~

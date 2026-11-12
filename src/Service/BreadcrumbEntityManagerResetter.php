@@ -8,13 +8,16 @@ use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\Persistence\ManagerRegistry;
 use LogicException;
 use Nowo\BreadcrumbKitBundle\Entity\BreadcrumbCollection;
+use Nowo\BreadcrumbKitBundle\Worker\BreadcrumbOwnEntityManagerSubscriber;
 
 /**
  * The EntityManager of the breadcrumb entities — `doctrine.entity_manager` when set (2.16), else the one that maps
  * them — and its replacement when a failed flush closed it. Never another manager.
  *
  * Without a kernel reset between requests (worker mode), a closed manager would otherwise break
- * every later dashboard write on the same worker. The identity map is never cleared.
+ * every later dashboard write on the same worker. This class never clears the identity map; since 2.19.0
+ * {@see BreadcrumbOwnEntityManagerSubscriber} clears the bundle's OWN manager (not
+ * the host default) at the outermost unit-of-work boundaries.
  */
 final readonly class BreadcrumbEntityManagerResetter
 {
