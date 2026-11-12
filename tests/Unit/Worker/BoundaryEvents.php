@@ -105,7 +105,7 @@ final readonly class BoundaryEvents
     {
         if (!$request instanceof Request && HttpKernelInterface::MAIN_REQUEST === $type) {
             $open = $this->open->getArrayCopy();
-            $request = \array_pop($open);
+            $request = array_pop($open);
             $this->open->exchangeArray($open);
         }
 
