@@ -86,8 +86,11 @@ manager** (FrankenPHP worker mode, REQ-RUNTIME-002): the bundle now clears that 
 each request, Messenger message and console command (and recreates it when a failed flush closed it). Breadcrumb
 entities you loaded through that manager are detached after the unit of work that loaded them, and changes you did not
 flush before the end of the unit are discarded. Do not keep `BreadcrumbCollection` / `BreadcrumbItem` instances
-across requests or messages; load them again. A command, request or message run in-process inside another unit does
-not clear the outer unit's manager.
+across requests or messages; load them again. A command run in-process inside another unit, and a request or message handled in-process from
+a command or a message handler, do not clear the outer unit's manager. A second MAIN request handled in-process from a controller (`HttpKernel::handle()` with `MAIN_REQUEST`, outside any command or message) is judged outermost and clears the manager at its start and end, detaching the outer request's entities; use a sub-request there (`SUB_REQUEST`, `render(controller(...))`), which shares the main request's unit.
+
+The option must name a manager dedicated to the bundle (mapping only the breadcrumb entities): a manager that also maps
+host entities would have them detached at every boundary.
 
 Hosts without the option, or with the option naming their default manager, see no change: the bundle never clears
 the host's manager.

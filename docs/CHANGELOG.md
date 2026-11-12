@@ -67,6 +67,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Documentation
+
+- Worker mode wording (audit NX, D1/D2): a second MAIN request handled in-process from a controller DOES clear the own
+  manager (only commands, and requests / messages run from a command or a handler, keep the outer unit);
+  `doctrine.entity_manager` must name a manager dedicated to the bundle. CHANGELOG 2.19.0, UPGRADING "To 2.19.0",
+  CONFIGURATION, USAGE and the subscriber docblock corrected. No code change.
+
 ## [2.19.0] - 2026-11-12
 
 Target version: **2.19.0** (minor, no configuration, schema or template change). See
@@ -79,8 +86,9 @@ Target version: **2.19.0** (minor, no configuration, schema or template change).
   dashboard or an import stayed managed for the life of the worker (identity map growth, entities from one unit of
   work visible in the next). New `Worker\BreadcrumbOwnEntityManagerSubscriber` clears that manager (or recreates it
   when a failed flush closed it) at the OUTERMOST unit-of-work boundaries: main `kernel.request` / `kernel.terminate`,
-  Messenger message received / handled / failed, outermost console command start / terminate. A command, request or
-  message run in-process inside another unit never clears the outer unit's manager.
+  Messenger message received / handled / failed, outermost console command start / terminate. A command run
+  in-process inside another unit, and a request or message run from a command or a handler, never clear the outer
+  unit's manager (a second main request handled in-process from a controller does; see UPGRADING).
 - Registered only when `doctrine.entity_manager` names a manager that is not the host's default manager. Without the
   option, or when it names the host default, nothing changes: the bundle never clears a host manager (rule 7).
 

@@ -370,7 +370,9 @@ final class ProjectCrumbLabels implements EventSubscriberInterface
   on that manager only (also when your default manager has `auto_mapping: true`) and makes the dashboard, the importer
   and the migration command write there. The bundle then never flushes, clears or resets your managers; a closed
   `breadcrumb` manager is recovered on the next dashboard request (FrankenPHP worker mode, no services resetter
-  needed). Standard hosts leave it null: the entities stay on the manager that maps them.
+  needed). Since 2.19.0 the bundle clears that manager at every outermost request / message / command boundary, so it
+  must be dedicated to the bundle (map no host entity on it). Standard hosts leave it null: the entities stay on the
+  manager that maps them.
 - **Definition changes (2.16):** `BreadcrumbCollectionChangedEvent` (collection id, code, context key, deleted) fires
   once per changed collection after the commit, from the dashboard, imports or your own flushes — warm caches or feed
   an outbox from it. It follows the real transaction of the bundle's connection: a rollback (also of a savepoint)
