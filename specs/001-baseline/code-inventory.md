@@ -42,6 +42,8 @@
 | `Contract/BreadcrumbInlineEditAccessCheckerInterface.php` | Security & contracts | FR-SVC-003 |
 | `EventSubscriber/DashboardAccessSubscriber.php` | Security & contracts | FR-SEC-001, FR-WORKER-001 |
 | `EventSubscriber/DashboardEntityManagerSubscriber.php` | Security & contracts | FR-WORKER-001 |
+| `Worker/UnitOfWorkBoundaries.php` | Security & contracts | FR-WORKER-001 |
+| `Worker/BreadcrumbOwnEntityManagerSubscriber.php` | Security & contracts | FR-WORKER-001 |
 | `Security/BreadcrumbKitAccessCheckerInterface.php` | Security & contracts | FR-SEC-001 |
 | `Security/ConfigurableBreadcrumbKitAccessChecker.php` | Security & contracts | FR-SEC-001 |
 | `Security/BreadcrumbIconSanitizer.php` | Security & contracts | FR-SEC-003 |

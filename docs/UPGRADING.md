@@ -3,6 +3,7 @@
 ## Table of contents
 
 - [Unreleased](#unreleased)
+- [To 2.19.0](#to-2190)
 - [To 2.18.0](#to-2180)
 - [To 2.18.0](#to-2180-1)
 - [To 2.17.0](#to-2170)
@@ -71,6 +72,25 @@
 - [General upgrade steps (any version)](#general-upgrade-steps-any-version)
 
 ## Unreleased
+
+## To 2.19.0
+
+Target **2.19.0**. From **2.18.0**: no configuration, schema or template change.
+
+```bash
+composer update nowo-tech/breadcrumb-kit-bundle
+```
+
+**Only for hosts that set `nowo_breadcrumb_kit.doctrine.entity_manager` to a manager other than their default
+manager** (FrankenPHP worker mode, REQ-RUNTIME-002): the bundle now clears that manager at the outermost boundary of
+each request, Messenger message and console command (and recreates it when a failed flush closed it). Breadcrumb
+entities you loaded through that manager are detached after the unit of work that loaded them, and changes you did not
+flush before the end of the unit are discarded. Do not keep `BreadcrumbCollection` / `BreadcrumbItem` instances
+across requests or messages; load them again. A command, request or message run in-process inside another unit does
+not clear the outer unit's manager.
+
+Hosts without the option, or with the option naming their default manager, see no change: the bundle never clears
+the host's manager.
 
 ## To 2.18.0
 

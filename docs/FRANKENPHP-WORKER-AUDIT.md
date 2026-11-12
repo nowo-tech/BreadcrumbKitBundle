@@ -3,10 +3,11 @@
 | Field | Value |
 |-------|-------|
 | Package | `nowo-tech/breadcrumb-kit-bundle` (`symfony-bundle`) |
-| Audited revision | `v2.1.7` / `a4b408a` |
-| Audit date | 2026-09-23 |
+| Audited revision | `v2.1.7` / `a4b408a`; re-audited for `2.19.0` (own entity manager, 2.16 outbox / invalidator) |
+| Audit date | 2026-09-23; update 2026-11-12 |
 | Method | Manual review of every file under `src/` (services, controllers, Twig extensions, form types, subscribers, DI extension, compiler passes, `Resources/config/*.yaml`) |
 | Remediation (2026-09-24) | W-01 resolved (closed EntityManager reset on **every** main request / main exception and after the caught unique violation); W-02 resolved for staleness (`Query::HINT_REFRESH` on both lookups), identity-map growth accepted as the application's responsibility; W-04 (stale token when no firewall ran) found and resolved; regression tests in `tests/Integration/WorkerModeDoctrineTest.php` and unit tests |
+| Update (2.19.0, 2026-11-12) | W-02 reopened for the bundle's OWN manager (`doctrine.entity_manager`, 2.16) and resolved: `Worker\BreadcrumbOwnEntityManagerSubscriber` clears it at the outermost request / message / command boundaries (REQ-RUNTIME-002 rule 4). Kept-alive kernel test `tests/Integration/Worker/WorkerKeptAliveKernelTest.php` (see [Worker test](#worker-test)) |
 | **Verdict** | ✅ **Viable** under scenario B — every bundle service is stateless, a closed EntityManager is reset by the bundle before the next main request (including public `breadcrumb_render()`), breadcrumb lookups refresh from the database, and the security token is only trusted when a firewall handled the request. Clearing the identity map between requests remains the application's responsibility |
 
 ## Table of contents
@@ -19,6 +20,7 @@
   - [W-02 — Identity map is never cleared by the bundle (Medium)](#w-02--identity-map-is-never-cleared-by-the-bundle-medium)
   - [W-03 — Item-row cache is not invalidated on dashboard writes (Info)](#w-03--item-row-cache-is-not-invalidated-on-dashboard-writes-info)
   - [W-04 — Stale security token trusted when no firewall ran (Medium)](#w-04--stale-security-token-trusted-when-no-firewall-ran-medium)
+- [Worker test](#worker-test)
 - [Usage recommendations in worker mode](#usage-recommendations-in-worker-mode)
 - [Re-audit triggers](#re-audit-triggers)
 
@@ -40,7 +42,7 @@ A bundle that is safe under **B** is safe under **A** and under classic mode / P
 | `ResetInterface` / `kernel.reset` coverage | ✅ | Nothing in the bundle needs a reset; `BreadcrumbDataCollector::reset()` clears `$data`. The bundle no longer depends on Doctrine's resetter for correctness (W-01, W-02 resolved) |
 | Request / user / locale captured in services | ✅ | `RequestStack::getCurrentRequest()` and `TokenStorage::getToken()` are read per call, never stored; the token is ignored when no firewall ran (W-04, resolved) |
 | Superglobals, `$_ENV`, `putenv`, `ini_set`, `setlocale`, timezone | ✅ | None used; config is compiled into container parameters |
-| Doctrine / EntityManager | ✅ | Closed EM reset through `ManagerRegistry` on dashboard routes (W-01, resolved); lookups use `HINT_REFRESH` (W-02, resolved); identity-map growth is the application's responsibility |
+| Doctrine / EntityManager | ✅ | Closed EM reset through `ManagerRegistry` on every main request (W-01, resolved); lookups use `HINT_REFRESH` (W-02, resolved); the bundle's OWN manager (`doctrine.entity_manager` not the host default) is cleared at the outermost boundaries (2.19.0); a host manager is never cleared by the bundle (its identity map is the application's responsibility) |
 | Output, headers, `exit`, shutdown functions | ✅ | Only `echo` inside `StreamedResponse` callbacks (export), which is the Symfony-supported path |
 | Resources (files, sockets, cURL) held open | ✅ | None; uploaded import files are read with `UploadedFile::getContent()` |
 | Memory growth across requests | ✅ | No accumulating arrays in services; profiler snapshots live on the Request attributes; Doctrine identity-map growth is bounded by the number of collections / items (W-02, accepted) |
@@ -66,6 +68,10 @@ A bundle that is safe under **B** is safe under **A** and under classic mode / P
 | `Twig\BreadcrumbExtension`, `BreadcrumbKitDashboardLinkExtension`, `BreadcrumbKitDashboardGlobalsExtension` | yes | none (`readonly` config; globals are constant strings) | ✅ | ✅ |
 | `EventSubscriber\DashboardAccessSubscriber` | yes | none (`final readonly`; token read per event, only when a firewall ran) | ✅ | ✅ (W-04 resolved) |
 | `EventSubscriber\DashboardEntityManagerSubscriber` (new) | yes | none (`final readonly`) | ✅ | ✅ |
+| `Service\BreadcrumbCacheInvalidator` (2.16) | yes | ids / collections touched by the current flush | ✅ | ✅ emptied in `onFlush` / `postFlush`, at `kernel.exception` / `kernel.terminate`, `console.error` / `console.terminate`, Messenger handled / failed, and by `reset()` (`CacheInvalidationDoctrineTest`, `CollectionChangedEventDoctrineTest`) |
+| `Doctrine\BreadcrumbChangeOutbox` + `AfterCommitMiddleware` (2.16) | yes | collection-changed events held per connection until the outermost commit | ✅ | ✅ drained at commit / dropped at rollback; `reset()` (`BreadcrumbChangeOutboxTest`); holds collection ids and codes only |
+| `Worker\UnitOfWorkBoundaries` (2.19.0, internal) | yes | process-lifetime stack of running commands, message-in-flight flag, main-request counter (no request data) | ✅ | ✅ by design: state changes at `PHP_INT_MAX`, failing frames are dropped at the next unit, the request counter resets at a top-level `kernel.terminate` (PageBuilderKit 1.15.1 tracker) |
+| `Worker\BreadcrumbOwnEntityManagerSubscriber` (2.19.0, only with an own manager) | yes | none (`final readonly`) | ✅ | ✅ clears / recreates the own manager at the outermost boundaries; never builds it |
 | `EventSubscriber\TablePrefixSubscriber` (Doctrine `loadClassMetadata`) | yes | none (`final readonly` prefix) | ✅ | ✅ |
 | `Security\ConfigurableBreadcrumbKitAccessChecker` | yes | none (`final readonly` role list) | ✅ | ✅ |
 | `Repository\BreadcrumbCollectionRepository`, `BreadcrumbItemRepository` | yes | none (no result caches) | ✅ | ✅ (W-02 resolved) |
@@ -89,7 +95,8 @@ Entities (`BreadcrumbCollection`, `BreadcrumbItem`), DTOs (`BreadcrumbNode`, `Br
 - **Where:** `src/Service/BreadcrumbLoader.php:47` (`findOneByCodeAndContextKey()`) and `:314` (`findAllForCollection()`), plus the dashboard repositories.
 - **Worker impact:** Doctrine returns the already-managed instance when a row is hydrated again, without overwriting its fields. Under **A** the Doctrine resetter calls `clear()` between requests, so each request sees fresh data. Under **B** the identity map of the long-lived EntityManager keeps every collection and item loaded so far: edits made from another worker or process (dashboard, import command) are not visible in this worker, and memory grows with the number of distinct collections / items loaded. The data is not user-specific, so this is stale data, not a cross-user leak.
 - **Recommendation:** keep `services_resetter` active. Under B the application must clear the EntityManager itself (for example on `kernel.terminate`).
-- **Status:** Resolved (staleness) / Accepted (growth) — confirmed. `findOneByCodeAndContextKey()` and `findAllForCollection()` now set `Query::HINT_REFRESH`, so already-managed collections and items are overwritten with the current row on every load; `WorkerModeDoctrineTest::testEditsFromAnotherWorkerAreVisibleOnTheNextRequest` covers two requests with an external update in between. The bundle does not call `clear()` on the application's manager: the identity map still holds the loaded collections / items (bounded by the table size), and clearing it between requests is the application's responsibility.
+- **Status (2.19.0):** Resolved for the bundle's OWN manager. When `doctrine.entity_manager` names a manager that is not the host default, `Worker\BreadcrumbOwnEntityManagerSubscriber` clears it (or recreates it when closed) at the main `kernel.request` / `kernel.terminate`, Messenger received / handled / failed and outermost console command start / terminate, judged by `Worker\UnitOfWorkBoundaries` (nested units never clear the outer one). A host manager (no option, or the option naming the default) is still never cleared (rule 7).
+- **Status (2.1.8):** Resolved (staleness) / Accepted (growth) — confirmed. `findOneByCodeAndContextKey()` and `findAllForCollection()` now set `Query::HINT_REFRESH`, so already-managed collections and items are overwritten with the current row on every load; `WorkerModeDoctrineTest::testEditsFromAnotherWorkerAreVisibleOnTheNextRequest` covers two requests with an external update in between. The bundle does not call `clear()` on the application's manager: the identity map still holds the loaded collections / items (bounded by the table size), and clearing it between requests is the application's responsibility.
 
 ### W-03 — Item-row cache is not invalidated on dashboard writes (Info)
 
@@ -107,9 +114,30 @@ Entities (`BreadcrumbCollection`, `BreadcrumbItem`), DTOs (`BreadcrumbNode`, `Br
 
 No other findings. Good patterns observed: services read the current request and security token on every call instead of storing them; profiler snapshots are attached to the Request rather than to the recorder; `BreadcrumbTrailPreview` always pops the synthetic request in `finally`.
 
+## Worker test
+
+`tests/Integration/Worker/WorkerKeptAliveKernelTest.php` (2.19.0) boots ONE kernel, drives the `http_kernel` service
+directly and never calls the services resetter:
+
+| Test | What it proves |
+|------|----------------|
+| `testTwoUsersAlternateOverManyRequestsWithIsolationAndFlatMemory` | N = 1,000 requests alternating alice / bob (different `BreadcrumbLinkAccessCheckerInterface` answers): each user sees only their own links, each request reads the collection changed behind Doctrine's back, the own manager holds no entity after every request, the host manager's pending insert survives, memory growth after warm-up < 4 MB |
+| `testClosedOwnManagerIsRecreatedAtTheNextBoundary` | a closed own manager is replaced at the next request |
+| `testStandardHostManagerIsNeverClearedByTheBundle`, `testDedicatedOptionNamingTheHostDefaultNeverClearsIt` | rule 7: no subscriber, the host default keeps its entities (unchanged default) |
+| `testNestedUnitsKeepTheOuterManagerAndOutermostUnitsClear` | nested command, in-process request and command inside a message keep the outer entities; the outermost command / message clear |
+| probes (`testThrowingTerminateAndErrorListenersNeverStopTheClear`, `testSelfRecursiveAndNestedFailingCommandsWithThrowingErrorListener`, `testUnknownNestedCommandNeverClearsTheOuterUnit`, `testThrowingMessageReceivedListenerInsideConsumeHeals`, `testFailedCommandInsideAFailedMessageThenWorkerStopped`, `testThrowingKernelExceptionListenerDoesNotLeaveARequestInFlight`) | a throwing / propagation-stopping console, Messenger or `kernel.exception` listener never leaves the process "inside a unit" (FIX-BRIEF revisions 2–4) |
+
+Without the subscriber, 7 of these 11 tests fail. Unit tests: `tests/Unit/Worker/UnitOfWorkBoundariesTest.php`,
+`BreadcrumbOwnEntityManagerSubscriberTest.php`. Earlier kept-alive tests: `DddHostInlineEditKernelTest` (600 inline-edit
+checks, 3 actors, 2 MB), `DedicatedEntityManagerKernelTest::testRecoveryResetsOnlyTheBundleManager`,
+`CurrentLabelKernelTest`.
+
+Igor (`composer igor`, 2.19.0): 89 OK, 0 KO, 0 WARN. The new `@igor-ignore` annotations sit only on the tracker's own
+counters / frames and on the boundary `clear()` of the own manager.
+
 ## Usage recommendations in worker mode
 
-- Keeping Symfony's `services_resetter` enabled (default in FrankenPHP's Symfony runtime) is still recommended. Without it the bundle is safe, but the application must clear its EntityManager between requests to bound memory (W-02).
+- Keeping Symfony's `services_resetter` enabled (default in FrankenPHP's Symfony runtime) is still recommended. Without it the bundle is safe; with `doctrine.entity_manager` set to an own manager the bundle clears that manager itself (2.19.0), otherwise the application must clear its EntityManager between requests to bound memory (W-02).
 - Custom `BreadcrumbEditAccessCheckerInterface` (2.18; deprecated `BreadcrumbInlineEditAccessCheckerInterface`) / `BreadcrumbKitAccessCheckerInterface` implementations and `BreadcrumbTrailBuiltEvent` subscribers must stay stateless (or implement `ResetInterface`). They receive the context (or the request and user) per call; do not store them in properties.
 - 2.18: `BreadcrumbEditContext` / `BreadcrumbRouteContext` are built per call by the stateless `BreadcrumbRequestContextFactory` (static methods, no properties) and never stored by a service. `DddHostInlineEditKernelTest::testKeptAliveKernelGivesEachUserItsOwnDecision` runs 600 inline-edit checks in one kernel without the services resetter, alternating anonymous / an editor / a reader, asserts each decision and a memory margin of 2 MB.
 - A custom `BreadcrumbLinkAccessCheckerInterface` must stay stateless too, or implement `ResetInterface`. It is asked on every trail build and the bundle keeps no answer, so do not keep per-user answers in properties either.

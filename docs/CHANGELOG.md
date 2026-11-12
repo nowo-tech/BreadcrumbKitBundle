@@ -66,6 +66,32 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+Target version: **2.19.0** (minor, no configuration, schema or template change). See
+[UPGRADING](UPGRADING.md#to-2190).
+
+### Fixed
+
+- **Worker mode (REQ-RUNTIME-002 rule 4, FrankenPHP with kernel reset false):** the bundle's own entity manager
+  (`doctrine.entity_manager`, 2.16) was never `clear()`ed, so every collection and item loaded by a trail, the
+  dashboard or an import stayed managed for the life of the worker (identity map growth, entities from one unit of
+  work visible in the next). New `Worker\BreadcrumbOwnEntityManagerSubscriber` clears that manager (or recreates it
+  when a failed flush closed it) at the OUTERMOST unit-of-work boundaries: main `kernel.request` / `kernel.terminate`,
+  Messenger message received / handled / failed, outermost console command start / terminate. A command, request or
+  message run in-process inside another unit never clears the outer unit's manager.
+- Registered only when `doctrine.entity_manager` names a manager that is not the host's default manager. Without the
+  option, or when it names the host default, nothing changes: the bundle never clears a host manager (rule 7).
+
+### Added
+
+- `Worker\UnitOfWorkBoundaries` (internal): the process-lifetime tracker of running requests, messages and commands
+  from PageBuilderKitBundle 1.15.1 (audits NL2, NL2-v, R1, NR-b). It changes state at `PHP_INT_MAX`: console frames
+  keyed by Command and input that save and restore the message / request state, failing frames dropped before any
+  flag write, main-request counter reset at a top-level `kernel.terminate`, `WorkerMessageSkipEvent` ends a message.
+- `tests/Integration/Worker/WorkerKeptAliveKernelTest`: one kept-alive kernel, no services resetter, 1,000 requests
+  alternating two users with different link access, fresh collection data every request, no managed entity after each
+  request, the host manager's pending insert untouched, memory growth below 4 MB; plus probes for throwing console /
+  Messenger / `kernel.exception` listeners, self-recursive and unknown nested commands.
+
 ## [2.18.0] - 2026-11-11
 
 Target version: **2.18.0** (minor, no configuration, schema or template change). See

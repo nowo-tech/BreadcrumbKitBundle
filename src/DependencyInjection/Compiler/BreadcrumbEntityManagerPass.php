@@ -6,10 +6,15 @@ namespace Nowo\BreadcrumbKitBundle\DependencyInjection\Compiler;
 
 use Doctrine\ORM\Mapping\Driver\AttributeDriver;
 use Nowo\BreadcrumbKitBundle\DependencyInjection\BreadcrumbKitExtension;
+use Nowo\BreadcrumbKitBundle\Worker\BreadcrumbOwnEntityManagerSubscriber;
+use Nowo\BreadcrumbKitBundle\Worker\UnitOfWorkBoundaries;
 use Symfony\Component\Config\Definition\Exception\InvalidConfigurationException;
+use Symfony\Component\DependencyInjection\Argument\IteratorArgument;
 use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\DependencyInjection\Definition;
+use Symfony\Component\DependencyInjection\Reference;
 
 /**
  * `nowo_breadcrumb_kit.doctrine.entity_manager` (2.16, architecture bar rule 6): maps the breadcrumb entities on that
@@ -19,6 +24,10 @@ use Symfony\Component\DependencyInjection\Definition;
  * namespace from its driver chain (DoctrineBundle's `auto_mapping`, the Flex default on the default manager, maps it
  * there too, and `getManagerForClass()` would answer the default manager). An unknown manager fails the build. Without
  * the option nothing changes (the entities are mapped by the host, usually through `auto_mapping`).
+ *
+ * 2.19.0 (REQ-RUNTIME-002 rule 4): when that manager is not the host's default manager, it is the bundle's own manager
+ * and {@see BreadcrumbOwnEntityManagerSubscriber} clears it at the outermost unit-of-work boundaries. A manager that is
+ * the host default is never cleared by the bundle (rule 7).
  */
 final class BreadcrumbEntityManagerPass implements CompilerPassInterface
 {
@@ -63,5 +72,25 @@ final class BreadcrumbEntityManagerPass implements CompilerPassInterface
 
             $chain->setMethodCalls($calls);
         }
+
+        $this->registerOwnEntityManagerSubscriber($container, $name);
+    }
+
+    private function registerOwnEntityManagerSubscriber(ContainerBuilder $container, string $name): void
+    {
+        $default = $container->hasParameter('doctrine.default_entity_manager') ? $container->getParameter('doctrine.default_entity_manager') : null;
+        if ($name === $default || !$container->has('doctrine')) {
+            return;
+        }
+
+        // Only a manager the unit of work already built: a boundary never builds one.
+        $container->register(BreadcrumbOwnEntityManagerSubscriber::class, BreadcrumbOwnEntityManagerSubscriber::class)
+            ->setArguments([
+                new Reference(UnitOfWorkBoundaries::class),
+                new IteratorArgument([new Reference(\sprintf('doctrine.orm.%s_entity_manager', $name), ContainerInterface::IGNORE_ON_UNINITIALIZED_REFERENCE)]),
+                new Reference('doctrine'),
+                $name,
+            ])
+            ->addTag('kernel.event_subscriber');
     }
 }
