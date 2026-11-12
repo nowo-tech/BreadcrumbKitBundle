@@ -3,8 +3,11 @@
 
 {% block title %}{{ 'demo.breadcrumb_trail.title'|trans }}{% endblock %}
 
+{% block nowo_ui_page_header %}
+    {{ include(nowo_ui_partial('page_header'), {title: 'breadcrumb_trail()'}) }}
+{% endblock %}
+
 {% block body %}
-    <h1><code>breadcrumb_trail()</code></h1>
     <p>{{ 'demo.breadcrumb_trail.lead_html'|trans|raw }}</p>
     <ol class="demo-trail-list">
         {% for node in breadcrumb_trail('default') %}

@@ -3,8 +3,11 @@
 
 {% block title %}{{ 'demo.admin_dashboard.title'|trans }}{% endblock %}
 
+{% block nowo_ui_page_header %}
+    {{ include(nowo_ui_partial('page_header'), {title: 'demo.admin_dashboard.heading'|trans}) }}
+{% endblock %}
+
 {% block body %}
-    <h1>{{ 'demo.admin_dashboard.heading'|trans }}</h1>
     <p>{{ 'demo.admin_dashboard.lead_intro'|trans|raw }} <a href="{{ path('app_admin_users') }}">/admin/users</a></p>
     <p><a href="{{ path('app_home') }}">{{ 'demo.admin_dashboard.back_public'|trans }}</a></p>
 {% endblock %}

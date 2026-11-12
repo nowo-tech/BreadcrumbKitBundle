@@ -3,8 +3,11 @@
 
 {% block title %}{{ 'demo.no_match.title'|trans }}{% endblock %}
 
+{% block nowo_ui_page_header %}
+    {{ include(nowo_ui_partial('page_header'), {title: 'demo.no_match.heading'|trans}) }}
+{% endblock %}
+
 {% block body %}
-    <h1>{{ 'demo.no_match.heading'|trans }}</h1>
     <p>
         {{ 'demo.no_match.lead_html'|trans|raw }}
     </p>

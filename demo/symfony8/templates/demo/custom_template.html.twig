@@ -10,8 +10,11 @@
 </nav>
 {% endblock %}
 
+{% block nowo_ui_page_header %}
+    {{ include(nowo_ui_partial('page_header'), {title: 'breadcrumb_render(collection, template)'}) }}
+{% endblock %}
+
 {% block body %}
-    <h1><code>breadcrumb_render(collection, template)</code></h1>
     <p>{{ 'demo.custom_template.lead_html'|trans }}</p>
     <p><a href="{{ path('app_home') }}">{{ 'demo.custom_template.back_home'|trans }}</a></p>
 {% endblock %}
