@@ -3,6 +3,7 @@
 ## Table of contents
 
 - [Unreleased](#unreleased)
+- [To 2.19.1](#to-2191)
 - [To 2.19.0](#to-2190)
 - [To 2.18.0](#to-2180)
 - [To 2.18.0](#to-2180-1)
@@ -72,6 +73,14 @@
 - [General upgrade steps (any version)](#general-upgrade-steps-any-version)
 
 ## Unreleased
+
+## To 2.19.1
+
+From **2.19.0**:
+
+```bash
+composer update nowo-tech/breadcrumb-kit-bundle
+```
 
 No configuration change. Worker mode (audits NX CR1–CR3 and OB): a second MAIN request handled in-process inside
 another main request (`HttpKernel::handle()` with `MAIN_REQUEST` from a controller) no longer clears the own manager,
