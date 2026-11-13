@@ -79,6 +79,8 @@ A bundle that is safe under **B** is safe under **A** and under classic mode / P
 | 5 form types (`BreadcrumbCollectionType`, `BreadcrumbItemType`, `DashboardGetSearchType`, `DashboardPostDeleteType`, `ImportBreadcrumbType`) | yes | FormKit `FormOptionsTrait` fields; bound builder reset in `finally`, profile name memoized per class | ✅ | ✅ |
 | 4 console commands | yes | CLI only | N/A | N/A |
 
+Note (audit OB2): with a custom asynchronous Messenger `MessageExecutionStrategyInterface` the tracker loses its nested-worker protection (a worker run inside a handler may clear the outer message's unit); the boundary clears still happen.
+
 Entities (`BreadcrumbCollection`, `BreadcrumbItem`), DTOs (`BreadcrumbNode`, `BreadcrumbTrailView`, `BreadcrumbInlineEditContext`) and `BreadcrumbTrailBuiltEvent` are created per request / per call and never stored in a service.
 
 ## Findings
