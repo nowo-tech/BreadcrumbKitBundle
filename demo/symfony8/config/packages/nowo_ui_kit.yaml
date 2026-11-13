@@ -6,3 +6,4 @@ nowo_ui_kit:
         admin: 'layouts/admin.html.twig'
     breadcrumbs:
         breadcrumb_kit: true          # page headers render this app's BreadcrumbKit trail (collection "default")
+    base_stylesheet: true
