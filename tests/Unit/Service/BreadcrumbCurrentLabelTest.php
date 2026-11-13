@@ -15,6 +15,9 @@ use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpKernel\Event\RequestEvent;
 use Symfony\Component\HttpKernel\HttpKernelInterface;
 use Symfony\Component\HttpKernel\KernelEvents;
+use Symfony\Component\Messenger\Event\WorkerMessageFailedEvent;
+use Symfony\Component\Messenger\Event\WorkerMessageHandledEvent;
+use Symfony\Component\Messenger\Event\WorkerMessageReceivedEvent;
 use Symfony\Component\Translation\TranslatableMessage;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
@@ -283,9 +286,9 @@ final class BreadcrumbCurrentLabelTest extends TestCase
         foreach ([
             ConsoleEvents::COMMAND,
             ConsoleEvents::TERMINATE,
-            'Symfony\Component\Messenger\Event\WorkerMessageReceivedEvent',
-            'Symfony\Component\Messenger\Event\WorkerMessageHandledEvent',
-            'Symfony\Component\Messenger\Event\WorkerMessageFailedEvent',
+            WorkerMessageReceivedEvent::class,
+            WorkerMessageHandledEvent::class,
+            WorkerMessageFailedEvent::class,
         ] as $eventName) {
             $label->setCurrentLabel('Title');
             $dispatcher->dispatch(new stdClass(), $eventName);

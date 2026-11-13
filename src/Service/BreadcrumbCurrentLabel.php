@@ -11,6 +11,9 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpKernel\Event\KernelEvent;
 use Symfony\Component\HttpKernel\KernelEvents;
+use Symfony\Component\Messenger\Event\WorkerMessageFailedEvent;
+use Symfony\Component\Messenger\Event\WorkerMessageHandledEvent;
+use Symfony\Component\Messenger\Event\WorkerMessageReceivedEvent;
 use Symfony\Contracts\Service\ResetInterface;
 use Symfony\Contracts\Translation\TranslatableInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
@@ -64,10 +67,10 @@ final class BreadcrumbCurrentLabel implements BreadcrumbCurrentLabelInterface, B
             KernelEvents::TERMINATE => ['onKernelBoundary', -4096],
             ConsoleEvents::COMMAND => ['clearCurrentLabel', 4096],
             ConsoleEvents::TERMINATE => ['clearCurrentLabel', -4096],
-            // symfony/messenger is optional: event names as strings.
-            'Symfony\Component\Messenger\Event\WorkerMessageReceivedEvent' => ['clearCurrentLabel', 4096],
-            'Symfony\Component\Messenger\Event\WorkerMessageHandledEvent' => ['clearCurrentLabel', -4096],
-            'Symfony\Component\Messenger\Event\WorkerMessageFailedEvent' => ['clearCurrentLabel', -4096],
+            // symfony/messenger is optional: `::class` names need no autoloading.
+            WorkerMessageReceivedEvent::class => ['clearCurrentLabel', 4096],
+            WorkerMessageHandledEvent::class => ['clearCurrentLabel', -4096],
+            WorkerMessageFailedEvent::class => ['clearCurrentLabel', -4096],
         ];
     }
 

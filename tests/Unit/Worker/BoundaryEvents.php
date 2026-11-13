@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Nowo\BreadcrumbKitBundle\Tests\Unit\Worker;
 
+use ArrayObject;
 use Nowo\BreadcrumbKitBundle\Worker\UnitOfWorkBoundaries;
 use RuntimeException;
 use stdClass;
@@ -36,12 +37,24 @@ final readonly class BoundaryEvents
     /** @var WeakMap<Command, ArrayInput> one input per command run, as Symfony passes the same input to its events */
     private WeakMap $inputs;
 
+    /** @var ArrayObject<int, Request> main requests started and not finished yet, innermost last (Symfony passes the same Request to every event) */
+    private ArrayObject $open;
+
+    /** @var ArrayObject<string, Request> the last main request started (for its `kernel.terminate`) */
+    private ArrayObject $last;
+
     public function __construct(
         public UnitOfWorkBoundaries $boundaries,
         EventSubscriberInterface ...$subscribers,
     ) {
         $this->dispatcher = new EventDispatcher();
         $this->inputs = new WeakMap();
+        /** @var ArrayObject<int, Request> $open */
+        $open = new ArrayObject();
+        /** @var ArrayObject<string, Request> $last */
+        $last = new ArrayObject();
+        $this->open = $open;
+        $this->last = $last;
         $this->dispatcher->addSubscriber($this->boundaries);
         foreach ($subscribers as $subscriber) {
             $this->dispatcher->addSubscriber($subscriber);
@@ -72,14 +85,31 @@ final readonly class BoundaryEvents
         return $this->inputs[$command] ??= new ArrayInput([]);
     }
 
-    public function request(int $type = HttpKernelInterface::MAIN_REQUEST): void
+    public function request(int $type = HttpKernelInterface::MAIN_REQUEST): Request
     {
-        $this->dispatcher->dispatch(new RequestEvent(new StubHttpKernel(), new Request(), $type), KernelEvents::REQUEST);
+        $request = new Request();
+        if (HttpKernelInterface::MAIN_REQUEST === $type) {
+            $this->open->append($request);
+            $this->last['request'] = $request;
+        }
+
+        $this->dispatcher->dispatch(new RequestEvent(new StubHttpKernel(), $request, $type), KernelEvents::REQUEST);
+
+        return $request;
     }
 
-    public function finishRequest(int $type = HttpKernelInterface::MAIN_REQUEST): void
+    /**
+     * Finishes $request, by default the innermost main request still open (a new one when none is open).
+     */
+    public function finishRequest(int $type = HttpKernelInterface::MAIN_REQUEST, ?Request $request = null): void
     {
-        $this->dispatcher->dispatch(new FinishRequestEvent(new StubHttpKernel(), new Request(), $type), KernelEvents::FINISH_REQUEST);
+        if (!$request instanceof Request && HttpKernelInterface::MAIN_REQUEST === $type) {
+            $open = $this->open->getArrayCopy();
+            $request = array_pop($open);
+            $this->open->exchangeArray($open);
+        }
+
+        $this->dispatcher->dispatch(new FinishRequestEvent(new StubHttpKernel(), $request ?? new Request(), $type), KernelEvents::FINISH_REQUEST);
     }
 
     public function exception(int $type = HttpKernelInterface::MAIN_REQUEST): void
@@ -87,9 +117,12 @@ final readonly class BoundaryEvents
         $this->dispatcher->dispatch(new ExceptionEvent(new StubHttpKernel(), new Request(), $type, new RuntimeException('failed')), KernelEvents::EXCEPTION);
     }
 
-    public function kernelTerminate(): void
+    /**
+     * `kernel.terminate` of $request, by default the last main request started.
+     */
+    public function kernelTerminate(?Request $request = null): void
     {
-        $this->dispatcher->dispatch(new TerminateEvent(new StubHttpKernel(), new Request(), new Response()), KernelEvents::TERMINATE);
+        $this->dispatcher->dispatch(new TerminateEvent(new StubHttpKernel(), $request ?? $this->last['request'] ?? new Request(), new Response()), KernelEvents::TERMINATE);
     }
 
     /**

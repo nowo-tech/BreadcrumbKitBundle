@@ -21,6 +21,8 @@ use Psr\Log\NullLogger;
 use Symfony\Component\Console\ConsoleEvents;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpKernel\KernelEvents;
+use Symfony\Component\Messenger\Event\WorkerMessageFailedEvent;
+use Symfony\Component\Messenger\Event\WorkerMessageHandledEvent;
 use Symfony\Contracts\Service\ResetInterface;
 use Throwable;
 
@@ -70,9 +72,9 @@ final class BreadcrumbCacheInvalidator implements ResetInterface, EventSubscribe
             KernelEvents::TERMINATE => ['onBoundary', -1024],
             ConsoleEvents::ERROR => ['onBoundary', -1024],
             ConsoleEvents::TERMINATE => ['onBoundary', -1024],
-            // symfony/messenger is optional: event names as strings.
-            'Symfony\Component\Messenger\Event\WorkerMessageHandledEvent' => ['onBoundary', -1024],
-            'Symfony\Component\Messenger\Event\WorkerMessageFailedEvent' => ['onBoundary', -1024],
+            // symfony/messenger is optional: `::class` names need no autoloading.
+            WorkerMessageHandledEvent::class => ['onBoundary', -1024],
+            WorkerMessageFailedEvent::class => ['onBoundary', -1024],
         ];
     }
 
