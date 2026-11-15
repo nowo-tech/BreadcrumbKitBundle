@@ -6,12 +6,15 @@ namespace Nowo\BreadcrumbKitBundle\EventSubscriber;
 
 use Nowo\BreadcrumbKitBundle\Service\BreadcrumbEntityManagerResetter;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
-use Symfony\Component\HttpKernel\Event\ExceptionEvent;
 use Symfony\Component\HttpKernel\Event\RequestEvent;
 use Symfony\Component\HttpKernel\KernelEvents;
 
 /**
  * Replaces a closed breadcrumb EntityManager before the next request uses it.
+ *
+ * Only at the start of a main request (a boundary), never in the middle of one (2.20, audit QR-L4): a manager that a
+ * failed write closed stays closed for the rest of that request, so the application's next flush fails loudly instead of
+ * silently writing nothing (the shared manager is the application's own).
  *
  * Needed when FrankenPHP worker mode does not reset the kernel / services between
  * requests: a failed dashboard flush would otherwise break later trail loads
@@ -29,18 +32,10 @@ final readonly class DashboardEntityManagerSubscriber implements EventSubscriber
         return [
             // Early enough that repositories/controllers see an open manager.
             KernelEvents::REQUEST => ['onKernelRequest', 31],
-            KernelEvents::EXCEPTION => ['onKernelException', 0],
         ];
     }
 
     public function onKernelRequest(RequestEvent $event): void
-    {
-        if ($event->isMainRequest()) {
-            $this->entityManagerResetter->resetIfClosed();
-        }
-    }
-
-    public function onKernelException(ExceptionEvent $event): void
     {
         if ($event->isMainRequest()) {
             $this->entityManagerResetter->resetIfClosed();

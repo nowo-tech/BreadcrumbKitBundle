@@ -118,6 +118,7 @@ import:
     entry_code_required: 'Invoer %index%: collectiecode is verplicht.'
     invalid_root: 'Gebruik geen kale JSON-rootarray; exporteer vanuit het paneel of gebruik { "collections": [ ... ] }.'
     invalid_shape: 'Verwacht formaat: { "collection", "items" } of { "collections": [ ... ] }.'
+    collection_key_conflict: 'De collectie "%code%" is niet geïmporteerd: er bestaat al een collectie waarvan de code of contextsleutel alleen verschilt in hoofdletters of afsluitende spaties.'
     collection_code_required: Collectiecode is verplicht.
     icon_rejected: 'Collectie "%code%": %count% icoon/iconen bevatten onveilige markup en zijn leeg gelaten.'
     path_pattern_rejected: 'Collectie "%code%": %count% padpatroon/-patronen compileerden niet of gebruikten geneste kwantoren en zijn leeg gelaten.'

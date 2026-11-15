@@ -68,6 +68,49 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- High load readiness (Beacon spec 239), see [HIGH-LOAD.md](HIGH-LOAD.md). Every bundle write (dashboard CRUD, import) runs
+  on the bundle's own runner `nowo_breadcrumb_kit.transaction_runner` (`BreadcrumbTransactionRunner`, on
+  nowo-tech/transaction-doctrine, implementing nowo-tech/transaction-contract): one transaction per unit (a savepoint inside
+  the application's), the manager flushed inside it, nothing left open after a failure, never the application's runner.
+  Own manager (`doctrine.entity_manager` not the default): driven by transaction-doctrine's ORM runner. Shared manager (the
+  default): connection-level unit; after a failure only breadcrumb rows are forgotten, and the manager is closed when the
+  failed unit had flushed the application's own changes (they were rolled back, Doctrine would keep them as written).
+- `StorageFailureSubscriber`: `503` with `Retry-After` for `TransientStorageFailure` / deadlock / lock wait, and `409` for a
+  unique key conflict, on the bundle's routes only.
+- The dashboard locks the collection row (`SELECT ... FOR UPDATE`) before writing an item, editing or deleting a collection;
+  a collection or item deleted meanwhile answers 404, a parent deleted, moved or made a descendant meanwhile answers 409.
+- Import: the collection key is claimed with a plain `INSERT` in a savepoint (the unique key arbitrates between two
+  imports without a failed flush), the collection row is locked before its items are read, and the unit is replayed after a
+  deadlock or lock wait (outermost transaction only).
+- New translation key `import.error.collection_key_conflict` (en, es, de, fr, it, nl, pt).
+- `nowo-tech/transaction-contract ^1.0`, `nowo-tech/transaction-doctrine ^1.1` and an explicit `doctrine/dbal ^3.8.2 || ^4.0`
+  requirement; `nowo-tech/phpstan-frankenphp ^1.4` with its load rules on.
+- CI job `Load readiness`: MySQL 8.4 and PostgreSQL 16 on DBAL 4 and DBAL 3 (lock wait, two processes, import races).
+
+### Fixed
+
+- **doctrine/dbal 3:** the driver connection of the after-commit middleware (2.16) declared `exec(): int|string`, a fatal
+  error when the container built the Doctrine connection on doctrine/dbal 3 (`exec()` returns `int` there). Hosts on
+  doctrine/dbal 3 could not boot 2.16-2.19. The middleware now builds `AfterCommitConnectionDbal3` on doctrine/dbal 3.
+- Two imports (`replace`) of one collection no longer leave two item trees, two imports creating one collection no longer
+  fail with a unique violation, and a lock wait or deadlock in an import no longer answers a raw driver error (which closed
+  the manager and, after a deadlock inside the nested flush, left the connection nested).
+- A cache entry read between a flush and its commit is dropped again after the commit; a cache backend failure no longer
+  fails (or rolls back) the write.
+- An import that created a collection without items announced no `BreadcrumbCollectionChangedEvent`.
+- Audit QR: inside a transaction of the application (MySQL `REPEATABLE READ`) a `replace` import read the old items from
+  the snapshot and could leave two trees, and the parent / cycle check could store a cycle: both now use locking reads.
+  An import locked the collection of its key hint without checking the key again (a collection renamed meanwhile was
+  overwritten, or a raw unique violation closed the manager): the key is re-checked after the lock. A failed item unit on
+  the shared manager left the item in the initialised `items` of its collection, and the next flush inserted a copy: such a
+  collection is forgotten with it. The shared (application) manager is no longer replaced in the middle of a request (the
+  exception listener and the duplicate-key answer did, which could silently drop rows the rollback had undone): it stays
+  closed until the next main request. A closed shared manager no longer makes the import replay into the refusal.
+- `BreadcrumbCollectionRepository::findOneByCodeAndContextKey()` compares the keys with `===` after the read and has no
+  `LIMIT` before it (a case-folding or PAD SPACE collation could answer a look-alike key).
+
 ### Changed
 
 - docs: demo screenshots regenerated on the UiKit base style

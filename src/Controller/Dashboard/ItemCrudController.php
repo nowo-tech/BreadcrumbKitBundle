@@ -13,11 +13,14 @@ use Nowo\BreadcrumbKitBundle\Form\Dashboard\DashboardGetSearchType;
 use Nowo\BreadcrumbKitBundle\NowoBreadcrumbKitBundle;
 use Nowo\BreadcrumbKitBundle\Repository\BreadcrumbCollectionRepository;
 use Nowo\BreadcrumbKitBundle\Repository\BreadcrumbItemRepository;
+use Nowo\BreadcrumbKitBundle\Transaction\BreadcrumbRowLock;
+use Nowo\BreadcrumbKitBundle\Transaction\BreadcrumbTransactionRunner;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\FormFactoryInterface;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Exception\ConflictHttpException;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
@@ -27,16 +30,21 @@ final class ItemCrudController extends AbstractController
     use DashboardControllerTrait;
     use DashboardRedirectTrait;
 
+    private readonly BreadcrumbTransactionRunner $transactionRunner;
+
     public function __construct(
         private readonly BreadcrumbCollectionRepository $collectionRepository,
         private readonly BreadcrumbItemRepository $itemRepository,
-        private readonly EntityManagerInterface $entityManager,
+        EntityManagerInterface $entityManager,
         private readonly FormFactoryInterface $formFactory,
         private readonly TranslatorInterface $translator,
         private readonly bool $paginationEnabled,
         private readonly int $paginationPerPage,
         private readonly DashboardPages $pages,
+        ?BreadcrumbTransactionRunner $transactionRunner = null,
     ) {
+        // 2.20: every write runs on the bundle's runner (the container wires its own).
+        $this->transactionRunner = $transactionRunner ?? new BreadcrumbTransactionRunner($entityManager);
     }
 
     #[Route('', name: 'index', methods: ['GET'])]
@@ -110,8 +118,11 @@ final class ItemCrudController extends AbstractController
 
         if ($form->isSubmitted() && $form->isValid()) {
             $this->normalizeItemJsonFields($item);
-            $this->entityManager->persist($item);
-            $this->entityManager->flush();
+            // @igor-ignore - the closure runs inside the unit and is dropped when it returns; the runner is stateless.
+            $this->transactionRunner->run(function () use ($item, $collection): void {
+                $this->lockCollectionAndParent($item, $collection);
+                $this->transactionRunner->manager()->persist($item);
+            });
             $this->addFlash('success', $this->translator->trans('dashboard.flash.item_created', [], NowoBreadcrumbKitBundle::TRANSLATION_DOMAIN));
 
             return $this->redirectToRefererOr($request, 'nowo_breadcrumb_kit_dashboard_items_index', ['collectionId' => $collectionId]);
@@ -154,7 +165,10 @@ final class ItemCrudController extends AbstractController
 
         if ($form->isSubmitted() && $form->isValid()) {
             $this->normalizeItemJsonFields($item);
-            $this->entityManager->flush();
+            // @igor-ignore - the closure runs inside the unit and is dropped when it returns; the runner is stateless.
+            $this->transactionRunner->run(function () use ($item, $collection): void {
+                $this->lockCollectionAndParent($item, $collection);
+            });
             $this->addFlash('success', $this->translator->trans('dashboard.flash.item_updated', [], NowoBreadcrumbKitBundle::TRANSLATION_DOMAIN));
 
             return $this->redirectToRefererOr($request, 'nowo_breadcrumb_kit_dashboard_items_index', ['collectionId' => $collectionId]);
@@ -182,8 +196,12 @@ final class ItemCrudController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $this->entityManager->remove($item);
-            $this->entityManager->flush();
+            // @igor-ignore - the closure runs inside the unit and is dropped when it returns; the runner is stateless.
+            $this->transactionRunner->run(function () use ($item, $collection): void {
+                BreadcrumbRowLock::lock($this->transactionRunner->manager(), BreadcrumbCollection::class, (int) $collection->getId());
+                // @igor-ignore - a Doctrine entity of this unit of work, not state of the shared runner.
+                $this->transactionRunner->manager()->remove($item);
+            });
             $this->addFlash('success', $this->translator->trans('dashboard.flash.item_deleted', [], NowoBreadcrumbKitBundle::TRANSLATION_DOMAIN));
         } elseif ($form->isSubmitted()) {
             $this->addFlash('danger', $this->translator->trans('dashboard.flash.csrf_invalid', [], NowoBreadcrumbKitBundle::TRANSLATION_DOMAIN));
@@ -222,6 +240,27 @@ final class ItemCrudController extends AbstractController
         }
 
         return $collection;
+    }
+
+    /**
+     * First statement of every item write: the collection row is locked (the lock of its tree), then the parent the form
+     * picked is checked against the committed rows. A collection deleted meanwhile answers 404; a parent deleted, moved
+     * to another collection, or made a descendant of the item by a concurrent edit answers 409 (a cycle would make the
+     * trail of the collection loop).
+     */
+    private function lockCollectionAndParent(BreadcrumbItem $item, BreadcrumbCollection $collection): void
+    {
+        $manager = $this->transactionRunner->manager();
+        $collectionId = (int) $collection->getId();
+        if (!BreadcrumbRowLock::lock($manager, BreadcrumbCollection::class, $collectionId)) {
+            throw $this->createNotFoundException($this->translator->trans('dashboard.collection_not_found', [], NowoBreadcrumbKitBundle::TRANSLATION_DOMAIN));
+        }
+        if (null !== $item->getId() && !BreadcrumbRowLock::lock($manager, BreadcrumbItem::class, $item->getId())) {
+            throw $this->createNotFoundException($this->translator->trans('dashboard.item_not_found', [], NowoBreadcrumbKitBundle::TRANSLATION_DOMAIN));
+        }
+        if (BreadcrumbRowLock::PARENT_OK !== BreadcrumbRowLock::checkParent($manager, $item->getParent()?->getId(), $item->getId(), $collectionId)) {
+            throw new ConflictHttpException('A concurrent request changed the item tree. Reload and retry.');
+        }
     }
 
     private function normalizeItemJsonFields(BreadcrumbItem $item): void

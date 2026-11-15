@@ -118,6 +118,7 @@ import:
     entry_code_required: 'Entry %index%: collection code is required.'
     invalid_root: 'Do not use a bare JSON root array; export from the panel or use { "collections": [ ... ] }.'
     invalid_shape: 'Expected format: { "collection", "items" } or { "collections": [ ... ] }.'
+    collection_key_conflict: 'Collection "%code%" was not imported: a collection whose code or context key differs only in letter case or trailing spaces already exists.'
     collection_code_required: Collection code is required.
     icon_rejected: 'Collection "%code%": %count% icon(s) contained unsafe markup and were left empty.'
     path_pattern_rejected: 'Collection "%code%": %count% path pattern(s) did not compile or used nested quantifiers and were left empty.'

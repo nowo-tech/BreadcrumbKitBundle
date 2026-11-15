@@ -12,6 +12,9 @@ use Nowo\BreadcrumbKitBundle\Repository\BreadcrumbCollectionRepository;
 use Nowo\BreadcrumbKitBundle\Repository\BreadcrumbItemRepository;
 use Nowo\BreadcrumbKitBundle\Security\BreadcrumbIconSanitizer;
 use Nowo\BreadcrumbKitBundle\Security\BreadcrumbPathPatternValidator;
+use Nowo\BreadcrumbKitBundle\Transaction\BreadcrumbRowLock;
+use Nowo\BreadcrumbKitBundle\Transaction\BreadcrumbTransactionRunner;
+use Nowo\TransactionContract\TransientStorageFailure;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 use Symfony\Contracts\Translation\TranslatorInterface;
@@ -25,17 +28,29 @@ use Throwable;
  */
 final readonly class BreadcrumbImporter
 {
+    private const OUTCOME_CREATED = 'created';
+    private const OUTCOME_UPDATED = 'updated';
+    private const OUTCOME_SKIPPED = 'skipped';
+    private const OUTCOME_KEY_CONFLICT = 'key_conflict';
+
     public const STRATEGY_SKIP_EXISTING = 'skip_existing';
     public const STRATEGY_REPLACE = 'replace';
 
-    public function __construct(
+    private BreadcrumbTransactionRunner $transactionRunner;
+
+    public function __construct(// @phpstan-ignore constructor.unusedParameter
         private BreadcrumbCollectionRepository $collectionRepository,
-        private BreadcrumbItemRepository $itemRepository,
-        private EntityManagerInterface $entityManager,
+        // Kept for the positional signature (2.20 reads the items under a lock through BreadcrumbRowLock).
+        BreadcrumbItemRepository $itemRepository,
+        EntityManagerInterface $entityManager,
         private TranslatorInterface $translator,
         private LoggerInterface $logger = new NullLogger(),
         private ?BreadcrumbCacheInvalidator $changeNotifier = null,
+        ?BreadcrumbTransactionRunner $transactionRunner = null,
     ) {
+        // 2.20: every write runs on the bundle's runner (the container wires its own); a hand-built importer gets one on
+        // the manager it was given.
+        $this->transactionRunner = $transactionRunner ?? new BreadcrumbTransactionRunner($entityManager, null, null, 1, BreadcrumbTransactionRunner::BACKOFF_BASE_MILLISECONDS, $changeNotifier, $logger);
     }
 
     /**
@@ -164,33 +179,50 @@ final readonly class BreadcrumbImporter
             return;
         }
         $ctxKey = $this->contextKeyFromData($colData);
-        $existing = $this->collectionRepository->findOneByCodeAndContextKey($code, $ctxKey);
+        // Read outside the unit, as a hint only: the first statement of the unit is a locking read or the claiming
+        // insert, so what the unit reads afterwards is the state committed by every writer that held the row before it.
+        $known = $this->collectionRepository->findOneByCodeAndContextKey($code, $ctxKey);
+        if ($known instanceof BreadcrumbCollection && self::STRATEGY_SKIP_EXISTING === $strategy) {
+            ++$result['skipped'];
 
-        if ($existing instanceof BreadcrumbCollection && self::STRATEGY_SKIP_EXISTING === $strategy) {
+            return;
+        }
+        $knownId = $known?->getId();
+
+        // One unit of work per collection: a failure while re-creating the tree must not leave a "replace" import with
+        // its old items deleted and the new ones missing. The collection row is locked first (it is the lock of its
+        // tree), so two imports of one collection queue instead of both deleting the old items and both inserting
+        // theirs. The unit is replayed after a deadlock or lock wait (outermost transaction only), so it starts from
+        // the committed state every time and keeps no result outside the closure.
+        $rejected = ['icon' => 0, 'pathPattern' => 0, 'params' => 0];
+        // @igor-ignore - the closure runs inside the unit and is dropped when it returns; the runner is stateless.
+        $outcome = $this->transactionRunner->runRetrying(function () use ($code, $ctxKey, $knownId, $colData, $itemsData, $strategy, &$rejected): string {
+            $rejected = ['icon' => 0, 'pathPattern' => 0, 'params' => 0];
+            $locked = $this->lockOrCreate($code, $ctxKey, $knownId);
+            if (null === $locked) {
+                return self::OUTCOME_KEY_CONFLICT;
+            }
+            [$collection, $created] = $locked;
+            if (!$created && self::STRATEGY_SKIP_EXISTING === $strategy) {
+                return self::OUTCOME_SKIPPED;
+            }
+            $this->writeCollection($created ? null : $collection, $collection, $colData, $itemsData, $rejected);
+
+            return $created ? self::OUTCOME_CREATED : self::OUTCOME_UPDATED;
+        });
+
+        if (self::OUTCOME_KEY_CONFLICT === $outcome) {
+            $result['errors'][] = $this->t('import.error.collection_key_conflict', ['%code%' => $code]);
+
+            return;
+        }
+        if (self::OUTCOME_SKIPPED === $outcome) {
             ++$result['skipped'];
 
             return;
         }
 
-        // One transaction per collection: a failure while re-creating the tree must not leave a "replace"
-        // import with its old items deleted and the new ones missing.
-        $this->entityManager->beginTransaction();
-        $rejected = ['icon' => 0, 'pathPattern' => 0, 'params' => 0];
-        try {
-            $this->writeCollection($existing, $colData, $itemsData, $rejected);
-            $this->entityManager->commit();
-        } catch (Throwable $e) {
-            // The rollback drops the collection-changed events of this transaction (BreadcrumbChangeOutbox).
-            $this->entityManager->rollback();
-            // Same as EntityManager::wrapInTransaction(): the unit of work is no longer consistent.
-            $this->entityManager->close();
-
-            throw $e;
-        }
-        // 2.16: the events of this transaction once it is really committed (still held inside a host transaction).
-        $this->changeNotifier?->dispatchPending();
-
-        if ($existing instanceof BreadcrumbCollection) {
+        if (self::OUTCOME_UPDATED === $outcome) {
             ++$result['updated'];
         } else {
             ++$result['created'];
@@ -207,28 +239,61 @@ final readonly class BreadcrumbImporter
     }
 
     /**
+     * The collection of a key, locked: the existing one, or the one this call just claimed. Never flushes (the runner
+     * does, once, at the end of the unit).
+     *
+     * @return array{0: BreadcrumbCollection, 1: bool}|null the locked collection and whether this call created it; null when
+     *                                                      only a look-alike key exists (another case, trailing spaces)
+     *
+     * @throws TransientStorageFailure when the collection changed while it was being claimed (the unit is replayed)
+     */
+    private function lockOrCreate(string $code, string $contextKey, ?int $knownId): ?array
+    {
+        $manager = $this->transactionRunner->manager();
+        if (null !== $knownId) {
+            $locked = BreadcrumbRowLock::lockCollection($manager, $knownId);
+            // Audit QR-L2: the hint was read before the lock; the row may have been renamed meanwhile. Only the row that
+            // still has the import's key is the target; otherwise the claim below finds (or creates) the right one.
+            if ($locked instanceof BreadcrumbCollection && $locked->getCode() === $code && $locked->getContextKey() === $contextKey) {
+                return [$locked, false];
+            }
+        }
+        $created = BreadcrumbRowLock::claimCollection($manager, $code, $contextKey);
+        // The pair is ours (just inserted) or exists now (a concurrent import committed it): read it under its lock.
+        [$collection, $lookAlike] = BreadcrumbRowLock::lockCollectionByKey($manager, $code, $contextKey);
+        if ($collection instanceof BreadcrumbCollection) {
+            if ($created) {
+                $this->changeNotifier?->announceCreated($collection);
+            }
+
+            return [$collection, $created];
+        }
+        if ($lookAlike) {
+            return null;
+        }
+
+        // Deleted again between the claim and the read: the replay starts over.
+        throw new TransientStorageFailure(1, 'The collection changed while it was being imported.');
+    }
+
+    /**
      * @param array<string, mixed>                            $colData
      * @param list<array<string, mixed>>                      $itemsData
      * @param array{icon: int, pathPattern: int, params: int} $rejected  values dropped as unsafe (icons) or invalid (path patterns)
      */
-    private function writeCollection(?BreadcrumbCollection $existing, array $colData, array $itemsData, array &$rejected): void
+    private function writeCollection(?BreadcrumbCollection $existing, BreadcrumbCollection $collection, array $colData, array $itemsData, array &$rejected): void
     {
+        $manager = $this->transactionRunner->manager();
         if ($existing instanceof BreadcrumbCollection) {
-            foreach ($this->itemRepository->findAllForCollection($existing) as $item) {
-                $this->entityManager->remove($item);
+            // A locking read (audit QR-M1): inside a transaction of the application (REPEATABLE READ) a plain read would
+            // show the snapshot of its earlier reads, not the tree the import we queued behind has just committed.
+            foreach (BreadcrumbRowLock::lockItemsOf($manager, $existing) as $item) {
+                // @igor-ignore - a Doctrine entity of this unit of work, not state of the shared runner.
+                $manager->remove($item);
             }
-            $this->entityManager->flush();
-            $this->applyCollectionData($existing, $colData, $rejected);
-            $collection = $existing;
-        } else {
-            $collection = new BreadcrumbCollection();
-            $this->applyCollectionData($collection, $colData, $rejected);
-            $this->entityManager->persist($collection);
-            $this->entityManager->flush();
         }
-
-        $this->persistItemTree($itemsData, $collection, null, $rejected);
-        $this->entityManager->flush();
+        $this->applyCollectionData($collection, $colData, $rejected);
+        $this->persistItemTree($itemsData, $collection, null, $rejected, $manager);
     }
 
     /**
@@ -271,7 +336,7 @@ final readonly class BreadcrumbImporter
      * @param list<array<string, mixed>>                      $itemsData
      * @param array{icon: int, pathPattern: int, params: int} $rejected
      */
-    private function persistItemTree(array $itemsData, BreadcrumbCollection $collection, ?BreadcrumbItem $parent, array &$rejected): void
+    private function persistItemTree(array $itemsData, BreadcrumbCollection $collection, ?BreadcrumbItem $parent, array &$rejected, EntityManagerInterface $manager): void
     {
         foreach ($itemsData as $row) {
             $routeName = isset($row['routeName']) && \is_string($row['routeName']) ? trim($row['routeName']) : '';
@@ -290,11 +355,11 @@ final readonly class BreadcrumbImporter
             $item->setLabel($this->stringOrNull($row['label'] ?? null));
             $item->setTranslations($this->translationsFromRow($row));
             $item->setIcon($this->iconOrNull($row['icon'] ?? null, $rejected));
-            $this->entityManager->persist($item);
+            $manager->persist($item);
 
             $children = isset($row['children']) && \is_array($row['children']) ? array_values($row['children']) : [];
             if ([] !== $children) {
-                $this->persistItemTree($children, $collection, $item, $rejected);
+                $this->persistItemTree($children, $collection, $item, $rejected, $manager);
             }
         }
     }

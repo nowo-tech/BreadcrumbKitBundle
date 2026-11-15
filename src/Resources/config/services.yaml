@@ -93,6 +93,19 @@ services:
   # 2.19.0 (REQ-RUNTIME-002): outermost request / message / command tracker (process-lifetime, never reset).
   Nowo\BreadcrumbKitBundle\Worker\UnitOfWorkBoundaries: ~
 
+  # 2.20 (Beacon spec 239): the runner of every bundle write. Own id, never an alias of the application's runner.
+  Nowo\BreadcrumbKitBundle\Transaction\BreadcrumbTransactionRunner:
+    arguments:
+      $entityManager: '@Nowo\BreadcrumbKitBundle\Service\BreadcrumbEntityManagerResetter'
+      $registry: '@doctrine'
+      $managerName: '%nowo_breadcrumb_kit.doctrine.entity_manager%'
+      $afterCommit: '@Nowo\BreadcrumbKitBundle\Service\BreadcrumbCacheInvalidator'
+
+  nowo_breadcrumb_kit.transaction_runner:
+    alias: Nowo\BreadcrumbKitBundle\Transaction\BreadcrumbTransactionRunner
+
+  Nowo\BreadcrumbKitBundle\EventSubscriber\StorageFailureSubscriber: ~
+
   Nowo\BreadcrumbKitBundle\Service\BreadcrumbImporter: ~
 
   Nowo\BreadcrumbKitBundle\Service\BreadcrumbTrailPreview: ~

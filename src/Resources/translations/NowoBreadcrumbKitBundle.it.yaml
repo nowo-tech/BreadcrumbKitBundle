@@ -118,6 +118,7 @@ import:
     entry_code_required: 'Voce %index%: il codice della collezione è obbligatorio.'
     invalid_root: 'Non usare un array JSON radice nudo; esporta dal pannello o usa { "collections": [ ... ] }.'
     invalid_shape: 'Formato atteso: { "collection", "items" } o { "collections": [ ... ] }.'
+    collection_key_conflict: 'La raccolta "%code%" non è stata importata: esiste già una raccolta il cui codice o chiave di contesto differisce solo per maiuscole/minuscole o spazi finali.'
     collection_code_required: Il codice della collezione è obbligatorio.
     icon_rejected: 'Collezione "%code%": %count% icona/e contenevano markup non sicuro e sono state lasciate vuote.'
     path_pattern_rejected: 'Collezione "%code%": %count% pattern di percorso non compilavano o usavano quantificatori annidati e sono stati lasciati vuoti.'

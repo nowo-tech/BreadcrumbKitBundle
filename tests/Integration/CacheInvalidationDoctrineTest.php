@@ -145,7 +145,7 @@ final class CacheInvalidationDoctrineTest extends TestCase
             self::fail('The import must fail.');
         } catch (RuntimeException $e) {
             self::assertSame('boom', $e->getMessage());
-            self::assertFalse($this->entityManager->isOpen());
+            self::assertTrue($this->entityManager->isOpen(), 'a domain failure before the flush does not close the manager');
         }
 
         $routes = $this->entityManager->getConnection()->fetchFirstColumn('SELECT routeName FROM dashboard_breadcrumb_item');

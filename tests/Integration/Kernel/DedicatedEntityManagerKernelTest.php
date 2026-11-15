@@ -18,6 +18,7 @@ use Nowo\BreadcrumbKitBundle\Service\BreadcrumbImporter;
 use Nowo\BreadcrumbKitBundle\Service\BreadcrumbLoader;
 use Nowo\BreadcrumbKitBundle\Service\BreadcrumbLoaderInterface;
 use Nowo\BreadcrumbKitBundle\Tests\Integration\Kernel\Entity\HostNote;
+use Nowo\BreadcrumbKitBundle\Transaction\BreadcrumbTransactionRunner;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use ReflectionProperty;
@@ -73,7 +74,9 @@ final class DedicatedEntityManagerKernelTest extends TestCase
         foreach ([CollectionCrudController::class, ItemCrudController::class, BreadcrumbImporter::class] as $service) {
             $object = $this->container()->get($service);
             self::assertInstanceOf($service, $object);
-            self::assertSame($bundle, (new ReflectionProperty($service, 'entityManager'))->getValue($object), $service.' uses the bundle manager');
+            $runner = (new ReflectionProperty($service, 'transactionRunner'))->getValue($object);
+            self::assertInstanceOf(BreadcrumbTransactionRunner::class, $runner);
+            self::assertSame($bundle, $runner->manager(), $service.' writes through the bundle manager');
         }
 
         $events = [];

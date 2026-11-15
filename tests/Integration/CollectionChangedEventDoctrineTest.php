@@ -22,6 +22,7 @@ use Nowo\BreadcrumbKitBundle\Repository\BreadcrumbCollectionRepository;
 use Nowo\BreadcrumbKitBundle\Repository\BreadcrumbItemRepository;
 use Nowo\BreadcrumbKitBundle\Service\BreadcrumbCacheInvalidator;
 use Nowo\BreadcrumbKitBundle\Service\BreadcrumbImporter;
+use Nowo\BreadcrumbKitBundle\Tests\Support\NestWithSavepoints;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
@@ -52,6 +53,7 @@ final class CollectionChangedEventDoctrineTest extends TestCase
         $this->outbox = new BreadcrumbChangeOutbox();
         $configuration->setMiddlewares([new AfterCommitMiddleware($this->outbox)]);
         $connection = DriverManager::getConnection(['driver' => 'pdo_sqlite', 'memory' => true], $configuration);
+        NestWithSavepoints::enable($connection);
         $eventManager = new EventManager();
         $this->entityManager = new EntityManager($connection, $configuration, $eventManager);
         (new SchemaTool($this->entityManager))->createSchema([
@@ -94,7 +96,7 @@ final class CollectionChangedEventDoctrineTest extends TestCase
         $this->entityManager->beginTransaction();
         $collection = (new BreadcrumbCollection())->setCode('main');
         $this->entityManager->persist($collection);
-        $this->entityManager->flush();
+        $this->entityManager->flush(); // @phpstan-ignore frankenphp.worker.noFlushInHandWrittenTransaction (simulates a host that flushes inside its own transaction)
         self::assertSame([], $this->events);
         self::assertSame(0, $this->invalidator->dispatchPending(), 'never inside the transaction');
         $this->entityManager->commit();
@@ -115,14 +117,14 @@ final class CollectionChangedEventDoctrineTest extends TestCase
 
         $this->entityManager->beginTransaction();
         $this->entityManager->persist((new BreadcrumbCollection())->setCode('rolled-back'));
-        $this->entityManager->flush();
+        $this->entityManager->flush(); // @phpstan-ignore frankenphp.worker.noFlushInHandWrittenTransaction (simulates a host that flushes inside its own transaction)
         $this->entityManager->rollback();
         $this->entityManager->clear();
 
         $reloaded = $this->entityManager->find(BreadcrumbCollection::class, $committed->getId());
         self::assertInstanceOf(BreadcrumbCollection::class, $reloaded);
         $reloaded->setCode('committed-renamed');
-        $this->entityManager->flush();
+        $this->entityManager->flush(); // @phpstan-ignore frankenphp.worker.noFlushInHandWrittenTransaction (simulates a host that flushes inside its own transaction)
 
         self::assertSame([[(int) $committed->getId(), 'committed-renamed', '', false, false]], $this->summary());
         $this->invalidator->onBoundary();
@@ -154,7 +156,7 @@ final class CollectionChangedEventDoctrineTest extends TestCase
         $kept = $this->persistCollection('kept');
         $this->entityManager->beginTransaction();
         $this->entityManager->persist((new BreadcrumbCollection())->setCode('nested'));
-        $this->entityManager->flush();
+        $this->entityManager->flush(); // @phpstan-ignore frankenphp.worker.noFlushInHandWrittenTransaction (simulates a host that flushes inside its own transaction)
         $this->entityManager->rollback();
         $this->entityManager->commit();
         $this->invalidator->onBoundary();

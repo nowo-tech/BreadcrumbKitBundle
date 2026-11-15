@@ -3,6 +3,7 @@
 ## Table of contents
 
 - [Unreleased](#unreleased)
+- [To 2.20.0](#to-2200)
 - [To 2.19.1](#to-2191)
 - [To 2.19.0](#to-2190)
 - [To 2.18.0](#to-2180)
@@ -73,6 +74,44 @@
 - [General upgrade steps (any version)](#general-upgrade-steps-any-version)
 
 ## Unreleased
+
+## To 2.20.0
+
+From **2.19.x**:
+
+```bash
+composer update nowo-tech/breadcrumb-kit-bundle
+```
+
+Adds `nowo-tech/transaction-contract` and `nowo-tech/transaction-doctrine` and requires `doctrine/dbal` explicitly (it was
+already installed through the ORM). No configuration change, no schema change, no BC break: the Standard Symfony host stays
+the default, the DDD host (`doctrine.entity_manager`) stays opt-in. Read [HIGH-LOAD.md](HIGH-LOAD.md).
+
+- **Writes:** the dashboard and the import run on `nowo_breadcrumb_kit.transaction_runner`. On the shared (default)
+  manager a unit still flushes what your code left pending in that manager; if such a unit fails, the bundle closes the
+  manager (the rollback undid your rows, Doctrine would keep them as written) and replaces it at the next request.
+- **doctrine/dbal 3:** set `doctrine.dbal.use_savepoints: true` (DBAL 4 always nests with savepoints). 2.16-2.19 could not
+  boot on doctrine/dbal 3 (the after-commit middleware); 2.20 can.
+- **Importer:** `new BreadcrumbImporter(...)` takes an optional last argument, the runner; without it the importer builds one
+  on the manager it was given. A collection whose `code` or `context_key` differs from an existing one only in letter case or
+  trailing spaces (on a case-insensitive or PAD SPACE column) is reported as an import error instead of overwriting it.
+- **Optional migration (exact keys):** if your database folds case (MySQL, MariaDB and SQL Server defaults) or pads
+  (MariaDB, MySQL 5.7, SQL Server; MySQL 8 does not pad), give the
+  key columns a binary NO PAD collation so that `Main` and `main` are two collections:
+
+  ```sql
+  -- MySQL 8
+  ALTER TABLE dashboard_breadcrumb_collection
+    MODIFY code VARCHAR(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_bin NOT NULL,
+    MODIFY context_key VARCHAR(512) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_bin NOT NULL DEFAULT '';
+  -- MariaDB: COLLATE utf8mb4_nopad_bin
+  ```
+
+  Not doing it is safe: the bundle compares with `===` and refuses the look-alike.
+
+  **Heads-up:** the collation is not in the entity mapping, so `doctrine:schema:update` and `doctrine:migrations:diff` see
+  it as drift and generate an `ALTER TABLE dashboard_breadcrumb_collection CHANGE code code ...` that puts the table default
+  back. Drop those lines from generated migrations (or exclude the table from `schema_filter` diffs).
 
 ## To 2.19.1
 

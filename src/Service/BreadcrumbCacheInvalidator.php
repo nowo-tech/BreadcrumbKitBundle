@@ -115,6 +115,7 @@ final class BreadcrumbCacheInvalidator implements ResetInterface, EventSubscribe
         // @igor-ignore - Cleared here, in onFlush(), at every boundary and in reset().
         $this->pendingCollectionIds = [];
 
+        // A cache failure cannot undo the write (2.20): it is logged, and the entry is dropped again after the commit.
         foreach ($ids as $id) {
             $this->invalidateCollection($id);
         }
@@ -133,6 +134,18 @@ final class BreadcrumbCacheInvalidator implements ResetInterface, EventSubscribe
         // Held by the open transaction of the bundle connection, or committed at once.
         $this->outbox->hold(...$events);
         $this->dispatchPending($args->getObjectManager()->getConnection());
+    }
+
+    /**
+     * Announces a collection the bundle created with a plain INSERT (the import claims its key that way, 2.20): no
+     * flush saw it, so no event would follow. The event waits for the commit like the others.
+     */
+    public function announceCreated(BreadcrumbCollection $collection): void
+    {
+        $id = $collection->getId();
+        if (null !== $id && $this->eventDispatcher instanceof EventDispatcherInterface) {
+            $this->outbox->hold(new BreadcrumbCollectionChangedEvent($id, $collection->getCode(), $collection->getContextKey()));
+        }
     }
 
     /**
@@ -164,6 +177,9 @@ final class BreadcrumbCacheInvalidator implements ResetInterface, EventSubscribe
         }
 
         foreach ($byCollection as $event) {
+            // 2.20: a reader may have cached the OLD rows between the flush (which dropped the entry) and the commit:
+            // the entry is dropped once more now that the change is visible to every reader.
+            $this->invalidateCollection($event->collectionId);
             try {
                 $this->eventDispatcher?->dispatch($event);
             } catch (Throwable $e) {
@@ -189,9 +205,21 @@ final class BreadcrumbCacheInvalidator implements ResetInterface, EventSubscribe
         $this->dispatchPending();
     }
 
+    /**
+     * Drops the cached item list of a collection. A cache failure is logged and never thrown (2.20): the cache is not
+     * the source of truth, and the write it follows must not fail (or be rolled back) because of it.
+     */
     public function invalidateCollection(int $collectionId): void
     {
-        $this->cachePool?->deleteItem(BreadcrumbLoader::cacheKey($collectionId));
+        try {
+            $this->cachePool?->deleteItem(BreadcrumbLoader::cacheKey($collectionId));
+        } catch (Throwable $e) {
+            $this->logger->error('Breadcrumb Kit: the cache entry of a collection could not be dropped.', [
+                'bundle' => 'NowoBreadcrumbKitBundle',
+                'collection' => $collectionId,
+                'exception' => $e::class,
+            ]);
+        }
     }
 
     public function reset(): void
@@ -209,7 +237,7 @@ final class BreadcrumbCacheInvalidator implements ResetInterface, EventSubscribe
             $this->pendingCollectionIds[$id] = true;
         }
 
-        if ($collection instanceof BreadcrumbCollection && $this->eventDispatcher instanceof EventDispatcherInterface && !($this->touchedCollections[spl_object_id($collection)]['deleted'] ?? false)) {
+        if ($collection instanceof BreadcrumbCollection && ($this->eventDispatcher instanceof EventDispatcherInterface || $this->cachePool instanceof CacheItemPoolInterface) && !($this->touchedCollections[spl_object_id($collection)]['deleted'] ?? false)) {
             // @igor-ignore - Cleared in postFlush(), onFlush(), at every boundary and in reset().
             $this->touchedCollections[spl_object_id($collection)] = ['collection' => $collection, 'id' => $id, 'deleted' => $deleted];
         }

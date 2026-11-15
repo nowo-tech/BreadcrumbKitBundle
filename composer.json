@@ -25,9 +25,12 @@
     ],
     "require": {
         "php": ">=8.2 <8.6",
+        "doctrine/dbal": "^3.8.2 || ^4.0",
         "doctrine/doctrine-bundle": "^2.8 || ^3.0",
         "doctrine/orm": "^3.7",
         "nowo-tech/form-kit-bundle": "^2.13",
+        "nowo-tech/transaction-contract": "^1.0",
+        "nowo-tech/transaction-doctrine": "^1.1",
         "nowo-tech/ui-kit-bundle": "^2.5.1",
         "psr/cache": "^3.0",
         "psr/log": "^2.0 || ^3.0",
@@ -59,7 +62,7 @@
     "require-dev": {
         "friendsofphp/php-cs-fixer": "^3.0",
         "igor-php/igor-php": "^0.10.0",
-        "nowo-tech/phpstan-frankenphp": "^1.0",
+        "nowo-tech/phpstan-frankenphp": "^1.4",
         "phpstan/extension-installer": "^1.0",
         "phpstan/phpstan": "^2.0",
         "phpstan/phpstan-phpunit": "^2.0",
