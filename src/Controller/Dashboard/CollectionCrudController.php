@@ -14,7 +14,6 @@ use Nowo\BreadcrumbKitBundle\Form\Dashboard\ImportBreadcrumbType;
 use Nowo\BreadcrumbKitBundle\NowoBreadcrumbKitBundle;
 use Nowo\BreadcrumbKitBundle\Repository\BreadcrumbCollectionRepository;
 use Nowo\BreadcrumbKitBundle\Repository\BreadcrumbItemRepository;
-use Nowo\BreadcrumbKitBundle\Service\BreadcrumbEntityManagerResetter;
 use Nowo\BreadcrumbKitBundle\Service\BreadcrumbExporter;
 use Nowo\BreadcrumbKitBundle\Transaction\BreadcrumbRowLock;
 use Nowo\BreadcrumbKitBundle\Transaction\BreadcrumbTransactionRunner;
@@ -48,7 +47,6 @@ final class CollectionCrudController extends AbstractController
         private readonly bool $paginationEnabled,
         private readonly int $paginationPerPage,
         private readonly DashboardPages $pages,
-        private readonly ?BreadcrumbEntityManagerResetter $entityManagerResetter = null,
         ?BreadcrumbTransactionRunner $transactionRunner = null,
     ) {
         // 2.20: every write runs on the bundle's runner (the container wires its own).
@@ -133,7 +131,6 @@ final class CollectionCrudController extends AbstractController
                 return $this->redirectToRefererOr($request, 'nowo_breadcrumb_kit_dashboard_collections_edit', ['id' => $collection->getId()]);
             } catch (Throwable $e) {
                 if ($this->isUniqueConstraintViolation($e)) {
-                    $this->entityManagerResetter?->resetIfClosed();
                     $this->addFlash('danger', $this->translator->trans('dashboard.flash.collection_duplicate', [], NowoBreadcrumbKitBundle::TRANSLATION_DOMAIN));
                 } else {
                     throw $e;
@@ -181,7 +178,6 @@ final class CollectionCrudController extends AbstractController
                 return $this->redirectToRefererOr($request, 'nowo_breadcrumb_kit_dashboard_collections_edit', ['id' => $collection->getId()]);
             } catch (Throwable $e) {
                 if ($this->isUniqueConstraintViolation($e)) {
-                    $this->entityManagerResetter?->resetIfClosed();
                     $this->addFlash('danger', $this->translator->trans('dashboard.flash.collection_duplicate', [], NowoBreadcrumbKitBundle::TRANSLATION_DOMAIN));
                 } else {
                     throw $e;

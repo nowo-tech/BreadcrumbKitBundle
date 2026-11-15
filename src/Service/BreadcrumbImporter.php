@@ -38,9 +38,10 @@ final readonly class BreadcrumbImporter
 
     private BreadcrumbTransactionRunner $transactionRunner;
 
-    public function __construct(
+    public function __construct(// @phpstan-ignore constructor.unusedParameter
         private BreadcrumbCollectionRepository $collectionRepository,
-        private BreadcrumbItemRepository $itemRepository,
+        // Kept for the positional signature (2.20 reads the items under a lock through BreadcrumbRowLock).
+        BreadcrumbItemRepository $itemRepository,
         EntityManagerInterface $entityManager,
         private TranslatorInterface $translator,
         private LoggerInterface $logger = new NullLogger(),
@@ -251,7 +252,9 @@ final readonly class BreadcrumbImporter
         $manager = $this->transactionRunner->manager();
         if (null !== $knownId) {
             $locked = BreadcrumbRowLock::lockCollection($manager, $knownId);
-            if ($locked instanceof BreadcrumbCollection) {
+            // Audit QR-L2: the hint was read before the lock; the row may have been renamed meanwhile. Only the row that
+            // still has the import's key is the target; otherwise the claim below finds (or creates) the right one.
+            if ($locked instanceof BreadcrumbCollection && $locked->getCode() === $code && $locked->getContextKey() === $contextKey) {
                 return [$locked, false];
             }
         }
@@ -282,7 +285,9 @@ final readonly class BreadcrumbImporter
     {
         $manager = $this->transactionRunner->manager();
         if ($existing instanceof BreadcrumbCollection) {
-            foreach ($this->itemRepository->findAllForCollection($existing) as $item) {
+            // A locking read (audit QR-M1): inside a transaction of the application (REPEATABLE READ) a plain read would
+            // show the snapshot of its earlier reads, not the tree the import we queued behind has just committed.
+            foreach (BreadcrumbRowLock::lockItemsOf($manager, $existing) as $item) {
                 // @igor-ignore - a Doctrine entity of this unit of work, not state of the shared runner.
                 $manager->remove($item);
             }

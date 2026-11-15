@@ -117,6 +117,28 @@ final class BreadcrumbRowLock
     }
 
     /**
+     * Write lock on every item of a collection, read from the latest committed rows (a locking read, so also inside a
+     * transaction of the application that already fixed its snapshot); the managed entities are refreshed from them.
+     *
+     * @return list<BreadcrumbItem>
+     */
+    public static function lockItemsOf(EntityManagerInterface $entityManager, BreadcrumbCollection $collection): array
+    {
+        /** @var list<BreadcrumbItem> $items */
+        $items = $entityManager->createQueryBuilder()
+            ->select('i')
+            ->from(BreadcrumbItem::class, 'i')
+            ->where('i.collection = :collection')
+            ->setParameter('collection', $collection)
+            ->getQuery()
+            ->setLockMode(LockMode::PESSIMISTIC_WRITE)
+            ->setHint(Query::HINT_REFRESH, true)
+            ->getResult();
+
+        return $items;
+    }
+
+    /**
      * Claims the (code, context key) pair with a plain INSERT inside a savepoint: the unique key arbitrates between two
      * writers, and the loser learns it without a failed flush (which would close the entity manager).
      *
@@ -177,6 +199,8 @@ final class BreadcrumbRowLock
                 ->where('i.id = :id')
                 ->setParameter('id', $id)
                 ->getQuery()
+                // A locking read (audit QR-L1): inside a transaction of the application a plain read shows a stale parent chain.
+                ->setLockMode(LockMode::PESSIMISTIC_READ)
                 ->getArrayResult();
             if ([] === $rows || ($first && (int) $rows[0]['collection'] !== $collectionId)) {
                 return self::PARENT_MISSING;

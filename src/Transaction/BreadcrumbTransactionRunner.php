@@ -6,6 +6,7 @@ namespace Nowo\BreadcrumbKitBundle\Transaction;
 
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Events;
+use Doctrine\ORM\PersistentCollection;
 use Doctrine\Persistence\ManagerRegistry;
 use Nowo\BreadcrumbKitBundle\Service\BreadcrumbCacheInvalidator;
 use Nowo\BreadcrumbKitBundle\Service\BreadcrumbEntityManagerResetter;
@@ -134,7 +135,8 @@ final readonly class BreadcrumbTransactionRunner implements TransactionRunnerInt
             try {
                 return $this->run($operation);
             } catch (TransientStorageFailure $failure) {
-                if (!$outermost || $attempt >= $attempts) {
+                // A closed shared manager cannot be replayed into (audit QR-I4): the original failure goes to the caller.
+                if (!$outermost || $attempt >= $attempts || !$this->manager()->isOpen()) {
                     throw $failure;
                 }
                 $this->backoff($attempt);
@@ -290,13 +292,18 @@ final readonly class BreadcrumbTransactionRunner implements TransactionRunnerInt
             foreach ($kept as $id => $entity) {
                 $metadata = $manager->getClassMetadata($entity::class);
                 foreach ($metadata->associationMappings as $field => $mapping) {
-                    $target = $mapping->isToOne() ? $metadata->getFieldValue($entity, $field) : null;
-                    if (\is_object($target) && isset($stale[spl_object_id($target)])) {
-                        $stale[$id] = $entity;
-                        unset($kept[$id]);
-                        $more = true;
+                    $value = $metadata->getFieldValue($entity, $field);
+                    // To-one: the row it points at. To-many (audit QR-L3): the entities of an initialised collection, which
+                    // cascades persist: a forgotten item left in it would be inserted again by the next flush.
+                    $targets = $mapping->isToOne() ? [$value] : ($value instanceof PersistentCollection && $value->isInitialized() ? $value->toArray() : []);
+                    foreach ($targets as $target) {
+                        if (\is_object($target) && isset($stale[spl_object_id($target)])) {
+                            $stale[$id] = $entity;
+                            unset($kept[$id]);
+                            $more = true;
 
-                        break;
+                            break 2;
+                        }
                     }
                 }
             }

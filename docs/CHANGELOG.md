@@ -100,6 +100,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - A cache entry read between a flush and its commit is dropped again after the commit; a cache backend failure no longer
   fails (or rolls back) the write.
 - An import that created a collection without items announced no `BreadcrumbCollectionChangedEvent`.
+- Audit QR: inside a transaction of the application (MySQL `REPEATABLE READ`) a `replace` import read the old items from
+  the snapshot and could leave two trees, and the parent / cycle check could store a cycle: both now use locking reads.
+  An import locked the collection of its key hint without checking the key again (a collection renamed meanwhile was
+  overwritten, or a raw unique violation closed the manager): the key is re-checked after the lock. A failed item unit on
+  the shared manager left the item in the initialised `items` of its collection, and the next flush inserted a copy: such a
+  collection is forgotten with it. The shared (application) manager is no longer replaced in the middle of a request (the
+  exception listener and the duplicate-key answer did, which could silently drop rows the rollback had undone): it stays
+  closed until the next main request. A closed shared manager no longer makes the import replay into the refusal.
 - `BreadcrumbCollectionRepository::findOneByCodeAndContextKey()` compares the keys with `===` after the read and has no
   `LIMIT` before it (a case-folding or PAD SPACE collation could answer a look-alike key).
 

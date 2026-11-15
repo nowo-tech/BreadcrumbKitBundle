@@ -66,7 +66,10 @@ The bundle writes through the manager that maps its entities: the one named by `
   application stays managed and keeps its pending changes. A unit still **flushes what you left pending in the shared
   manager** (a bundle flush is a flush of that manager); if a unit that did so then fails, the database rolled your rows
   back but Doctrine keeps them as written, so the runner **closes** the manager: it stays closed for the rest of the
-  request (your next flush fails loudly, a bundle write answers 503) and the bundle replaces it at the next request.
+  request (your next flush fails loudly, a bundle write answers 503) and the bundle replaces it at the start of the next
+  main request. Nothing replaces the shared manager in the middle of a request, not even the dashboard's duplicate-key
+  answer or the exception listener (before 2.20 both did): the form is rendered from the form data, and a page that needs
+  the database after a failed write is yours to handle (the manager is closed on purpose).
 
 The bundle never runs its writes through a runner your application binds to `TransactionRunnerInterface`
 (DoctrineDeadlockRetryBundle's adapter, your own): such a runner drives your manager.
@@ -103,7 +106,7 @@ DoctrineDeadlockRetryBundle's HTTP mapping).
 | Two imports creating the same collection: the loser failed with a unique violation (and a closed manager) | The key is **claimed** with a plain `INSERT` in a savepoint; the loser learns that the key exists without a failed flush, locks the row, and replaces (or skips, with `skip_existing`) |
 | A lock wait or deadlock in an import answered a raw driver error | `TransientStorageFailure`: replayed, then 503 |
 | An item created under a collection deleted meanwhile failed on the foreign key (500) | 404 |
-| Two admins re-parenting two items under each other stored a cycle | The parent chain is read again under the collection lock: 409 |
+| Two admins re-parenting two items under each other stored a cycle | The parent chain is read again with locking reads (`FOR SHARE`) under the collection lock, also inside a transaction of your application: 409 |
 | A reader could cache the OLD rows between the flush (which dropped the cache entry) and the commit, and keep a stale trail until the next change | The entry is dropped again after the commit |
 | A cache backend that threw dropped the whole write (the flush's `postFlush` threw) | The failure is logged; the write stands |
 | A collection created by an import with no items announced no event | `BreadcrumbCollectionChangedEvent` follows the commit |
@@ -116,8 +119,11 @@ imports of the same collections in opposite orders cannot deadlock.
 
 Collection row (dashboard item writes, edits, deletes, imports), then that collection's item rows. No unit takes an item
 row and then a collection row. The claim insert of an import is the first statement of its unit, and every read of the unit
-follows the lock (on MySQL's `REPEATABLE READ` the first plain read of a transaction fixes its snapshot, so no plain read
-runs before the lock).
+follows the lock. On MySQL's `REPEATABLE READ` the first plain read of a transaction fixes its snapshot, so the bundle's
+reads that decide a write after the lock are **locking reads** (`FOR UPDATE` for the old items of a replaced collection,
+`FOR SHARE` for the parent chain): they see the latest committed rows even when the unit is nested in a transaction of your
+application that already read something. The one plain read of an import is the key hint, which the lock re-checks (the row
+must still have the import's `code` and `context_key`, else the key is claimed again).
 
 ## What is still last-write-wins
 
@@ -125,7 +131,8 @@ runs before the lock).
   different fields merge, and edits of the same field keep the last save. There is no optimistic version column (it would
   need a migration; this release adds none).
 - Keys that differ only in letter case or trailing spaces: the bundle compares `code` and `context_key` with `===`. If the
-  columns use a case-insensitive or PAD SPACE collation (the MySQL / MariaDB / SQL Server default), `Main` and `main` collide
+  columns use a case-insensitive collation (the default of MySQL 8, MariaDB and SQL Server: `Main` and `main` collide) or a PAD
+  SPACE one (MariaDB, MySQL 5.7, SQL Server: trailing spaces are ignored; MySQL 8's `utf8mb4_0900_ai_ci` is NO PAD), they collide
   on the unique key: the import reports `import.error.collection_key_conflict`, and a form answers 409. For exact keys use a
   binary NO PAD collation on `code` and `context_key` (see [UPGRADING](UPGRADING.md#to-2200): optional migration).
 

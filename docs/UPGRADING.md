@@ -95,7 +95,8 @@ the default, the DDD host (`doctrine.entity_manager`) stays opt-in. Read [HIGH-L
 - **Importer:** `new BreadcrumbImporter(...)` takes an optional last argument, the runner; without it the importer builds one
   on the manager it was given. A collection whose `code` or `context_key` differs from an existing one only in letter case or
   trailing spaces (on a case-insensitive or PAD SPACE column) is reported as an import error instead of overwriting it.
-- **Optional migration (exact keys):** if your database folds case or pads (MySQL, MariaDB, SQL Server defaults), give the
+- **Optional migration (exact keys):** if your database folds case (MySQL, MariaDB and SQL Server defaults) or pads
+  (MariaDB, MySQL 5.7, SQL Server; MySQL 8 does not pad), give the
   key columns a binary NO PAD collation so that `Main` and `main` are two collections:
 
   ```sql
@@ -107,6 +108,10 @@ the default, the DDD host (`doctrine.entity_manager`) stays opt-in. Read [HIGH-L
   ```
 
   Not doing it is safe: the bundle compares with `===` and refuses the look-alike.
+
+  **Heads-up:** the collation is not in the entity mapping, so `doctrine:schema:update` and `doctrine:migrations:diff` see
+  it as drift and generate an `ALTER TABLE dashboard_breadcrumb_collection CHANGE code code ...` that puts the table default
+  back. Drop those lines from generated migrations (or exclude the table from `schema_filter` diffs).
 
 ## To 2.19.1
 
