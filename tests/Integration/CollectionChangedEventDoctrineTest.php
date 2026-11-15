@@ -22,6 +22,7 @@ use Nowo\BreadcrumbKitBundle\Repository\BreadcrumbCollectionRepository;
 use Nowo\BreadcrumbKitBundle\Repository\BreadcrumbItemRepository;
 use Nowo\BreadcrumbKitBundle\Service\BreadcrumbCacheInvalidator;
 use Nowo\BreadcrumbKitBundle\Service\BreadcrumbImporter;
+use Nowo\BreadcrumbKitBundle\Tests\Support\NestWithSavepoints;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
@@ -52,6 +53,7 @@ final class CollectionChangedEventDoctrineTest extends TestCase
         $this->outbox = new BreadcrumbChangeOutbox();
         $configuration->setMiddlewares([new AfterCommitMiddleware($this->outbox)]);
         $connection = DriverManager::getConnection(['driver' => 'pdo_sqlite', 'memory' => true], $configuration);
+        NestWithSavepoints::enable($connection);
         $eventManager = new EventManager();
         $this->entityManager = new EntityManager($connection, $configuration, $eventManager);
         (new SchemaTool($this->entityManager))->createSchema([

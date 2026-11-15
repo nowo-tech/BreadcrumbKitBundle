@@ -9,6 +9,8 @@ parameters:
     - tests
   excludePaths:
     - demo/*
+    # The doctrine/dbal 3 form of the driver connection (a different exec() signature): analysed on a DBAL 3 install.
+    - src/Doctrine/AfterCommitConnectionDbal3.php
   bootstrapFiles:
     - vendor/autoload.php
   reportUnmatchedIgnoredErrors: false

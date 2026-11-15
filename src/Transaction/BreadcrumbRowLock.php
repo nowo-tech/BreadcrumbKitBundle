@@ -7,6 +7,7 @@ namespace Nowo\BreadcrumbKitBundle\Transaction;
 use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 use Doctrine\DBAL\LockMode;
 use Doctrine\ORM\EntityManagerInterface;
+use Doctrine\ORM\Id\SequenceGenerator;
 use Doctrine\ORM\Query;
 use Nowo\BreadcrumbKitBundle\Entity\BreadcrumbCollection;
 use Nowo\BreadcrumbKitBundle\Entity\BreadcrumbItem;
@@ -126,12 +127,18 @@ final class BreadcrumbRowLock
         $connection = $entityManager->getConnection();
         $metadata = $entityManager->getClassMetadata(BreadcrumbCollection::class);
         $platform = $connection->getDatabasePlatform();
+        $values = [
+            $platform->quoteSingleIdentifier($metadata->getColumnName('code')) => $code,
+            $platform->quoteSingleIdentifier($metadata->getColumnName('contextKey')) => $contextKey,
+        ];
+        $generator = $metadata->idGenerator;
+        if ($generator instanceof SequenceGenerator) {
+            // PostgreSQL on doctrine/dbal 3 (the ORM's sequence strategy): the column has no default, the id comes from the sequence.
+            $values[$platform->quoteSingleIdentifier($metadata->getSingleIdentifierColumnName())] = $generator->generateId($entityManager, null);
+        }
         $connection->createSavepoint(self::CLAIM_SAVEPOINT);
         try {
-            $connection->insert($platform->quoteSingleIdentifier($metadata->getTableName()), [
-                $platform->quoteSingleIdentifier($metadata->getColumnName('code')) => $code,
-                $platform->quoteSingleIdentifier($metadata->getColumnName('contextKey')) => $contextKey,
-            ]);
+            $connection->insert($platform->quoteSingleIdentifier($metadata->getTableName()), $values);
             $connection->releaseSavepoint(self::CLAIM_SAVEPOINT);
 
             return true;

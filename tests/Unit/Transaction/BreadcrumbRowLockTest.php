@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace Nowo\BreadcrumbKitBundle\Tests\Unit\Transaction;
 
+use Doctrine\ORM\EntityManagerInterface;
+use Doctrine\ORM\Id\SequenceGenerator;
+use Doctrine\ORM\Mapping\ClassMetadata;
 use Nowo\BreadcrumbKitBundle\Entity\BreadcrumbCollection;
 use Nowo\BreadcrumbKitBundle\Entity\BreadcrumbItem;
 use Nowo\BreadcrumbKitBundle\Tests\Support\BreadcrumbStore;
@@ -80,6 +83,27 @@ final class BreadcrumbRowLockTest extends TestCase
 
         self::assertSame('1', (string) $store->connection()->fetchOne('SELECT COUNT(*) FROM dashboard_breadcrumb_collection'));
         self::assertSame(0, $store->connection()->getTransactionNestingLevel());
+    }
+
+    public function testClaimTakesTheIdFromTheSequenceWhenTheOrmUsesOne(): void
+    {
+        // PostgreSQL on doctrine/dbal 3: the ORM's sequence strategy, the column has no default.
+        $store = new BreadcrumbStore();
+        $metadata = $store->entityManager->getClassMetadata(BreadcrumbCollection::class);
+        $generator = new class('breadcrumb_seq', 1) extends SequenceGenerator {
+            public function generateId(EntityManagerInterface $em, ?object $entity): int
+            {
+                return 4242;
+            }
+        };
+        $metadata->setIdGeneratorType(ClassMetadata::GENERATOR_TYPE_SEQUENCE);
+        $metadata->setIdGenerator($generator);
+
+        $store->runner->run(static function () use ($store): void {
+            self::assertTrue(BreadcrumbRowLock::claimCollection($store->runner->manager(), 'main', ''));
+        });
+
+        self::assertSame('4242', (string) $store->connection()->fetchOne('SELECT id FROM dashboard_breadcrumb_collection'));
     }
 
     public function testCheckParentJudgesTheCommittedTree(): void

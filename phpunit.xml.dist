@@ -36,6 +36,8 @@
             <file>src/Twig/BreadcrumbKitDashboardLinkExtension.php</file>
             <file>src/Twig/BreadcrumbKitDashboardGlobalsExtension.php</file>
             <file>src/polyfill-template-aware-data-collector.php</file>
+            <!-- doctrine/dbal 3 form of the driver connection: loaded and tested by the DBAL 3 legs of the CI "Load readiness" job. -->
+            <file>src/Doctrine/AfterCommitConnectionDbal3.php</file>
         </exclude>
     </source>
 

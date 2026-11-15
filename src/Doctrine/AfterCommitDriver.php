@@ -6,7 +6,10 @@ namespace Nowo\BreadcrumbKitBundle\Doctrine;
 
 use Doctrine\DBAL\Driver;
 use Doctrine\DBAL\Driver\Connection;
+use Doctrine\DBAL\Driver\Middleware\AbstractConnectionMiddleware;
 use Doctrine\DBAL\Driver\Middleware\AbstractDriverMiddleware;
+use ReflectionMethod;
+use ReflectionNamedType;
 
 /**
  * Driver of {@see AfterCommitMiddleware}: wraps each connection in a {@see AfterCommitConnection}.
@@ -35,6 +38,21 @@ final class AfterCommitDriver extends AbstractDriverMiddleware
      */
     public function connect(array $params): Connection
     {
-        return new AfterCommitConnection(parent::connect($params), ...$this->observers);
+        $class = self::connectionClass();
+
+        return new $class(parent::connect($params), ...$this->observers);
+    }
+
+    /**
+     * The connection class for the installed doctrine/dbal: `exec()` returns `int` in doctrine/dbal 3 and `int|string`
+     * in 4, and a subclass cannot declare both.
+     *
+     * @return class-string<AfterCommitConnection|AfterCommitConnectionDbal3>
+     */
+    private static function connectionClass(): string
+    {
+        $returnType = (new ReflectionMethod(AbstractConnectionMiddleware::class, 'exec'))->getReturnType();
+
+        return $returnType instanceof ReflectionNamedType && 'int' === $returnType->getName() ? AfterCommitConnectionDbal3::class : AfterCommitConnection::class;
     }
 }

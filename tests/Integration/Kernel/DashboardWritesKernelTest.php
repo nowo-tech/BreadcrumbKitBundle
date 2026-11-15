@@ -16,8 +16,10 @@ use PHPUnit\Framework\TestCase;
 use ReflectionMethod;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\ConflictHttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+use Throwable;
 
 /**
  * 2.20 (Beacon spec 239): the dashboard writes through a real kernel and the bundle's runner, on the shared (host)
@@ -93,8 +95,9 @@ final class DashboardWritesKernelTest extends TestCase
         $manager = $this->boot($dedicated);
         $this->post('/admin/breadcrumbs/collections/new', ['breadcrumb_collection' => ['code' => 'main', 'contextKey' => '']]);
         $id = (int) $manager->getConnection()->fetchOne('SELECT id FROM dashboard_breadcrumb_collection');
-        $collections = $this->container()->get('doctrine')->getRepository(BreadcrumbCollection::class);
-        $loaded      = $collections->find($id);
+        $registry = $this->container()->get('doctrine');
+        self::assertInstanceOf(ManagerRegistry::class, $registry);
+        $loaded = $registry->getRepository(BreadcrumbCollection::class)->find($id);
         self::assertInstanceOf(BreadcrumbCollection::class, $loaded);
         // Another request deletes the row after this one loaded it (the identity map still holds it).
         $manager->getConnection()->executeStatement('DELETE FROM dashboard_breadcrumb_collection');
@@ -111,7 +114,7 @@ final class DashboardWritesKernelTest extends TestCase
         $manager = $this->boot($dedicated);
         $this->post('/admin/breadcrumbs/collections/new', ['breadcrumb_collection' => ['code' => 'main', 'contextKey' => '']]);
         $collectionId = (int) $manager->getConnection()->fetchOne('SELECT id FROM dashboard_breadcrumb_collection');
-        $base         = '/admin/breadcrumbs/collections/'.$collectionId.'/items';
+        $base = '/admin/breadcrumbs/collections/'.$collectionId.'/items';
 
         $created = $this->post($base.'/new', ['breadcrumb_item' => ['routeName' => 'home', 'label' => 'Home', 'linkEnabled' => '1']]);
         self::assertSame(302, $created->getStatusCode(), (string) $created->getContent());
@@ -122,7 +125,7 @@ final class DashboardWritesKernelTest extends TestCase
         self::assertSame(2, (int) $manager->getConnection()->fetchOne('SELECT COUNT(*) FROM dashboard_breadcrumb_item'));
 
         $childId = (int) $manager->getConnection()->fetchOne("SELECT id FROM dashboard_breadcrumb_item WHERE routeName = 'child'");
-        $edited  = $this->post($base.'/'.$childId.'/edit', ['breadcrumb_item' => ['routeName' => 'child2', 'label' => 'Child', 'linkEnabled' => '1', 'parent' => (string) $rootId]]);
+        $edited = $this->post($base.'/'.$childId.'/edit', ['breadcrumb_item' => ['routeName' => 'child2', 'label' => 'Child', 'linkEnabled' => '1', 'parent' => (string) $rootId]]);
         self::assertSame(302, $edited->getStatusCode(), (string) $edited->getContent());
         self::assertSame('child2', $manager->getConnection()->fetchOne("SELECT routeName FROM dashboard_breadcrumb_item WHERE id = $childId"));
 
@@ -134,10 +137,10 @@ final class DashboardWritesKernelTest extends TestCase
     #[DataProvider('managerModes')]
     public function testTheItemGuardRefusesWhatAConcurrentRequestChanged(bool $dedicated): void
     {
-        $manager    = $this->boot($dedicated);
+        $manager = $this->boot($dedicated);
         $collection = (new BreadcrumbCollection())->setCode('main');
-        $root       = (new BreadcrumbItem())->setCollection($collection)->setRouteName('root');
-        $child      = (new BreadcrumbItem())->setCollection($collection)->setParent($root)->setRouteName('child');
+        $root = (new BreadcrumbItem())->setCollection($collection)->setRouteName('root');
+        $child = (new BreadcrumbItem())->setCollection($collection)->setParent($root)->setRouteName('child');
         foreach ([$collection, $root, $child] as $entity) {
             $manager->persist($entity);
         }
@@ -150,40 +153,36 @@ final class DashboardWritesKernelTest extends TestCase
 
         // The form picked `child` as the parent of `root`: a cycle.
         $root->setParent($child);
-        $failure = null;
-        try {
-            $runner->run(static fn (): mixed => $guard->invoke($controller, $root, $collection));
-        } catch (ConflictHttpException $failure) {
-        }
-        self::assertInstanceOf(ConflictHttpException::class, $failure);
+        self::assertInstanceOf(ConflictHttpException::class, $this->failureOf(static fn (): mixed => $runner->run(static fn (): mixed => $guard->invoke($controller, $root, $collection))));
         $root->setParent(null);
 
         // The item was deleted meanwhile.
         $manager->getConnection()->executeStatement('UPDATE dashboard_breadcrumb_item SET parent_id = NULL');
         $manager->getConnection()->executeStatement("DELETE FROM dashboard_breadcrumb_item WHERE routeName = 'child'");
-        $failure = null;
-        try {
-            $runner->run(static fn (): mixed => $guard->invoke($controller, $child, $collection));
-        } catch (NotFoundHttpException $failure) {
-        }
-        self::assertInstanceOf(NotFoundHttpException::class, $failure);
+        self::assertInstanceOf(NotFoundHttpException::class, $this->failureOf(static fn (): mixed => $runner->run(static fn (): mixed => $guard->invoke($controller, $child, $collection))));
 
         // The collection was deleted meanwhile.
         $manager->getConnection()->executeStatement('DELETE FROM dashboard_breadcrumb_item');
         $manager->getConnection()->executeStatement('DELETE FROM dashboard_breadcrumb_collection');
-        $failure = null;
-        try {
-            $runner->run(static fn (): mixed => $guard->invoke($controller, $root, $collection));
-        } catch (NotFoundHttpException $failure) {
-        }
-        self::assertInstanceOf(NotFoundHttpException::class, $failure);
+        self::assertInstanceOf(NotFoundHttpException::class, $this->failureOf(static fn (): mixed => $runner->run(static fn (): mixed => $guard->invoke($controller, $root, $collection))));
         self::assertSame(0, $manager->getConnection()->getTransactionNestingLevel());
+    }
+
+    private function failureOf(callable $operation): Throwable
+    {
+        try {
+            $operation();
+        } catch (Throwable $failure) {
+            return $failure;
+        }
+
+        self::fail('The operation must fail.');
     }
 
     /**
      * @param array<string, mixed> $data
      */
-    private function post(string $uri, array $data): \Symfony\Component\HttpFoundation\Response
+    private function post(string $uri, array $data): Response
     {
         \assert(null !== $this->kernel);
 

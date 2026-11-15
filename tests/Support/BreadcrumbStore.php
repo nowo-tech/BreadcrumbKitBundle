@@ -56,6 +56,7 @@ final readonly class BreadcrumbStore
         $connection = null === $url
             ? DriverManager::getConnection(['driver' => 'pdo_sqlite', 'memory' => true], $configuration)
             : DriverManager::getConnection((new DsnParser(['mysql' => 'pdo_mysql', 'postgresql' => 'pdo_pgsql']))->parse($url), $configuration);
+        NestWithSavepoints::enable($connection);
         $eventManager = new EventManager();
         $this->entityManager = new EntityManager($connection, $configuration, $eventManager);
         if ($createSchema) {

@@ -6,11 +6,15 @@ namespace Nowo\BreadcrumbKitBundle\Tests\Unit\Doctrine;
 
 use Doctrine\DBAL\Configuration;
 use Doctrine\DBAL\Driver\Connection;
+use Doctrine\DBAL\Driver\Middleware\AbstractConnectionMiddleware;
 use Doctrine\DBAL\DriverManager;
 use Nowo\BreadcrumbKitBundle\Doctrine\AfterCommitConnection;
+use Nowo\BreadcrumbKitBundle\Doctrine\AfterCommitConnectionDbal3;
 use Nowo\BreadcrumbKitBundle\Doctrine\AfterCommitMiddleware;
 use Nowo\BreadcrumbKitBundle\Doctrine\TransactionObserverInterface;
+use Nowo\BreadcrumbKitBundle\Tests\Support\NestWithSavepoints;
 use PHPUnit\Framework\TestCase;
+use ReflectionMethod;
 use RuntimeException;
 
 /**
@@ -22,6 +26,7 @@ final class AfterCommitMiddlewareTest extends TestCase
     {
         $observer = $this->observer();
         $connection = DriverManager::getConnection(['driver' => 'pdo_sqlite', 'memory' => true], (new Configuration())->setMiddlewares([new AfterCommitMiddleware($observer)]));
+        NestWithSavepoints::enable($connection);
 
         $connection->beginTransaction();
         $connection->beginTransaction();
@@ -50,7 +55,7 @@ final class AfterCommitMiddlewareTest extends TestCase
         $driver = $this->createStub(Connection::class);
         $driver->method('exec')->willReturn(0);
         $driver->method('commit')->willThrowException(new RuntimeException('deadlock'));
-        $connection = new AfterCommitConnection($driver, $observer);
+        $connection = $this->connection($driver, $observer);
 
         $connection->beginTransaction();
         self::assertSame(0, $connection->exec('SAVE TRANSACTION DOCTRINE_2'));
@@ -92,10 +97,20 @@ final class AfterCommitMiddlewareTest extends TestCase
         };
         $driver = $this->createStub(Connection::class);
         $driver->method('commit')->willThrowException(new RuntimeException('deadlock'));
-        $connection = new AfterCommitConnection($driver, $failing);
+        $connection = $this->connection($driver, $failing);
 
         $this->expectExceptionMessage('deadlock');
         $connection->commit();
+    }
+
+    /**
+     * The driver connection the middleware builds for the installed doctrine/dbal (`exec()` returns `int` on 3).
+     */
+    private function connection(Connection $wrapped, TransactionObserverInterface $observer): Connection
+    {
+        $class = 'int' === (string) (new ReflectionMethod(AbstractConnectionMiddleware::class, 'exec'))->getReturnType() ? AfterCommitConnectionDbal3::class : AfterCommitConnection::class;
+
+        return new $class($wrapped, $observer);
     }
 
     /**

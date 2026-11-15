@@ -11,18 +11,6 @@ use Nowo\BreadcrumbKitBundle\Tests\Support\BreadcrumbStore;
 use Nowo\TransactionContract\TransientStorageFailure;
 use PHPUnit\Framework\TestCase;
 
-use function array_count_values;
-use function array_filter;
-use function array_map;
-use function array_values;
-use function fgets;
-use function fwrite;
-use function is_resource;
-use function proc_close;
-use function proc_open;
-use function stream_get_contents;
-use function trim;
-
 /**
  * 2.20 (Beacon spec 239): lock waits and concurrent processes on a real MySQL / PostgreSQL server. Skipped without
  * BREADCRUMB_TEST_DATABASE_URL (the CI "Load readiness" job runs them with fail-on-skipped).
@@ -46,7 +34,7 @@ final class LoadReadinessTest extends TestCase
     protected function tearDown(): void
     {
         foreach ($this->processes as $process) {
-            if (is_resource($process)) {
+            if (\is_resource($process)) {
                 proc_close($process);
             }
         }
@@ -135,7 +123,7 @@ final class LoadReadinessTest extends TestCase
         }
         $outputs = [];
         foreach ($workers as $worker) {
-            $outputs[] = array_values(array_filter(array_map(trim(...), explode("\n", (string) stream_get_contents($worker['pipes'][1])))));
+            $outputs[] = array_values(array_filter(array_map(\trim(...), explode("\n", (string) stream_get_contents($worker['pipes'][1])))));
         }
 
         return $outputs;
@@ -148,7 +136,8 @@ final class LoadReadinessTest extends TestCase
      */
     private function start(array $arguments): array
     {
-        $command = [\PHP_BINARY, __DIR__ . '/Support/worker.php', (string) BreadcrumbStore::serverUrl(), ...$arguments];
+        $command = [\PHP_BINARY, __DIR__.'/Support/worker.php', (string) BreadcrumbStore::serverUrl(), ...$arguments];
+        // @phpstan-ignore frankenphp.classic.noUnlimitedIoTimeout (a test worker: the CI job has a step timeout)
         $process = proc_open($command, [0 => ['pipe', 'r'], 1 => ['pipe', 'w'], 2 => \STDERR], $pipes);
         self::assertIsResource($process);
         $this->processes[] = $process;
