@@ -16,6 +16,8 @@ use Nowo\BreadcrumbKitBundle\Repository\BreadcrumbCollectionRepository;
 use Nowo\BreadcrumbKitBundle\Repository\BreadcrumbItemRepository;
 use Nowo\BreadcrumbKitBundle\Service\BreadcrumbEntityManagerResetter;
 use Nowo\BreadcrumbKitBundle\Service\BreadcrumbExporter;
+use Nowo\BreadcrumbKitBundle\Transaction\BreadcrumbRowLock;
+use Nowo\BreadcrumbKitBundle\Transaction\BreadcrumbTransactionRunner;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\Form\FormFactoryInterface;
@@ -33,10 +35,12 @@ final class CollectionCrudController extends AbstractController
     use DashboardControllerTrait;
     use DashboardRedirectTrait;
 
+    private readonly BreadcrumbTransactionRunner $transactionRunner;
+
     public function __construct(
         private readonly BreadcrumbCollectionRepository $collectionRepository,
         private readonly BreadcrumbItemRepository $itemRepository,
-        private readonly EntityManagerInterface $entityManager,
+        EntityManagerInterface $entityManager,
         private readonly ParameterBagInterface $parameterBag,
         private readonly BreadcrumbExporter $breadcrumbExporter,
         private readonly FormFactoryInterface $formFactory,
@@ -45,7 +49,10 @@ final class CollectionCrudController extends AbstractController
         private readonly int $paginationPerPage,
         private readonly DashboardPages $pages,
         private readonly ?BreadcrumbEntityManagerResetter $entityManagerResetter = null,
+        ?BreadcrumbTransactionRunner $transactionRunner = null,
     ) {
+        // 2.20: every write runs on the bundle's runner (the container wires its own).
+        $this->transactionRunner = $transactionRunner ?? new BreadcrumbTransactionRunner($entityManager);
     }
 
     #[Route('', name: 'index', methods: ['GET'])]
@@ -117,8 +124,10 @@ final class CollectionCrudController extends AbstractController
 
         if ($form->isSubmitted() && $form->isValid()) {
             try {
-                $this->entityManager->persist($collection);
-                $this->entityManager->flush();
+                // @igor-ignore - the closure runs inside the unit and is dropped when it returns; the runner is stateless.
+                $this->transactionRunner->run(function () use ($collection): void {
+                    $this->transactionRunner->manager()->persist($collection);
+                });
                 $this->addFlash('success', $this->translator->trans('dashboard.flash.collection_created', [], NowoBreadcrumbKitBundle::TRANSLATION_DOMAIN));
 
                 return $this->redirectToRefererOr($request, 'nowo_breadcrumb_kit_dashboard_collections_edit', ['id' => $collection->getId()]);
@@ -162,7 +171,11 @@ final class CollectionCrudController extends AbstractController
 
         if ($form->isSubmitted() && $form->isValid()) {
             try {
-                $this->entityManager->flush();
+                // @igor-ignore - the closure runs inside the unit and is dropped when it returns; the runner is stateless.
+                $this->transactionRunner->run(function () use ($collection): void {
+                    // The collection row first: a concurrent delete answers 404, never a silent update of nothing.
+                    $this->lockOrNotFound($collection);
+                });
                 $this->addFlash('success', $this->translator->trans('dashboard.flash.collection_updated', [], NowoBreadcrumbKitBundle::TRANSLATION_DOMAIN));
 
                 return $this->redirectToRefererOr($request, 'nowo_breadcrumb_kit_dashboard_collections_edit', ['id' => $collection->getId()]);
@@ -222,14 +235,26 @@ final class CollectionCrudController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $this->entityManager->remove($collection);
-            $this->entityManager->flush();
+            // @igor-ignore - the closure runs inside the unit and is dropped when it returns; the runner is stateless.
+            $this->transactionRunner->run(function () use ($collection): void {
+                // The collection row first: item writes, imports and other deletes queue behind this one.
+                BreadcrumbRowLock::lock($this->transactionRunner->manager(), BreadcrumbCollection::class, (int) $collection->getId());
+                // @igor-ignore - a Doctrine entity of this unit of work, not state of the shared runner.
+                $this->transactionRunner->manager()->remove($collection);
+            });
             $this->addFlash('success', $this->translator->trans('dashboard.flash.collection_deleted', [], NowoBreadcrumbKitBundle::TRANSLATION_DOMAIN));
         } elseif ($form->isSubmitted()) {
             $this->addFlash('danger', $this->translator->trans('dashboard.flash.csrf_invalid', [], NowoBreadcrumbKitBundle::TRANSLATION_DOMAIN));
         }
 
         return $this->redirectToListOr($request, DashboardPages::ROUTE_COLLECTIONS);
+    }
+
+    private function lockOrNotFound(BreadcrumbCollection $collection): void
+    {
+        if (!BreadcrumbRowLock::lock($this->transactionRunner->manager(), BreadcrumbCollection::class, (int) $collection->getId())) {
+            throw $this->createNotFoundException($this->translator->trans('dashboard.collection_not_found', [], NowoBreadcrumbKitBundle::TRANSLATION_DOMAIN));
+        }
     }
 
     /**

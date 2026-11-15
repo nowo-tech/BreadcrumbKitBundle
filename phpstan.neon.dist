@@ -12,3 +12,10 @@ parameters:
   bootstrapFiles:
     - vendor/autoload.php
   reportUnmatchedIgnoredErrors: false
+  # 2.20 (Beacon spec 239): PhpStanFrankenPhp 1.4 worker load-readiness rules (ruleset-worker.neon is already
+  # included, so they are enabled through their parameters). Every write goes through the bundle's transaction runner.
+  frankenphp:
+    flagRollbackAfterNestedBegin: true
+    flagFlushInHandWrittenTransaction: true
+    flagUnboundedRecursion: true
+    flagFlushWithoutClosedManagerRecovery: true

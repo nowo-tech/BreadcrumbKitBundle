@@ -118,6 +118,7 @@ import:
     entry_code_required: 'Eintrag %index%: Sammlungscode ist erforderlich.'
     invalid_root: 'Verwenden Sie kein nacktes JSON-Root-Array; exportieren Sie aus dem Panel oder verwenden Sie { "collections": [ ... ] }.'
     invalid_shape: 'Erwartetes Format: { "collection", "items" } oder { "collections": [ ... ] }.'
+    collection_key_conflict: 'Die Sammlung "%code%" wurde nicht importiert: Es existiert bereits eine Sammlung, deren Code oder Kontextschlüssel sich nur in Groß-/Kleinschreibung oder abschließenden Leerzeichen unterscheidet.'
     collection_code_required: Sammlungscode ist erforderlich.
     icon_rejected: 'Sammlung "%code%": %count% Icon(s) enthielten unsicheres Markup und wurden leer gelassen.'
     path_pattern_rejected: 'Sammlung "%code%": %count% Pfadmuster ließen sich nicht kompilieren oder enthielten verschachtelte Quantoren und wurden leer gelassen.'

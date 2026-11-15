@@ -27,18 +27,25 @@ class BreadcrumbCollectionRepository extends ServiceEntityRepository
      */
     public function findOneByCodeAndContextKey(string $code, string $contextKey = ''): ?BreadcrumbCollection
     {
-        /** @var BreadcrumbCollection|null $collection */
-        $collection = $this->createQueryBuilder('c')
+        // No LIMIT before the exact match (2.20): a case-folding or PAD SPACE collation can match a look-alike key, and
+        // the row it returned first would hide the exact one. The keys are compared with `===`.
+        /** @var list<BreadcrumbCollection> $collections */
+        $collections = $this->createQueryBuilder('c')
             ->andWhere('c.code = :code')
             ->andWhere('c.contextKey = :contextKey')
             ->setParameter('code', $code)
             ->setParameter('contextKey', $contextKey)
-            ->setMaxResults(1)
             ->getQuery()
             ->setHint(Query::HINT_REFRESH, true)
-            ->getOneOrNullResult();
+            ->getResult();
 
-        return $collection;
+        foreach ($collections as $collection) {
+            if ($collection->getCode() === $code && $collection->getContextKey() === $contextKey) {
+                return $collection;
+            }
+        }
+
+        return null;
     }
 
     public function createSearchQueryBuilder(string $search = ''): QueryBuilder

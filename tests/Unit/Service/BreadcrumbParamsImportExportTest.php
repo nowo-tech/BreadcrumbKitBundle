@@ -4,16 +4,14 @@ declare(strict_types=1);
 
 namespace Nowo\BreadcrumbKitBundle\Tests\Unit\Service;
 
-use Doctrine\ORM\EntityManagerInterface;
 use Nowo\BreadcrumbKitBundle\Entity\BreadcrumbCollection;
 use Nowo\BreadcrumbKitBundle\Entity\BreadcrumbItem;
 use Nowo\BreadcrumbKitBundle\Repository\BreadcrumbCollectionRepository;
 use Nowo\BreadcrumbKitBundle\Repository\BreadcrumbItemRepository;
 use Nowo\BreadcrumbKitBundle\Service\BreadcrumbExporter;
-use Nowo\BreadcrumbKitBundle\Service\BreadcrumbImporter;
+use Nowo\BreadcrumbKitBundle\Tests\Support\BreadcrumbStore;
 use PHPUnit\Framework\TestCase;
 use ReflectionProperty;
-use Symfony\Contracts\Translation\TranslatorInterface;
 
 /**
  * BK-2: `params` in the collection JSON, stored inside dynamicParamKeys (no new column).
@@ -121,20 +119,11 @@ final class BreadcrumbParamsImportExportTest extends TestCase
      */
     private function import(array ...$rows): array
     {
-        $persisted = [];
-        $em = $this->createMock(EntityManagerInterface::class);
-        $em->method('persist')->willReturnCallback(static function (object $entity) use (&$persisted): void {
-            if ($entity instanceof BreadcrumbItem) {
-                $persisted[] = $entity;
-            }
-        });
-        $translator = $this->createMock(TranslatorInterface::class);
-        $translator->method('trans')->willReturnCallback(static fn (string $id, array $params = []): string => $id.json_encode($params));
-        $collections = $this->createMock(BreadcrumbCollectionRepository::class);
-        $collections->method('findOneByCodeAndContextKey')->willReturn(null);
-
-        $importer = new BreadcrumbImporter($collections, $this->createMock(BreadcrumbItemRepository::class), $em, $translator);
-        $result = $importer->import(['collection' => ['code' => 'main'], 'items' => array_values($rows)]);
+        $store = new BreadcrumbStore();
+        $result = $store->importer()->import(['collection' => ['code' => 'main'], 'items' => array_values($rows)]);
+        $collection = $store->collections->findOneByCodeAndContextKey('main');
+        self::assertInstanceOf(BreadcrumbCollection::class, $collection);
+        $persisted = $store->items->findAllForCollection($collection);
 
         return [$persisted, $result];
     }

@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Nowo\BreadcrumbKitBundle\Tests\Unit;
 
-use Doctrine\ORM\EntityManagerInterface;
 use Nowo\BreadcrumbKitBundle\Contract\BreadcrumbInlineEditAccessCheckerInterface;
 use Nowo\BreadcrumbKitBundle\DataCollector\BreadcrumbDataCollector;
 use Nowo\BreadcrumbKitBundle\DependencyInjection\BreadcrumbKitExtension;
@@ -19,11 +18,11 @@ use Nowo\BreadcrumbKitBundle\Profiler\BreadcrumbProfilerRecorder;
 use Nowo\BreadcrumbKitBundle\Repository\BreadcrumbCollectionRepository;
 use Nowo\BreadcrumbKitBundle\Repository\BreadcrumbItemRepository;
 use Nowo\BreadcrumbKitBundle\Service\BreadcrumbCacheInvalidator;
-use Nowo\BreadcrumbKitBundle\Service\BreadcrumbImporter;
 use Nowo\BreadcrumbKitBundle\Service\BreadcrumbInlineEditResolver;
 use Nowo\BreadcrumbKitBundle\Service\BreadcrumbLoader;
 use Nowo\BreadcrumbKitBundle\Service\BreadcrumbUrlResolver;
 use Nowo\BreadcrumbKitBundle\Service\BreadcrumbUrlResolverInterface;
+use Nowo\BreadcrumbKitBundle\Tests\Support\BreadcrumbStore;
 use PHPUnit\Framework\TestCase;
 use Psr\Cache\CacheItemInterface;
 use Psr\Cache\CacheItemPoolInterface;
@@ -344,19 +343,7 @@ final class CoverageCompletionTest extends TestCase
 
     public function testImporterHandlesCollectionBlockErrorsAndRichRows(): void
     {
-        $colRepo = $this->createMock(BreadcrumbCollectionRepository::class);
-        $colRepo->method('findOneByCodeAndContextKey')->willReturn(null);
-
-        $em = $this->createMock(EntityManagerInterface::class);
-        $em->expects(self::atLeastOnce())->method('persist');
-        $em->expects(self::atLeastOnce())->method('flush');
-
-        $importer = new BreadcrumbImporter(
-            $colRepo,
-            $this->createMock(BreadcrumbItemRepository::class),
-            $em,
-            $this->createMock(TranslatorInterface::class),
-        );
+        $importer = (new BreadcrumbStore())->importer($this->createMock(TranslatorInterface::class));
 
         $result = $importer->import([
             'collections' => [
@@ -382,12 +369,7 @@ final class CoverageCompletionTest extends TestCase
 
     public function testImporterReportsMissingCollectionCodeInSingleImport(): void
     {
-        $importer = new BreadcrumbImporter(
-            $this->createMock(BreadcrumbCollectionRepository::class),
-            $this->createMock(BreadcrumbItemRepository::class),
-            $this->createMock(EntityManagerInterface::class),
-            $this->createMock(TranslatorInterface::class),
-        );
+        $importer = (new BreadcrumbStore())->importer($this->createMock(TranslatorInterface::class));
 
         $result = $importer->import([
             'collection' => ['code' => ''],

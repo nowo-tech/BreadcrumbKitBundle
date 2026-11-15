@@ -4,16 +4,15 @@ declare(strict_types=1);
 
 namespace Nowo\BreadcrumbKitBundle\Tests\Unit\Service;
 
-use Doctrine\ORM\EntityManagerInterface;
+use Doctrine\DBAL\Exception\DriverException;
+use Doctrine\DBAL\Exception\TableNotFoundException;
 use Nowo\BreadcrumbKitBundle\Entity\BreadcrumbCollection;
 use Nowo\BreadcrumbKitBundle\Entity\BreadcrumbItem;
 use Nowo\BreadcrumbKitBundle\NowoBreadcrumbKitBundle;
-use Nowo\BreadcrumbKitBundle\Repository\BreadcrumbCollectionRepository;
-use Nowo\BreadcrumbKitBundle\Repository\BreadcrumbItemRepository;
 use Nowo\BreadcrumbKitBundle\Service\BreadcrumbImporter;
+use Nowo\BreadcrumbKitBundle\Tests\Support\BreadcrumbStore;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\AbstractLogger;
-use RuntimeException;
 use Stringable;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
@@ -48,18 +47,9 @@ final class BreadcrumbImporterTest extends TestCase
 
     public function testImportCreatesNewCollectionWithTree(): void
     {
-        $colRepo = $this->createMock(BreadcrumbCollectionRepository::class);
-        $colRepo->method('findOneByCodeAndContextKey')->willReturn(null);
+        $store = new BreadcrumbStore();
 
-        $itemRepo = $this->createMock(BreadcrumbItemRepository::class);
-
-        $em = $this->createMock(EntityManagerInterface::class);
-        $em->expects(self::atLeastOnce())->method('persist');
-        $em->expects(self::atLeastOnce())->method('flush');
-
-        $importer = new BreadcrumbImporter($colRepo, $itemRepo, $em, $this->translator());
-
-        $data = [
+        $result = $store->importer()->import([
             'collection' => ['code' => 'demo', 'name' => 'Demo'],
             'items' => [
                 [
@@ -70,69 +60,42 @@ final class BreadcrumbImporterTest extends TestCase
                     ],
                 ],
             ],
-        ];
-
-        $result = $importer->import($data);
+        ]);
 
         self::assertSame(1, $result['created']);
         self::assertSame(0, $result['updated']);
         self::assertSame(0, $result['skipped']);
         self::assertSame([], $result['errors']);
+        $collection = $store->collections->findOneByCodeAndContextKey('demo');
+        self::assertInstanceOf(BreadcrumbCollection::class, $collection);
+        self::assertSame('Demo', $collection->getName());
+        self::assertSame(['home', 'child'], array_map(static fn (BreadcrumbItem $i): string => $i->getRouteName(), $store->items->findAllForCollection($collection)));
+        self::assertSame(0, $store->connection()->getTransactionNestingLevel());
     }
 
     public function testImportSkipsExistingCollectionWhenStrategyIsSkipExisting(): void
     {
-        $existing = new BreadcrumbCollection();
-        $existing->setCode('demo');
-        $existing->setContextKey('');
+        $store = new BreadcrumbStore();
+        $store->importer()->import(['collection' => ['code' => 'demo'], 'items' => [['routeName' => 'home']]]);
 
-        $colRepo = $this->createMock(BreadcrumbCollectionRepository::class);
-        $colRepo->method('findOneByCodeAndContextKey')->willReturn($existing);
-
-        $em = $this->createMock(EntityManagerInterface::class);
-        $em->expects(self::never())->method('persist');
-
-        $importer = new BreadcrumbImporter(
-            $colRepo,
-            $this->createMock(BreadcrumbItemRepository::class),
-            $em,
-            $this->translator(),
-        );
-
-        $result = $importer->import([
+        $result = $store->importer()->import([
             'collection' => ['code' => 'demo'],
-            'items' => [['routeName' => 'home']],
+            'items' => [['routeName' => 'other']],
         ], BreadcrumbImporter::STRATEGY_SKIP_EXISTING);
 
         self::assertSame(0, $result['created']);
         self::assertSame(0, $result['updated']);
         self::assertSame(1, $result['skipped']);
+        $collection = $store->collections->findOneByCodeAndContextKey('demo');
+        self::assertInstanceOf(BreadcrumbCollection::class, $collection);
+        self::assertSame(['home'], array_map(static fn (BreadcrumbItem $i): string => $i->getRouteName(), $store->items->findAllForCollection($collection)));
     }
 
     public function testImportPersistsPathPatternAndMatchAttributes(): void
     {
-        $colRepo = $this->createMock(BreadcrumbCollectionRepository::class);
-        $colRepo->method('findOneByCodeAndContextKey')->willReturn(null);
+        $store = new BreadcrumbStore();
 
-        $persisted = null;
-        $em = $this->createMock(EntityManagerInterface::class);
-        $em->expects(self::atLeastOnce())->method('persist')->willReturnCallback(
-            static function (object $entity) use (&$persisted): void {
-                if ($entity instanceof BreadcrumbItem) {
-                    $persisted = $entity;
-                }
-            },
-        );
-        $em->expects(self::atLeastOnce())->method('flush');
-
-        $importer = new BreadcrumbImporter(
-            $colRepo,
-            $this->createMock(BreadcrumbItemRepository::class),
-            $em,
-            $this->translator(),
-        );
-
-        $result = $importer->import([
+        $result = $store->importer()->import([
             'collection' => ['code' => 'demo'],
             'items' => [[
                 'routeName' => '*',
@@ -143,34 +106,17 @@ final class BreadcrumbImporterTest extends TestCase
         ]);
 
         self::assertSame(1, $result['created']);
-        self::assertInstanceOf(BreadcrumbItem::class, $persisted);
-        self::assertSame('^/shop', $persisted->getPathPattern());
-        self::assertSame(['tenant' => 'a'], $persisted->getMatchAttributes());
+        $item = $this->items($store, 'demo')[0];
+        self::assertSame('^/shop', $item->getPathPattern());
+        self::assertSame(['tenant' => 'a'], $item->getMatchAttributes());
     }
 
     public function testImportReplacesExistingCollectionAndRemovesOldItems(): void
     {
-        $existing = new BreadcrumbCollection();
-        $existing->setCode('demo');
-        $existing->setContextKey('');
+        $store = new BreadcrumbStore();
+        $store->importer()->import(['collection' => ['code' => 'demo'], 'items' => [['routeName' => 'old']]]);
 
-        $oldItem = new BreadcrumbItem();
-        $oldItem->setRouteName('old');
-
-        $colRepo = $this->createMock(BreadcrumbCollectionRepository::class);
-        $colRepo->method('findOneByCodeAndContextKey')->willReturn($existing);
-
-        $itemRepo = $this->createMock(BreadcrumbItemRepository::class);
-        $itemRepo->method('findAllForCollection')->with($existing)->willReturn([$oldItem]);
-
-        $em = $this->createMock(EntityManagerInterface::class);
-        $em->expects(self::once())->method('remove')->with($oldItem);
-        $em->expects(self::atLeastOnce())->method('flush');
-        $em->expects(self::atLeastOnce())->method('persist')->with(self::isInstanceOf(BreadcrumbItem::class));
-
-        $importer = new BreadcrumbImporter($colRepo, $itemRepo, $em, $this->translator());
-
-        $result = $importer->import([
+        $result = $store->importer()->import([
             'collection' => ['code' => 'demo', 'name' => 'Updated'],
             'items' => [['routeName' => 'new_home', 'label' => 'New']],
         ], BreadcrumbImporter::STRATEGY_REPLACE);
@@ -178,18 +124,15 @@ final class BreadcrumbImporterTest extends TestCase
         self::assertSame(0, $result['created']);
         self::assertSame(1, $result['updated']);
         self::assertSame(0, $result['skipped']);
+        self::assertSame(['new_home'], array_map(static fn (BreadcrumbItem $i): string => $i->getRouteName(), $this->items($store, 'demo')));
+        $collection = $store->collections->findOneByCodeAndContextKey('demo');
+        self::assertInstanceOf(BreadcrumbCollection::class, $collection);
+        self::assertSame('Updated', $collection->getName());
     }
 
     public function testImportCollectionsArrayReportsErrorsForInvalidEntries(): void
     {
-        $importer = new BreadcrumbImporter(
-            $this->createMock(BreadcrumbCollectionRepository::class),
-            $this->createMock(BreadcrumbItemRepository::class),
-            $this->createMock(EntityManagerInterface::class),
-            $this->translator(),
-        );
-
-        $result = $importer->import([
+        $result = (new BreadcrumbStore())->importer()->import([
             'collections' => [
                 ['collection' => ['code' => ''], 'items' => []],
                 ['collection' => ['code' => 'ok'], 'items' => 'not-array'],
@@ -202,38 +145,16 @@ final class BreadcrumbImporterTest extends TestCase
 
     public function testImportReportsInvalidShape(): void
     {
-        $importer = new BreadcrumbImporter(
-            $this->createMock(BreadcrumbCollectionRepository::class),
-            $this->createMock(BreadcrumbItemRepository::class),
-            $this->createMock(EntityManagerInterface::class),
-            $this->translator(),
-        );
-
-        $result = $importer->import(['unexpected' => true]);
+        $result = (new BreadcrumbStore())->importer()->import(['unexpected' => true]);
 
         self::assertCount(1, $result['errors']);
     }
 
     public function testImportSkipsDuplicateCollectionSignatureInSamePayload(): void
     {
-        $colRepo = $this->createMock(BreadcrumbCollectionRepository::class);
-        $colRepo->expects(self::once())
-            ->method('findOneByCodeAndContextKey')
-            ->with('dup', '')
-            ->willReturn(null);
+        $store = new BreadcrumbStore();
 
-        $em = $this->createMock(EntityManagerInterface::class);
-        $em->expects(self::atLeastOnce())->method('persist');
-        $em->expects(self::atLeastOnce())->method('flush');
-
-        $importer = new BreadcrumbImporter(
-            $colRepo,
-            $this->createMock(BreadcrumbItemRepository::class),
-            $em,
-            $this->translator(),
-        );
-
-        $result = $importer->import([
+        $result = $store->importer()->import([
             'collections' => [
                 ['collection' => ['code' => 'dup'], 'items' => [['routeName' => 'a']]],
                 ['collection' => ['code' => 'dup'], 'items' => [['routeName' => 'b']]],
@@ -241,44 +162,28 @@ final class BreadcrumbImporterTest extends TestCase
         ]);
 
         self::assertSame(1, $result['created']);
+        self::assertSame(['a'], array_map(static fn (BreadcrumbItem $i): string => $i->getRouteName(), $this->items($store, 'dup')));
     }
 
     public function testImportSkipsItemsWithEmptyRouteName(): void
     {
-        $colRepo = $this->createMock(BreadcrumbCollectionRepository::class);
-        $colRepo->method('findOneByCodeAndContextKey')->willReturn(null);
+        $store = new BreadcrumbStore();
 
-        $em = $this->createMock(EntityManagerInterface::class);
-        $persisted = [];
-        $em->method('persist')->willReturnCallback(static function (object $entity) use (&$persisted): void {
-            $persisted[] = $entity;
-        });
-        $em->expects(self::atLeastOnce())->method('flush');
-
-        $importer = new BreadcrumbImporter(
-            $colRepo,
-            $this->createMock(BreadcrumbItemRepository::class),
-            $em,
-            $this->translator(),
-        );
-
-        $result = $importer->import([
+        $result = $store->importer()->import([
             'collection' => ['code' => 'demo'],
             'items' => [['routeName' => ''], ['label' => 'no route']],
         ]);
 
         self::assertSame(1, $result['created']);
-        self::assertCount(1, $persisted);
-        self::assertInstanceOf(BreadcrumbCollection::class, $persisted[0]);
+        self::assertSame([], $this->items($store, 'demo'));
     }
 
     public function testImportLogsStartAndSuccessWithCounts(): void
     {
-        $colRepo = $this->createMock(BreadcrumbCollectionRepository::class);
-        $colRepo->method('findOneByCodeAndContextKey')->willReturn(null);
         $logger = $this->recordingLogger();
+        $store = new BreadcrumbStore();
+        $importer = new BreadcrumbImporter($store->collections, $store->items, $store->entityManager, $this->translator(), $logger, $store->invalidator, $store->runner);
 
-        $importer = new BreadcrumbImporter($colRepo, $this->createMock(BreadcrumbItemRepository::class), $this->createMock(EntityManagerInterface::class), $this->translator(), $logger);
         $importer->import(['collection' => ['code' => 'demo'], 'items' => []], BreadcrumbImporter::STRATEGY_REPLACE);
 
         self::assertSame([
@@ -290,7 +195,8 @@ final class BreadcrumbImporterTest extends TestCase
     public function testImportLogsWarningWhenThePayloadHasErrors(): void
     {
         $logger = $this->recordingLogger();
-        $importer = new BreadcrumbImporter($this->createMock(BreadcrumbCollectionRepository::class), $this->createMock(BreadcrumbItemRepository::class), $this->createMock(EntityManagerInterface::class), $this->translator(), $logger);
+        $store = new BreadcrumbStore();
+        $importer = new BreadcrumbImporter($store->collections, $store->items, $store->entityManager, $this->translator(), $logger, $store->invalidator, $store->runner);
 
         $importer->import(['unexpected' => true]);
 
@@ -301,17 +207,8 @@ final class BreadcrumbImporterTest extends TestCase
 
     public function testImportDropsUnsafeIconsAndReportsThem(): void
     {
-        $colRepo = $this->createMock(BreadcrumbCollectionRepository::class);
-        $colRepo->method('findOneByCodeAndContextKey')->willReturn(null);
-
-        /** @var list<object> $persisted */
-        $persisted = [];
-        $em = $this->createMock(EntityManagerInterface::class);
-        $em->method('persist')->willReturnCallback(static function (object $entity) use (&$persisted): void {
-            $persisted[] = $entity;
-        });
-
-        $importer = new BreadcrumbImporter($colRepo, $this->createMock(BreadcrumbItemRepository::class), $em, $this->translator());
+        $store = new BreadcrumbStore();
+        $importer = new BreadcrumbImporter($store->collections, $store->items, $store->entityManager, $this->translator(), changeNotifier: $store->invalidator, transactionRunner: $store->runner);
 
         $result = $importer->import([
             'collection' => ['code' => 'demo', 'homeIcon' => '<img src=x onerror=alert(1)>'],
@@ -324,27 +221,18 @@ final class BreadcrumbImporterTest extends TestCase
         self::assertSame(1, $result['created']);
         self::assertSame(['import.error.icon_rejected{"%code%":"demo","%count%":"2"}'], $result['errors']);
 
-        self::assertInstanceOf(BreadcrumbCollection::class, $persisted[0]);
-        self::assertNull($persisted[0]->getHomeIcon());
-        self::assertInstanceOf(BreadcrumbItem::class, $persisted[1]);
-        self::assertNull($persisted[1]->getIcon());
-        self::assertInstanceOf(BreadcrumbItem::class, $persisted[2]);
-        self::assertSame('<i class="bi bi-journal"></i>', $persisted[2]->getIcon());
+        $collection = $store->collections->findOneByCodeAndContextKey('demo');
+        self::assertInstanceOf(BreadcrumbCollection::class, $collection);
+        self::assertNull($collection->getHomeIcon());
+        $items = $this->items($store, 'demo');
+        self::assertNull($items[0]->getIcon());
+        self::assertSame('<i class="bi bi-journal"></i>', $items[1]->getIcon());
     }
 
     public function testImportDropsInvalidPathPatternsAndReportsThem(): void
     {
-        $colRepo = $this->createMock(BreadcrumbCollectionRepository::class);
-        $colRepo->method('findOneByCodeAndContextKey')->willReturn(null);
-
-        /** @var list<object> $persisted */
-        $persisted = [];
-        $em = $this->createMock(EntityManagerInterface::class);
-        $em->method('persist')->willReturnCallback(static function (object $entity) use (&$persisted): void {
-            $persisted[] = $entity;
-        });
-
-        $importer = new BreadcrumbImporter($colRepo, $this->createMock(BreadcrumbItemRepository::class), $em, $this->translator());
+        $store = new BreadcrumbStore();
+        $importer = new BreadcrumbImporter($store->collections, $store->items, $store->entityManager, $this->translator(), changeNotifier: $store->invalidator, transactionRunner: $store->runner);
 
         $result = $importer->import([
             'collection' => ['code' => 'demo'],
@@ -355,29 +243,38 @@ final class BreadcrumbImporterTest extends TestCase
         ]);
 
         self::assertSame(['import.error.path_pattern_rejected{"%code%":"demo","%count%":"1"}'], $result['errors']);
-        self::assertInstanceOf(BreadcrumbItem::class, $persisted[1]);
-        self::assertNull($persisted[1]->getPathPattern());
-        self::assertInstanceOf(BreadcrumbItem::class, $persisted[2]);
-        self::assertSame('^/shop/.+', $persisted[2]->getPathPattern());
+        $items = $this->items($store, 'demo');
+        self::assertNull($items[0]->getPathPattern());
+        self::assertSame('^/shop/.+', $items[1]->getPathPattern());
     }
 
     public function testImportLogsErrorAndRethrowsOnFailure(): void
     {
-        $colRepo = $this->createMock(BreadcrumbCollectionRepository::class);
-        $colRepo->method('findOneByCodeAndContextKey')->willThrowException(new RuntimeException('db down'));
         $logger = $this->recordingLogger();
-        $importer = new BreadcrumbImporter($colRepo, $this->createMock(BreadcrumbItemRepository::class), $this->createMock(EntityManagerInterface::class), $this->translator(), $logger);
+        $store = new BreadcrumbStore(createSchema: false);
+        $importer = new BreadcrumbImporter($store->collections, $store->items, $store->entityManager, $this->translator(), $logger, $store->invalidator, $store->runner);
 
         try {
             $importer->import(['collection' => ['code' => 'demo'], 'items' => []]);
-            self::fail('Expected the repository failure to propagate.');
-        } catch (RuntimeException $e) {
-            self::assertSame('db down', $e->getMessage());
+            self::fail('Expected the missing schema to fail the import.');
+        } catch (DriverException $e) {
+            self::assertStringContainsString('no such table', $e->getMessage());
         }
 
         self::assertSame('error', $logger->records[1][0]);
         self::assertSame('Breadcrumb import failed.', $logger->records[1][1]);
-        self::assertSame(RuntimeException::class, $logger->records[1][2]['exception']);
+        self::assertSame(TableNotFoundException::class, $logger->records[1][2]['exception']);
+    }
+
+    /**
+     * @return list<BreadcrumbItem>
+     */
+    private function items(BreadcrumbStore $store, string $code): array
+    {
+        $collection = $store->collections->findOneByCodeAndContextKey($code);
+        self::assertInstanceOf(BreadcrumbCollection::class, $collection);
+
+        return $store->items->findAllForCollection($collection);
     }
 
     private function recordingLogger(): RecordingLogger

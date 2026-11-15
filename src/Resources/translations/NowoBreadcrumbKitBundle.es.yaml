@@ -118,6 +118,7 @@ import:
     entry_code_required: 'Entrada %index%: el código de colección es obligatorio.'
     invalid_root: 'No uses un array JSON raíz suelto; exporta desde el panel o usa { "collections": [ ... ] }.'
     invalid_shape: 'Formato esperado: { "collection", "items" } o { "collections": [ ... ] }.'
+    collection_key_conflict: 'No se importó la colección "%code%": ya existe una colección cuyo código o clave de contexto solo difiere en mayúsculas/minúsculas o espacios finales.'
     collection_code_required: El código de colección es obligatorio.
     icon_rejected: 'Colección "%code%": %count% icono(s) contenían marcado no seguro y se han dejado vacíos.'
     path_pattern_rejected: 'Colección "%code%": %count% patrón(es) de ruta no compilaban o usaban cuantificadores anidados y se han dejado vacíos.'
