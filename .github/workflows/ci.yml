@@ -215,6 +215,69 @@ jobs:
       - name: Translation key parity (REQ-MAKE-004)
         run: php .scripts/validate-translations.php
 
+  # 2.20 (Beacon spec 239): lock waits, concurrent processes and the import races on real servers (tests/Database, run
+  # with fail-on-skipped), plus the unit and integration suites on this doctrine/dbal (the DBAL 3 form of the driver
+  # connection is only loaded there). Passwordless services.
+  load:
+    name: Load readiness (${{ matrix.name }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { name: 'MySQL 8.4', url: 'mysql://root@127.0.0.1:3306/breadcrumb?serverVersion=8.4.0&charset=utf8mb4', dbal: '' }
+          - { name: 'PostgreSQL 16', url: 'postgresql://postgres@127.0.0.1:5432/breadcrumb?serverVersion=16&charset=utf8', dbal: '' }
+          - { name: 'MySQL 8.4, DBAL 3', url: 'mysql://root@127.0.0.1:3306/breadcrumb?serverVersion=8.4.0&charset=utf8mb4', dbal: '^3.8.2' }
+          - { name: 'PostgreSQL 16, DBAL 3', url: 'postgresql://postgres@127.0.0.1:5432/breadcrumb?serverVersion=16&charset=utf8', dbal: '^3.8.2' }
+    services:
+      mysql:
+        image: mysql:8.4
+        env:
+          MYSQL_ALLOW_EMPTY_PASSWORD: 'yes'
+          MYSQL_DATABASE: breadcrumb
+        ports: ['3306:3306']
+        options: >-
+          --health-cmd "mysqladmin ping -h127.0.0.1 -uroot --silent"
+          --health-interval 5s --health-timeout 5s --health-retries 30
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_HOST_AUTH_METHOD: trust
+          POSTGRES_DB: breadcrumb
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 5s --health-timeout 5s --health-retries 30
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v7
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'
+          extensions: json, pdo_mysql, pdo_pgsql
+          coverage: none
+          tools: composer:v2
+
+      - name: Install dependencies
+        run: composer install --prefer-dist --no-progress --no-interaction
+
+      - name: Use DBAL 3
+        if: ${{ matrix.dbal != '' }}
+        run: composer require --no-interaction --no-progress --with-all-dependencies "doctrine/dbal:${{ matrix.dbal }}"
+
+      - name: Lock wait and multi-process tests
+        timeout-minutes: 10
+        env:
+          BREADCRUMB_TEST_DATABASE_URL: ${{ matrix.url }}
+        run: vendor/bin/phpunit --no-coverage --fail-on-skipped --testsuite database
+
+      - name: Unit and integration suites on this doctrine/dbal
+        timeout-minutes: 10
+        run: vendor/bin/phpunit --no-coverage --testsuite unit,integration
+
   coverage:
     name: Code Coverage
     runs-on: ubuntu-latest

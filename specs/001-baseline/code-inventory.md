@@ -58,6 +58,12 @@
 | `EventSubscriber/TablePrefixSubscriber.php` | Entities & persistence | FR-EVT-001 |
 | `Repository/BreadcrumbCollectionRepository.php` | Entities & persistence | FR-ORM-002 |
 | `Repository/BreadcrumbItemRepository.php` | Entities & persistence | FR-ORM-002 |
+| `Transaction/BreadcrumbTransactionRunner.php` | Entities & persistence | FR-WORKER-001 (2.20, [HIGH-LOAD](../../docs/HIGH-LOAD.md)) |
+| `Transaction/BreadcrumbFlushObserver.php` | Entities & persistence | FR-WORKER-001 |
+| `Transaction/BreadcrumbRowLock.php` | Entities & persistence | FR-WORKER-001 |
+| `EventSubscriber/StorageFailureSubscriber.php` | Entities & persistence | FR-WORKER-001 |
+| `Doctrine/AfterCommitConnectionBehaviour.php` | Entities & persistence | FR-WORKER-001 |
+| `Doctrine/AfterCommitConnectionDbal3.php` | Entities & persistence | FR-WORKER-001 |
 
 ## DTOs
 

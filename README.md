@@ -132,6 +132,7 @@ renders in the demo host layout (`nowo_ui_kit.layouts.admin`). `make -C demo/sym
 - [Customising the dashboard](docs/USAGE.md#customising-the-dashboard) and [theme slots of the trail](docs/USAGE.md#theme-slots-of-the-trail) (USAGE)
 - [DEMO-FRANKENPHP.md](docs/DEMO-FRANKENPHP.md) — FrankenPHP demo (`demo/symfony8`)
 - [FRANKENPHP-WORKER-AUDIT.md](docs/FRANKENPHP-WORKER-AUDIT.md) — worker mode without kernel reset
+- [HIGH-LOAD.md](docs/HIGH-LOAD.md) — concurrent writes: one runner per write, row locks, 503 / 409, import races (2.20)
 - [GitHub Actions CI requirements](docs/GITHUB_CI.md)
 
 ## Tests and coverage
