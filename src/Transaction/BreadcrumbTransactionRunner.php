@@ -128,7 +128,7 @@ final readonly class BreadcrumbTransactionRunner implements TransactionRunnerInt
      */
     public function runRetrying(callable $operation, int $attempts = self::RETRY_ATTEMPTS): mixed
     {
-        $attempts = \max(1, $attempts);
+        $attempts = max(1, $attempts);
         for ($attempt = 1;; ++$attempt) {
             $outermost = !$this->manager()->getConnection()->isTransactionActive();
             try {
@@ -219,9 +219,9 @@ final readonly class BreadcrumbTransactionRunner implements TransactionRunnerInt
      */
     private function backoff(int $attempt): void
     {
-        $bound = \min(self::BACKOFF_CAP_MILLISECONDS, $this->backoffBaseMilliseconds << ($attempt - 1));
+        $bound = min(self::BACKOFF_CAP_MILLISECONDS, $this->backoffBaseMilliseconds << ($attempt - 1));
         if ($bound > 0) {
-            \usleep(\random_int(0, $bound) * 1000);
+            usleep(random_int(0, $bound) * 1000);
         }
     }
 
@@ -237,7 +237,7 @@ final readonly class BreadcrumbTransactionRunner implements TransactionRunnerInt
         foreach ($unitOfWork->getIdentityMap() as $class => $entities) {
             if (BreadcrumbFlushObserver::isBreadcrumbEntity($class)) {
                 foreach ($entities as $entity) {
-                    $rows[\spl_object_id($entity)] = $unitOfWork->getOriginalEntityData($entity);
+                    $rows[spl_object_id($entity)] = $unitOfWork->getOriginalEntityData($entity);
                 }
             }
         }
@@ -277,7 +277,7 @@ final readonly class BreadcrumbTransactionRunner implements TransactionRunnerInt
             if (!BreadcrumbFlushObserver::isBreadcrumbEntity($entity::class) || !$manager->contains($entity)) {
                 continue;
             }
-            $id = \spl_object_id($entity);
+            $id = spl_object_id($entity);
             if (!isset($before[$id]) || $before[$id] !== $unitOfWork->getOriginalEntityData($entity) || $this->changed($manager, $entity)) {
                 $stale[$id] = $entity;
             } else {
@@ -291,7 +291,7 @@ final readonly class BreadcrumbTransactionRunner implements TransactionRunnerInt
                 $metadata = $manager->getClassMetadata($entity::class);
                 foreach ($metadata->associationMappings as $field => $mapping) {
                     $target = $mapping->isToOne() ? $metadata->getFieldValue($entity, $field) : null;
-                    if (\is_object($target) && isset($stale[\spl_object_id($target)])) {
+                    if (\is_object($target) && isset($stale[spl_object_id($target)])) {
                         $stale[$id] = $entity;
                         unset($kept[$id]);
                         $more = true;

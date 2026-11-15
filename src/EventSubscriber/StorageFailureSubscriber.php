@@ -83,7 +83,7 @@ final class StorageFailureSubscriber implements EventSubscriberInterface
     {
         for ($current = $failure; $current instanceof Throwable; $current = $current->getPrevious()) {
             if ($current instanceof TransientStorageFailure) {
-                return \max(1, $current->retryAfterSeconds() ?? self::DEFAULT_RETRY_AFTER);
+                return max(1, $current->retryAfterSeconds() ?? self::DEFAULT_RETRY_AFTER);
             }
             if ($current instanceof RetryableException) {
                 return self::DEFAULT_RETRY_AFTER;
@@ -107,11 +107,11 @@ final class StorageFailureSubscriber implements EventSubscriberInterface
     private function isBundleRequest(Request $request): bool
     {
         $route = $request->attributes->get('_route');
-        if (\is_string($route) && \str_starts_with($route, self::ROUTE_PREFIX)) {
+        if (\is_string($route) && str_starts_with($route, self::ROUTE_PREFIX)) {
             return true;
         }
         $controller = $request->attributes->get('_controller');
 
-        return \is_string($controller) && \str_starts_with($controller, self::CONTROLLER_PREFIX);
+        return \is_string($controller) && str_starts_with($controller, self::CONTROLLER_PREFIX);
     }
 }

@@ -27,7 +27,7 @@ final class BreadcrumbFlushObserver
     /** Whether a class is one of the bundle's entities (its Doctrine proxy included). */
     public static function isBreadcrumbEntity(string $class): bool
     {
-        return \str_starts_with($class, self::ENTITY_NAMESPACE) || \str_contains($class, '\\__CG__\\'.self::ENTITY_NAMESPACE);
+        return str_starts_with($class, self::ENTITY_NAMESPACE) || str_contains($class, '\\__CG__\\'.self::ENTITY_NAMESPACE);
     }
 
     /** Doctrine `onFlush`: what this flush is about to write. */

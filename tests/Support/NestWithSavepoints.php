@@ -15,7 +15,7 @@ final class NestWithSavepoints
 {
     public static function enable(Connection $connection): void
     {
-        if (\version_compare(InstalledVersions::getVersion('doctrine/dbal') ?? '4.0.0', '4.0.0', '<')) {
+        if (version_compare(InstalledVersions::getVersion('doctrine/dbal') ?? '4.0.0', '4.0.0', '<')) {
             $connection->setNestTransactionsWithSavepoints(true);
         }
     }
