@@ -34,13 +34,15 @@ final class EntityManagerTestKernel extends Kernel
      * @param array<string, mixed> $breadcrumbKit
      * @param bool                 $hostDefaultDriver the host gives its default manager's chain a catch-all default
      *                                                driver (what DoctrineBundle 3.4 `auto_discover_entities` does)
+     * @param bool                 $dashboardRoutes   imports the dashboard routes and accepts every CSRF token (HTTP tests)
      */
     public function __construct(
         private readonly array $doctrine,
         private readonly array $breadcrumbKit = [],
         private readonly bool $hostDefaultDriver = false,
+        private readonly bool $dashboardRoutes = false,
     ) {
-        $this->cacheKey = hash('xxh128', serialize([$doctrine, $breadcrumbKit, $hostDefaultDriver]));
+        $this->cacheKey = hash('xxh128', serialize([$doctrine, $breadcrumbKit, $hostDefaultDriver, $dashboardRoutes]));
         parent::__construct('test', false);
     }
 
@@ -71,6 +73,15 @@ final class EntityManagerTestKernel extends Kernel
 
     protected function build(ContainerBuilder $container): void
     {
+        if ($this->dashboardRoutes) {
+            $container->addCompilerPass(new class implements CompilerPassInterface {
+                public function process(ContainerBuilder $container): void
+                {
+                    // The HTTP tests post forms without a session: every CSRF token is accepted.
+                    $container->setDefinition('security.csrf.token_manager', new Definition(AcceptingCsrfTokenManager::class));
+                }
+            });
+        }
         if (!$this->hostDefaultDriver) {
             return;
         }
@@ -106,5 +117,8 @@ final class EntityManagerTestKernel extends Kernel
     private function configureRoutes(RoutingConfigurator $routes): void
     {
         $routes->add('home', '/')->controller('kernel::noop');
+        if ($this->dashboardRoutes) {
+            $routes->import('@NowoBreadcrumbKitBundle/Resources/config/routing/dashboard.yaml', 'yaml')->prefix('/admin/breadcrumbs');
+        }
     }
 }
