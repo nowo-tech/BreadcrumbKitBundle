@@ -69,6 +69,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Documentation
+
+- Spec Kit baseline: `specs/001-baseline/code-inventory.md` maps all 128 tracked `src/` files (2.13–2.20 additions) and `spec.md` gains FR-ARCH-001, FR-SEC-005, FR-EVT-002, FR-ORM-003, FR-SVC-005 and FR-TEST-001 (REQ-SPECKIT-001/003).
+- `docs/SPEC-DRIVEN-DEVELOPMENT.md`: "GitHub Spec Kit" summary, contributor step for the baseline, links to `SPEC-KIT.md` (REQ-SPECKIT-002).
+- `docs/PSR.md`: PSR-3 Logger is **Adopted** (injected `LoggerInterface`) (REQ-CS-007).
+- Demo: GitHub link uses the PascalCase repository slug (REQ-DOCS-014).
+
 ## [2.20.0] - 2026-11-15
 
 ### Added

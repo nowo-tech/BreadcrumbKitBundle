@@ -2,8 +2,8 @@
 
 **Baseline spec**: [`spec.md`](spec.md)  
 **Package**: `nowo-tech/breadcrumb-kit-bundle`  
-**Last audited**: 2026-10-28 (security fixes 2.11.0–2.12.0: icon sanitizer, path pattern validator, CSRF pass)  
-**Audit**: `find src -type f | wc -l` → **92** (matches summary total)
+**Last audited**: 2026-11-16 (REQ sweep: 2.13–2.20 additions mapped)  
+**Audit**: `git ls-files src | wc -l` → **128** (matches summary total; earlier category counts were recorded before the Twig views were split, the total now counts every tracked `src/` file)
 
 ## Symfony config
 
@@ -212,6 +212,31 @@ BreadcrumbKit prepends FormKit profile `breadcrumb_kit` and may seed FormKit/UiK
 | `Resources/views/dashboard/collection/delete.html.twig` | Twig views — dashboard | FR-TWIG-002, FR-UI-002 |
 | `Resources/views/dashboard/item/delete.html.twig` | Twig views — dashboard | FR-TWIG-002, FR-UI-002 |
 
+## Additions 2.13–2.20 (ports, after-commit events, test helpers)
+
+| Source file | Spec section | Requirement IDs |
+| --- | --- | --- |
+| `Contract/BreadcrumbEditAccessCheckerInterface.php` | Additions 2.13–2.20 | FR-ARCH-001 |
+| `Contract/BreadcrumbLinkAccessCheckerInterface.php` | Additions 2.13–2.20 | FR-SEC-005 |
+| `DependencyInjection/Compiler/AfterCommitMiddlewarePass.php` | Additions 2.13–2.20 | FR-EVT-002 |
+| `DependencyInjection/Compiler/BreadcrumbEntityManagerPass.php` | Additions 2.13–2.20 | FR-ORM-003 |
+| `DependencyInjection/Compiler/LinkAccessCheckerPass.php` | Additions 2.13–2.20 | FR-SEC-005 |
+| `Doctrine/AfterCommitConnection.php` | Additions 2.13–2.20 | FR-EVT-002 |
+| `Doctrine/AfterCommitDriver.php` | Additions 2.13–2.20 | FR-EVT-002 |
+| `Doctrine/AfterCommitMiddleware.php` | Additions 2.13–2.20 | FR-EVT-002 |
+| `Doctrine/BreadcrumbChangeOutbox.php` | Additions 2.13–2.20 | FR-EVT-002 |
+| `Doctrine/ExcludedEntityNamespaceDriver.php` | Additions 2.13–2.20 | FR-ORM-003 |
+| `Doctrine/TransactionObserverInterface.php` | Additions 2.13–2.20 | FR-EVT-002 |
+| `Dto/BreadcrumbEditContext.php` | Additions 2.13–2.20 | FR-ARCH-001 |
+| `Dto/BreadcrumbRouteContext.php` | Additions 2.13–2.20 | FR-ARCH-001 |
+| `Event/BreadcrumbCollectionChangedEvent.php` | Additions 2.13–2.20 | FR-EVT-002 |
+| `Service/BreadcrumbLoaderInterface.php` | Additions 2.13–2.20 | FR-ARCH-001, FR-SVC-001 |
+| `Service/BreadcrumbParamMap.php` | Additions 2.13–2.20 | FR-SVC-005 |
+| `Service/BreadcrumbRequestContextFactory.php` | Additions 2.13–2.20 | FR-ARCH-001 |
+| `Testing/BreadcrumbRouteCoverageTrait.php` | Additions 2.13–2.20 | FR-TEST-001 |
+| `Testing/BreadcrumbRows.php` | Additions 2.13–2.20 | FR-TEST-001 |
+| `Testing/NonPageRouteFilter.php` | Additions 2.13–2.20 | FR-TEST-001 |
+
 ## Coverage summary
 
 | Category | Files | Mapped |
@@ -234,4 +259,5 @@ BreadcrumbKit prepends FormKit profile `breadcrumb_kit` and may seed FormKit/UiK
 | Twig views — public | 4 | 4 |
 | Twig views — profiler | 2 | 2 |
 | Twig views — dashboard | 13 | 13 |
-| **Total production sources** | **97** | **97** |
+| Additions 2.13–2.20 | 20 | 20 |
+| **Total production sources** | **128** | **128** |

@@ -119,6 +119,15 @@ Dashboard look-and-feel composes **UiKitBundle**; dashboard Symfony forms compos
 
 ---
 
+### Additions 2.13–2.20
+
+- **FR-ARCH-001**: Framework-free host path (REQ-ARCH-001): `BreadcrumbLoaderInterface` is the public trail contract; `BreadcrumbRouteContext` / `BreadcrumbEditContext` VOs built by the stateless `BreadcrumbRequestContextFactory`; `BreadcrumbEditAccessCheckerInterface` is the VO-typed successor of the inline-edit checker (2.18).
+- **FR-SEC-005**: Optional `link_access_checker` (`BreadcrumbLinkAccessCheckerInterface`) decides whether a crumb links to its page; `LinkAccessCheckerPass` refuses to compile when the configured service does not implement the interface.
+- **FR-EVT-002**: `BreadcrumbCollectionChangedEvent` is dispatched once per changed collection **after** the real commit of the bundle connection: `AfterCommitMiddleware` (+ driver / connection, attached by `AfterCommitMiddlewarePass` only to the bundle's connection) reports transactions to `TransactionObserverInterface` observers; `BreadcrumbChangeOutbox` buffers events per transaction and drops them on rollback (2.16).
+- **FR-ORM-003**: Dedicated entity manager support: `BreadcrumbEntityManagerPass` maps the bundle entities only on the configured manager and registers `ExcludedEntityNamespaceDriver` on every other manager, so host managers never see (or flush) breadcrumb entities.
+- **FR-SVC-005**: `BreadcrumbParamMap` maps per-item route parameters from differently named parameters of the current route.
+- **FR-TEST-001**: Host test helpers under `Testing/`: `BreadcrumbRouteCoverageTrait` asserts every page route has a breadcrumb row and every row names an existing route; `BreadcrumbRows` reads rows as `route => parent`; `NonPageRouteFilter` decides which routes are HTML pages.
+
 ## Success Criteria
 
 - **SC-001**: **97/97** production files under `src/` mapped in [`code-inventory.md`](code-inventory.md).

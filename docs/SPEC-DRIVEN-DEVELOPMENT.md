@@ -17,6 +17,7 @@ There is no separate executable spec language (for example Gherkin); tests and s
 - [Bundle functional scope](#bundle-functional-scope)
 - [Validating the functional spec](#validating-the-functional-spec)
 - [Requirement identifiers (`REQ-*`)](#requirement-identifiers-req-)
+- [GitHub Spec Kit](#github-spec-kit)
 - [Suggested workflow for contributors](#suggested-workflow-for-contributors)
 - [Relationship to Engram / external checklists](#relationship-to-engram--external-checklists)
 - [See also](#see-also)
@@ -47,7 +48,7 @@ The sections below state **behavior**; this subsection states **intent** in back
 - Documented integration (see root `README.md` and `docs/`).
 - Configuration and runtime behavior described in [`CONFIGURATION.md`](CONFIGURATION.md) and [`USAGE.md`](USAGE.md).
 - Consumer-facing change notes in [`CHANGELOG.md`](CHANGELOG.md) and [`UPGRADING.md`](UPGRADING.md) when applicable.
-- Baseline Spec Kit map: [`specs/001-baseline/`](../specs/001-baseline/) (**74/74** `src/` files; UiKit + FormKit as composed kits).
+- Baseline Spec Kit map: [`specs/001-baseline/`](../specs/001-baseline/) (**128/128** `src/` files; UiKit + FormKit as composed kits).
 
 **Explicit non-goals**
 
@@ -80,12 +81,26 @@ When you change scripted behavior, **update the existing `REQ-*` comment** if th
 
 ---
 
+## GitHub Spec Kit
+
+This repository is initialised with [GitHub Spec Kit](https://github.com/github/spec-kit) for **Cursor Agent**:
+
+- `.specify/` — Spec Kit scaffolding (templates, scripts, `memory/constitution.md`).
+- `.cursor/skills/speckit-*` — slash skills (`/speckit-specify`, `/speckit-plan`, `/speckit-tasks`, `/speckit-implement`, …).
+- [`specs/001-baseline/`](../specs/001-baseline/) — baseline [`spec.md`](../specs/001-baseline/spec.md) and [`code-inventory.md`](../specs/001-baseline/code-inventory.md) mapping **128/128** tracked `src/` files; new features go to `specs/002+`.
+- Re-initialise: `specify init --here --force --integration cursor-agent --script sh`.
+
+The full manual (install, folder layout, Cursor workflow, maintainer checklist, troubleshooting) is **[`SPEC-KIT.md`](SPEC-KIT.md)**.
+
+---
+
 ## Suggested workflow for contributors
 
 1. **Clarify behavior** in an issue or draft PR: acceptance criteria for the **product** and, if relevant, **Makefiles/demos** (`REQ-*`).
 2. **Implement** with tests and static analysis.
 3. **Anchor scripts and demos** when dev UX changes: add or adjust `REQ-*` comments and this table.
 4. **Ship integrator docs** when behavior or configuration changes: [`USAGE.md`](USAGE.md), [`CONFIGURATION.md`](CONFIGURATION.md), [`CHANGELOG.md`](CHANGELOG.md), and [`UPGRADING.md`](UPGRADING.md) when consumers must change code or config.
+5. **Update the Spec Kit baseline** when production code changes: add new `src/` files to [`code-inventory.md`](../specs/001-baseline/code-inventory.md) (keep **N/N**) and new behaviour as `FR-*` in [`spec.md`](../specs/001-baseline/spec.md); follow the maintainer checklist in [`SPEC-KIT.md`](SPEC-KIT.md).
 
 ---
 
@@ -101,3 +116,5 @@ When you change scripted behavior, **update the existing `REQ-*` comment** if th
 - [`CONFIGURATION.md`](CONFIGURATION.md)
 - [`CONTRIBUTING.md`](CONTRIBUTING.md)
 - [`RELEASE.md`](RELEASE.md)
+- [`SPEC-KIT.md`](SPEC-KIT.md)
+- [`specs/001-baseline/spec.md`](../specs/001-baseline/spec.md)
