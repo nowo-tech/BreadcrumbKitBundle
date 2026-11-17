@@ -3,6 +3,7 @@
 ## Table of contents
 
 - [Unreleased](#unreleased)
+- [To 2.21.0](#to-2210)
   - [Constraint messages moved to the `validators` domain under a prefix](#constraint-messages-moved-to-the-validators-domain-under-a-prefix)
 - [To 2.20.0](#to-2200)
 - [To 2.20.0](#to-2200-1)
@@ -76,6 +77,14 @@
 - [General upgrade steps (any version)](#general-upgrade-steps-any-version)
 
 ## Unreleased
+
+## To 2.21.0
+
+From **2.20.0**:
+
+```bash
+composer update nowo-tech/breadcrumb-kit-bundle
+```
 
 ### Constraint messages moved to the `validators` domain under a prefix
 
