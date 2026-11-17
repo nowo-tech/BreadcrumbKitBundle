@@ -125,7 +125,7 @@ final class DashboardReadsKernelTest extends TestCase
         $itemBase = $base.'/'.$collection->getId().'/items';
         $newItem = $this->post($itemBase.'/new', ['breadcrumb_item' => ['routeName' => '', 'label' => 'x']]);
         self::assertSame(422, $newItem->getStatusCode(), substr((string) $newItem->getContent(), 0, 300));
-        self::assertStringContainsString('<li id="breadcrumb_item_routeName_error1">', (string) $newItem->getContent(), 'the form error is rendered');
+        self::assertStringContainsString('<li id="breadcrumb_item_routeName_error1">Enter a route name.</li>', (string) $newItem->getContent(), 'the translated (validators domain) message is rendered');
 
         $editItem = $this->post($itemBase.'/'.$item->getId().'/edit', ['breadcrumb_item' => ['routeName' => '']]);
         self::assertSame(422, $editItem->getStatusCode());

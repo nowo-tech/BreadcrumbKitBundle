@@ -78,6 +78,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - A blank required dashboard field (collection `code`, item `routeName`) answered HTTP 500 because `null` reached a `string` setter before `NotBlank` ran; both fields now use `empty_data: ''`, so validation runs and the form answers 422 with the error message.
 - `nowo_breadcrumb_kit:generate-migration --update` no longer hard-codes the `path_pattern` / `match_attributes` column names; they are resolved from the Doctrine metadata, so they follow the host's naming strategy (tested with the default and the underscore strategies).
+- Constraint messages (`form.icon.invalid`, `form.breadcrumb_item.route_name.not_blank`, `form.breadcrumb_item.path_pattern.invalid`, `form.import_breadcrumb.file.required` / `.mime`) were rendered as raw keys because the validator looks them up in the `validators` domain; they now live in `validators.<locale>.yaml` for all seven shipped locales (same key names, REQ-I18N-003), and `.scripts/validate-translations.php` checks that domain too.
 - `symfony/mime` moves from `require-dev` to `require`: the import form's `File` constraint guesses the MIME type at runtime.
 
 ### Documentation
