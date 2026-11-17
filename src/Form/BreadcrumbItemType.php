@@ -54,6 +54,7 @@ final class BreadcrumbItemType extends AbstractType
                 'label' => 'form.breadcrumb_item.route_name.label',
                 'placeholder' => false,
                 'help' => false,
+                'empty_data' => '',
                 'constraints' => [new NotBlank(message: 'form.breadcrumb_item.route_name.not_blank'), new Length(max: 255)],
                 'attr' => ['placeholder' => 'form.breadcrumb_item.route_name.placeholder'],
             ]);

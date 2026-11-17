@@ -40,12 +40,17 @@ final class DashboardRepositoriesAndCommandsKernelTest extends TestCase
 
     protected function setUp(): void
     {
-        $file = \sprintf('%s/nowo_breadcrumb_kit_repo_%d_%s.sqlite', sys_get_temp_dir(), (int) getmypid(), hash('xxh128', $this->name()));
+        $this->bootKernel('doctrine.orm.naming_strategy.underscore_number_aware');
+    }
+
+    private function bootKernel(string $namingStrategy): void
+    {
+        $file = \sprintf('%s/nowo_breadcrumb_kit_repo_%d_%s.sqlite', sys_get_temp_dir(), (int) getmypid(), hash('xxh128', $this->name().$namingStrategy));
         if (is_file($file)) {
             unlink($file);
         }
         $this->cleanup[] = $file;
-        $this->kernel = new EntityManagerTestKernel(['dbal' => ['url' => 'sqlite:///'.$file], 'orm' => ['auto_mapping' => true, 'naming_strategy' => 'doctrine.orm.naming_strategy.underscore_number_aware']], [], false, true);
+        $this->kernel = new EntityManagerTestKernel(['dbal' => ['url' => 'sqlite:///'.$file], 'orm' => ['auto_mapping' => true, 'naming_strategy' => $namingStrategy]], [], false, true);
         $this->kernel->boot();
         $container = $this->kernel->getContainer()->get('test.service_container');
         self::assertInstanceOf(ContainerInterface::class, $container);
@@ -221,8 +226,28 @@ final class DashboardRepositoriesAndCommandsKernelTest extends TestCase
         $connection->executeStatement('DROP TABLE dashboard_breadcrumb_item');
         $connection->executeStatement('CREATE TABLE dashboard_breadcrumb_item (id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL)');
         self::assertSame(Command::SUCCESS, $migration->execute(['--update' => true, '--dump' => true]));
-        self::assertStringContainsString('ADD path_pattern', $migration->getDisplay());
-        self::assertStringContainsString('ADD match_attributes', $migration->getDisplay());
+        self::assertStringContainsString('ADD path_pattern ', $migration->getDisplay());
+        self::assertStringContainsString('ADD match_attributes ', $migration->getDisplay());
+        self::assertStringNotContainsString('pathPattern', $migration->getDisplay());
+    }
+
+    public function testMigrationUpdateFollowsTheDefaultNamingStrategyColumnNames(): void
+    {
+        $this->kernel->shutdown();
+        $this->bootKernel('doctrine.orm.naming_strategy.default');
+        $migration = $this->command('nowo_breadcrumb_kit:generate-migration');
+
+        // The columns exist under the host's names (pathPattern / matchAttributes), so --update has nothing to alter.
+        self::assertSame(Command::SUCCESS, $migration->execute(['--update' => true, '--dump' => true]));
+        self::assertStringNotContainsString('ADD', $migration->getDisplay());
+
+        $connection = $this->manager->getConnection();
+        $connection->executeStatement('DROP TABLE dashboard_breadcrumb_item');
+        $connection->executeStatement('CREATE TABLE dashboard_breadcrumb_item (id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL)');
+        self::assertSame(Command::SUCCESS, $migration->execute(['--update' => true, '--dump' => true]));
+        self::assertStringContainsString('ADD pathPattern ', $migration->getDisplay());
+        self::assertStringContainsString('ADD matchAttributes ', $migration->getDisplay());
+        self::assertStringNotContainsString('path_pattern', $migration->getDisplay());
     }
 
     private function command(string $name): CommandTester
