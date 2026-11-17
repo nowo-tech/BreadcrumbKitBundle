@@ -3,6 +3,7 @@
 ## Table of contents
 
 - [Unreleased](#unreleased)
+- [To 2.22.0](#to-2220)
 - [To 2.21.0](#to-2210)
   - [Constraint messages moved to the `validators` domain under a prefix](#constraint-messages-moved-to-the-validators-domain-under-a-prefix)
 - [To 2.20.0](#to-2200)
@@ -77,6 +78,14 @@
 - [General upgrade steps (any version)](#general-upgrade-steps-any-version)
 
 ## Unreleased
+
+## To 2.22.0
+
+From **2.21.0**:
+
+```bash
+composer update nowo-tech/breadcrumb-kit-bundle
+```
 
 Additive, no action needed. Listeners that rebuild `BreadcrumbTrailView` through its constructor can switch to
 `$view->mapNodes(...)` / `$view->withNodes($nodes)` and `$node->withLabel($label)`; see USAGE, "Changing labels without
