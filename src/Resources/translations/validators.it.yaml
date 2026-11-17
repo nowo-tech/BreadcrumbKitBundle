@@ -1,11 +1,12 @@
 # Constraint messages (validators domain; REQ-I18N-003). Translated by the validator, not by the form theme.
-form:
-  icon:
-    invalid: 'Icona non consentita: usa testo, un emoji, SVG inline o HTML inline semplice (ad es. <i class="bi bi-house"></i>) senza script, gestori di eventi o link esterni.'
-  import_breadcrumb:
-    file:
-      required: Seleziona un file.
-      mime: Il file deve essere JSON.
-  breadcrumb_item:
-    route_name.not_blank: Inserisci un nome di rotta.
-    path_pattern.invalid: 'Pattern di percorso non valido: deve essere un’espressione regolare valida (usata come #…#u) senza quantificatori annidati come (a+)+.'
+nowo_breadcrumb_kit:
+  form:
+    icon:
+      invalid: 'Icona non consentita: usa testo, un emoji, SVG inline o HTML inline semplice (ad es. <i class="bi bi-house"></i>) senza script, gestori di eventi o link esterni.'
+    import_breadcrumb:
+      file:
+        required: Seleziona un file.
+        mime: Il file deve essere JSON.
+    breadcrumb_item:
+      route_name.not_blank: Inserisci un nome di rotta.
+      path_pattern.invalid: 'Pattern di percorso non valido: deve essere un’espressione regolare valida (usata come #…#u) senza quantificatori annidati come (a+)+.'

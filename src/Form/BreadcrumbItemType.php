@@ -55,7 +55,7 @@ final class BreadcrumbItemType extends AbstractType
                 'placeholder' => false,
                 'help' => false,
                 'empty_data' => '',
-                'constraints' => [new NotBlank(message: 'form.breadcrumb_item.route_name.not_blank'), new Length(max: 255)],
+                'constraints' => [new NotBlank(message: 'nowo_breadcrumb_kit.form.breadcrumb_item.route_name.not_blank'), new Length(max: 255)],
                 'attr' => ['placeholder' => 'form.breadcrumb_item.route_name.placeholder'],
             ]);
             // Keep JsonObjectTransformer: empty → [] / null-friendly UX (FormKit JsonModelTransformer encodes null as "null").

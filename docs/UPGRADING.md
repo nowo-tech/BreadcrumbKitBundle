@@ -3,6 +3,7 @@
 ## Table of contents
 
 - [Unreleased](#unreleased)
+  - [Constraint messages moved to the `validators` domain under a prefix](#constraint-messages-moved-to-the-validators-domain-under-a-prefix)
 - [To 2.20.0](#to-2200)
 - [To 2.20.0](#to-2200-1)
 - [To 2.19.1](#to-2191)
@@ -75,6 +76,14 @@
 - [General upgrade steps (any version)](#general-upgrade-steps-any-version)
 
 ## Unreleased
+
+### Constraint messages moved to the `validators` domain under a prefix
+
+The constraint messages (icon, path pattern, route name not blank, import file required / MIME) now live in
+`validators.<locale>.yaml` under the `nowo_breadcrumb_kit.` prefix, for example `nowo_breadcrumb_kit.form.icon.invalid`
+and `nowo_breadcrumb_kit.form.breadcrumb_item.path_pattern.invalid`. They are no longer in the `NowoBreadcrumbKitBundle`
+domain. A host that overrode them in the bundle domain (or in `validators` under the old unprefixed keys) must move the
+override to `translations/validators.<locale>.yaml` with the new keys.
 
 ## To 2.20.0
 

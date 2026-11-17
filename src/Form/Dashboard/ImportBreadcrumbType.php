@@ -36,11 +36,11 @@ final class ImportBreadcrumbType extends AbstractType
                 'help' => false,
                 'attr' => ['accept' => '.json,application/json'],
                 'constraints' => [
-                    new NotBlank(message: 'form.import_breadcrumb.file.required'),
+                    new NotBlank(message: 'nowo_breadcrumb_kit.form.import_breadcrumb.file.required'),
                     new File(
                         maxSize: '2M',
                         mimeTypes: ['application/json', 'text/plain'],
-                        mimeTypesMessage: 'form.import_breadcrumb.file.mime',
+                        mimeTypesMessage: 'nowo_breadcrumb_kit.form.import_breadcrumb.file.mime',
                     ),
                 ],
             ]);

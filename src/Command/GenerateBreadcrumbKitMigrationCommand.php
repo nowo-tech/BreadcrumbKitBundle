@@ -107,10 +107,10 @@ PHP;
                 $pathPatternColumn = $metaItem->getColumnName('pathPattern');
                 $matchAttributesColumn = $metaItem->getColumnName('matchAttributes');
                 if (!$table->hasColumn($pathPatternColumn)) {
-                    $alterSql[] = \sprintf('ALTER TABLE %s ADD %s VARCHAR(512) DEFAULT NULL', $quoted, $pathPatternColumn);
+                    $alterSql[] = \sprintf('ALTER TABLE %s ADD %s VARCHAR(512) DEFAULT NULL', $quoted, $platform->quoteSingleIdentifier($pathPatternColumn));
                 }
                 if (!$table->hasColumn($matchAttributesColumn)) {
-                    $alterSql[] = \sprintf('ALTER TABLE %s ADD %s JSON DEFAULT NULL', $quoted, $matchAttributesColumn);
+                    $alterSql[] = \sprintf('ALTER TABLE %s ADD %s JSON DEFAULT NULL', $quoted, $platform->quoteSingleIdentifier($matchAttributesColumn));
                 }
             }
             $sql = $alterSql;

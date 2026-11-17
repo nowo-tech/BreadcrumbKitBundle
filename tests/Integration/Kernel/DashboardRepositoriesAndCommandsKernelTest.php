@@ -226,8 +226,8 @@ final class DashboardRepositoriesAndCommandsKernelTest extends TestCase
         $connection->executeStatement('DROP TABLE dashboard_breadcrumb_item');
         $connection->executeStatement('CREATE TABLE dashboard_breadcrumb_item (id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL)');
         self::assertSame(Command::SUCCESS, $migration->execute(['--update' => true, '--dump' => true]));
-        self::assertStringContainsString('ADD path_pattern ', $migration->getDisplay());
-        self::assertStringContainsString('ADD match_attributes ', $migration->getDisplay());
+        self::assertStringContainsString('ADD "path_pattern" ', $migration->getDisplay());
+        self::assertStringContainsString('ADD "match_attributes" ', $migration->getDisplay());
         self::assertStringNotContainsString('pathPattern', $migration->getDisplay());
     }
 
@@ -245,9 +245,25 @@ final class DashboardRepositoriesAndCommandsKernelTest extends TestCase
         $connection->executeStatement('DROP TABLE dashboard_breadcrumb_item');
         $connection->executeStatement('CREATE TABLE dashboard_breadcrumb_item (id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL)');
         self::assertSame(Command::SUCCESS, $migration->execute(['--update' => true, '--dump' => true]));
-        self::assertStringContainsString('ADD pathPattern ', $migration->getDisplay());
-        self::assertStringContainsString('ADD matchAttributes ', $migration->getDisplay());
+        self::assertStringContainsString('ADD "pathPattern" ', $migration->getDisplay());
+        self::assertStringContainsString('ADD "matchAttributes" ', $migration->getDisplay());
         self::assertStringNotContainsString('path_pattern', $migration->getDisplay());
+    }
+
+    public function testMigrationUpdateQuotesReservedWordColumnNames(): void
+    {
+        // A host naming strategy may map a field to a reserved word; the column must be quoted like the table is.
+        $meta = $this->manager->getClassMetadata(BreadcrumbItem::class);
+        $meta->columnNames['pathPattern'] = 'order';
+        $meta->columnNames['matchAttributes'] = 'group';
+        $migration = $this->command('nowo_breadcrumb_kit:generate-migration');
+
+        $connection = $this->manager->getConnection();
+        $connection->executeStatement('DROP TABLE dashboard_breadcrumb_item');
+        $connection->executeStatement('CREATE TABLE dashboard_breadcrumb_item (id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL)');
+        self::assertSame(Command::SUCCESS, $migration->execute(['--update' => true, '--dump' => true]));
+        self::assertStringContainsString('ADD "order" VARCHAR(512)', $migration->getDisplay());
+        self::assertStringContainsString('ADD "group" JSON', $migration->getDisplay());
     }
 
     private function command(string $name): CommandTester
