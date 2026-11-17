@@ -271,6 +271,47 @@ final class EnrichBreadcrumbsSubscriber implements EventSubscriberInterface
 }
 ```
 
+### Changing labels without rebuilding the view (2.22)
+
+`BreadcrumbTrailView` and `BreadcrumbNode` are immutable; do not call the 10-argument constructor just to relabel a
+crumb. Use the withers, which keep every other property (icons, classes, responsive config, collapse):
+
+- `BreadcrumbTrailView::withNodes(array $nodes): static`: copy with only the nodes replaced.
+- `BreadcrumbTrailView::withNode(int $index, BreadcrumbNode $node): static`: copy with one node replaced
+  (`OutOfBoundsException` for an unknown index).
+- `BreadcrumbTrailView::mapNodes(callable(BreadcrumbNode, int): BreadcrumbNode $mapper): static`: copy with every node
+  mapped; returns the same instance when the mapper returned every node as it got it, so no "changed" flag is needed.
+- `BreadcrumbNode::withLabel(string $label): static`.
+
+```php
+use Nowo\BreadcrumbKitBundle\Dto\BreadcrumbNode;
+use Nowo\BreadcrumbKitBundle\Event\BreadcrumbTrailBuiltEvent;
+use Symfony\Component\EventDispatcher\Attribute\AsEventListener;
+
+#[AsEventListener]
+final readonly class OrganizationNameBreadcrumbListener
+{
+    public function __invoke(BreadcrumbTrailBuiltEvent $event): void
+    {
+        $uuid = /* the organization UUID from $event->getRouteContext()->path */;
+        $name = /* its display name, or null to keep the label */;
+        if (null === $name) {
+            return;
+        }
+        $event->setView($event->getView()->mapNodes(
+            static fn (BreadcrumbNode $node): BreadcrumbNode => null !== $node->url && parse_url($node->url, \PHP_URL_PATH) === '/organizations/'.$uuid
+                ? $node->withLabel($name)
+                : $node,
+        ));
+    }
+}
+```
+
+There is deliberately no separate "ancestor label provider" tag: `BreadcrumbTrailBuiltEvent` is already the extension
+point for relabelling any crumb, and a second tagged hook would run in the same place with less context (route
+context, request-free) and a second ordering rule. The listener is stateless, so it is safe in worker mode with kernel
+reset false.
+
 ## Standard Symfony host
 
 The zero-config default. Nothing below is required for a standard Symfony application:

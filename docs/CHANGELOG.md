@@ -70,6 +70,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- `BreadcrumbTrailView::withNodes()`, `withNode()` and `mapNodes()` and `BreadcrumbNode::withLabel()`: immutable
+  copies that change only nodes or a label and keep every other property, so listeners no longer rebuild the view
+  with all 10 constructor arguments (requested by Symfony Beacon, ARCH-1117-10). No ancestor-label provider tag was
+  added: `BreadcrumbTrailBuiltEvent` already covers it.
+
 ## [2.21.0] - 2026-11-17
 
 ### Added

@@ -21,4 +21,10 @@ final readonly class BreadcrumbNode
         public array $routeParams = [],
     ) {
     }
+
+    /** Copy of this crumb with only the label changed. */
+    public function withLabel(string $label): static
+    {
+        return new static($label, $this->url, $this->linkEnabled, $this->current, $this->icon, $this->routeParams);
+    }
 }

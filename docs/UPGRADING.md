@@ -78,6 +78,10 @@
 
 ## Unreleased
 
+Additive, no action needed. Listeners that rebuild `BreadcrumbTrailView` through its constructor can switch to
+`$view->mapNodes(...)` / `$view->withNodes($nodes)` and `$node->withLabel($label)`; see USAGE, "Changing labels without
+rebuilding the view".
+
 ## To 2.21.0
 
 From **2.20.0**:
