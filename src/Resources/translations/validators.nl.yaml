@@ -1,11 +1,12 @@
 # Constraint messages (validators domain; REQ-I18N-003). Translated by the validator, not by the form theme.
-form:
-  icon:
-    invalid: 'Icoon niet toegestaan: gebruik tekst, een emoji, inline SVG of eenvoudige inline HTML (bijv. <i class="bi bi-house"></i>) zonder scripts, event handlers of externe links.'
-  import_breadcrumb:
-    file:
-      required: Kies een bestand.
-      mime: Het bestand moet JSON zijn.
-  breadcrumb_item:
-    route_name.not_blank: Voer een routenaam in.
-    path_pattern.invalid: 'Ongeldig padpatroon: het moet een geldige reguliere expressie zijn (gebruikt als #…#u) zonder geneste kwantoren zoals (a+)+.'
+nowo_breadcrumb_kit:
+  form:
+    icon:
+      invalid: 'Icoon niet toegestaan: gebruik tekst, een emoji, inline SVG of eenvoudige inline HTML (bijv. <i class="bi bi-house"></i>) zonder scripts, event handlers of externe links.'
+    import_breadcrumb:
+      file:
+        required: Kies een bestand.
+        mime: Het bestand moet JSON zijn.
+    breadcrumb_item:
+      route_name.not_blank: Voer een routenaam in.
+      path_pattern.invalid: 'Ongeldig padpatroon: het moet een geldige reguliere expressie zijn (gebruikt als #…#u) zonder geneste kwantoren zoals (a+)+.'

@@ -250,6 +250,28 @@ final class DashboardRepositoriesAndCommandsKernelTest extends TestCase
         self::assertStringNotContainsString('path_pattern', $migration->getDisplay());
     }
 
+    public function testMigrationUpdateQuotesAColumnTheMappingMarksAsQuoted(): void
+    {
+        // A mapping that quotes its column (a reserved word) gets it quoted, exactly as SchemaTool would.
+        $meta = $this->manager->getClassMetadata(BreadcrumbItem::class);
+        $meta->columnNames['pathPattern'] = 'order';
+        $meta->fieldMappings['pathPattern']->columnName = 'order';
+        $meta->fieldMappings['pathPattern']->quoted = true;
+        $migration = $this->command('nowo_breadcrumb_kit:generate-migration');
+
+        $connection = $this->manager->getConnection();
+        $connection->executeStatement('DROP TABLE dashboard_breadcrumb_item');
+        $connection->executeStatement('CREATE TABLE dashboard_breadcrumb_item (id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL)');
+        self::assertSame(Command::SUCCESS, $migration->execute(['--update' => true, '--dump' => true]));
+        self::assertStringContainsString('ADD "order" VARCHAR(512)', $migration->getDisplay());
+        self::assertStringContainsString('ADD match_attributes JSON', $migration->getDisplay());
+
+        // The quoted column already exists: nothing to add for it.
+        $connection->executeStatement('ALTER TABLE dashboard_breadcrumb_item ADD "order" VARCHAR(512) DEFAULT NULL');
+        self::assertSame(Command::SUCCESS, $migration->execute(['--update' => true, '--dump' => true]));
+        self::assertStringNotContainsString('order', $migration->getDisplay());
+    }
+
     private function command(string $name): CommandTester
     {
         $application = new Application($this->kernel);

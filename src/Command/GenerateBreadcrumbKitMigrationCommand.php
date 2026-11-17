@@ -103,14 +103,18 @@ PHP;
             if ($sm instanceof AbstractSchemaManager && $sm->tablesExist([$itemTable])) {
                 $table = $sm->introspectTable($itemTable);
                 $quoted = $platform->quoteSingleIdentifier($itemTable);
-                // Column names come from the mapping, so they follow the host's naming strategy.
-                $pathPatternColumn = $metaItem->getColumnName('pathPattern');
-                $matchAttributesColumn = $metaItem->getColumnName('matchAttributes');
-                if (!$table->hasColumn($pathPatternColumn)) {
-                    $alterSql[] = \sprintf('ALTER TABLE %s ADD %s VARCHAR(512) DEFAULT NULL', $quoted, $pathPatternColumn);
-                }
-                if (!$table->hasColumn($matchAttributesColumn)) {
-                    $alterSql[] = \sprintf('ALTER TABLE %s ADD %s JSON DEFAULT NULL', $quoted, $matchAttributesColumn);
+                // Column names come from the mapping, so they follow the host's naming strategy. They are quoted the way
+                // SchemaTool quotes them (only a column the mapping marks as quoted), so the ALTER creates the column
+                // the ORM queries (an unconditional quote would make a case-sensitive column on PostgreSQL).
+                $quoteStrategy = $this->em->getConfiguration()->getQuoteStrategy();
+                $columns = [
+                    'pathPattern' => 'VARCHAR(512) DEFAULT NULL',
+                    'matchAttributes' => 'JSON DEFAULT NULL',
+                ];
+                foreach ($columns as $field => $definition) {
+                    if (!$table->hasColumn($metaItem->getColumnName($field))) {
+                        $alterSql[] = \sprintf('ALTER TABLE %s ADD %s %s', $quoted, $quoteStrategy->getColumnName($field, $metaItem, $platform), $definition);
+                    }
                 }
             }
             $sql = $alterSql;
