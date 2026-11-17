@@ -4,7 +4,7 @@ COMPOSE ?= $(shell docker compose version >/dev/null 2>&1 && echo "docker compos
 SERVICE_PHP ?= php
 export COMPOSER_ALLOW_SUPERUSER ?= 1
 
-.PHONY: help ensure-up up down down-dev build shell install assets test test-coverage coverage-check \
+.PHONY: help ensure-up up down down-dev build shell install assets test test-coverage test-with-db test-coverage-with-db coverage-check \
 	check-twig-extra check-no-raw-html-form check-no-cursor-coauthor check-open-prs strip-cursor-coauthor-from-history \
 	setup-hooks cs-check cs-fix rector rector-dry phpstan igor qa release-check composer-sync \
 	clean update validate validate-translations demo-smoke twig-lint
@@ -28,6 +28,8 @@ help:
 	@echo ""
 	@echo "Tests:"
 	@echo "  test              Run PHPUnit tests"
+	@echo "  test-with-db      Run the real-server DB suite (tests/Database, MySQL service)"
+	@echo "  test-coverage-with-db  The same with a text coverage report"
 	@echo "  test-coverage     Run tests with coverage and fail below 100% lines (REQ-TEST-003)"
 	@echo ""
 	@echo "Quality:"
@@ -94,6 +96,14 @@ assets:
 
 test: ensure-up
 	@$(COMPOSE) exec -T $(SERVICE_PHP) composer test
+
+# REQ-TEST-005: the real-server suite (tests/Database: lock waits, multi-process) against the MySQL service of the
+# root docker-compose.yml (BREADCRUMB_TEST_DATABASE_URL is set on the php service; skipped tests fail the target).
+test-with-db: ensure-up
+	@$(COMPOSE) exec -T $(SERVICE_PHP) vendor/bin/phpunit --no-coverage --fail-on-skipped --testsuite database
+
+test-coverage-with-db: ensure-up
+	@$(COMPOSE) exec -T $(SERVICE_PHP) vendor/bin/phpunit --fail-on-skipped --testsuite database --coverage-text
 
 test-coverage: ensure-up
 	@set -o pipefail; $(COMPOSE) exec -T $(SERVICE_PHP) composer test-coverage 2>&1 | tee coverage-php.txt
