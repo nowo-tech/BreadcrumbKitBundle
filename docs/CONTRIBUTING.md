@@ -65,14 +65,12 @@ Use [GitHub Issues](https://github.com/nowo-tech/BreadcrumbKitBundle/issues) wit
 
 ## Coverage exclusions
 
-PHPUnit excludes paths that are thin wiring or require a full HTTP/Doctrine stack; the reported **Lines** percentage applies to the remaining `src/` code. Excluded from coverage (see `phpunit.xml.dist`):
+The dashboard controllers, console commands, repositories, form types and Twig helpers are covered by tests (real kernel and SQLite, `tests/Integration/Kernel/Dashboard*`). Only two files stay excluded in `phpunit.xml.dist`:
 
-- `src/Controller/Dashboard/` — HTTP CRUD controllers (protect in the app; manual or functional tests recommended).
-- `src/Form/Dashboard/` and entity form types — Symfony Form definitions.
-- `src/Repository/` — Doctrine query builders (integration tests optional).
-- Dashboard Twig globals/link helpers and the Web Profiler polyfill.
+- `src/polyfill-template-aware-data-collector.php` — the Web Profiler polyfill, loaded only on older WebProfilerBundle versions.
+- `src/Doctrine/AfterCommitConnectionDbal3.php` — the doctrine/dbal 3 form of the driver connection, exercised by the DBAL 3 legs of the CI "Load readiness" job.
 
-Target: **~100%** on included code; CI enforces a **99%** floor via `coverage-check`.
+Target: **100%** lines; CI enforces it via `coverage-check` (REQ-TEST-003).
 
 ## Cursor Agent
 
