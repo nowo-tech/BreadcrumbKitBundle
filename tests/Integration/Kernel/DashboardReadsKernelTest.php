@@ -109,6 +109,28 @@ final class DashboardReadsKernelTest extends TestCase
         self::assertSame(422, $edit->getStatusCode());
     }
 
+    public function testABlankRequiredFieldAnswers422WithTheFormErrorNot500(): void
+    {
+        $this->boot();
+        [$collection, , $item] = $this->seed();
+        $base = '/admin/breadcrumbs/collections';
+
+        $new = $this->post($base.'/new', ['breadcrumb_collection' => ['code' => '', 'contextKey' => '']]);
+        self::assertSame(422, $new->getStatusCode(), substr((string) $new->getContent(), 0, 300));
+        self::assertStringContainsString('should not be blank', (string) $new->getContent());
+
+        $edit = $this->post($base.'/'.$collection->getId().'/edit', ['breadcrumb_collection' => ['code' => '', 'contextKey' => '']]);
+        self::assertSame(422, $edit->getStatusCode());
+
+        $itemBase = $base.'/'.$collection->getId().'/items';
+        $newItem = $this->post($itemBase.'/new', ['breadcrumb_item' => ['routeName' => '', 'label' => 'x']]);
+        self::assertSame(422, $newItem->getStatusCode(), substr((string) $newItem->getContent(), 0, 300));
+        self::assertStringContainsString('<li id="breadcrumb_item_routeName_error1">Enter a route name.</li>', (string) $newItem->getContent(), 'the translated (validators domain) message is rendered');
+
+        $editItem = $this->post($itemBase.'/'.$item->getId().'/edit', ['breadcrumb_item' => ['routeName' => '']]);
+        self::assertSame(422, $editItem->getStatusCode());
+    }
+
     public function testASameHostRefererIsHonouredAfterASave(): void
     {
         $this->boot();

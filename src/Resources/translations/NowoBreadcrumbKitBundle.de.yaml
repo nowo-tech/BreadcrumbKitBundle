@@ -125,9 +125,6 @@ import:
     params_rejected: 'Sammlung "%code%": %count% Routenparameter-Zuordnung(en) (params) waren ungültig und wurden ignoriert.'
 
 form:
-  icon:
-    invalid: 'Icon nicht erlaubt: Text, Emoji, Inline-SVG oder einfaches Inline-HTML (z. B. <i class="bi bi-house"></i>) ohne Skripte, Event-Handler oder externe Links verwenden.'
-
   delete:
     csrf_invalid: Ungültiges CSRF-Token.
 
@@ -137,8 +134,6 @@ form:
   import_breadcrumb:
     file:
       label: JSON-Datei
-      required: Bitte wählen Sie eine Datei.
-      mime: Die Datei muss JSON sein.
     strategy:
       label: Wenn die Sammlung bereits existiert (gleicher Code + context key)
       skip: Überspringen (diesen Block nicht importieren)
@@ -166,13 +161,11 @@ form:
   breadcrumb_item:
     route_name.label: Symfony-Routenname
     route_name.placeholder: 'app_product_show'
-    route_name.not_blank: Geben Sie einen Routennamen ein.
     static_params.label: Statische Parameter (JSON)
     static_params.help: 'z. B. {"section":"sales"} — muss mit _route_params übereinstimmen.'
     path_pattern.label: Path pattern (PCRE)
     path_pattern.placeholder: '^/shop/.+'
     path_pattern.help: Optional regex against request path; use route * for path-only matches.
-    path_pattern.invalid: 'Ungültiges Pfadmuster: Es muss ein gültiger regulärer Ausdruck sein (verwendet als #…#u), ohne verschachtelte Quantoren wie (a+)+.'
     match_attributes.label: Request attributes (JSON)
     match_attributes.help: Extra request attributes that must match.
     dynamic_keys.label: Dynamische Schlüssel (JSON-Array)

@@ -32,6 +32,7 @@ final class BreadcrumbCollectionType extends AbstractType
                 'label' => 'form.breadcrumb_collection.code.label',
                 'placeholder' => false,
                 'help' => false,
+                'empty_data' => '',
                 'constraints' => [new NotBlank(), new Length(max: 64)],
                 'attr' => ['maxlength' => 64],
             ]);

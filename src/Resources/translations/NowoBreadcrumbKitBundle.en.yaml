@@ -125,9 +125,6 @@ import:
     params_rejected: 'Collection "%code%": %count% route parameter mapping(s) (params) were not valid and were ignored.'
 
 form:
-  icon:
-    invalid: 'Icon not allowed: use text, an emoji, inline SVG or simple inline HTML (e.g. <i class="bi bi-house"></i>) without scripts, event handlers or external links.'
-
   delete:
     csrf_invalid: Invalid CSRF token.
 
@@ -137,8 +134,6 @@ form:
   import_breadcrumb:
     file:
       label: JSON file
-      required: Please choose a file.
-      mime: The file must be JSON.
     strategy:
       label: If the collection already exists (same code + context key)
       skip: Skip (do not import that block)
@@ -166,13 +161,11 @@ form:
   breadcrumb_item:
     route_name.label: Symfony route name (* = wildcard with path/attributes)
     route_name.placeholder: 'app_product_show'
-    route_name.not_blank: Enter a route name.
     static_params.label: Static parameters (JSON)
     static_params.help: 'e.g. {"section":"sales"} — must match _route_params.'
     path_pattern.label: Path pattern (PCRE)
     path_pattern.placeholder: '^/shop/.+'
     path_pattern.help: 'Optional regex body matched against the request path (e.g. ^/shop/.+). Use with route * for path-only matches.'
-    path_pattern.invalid: 'Invalid path pattern: it must be a valid regular expression body (used as #…#u) without nested quantifiers such as (a+)+.'
     match_attributes.label: Request attributes (JSON)
     match_attributes.help: 'Optional map of request attributes that must match (beyond _route_params).'
     dynamic_keys.label: Dynamic keys (JSON array)

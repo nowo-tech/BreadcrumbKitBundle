@@ -1,0 +1,11 @@
+# Constraint messages (validators domain; REQ-I18N-003). Translated by the validator, not by the form theme.
+form:
+  icon:
+    invalid: 'Icon nicht erlaubt: Text, Emoji, Inline-SVG oder einfaches Inline-HTML (z. B. <i class="bi bi-house"></i>) ohne Skripte, Event-Handler oder externe Links verwenden.'
+  import_breadcrumb:
+    file:
+      required: Bitte wählen Sie eine Datei.
+      mime: Die Datei muss JSON sein.
+  breadcrumb_item:
+    route_name.not_blank: Geben Sie einen Routennamen ein.
+    path_pattern.invalid: 'Ungültiges Pfadmuster: Es muss ein gültiger regulärer Ausdruck sein (verwendet als #…#u), ohne verschachtelte Quantoren wie (a+)+.'

@@ -16,7 +16,7 @@ use Symfony\Component\Yaml\Exception\ParseException;
 use Symfony\Component\Yaml\Yaml;
 
 $translationsDir = $argv[1] ?? dirname(__DIR__) . '/src/Resources/translations';
-$domains         = ['NowoBreadcrumbKitBundle'];
+$domains         = ['NowoBreadcrumbKitBundle', 'validators'];
 $referenceLocale = 'en';
 
 if (!is_dir($translationsDir)) {

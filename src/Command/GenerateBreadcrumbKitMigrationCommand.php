@@ -103,11 +103,14 @@ PHP;
             if ($sm instanceof AbstractSchemaManager && $sm->tablesExist([$itemTable])) {
                 $table = $sm->introspectTable($itemTable);
                 $quoted = $platform->quoteSingleIdentifier($itemTable);
-                if (!$table->hasColumn('path_pattern')) {
-                    $alterSql[] = \sprintf('ALTER TABLE %s ADD path_pattern VARCHAR(512) DEFAULT NULL', $quoted);
+                // Column names come from the mapping, so they follow the host's naming strategy.
+                $pathPatternColumn = $metaItem->getColumnName('pathPattern');
+                $matchAttributesColumn = $metaItem->getColumnName('matchAttributes');
+                if (!$table->hasColumn($pathPatternColumn)) {
+                    $alterSql[] = \sprintf('ALTER TABLE %s ADD %s VARCHAR(512) DEFAULT NULL', $quoted, $pathPatternColumn);
                 }
-                if (!$table->hasColumn('match_attributes')) {
-                    $alterSql[] = \sprintf('ALTER TABLE %s ADD match_attributes JSON DEFAULT NULL', $quoted);
+                if (!$table->hasColumn($matchAttributesColumn)) {
+                    $alterSql[] = \sprintf('ALTER TABLE %s ADD %s JSON DEFAULT NULL', $quoted, $matchAttributesColumn);
                 }
             }
             $sql = $alterSql;
