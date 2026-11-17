@@ -72,6 +72,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - `make test-with-db` / `make test-coverage-with-db` run the real-server suite (`tests/Database`) against MySQL and PostgreSQL services of the root `docker-compose.yml` (REQ-TEST-005); the dev image now ships `pdo_mysql` and `pdo_pgsql`.
+- Tests for the dashboard controllers, console commands, repositories, dashboard form types and Twig helpers (real kernel + SQLite); the PHPUnit coverage exclusions for them are removed and the gate stays at 100 % lines (REQ-TEST-003). `symfony/mime` is a dev dependency (the import form's file constraint guesses the MIME type).
 
 ### Documentation
 

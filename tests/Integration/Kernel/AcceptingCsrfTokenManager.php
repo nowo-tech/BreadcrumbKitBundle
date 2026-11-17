@@ -8,10 +8,12 @@ use Symfony\Component\Security\Csrf\CsrfToken;
 use Symfony\Component\Security\Csrf\CsrfTokenManagerInterface;
 
 /**
- * Test double: every CSRF token is valid (the HTTP tests post forms without a session).
+ * Test double: every CSRF token is valid, except the value `rejected` (the HTTP tests post forms without a session).
  */
 final class AcceptingCsrfTokenManager implements CsrfTokenManagerInterface
 {
+    public const REJECTED = 'rejected';
+
     public function getToken(string $tokenId): CsrfToken
     {
         return new CsrfToken($tokenId, 'accepted');
@@ -29,6 +31,6 @@ final class AcceptingCsrfTokenManager implements CsrfTokenManagerInterface
 
     public function isTokenValid(CsrfToken $token): bool
     {
-        return true;
+        return self::REJECTED !== $token->getValue();
     }
 }
