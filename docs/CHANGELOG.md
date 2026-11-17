@@ -69,6 +69,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- `make test-with-db` / `make test-coverage-with-db` run the real-server suite (`tests/Database`) against MySQL and PostgreSQL services of the root `docker-compose.yml` (REQ-TEST-005); the dev image now ships `pdo_mysql` and `pdo_pgsql`.
+
 ### Documentation
 
 - Spec Kit baseline: `specs/001-baseline/code-inventory.md` maps all 128 tracked `src/` files (2.13–2.20 additions) and `spec.md` gains FR-ARCH-001, FR-SEC-005, FR-EVT-002, FR-ORM-003, FR-SVC-005 and FR-TEST-001 (REQ-SPECKIT-001/003).
