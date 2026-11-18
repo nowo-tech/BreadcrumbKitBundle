@@ -3,6 +3,7 @@
 ## Table of contents
 
 - [Unreleased](#unreleased)
+- [To 2.23.0](#to-2230)
   - [Lock conflicts answer 409 with CONFLICT codes](#lock-conflicts-answer-409-with-conflict-codes)
 - [To 2.22.0](#to-2220)
 - [To 2.21.0](#to-2210)
@@ -79,6 +80,14 @@
 - [General upgrade steps (any version)](#general-upgrade-steps-any-version)
 
 ## Unreleased
+
+## To 2.23.0
+
+From **2.22.0**:
+
+```bash
+composer update nowo-tech/breadcrumb-kit-bundle
+```
 
 From **2.22.0**:
 
