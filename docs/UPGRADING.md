@@ -3,6 +3,7 @@
 ## Table of contents
 
 - [Unreleased](#unreleased)
+  - [Lock conflicts answer 409 with CONFLICT codes](#lock-conflicts-answer-409-with-conflict-codes)
 - [To 2.22.0](#to-2220)
 - [To 2.21.0](#to-2210)
   - [Constraint messages moved to the `validators` domain under a prefix](#constraint-messages-moved-to-the-validators-domain-under-a-prefix)
@@ -78,6 +79,29 @@
 - [General upgrade steps (any version)](#general-upgrade-steps-any-version)
 
 ## Unreleased
+
+From **2.22.0**:
+
+```bash
+composer update nowo-tech/breadcrumb-kit-bundle nowo-tech/transaction-doctrine
+```
+
+### Lock conflicts answer 409 with CONFLICT codes
+
+A deadlock, lock wait timeout or serialization failure of a dashboard write or an import answered `503` + `Retry-After`
+up to 2.22. It now answers **409** + `Retry-After` + `CONFLICT_001` (nothing committed), or **409** without `Retry-After` +
+`CONFLICT_002` (part of the request committed: a later collection of a multi-collection import). The body is
+transaction-doctrine's conflict answer: JSON `{"error", "code", "message"}` for JSON, XHR and `/api/` requests, else the
+"try again" page with `data-conflict-code`. Requires `nowo-tech/transaction-doctrine` `^1.5`.
+
+- A load balancer or client that retries on 503 only: `nowo_breadcrumb_kit.conflict_response.status: 503` (the code and
+  `Retry-After` stay).
+- To keep the old rendering through your error page, with no code in the body: `conflict_response.error_page: true`.
+- A unique-key violation is no longer answered 409 by the bundle (it is not a lock conflict). The dashboard forms and the
+  importer already handle the expected race on the collection code and context key; any other violation is now a real
+  error (500). The domain 409 for a changed item tree is unchanged and carries no `CONFLICT_*` code.
+
+See [CONCURRENCY](CONCURRENCY.md).
 
 ## To 2.22.0
 

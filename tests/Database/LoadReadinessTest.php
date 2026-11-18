@@ -6,10 +6,14 @@ namespace Nowo\BreadcrumbKitBundle\Tests\Database;
 
 use Doctrine\DBAL\Platforms\AbstractMySQLPlatform;
 use Nowo\BreadcrumbKitBundle\Entity\BreadcrumbCollection;
+use Nowo\BreadcrumbKitBundle\EventSubscriber\StorageFailureSubscriber;
 use Nowo\BreadcrumbKitBundle\Service\BreadcrumbImporter;
 use Nowo\BreadcrumbKitBundle\Tests\Support\BreadcrumbStore;
 use Nowo\TransactionContract\TransientStorageFailure;
 use PHPUnit\Framework\TestCase;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpKernel\Event\ExceptionEvent;
+use Symfony\Component\HttpKernel\HttpKernelInterface;
 
 /**
  * 2.20 (Beacon spec 239): lock waits and concurrent processes on a real MySQL / PostgreSQL server. Skipped without
@@ -53,6 +57,17 @@ final class LoadReadinessTest extends TestCase
             self::fail('The collection row is locked by the peer.');
         } catch (TransientStorageFailure $failure) {
             self::assertNotNull($failure->retryAfterSeconds());
+            // 2.23.0 (REQ-RUNTIME-003 rule 6): the real failure of this server is answered 409 + Retry-After + CONFLICT_001.
+            $request = new Request();
+            $request->attributes->set('_route', 'nowo_breadcrumb_kit_dashboard_import');
+            $request->headers->set('X-Requested-With', 'XMLHttpRequest');
+            $event = new ExceptionEvent($this->createMock(HttpKernelInterface::class), $request, HttpKernelInterface::MAIN_REQUEST, $failure);
+            (new StorageFailureSubscriber())->onKernelException($event);
+            $response = $event->getResponse();
+            self::assertNotNull($response);
+            self::assertSame(409, $response->getStatusCode());
+            self::assertSame('1', $response->headers->get('Retry-After'));
+            self::assertSame('CONFLICT_001', json_decode((string) $response->getContent(), true)['code']);
         } finally {
             $this->release($peer);
         }

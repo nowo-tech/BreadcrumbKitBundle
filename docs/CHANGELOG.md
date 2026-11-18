@@ -71,6 +71,33 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- `docs/CONCURRENCY.md` (REQ-RUNTIME-003): write paths, conflict codes, host options, residual risks.
+- `nowo_breadcrumb_kit.conflict_response.status` (`null`, `409`, `503`) and `conflict_response.error_page`: the status and
+  the rendering of the lock conflict answer. `null` follows `nowo_transaction_doctrine.conflict_response` when that bundle
+  is registered, else 409.
+- Load readiness on MariaDB 11.4 (DBAL 4 and DBAL 3) next to MySQL 8.4 and PostgreSQL 16; a `mariadb` service in
+  `docker-compose.yml`.
+- Tests of the conflict mapping (`CONFLICT_001`, `CONFLICT_002`, 409 / 503, error page mode, wiring) and of the
+  committed-then-conflict case of a multi-collection import.
+
+### Changed
+
+- A lock conflict of a bundle write (deadlock, lock wait timeout, serialization failure) answers **409** + `Retry-After` +
+  `CONFLICT_001` instead of 503, and **409** without `Retry-After` + `CONFLICT_002` when part of the request was
+  committed (a later collection of a multi-collection import). The answer is the one of nowo-tech/transaction-doctrine
+  1.5: JSON `{"error", "code", "message"}` for JSON, XHR and `/api/` requests, else the "try again" page. Set
+  `conflict_response.status: 503` (and `error_page: true` for the previous body) to keep the 2.20 to 2.22 answer.
+- Requires `nowo-tech/transaction-doctrine` `^1.5` (was `^1.1`).
+- `docs/HIGH-LOAD.md` links to `docs/CONCURRENCY.md`.
+
+### Fixed
+
+- A unique-key violation is no longer answered 409 by `StorageFailureSubscriber`: it is not a lock conflict. The forms and
+  the importer already resolve the one expected "only one" race (collection code + context key); any other violation is a
+  real error.
+
 ## [2.22.0] - 2026-11-18
 
 ### Added
