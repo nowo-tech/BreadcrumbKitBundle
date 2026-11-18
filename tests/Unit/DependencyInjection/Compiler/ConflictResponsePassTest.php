@@ -42,7 +42,13 @@ final class ConflictResponsePassTest extends TestCase
         $container = new ContainerBuilder();
         (new NowoBreadcrumbKitBundle())->build($container);
 
-        self::assertCount(1, \array_filter($container->getCompilerPassConfig()->getBeforeOptimizationPasses(), static fn (object $pass): bool => $pass instanceof ConflictResponsePass));
+        $passes = 0;
+        foreach ($container->getCompilerPassConfig()->getBeforeOptimizationPasses() as $pass) {
+            if ($pass instanceof ConflictResponsePass) {
+                ++$passes;
+            }
+        }
+        self::assertSame(1, $passes);
     }
 
     public function testWithoutTheSubscriberNothingIsWired(): void
