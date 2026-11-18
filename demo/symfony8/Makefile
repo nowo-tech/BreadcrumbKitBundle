@@ -87,7 +87,7 @@ install: ensure-up
 	$(COMPOSE) exec -T php sh -c "php bin/console assets:install public --symlink --no-interaction 2>/dev/null || php bin/console assets:install public --no-interaction"
 
 update-bundle: ensure-up
-	$(COMPOSE) exec -T php sh -c "composer update nowo-tech/breadcrumb-kit-bundle --no-interaction"
+	$(COMPOSE) exec -T php sh -c "composer update nowo-tech/breadcrumb-kit-bundle -w --no-interaction"
 	$(COMPOSE) exec -T php sh -c "rm -rf var/cache/*"
 	$(COMPOSE) exec -T php php bin/console cache:clear --env=dev --no-interaction --no-warmup || true
 
