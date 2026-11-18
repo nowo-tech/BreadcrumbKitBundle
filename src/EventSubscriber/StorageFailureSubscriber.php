@@ -5,33 +5,42 @@ declare(strict_types=1);
 namespace Nowo\BreadcrumbKitBundle\EventSubscriber;
 
 use Doctrine\DBAL\Exception\RetryableException;
-use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
+use Nowo\BreadcrumbKitBundle\DependencyInjection\Compiler\ConflictResponsePass;
 use Nowo\TransactionContract\TransientStorageFailure;
+use Nowo\TransactionDoctrine\ConflictCode;
+use Nowo\TransactionDoctrine\Symfony\Conflict\ConflictResponsePolicy;
+use Nowo\TransactionDoctrine\Symfony\EventListener\ConcurrencyConflictResponder;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Event\ExceptionEvent;
-use Symfony\Component\HttpKernel\Exception\ConflictHttpException;
-use Symfony\Component\HttpKernel\Exception\ServiceUnavailableHttpException;
+use Symfony\Component\HttpKernel\Exception\HttpException;
 use Symfony\Component\HttpKernel\KernelEvents;
 use Throwable;
 
 /**
- * 2.20 (Beacon spec 239): a storage failure of a bundle route answers 503 or 409 instead of 500.
+ * A lock conflict of a write of a bundle route answers the platform conflict answer instead of a 500.
  *
- * - transient ({@see TransientStorageFailure} of the bundle's runner, or a DBAL {@see RetryableException}: deadlock,
- *   lock wait timeout): `503 Service Unavailable` with `Retry-After` (the runner's hint, else 1 s);
- * - conflict (a unique key refused the write of a concurrent request, for example a collection code and context key):
- *   `409 Conflict`.
+ * 2.23.0 (REQ-RUNTIME-003 rule 6): a transient failure ({@see TransientStorageFailure} of the bundle's runner, or a DBAL
+ * {@see RetryableException}: deadlock, lock wait timeout, serialization failure) answers **409** (configurable to 503)
+ * with a conflict code ({@see ConflictCode}): `CONFLICT_001` and `Retry-After` when nothing was committed, `CONFLICT_002`
+ * and no `Retry-After` when part of the request was. The answer is the one of
+ * {@see ConcurrencyConflictResponder::respond()} (nowo-tech/transaction-doctrine): JSON `{"error", "code", "message"}`
+ * for JSON, XHR and `/api/` requests, else the "try again" page with `data-conflict-code`. With
+ * `conflict_response.error_page: true` the failure is replaced by an {@see HttpException} with that status and
+ * `Retry-After`, rendered by the application's error page (as up to 2.22, which answered 503). See
+ * {@see ConflictResponsePass} for the wiring.
  *
- * The exception becomes a {@see ServiceUnavailableHttpException} / {@see ConflictHttpException}, rendered by the
- * application's error page. The storage error stays the previous exception, for the logs: no SQL or parameter reaches
- * the client.
+ * A unique-key violation is not a lock conflict and is no longer mapped here (2.20 to 2.22 answered it 409): the
+ * dashboard catches the expected "only one" races where they happen (the collection code and context key: a flash
+ * message; the collection claim of the importer: the row of the winner), any other one is a real error. A concurrent
+ * change of the item tree (a parent deleted, moved or made a descendant) is a domain 409 of the item controller, with
+ * no `CONFLICT_*` code.
  *
  * Only the bundle's routes: a `nowo_breadcrumb_kit_*` route or a controller of the bundle (the dashboard path prefix is
  * configurable, the route names are not). Priority -64: after the application's own exception listeners, before the
- * framework's error listener (-128).
+ * framework's error listener (-128). Stateless.
  */
-final class StorageFailureSubscriber implements EventSubscriberInterface
+final readonly class StorageFailureSubscriber implements EventSubscriberInterface
 {
     /** Route name prefix of the bundle. */
     private const ROUTE_PREFIX = 'nowo_breadcrumb_kit_';
@@ -39,8 +48,23 @@ final class StorageFailureSubscriber implements EventSubscriberInterface
     /** Controller namespace of the bundle. */
     private const CONTROLLER_PREFIX = 'Nowo\\BreadcrumbKitBundle\\Controller\\';
 
-    /** Retry-After when the failure carries no hint. */
-    private const DEFAULT_RETRY_AFTER = 1;
+    private ConflictResponsePolicy $policy;
+
+    private ConcurrencyConflictResponder $responder;
+
+    /**
+     * @param ConflictResponsePolicy|null       $policy    status (409 or 503) and Retry-After; null = 409 + Retry-After: 1
+     * @param ConcurrencyConflictResponder|null $responder builds the answer; null = a plain one with $policy
+     * @param bool                              $errorPage whether the application's error page renders the answer (no conflict code)
+     */
+    public function __construct(
+        ?ConflictResponsePolicy $policy = null,
+        ?ConcurrencyConflictResponder $responder = null,
+        private bool $errorPage = false,
+    ) {
+        $this->policy = $policy ?? new ConflictResponsePolicy();
+        $this->responder = $responder ?? new ConcurrencyConflictResponder($this->policy);
+    }
 
     /**
      * Listens on kernel.exception at -64.
@@ -55,7 +79,8 @@ final class StorageFailureSubscriber implements EventSubscriberInterface
     }
 
     /**
-     * Maps a transient storage failure to 503 and a unique-key conflict to 409 on the bundle's routes.
+     * Answers a lock conflict of a bundle route with the conflict status, the conflict code and, when retrying is safe,
+     * Retry-After.
      */
     public function onKernelException(ExceptionEvent $event): void
     {
@@ -64,44 +89,38 @@ final class StorageFailureSubscriber implements EventSubscriberInterface
         }
 
         $failure = $event->getThrowable();
-        $retry = $this->retryAfter($failure);
-        if (null !== $retry) {
-            $event->setThrowable(new ServiceUnavailableHttpException($retry, 'The service is temporarily unavailable. Retry later.', $failure));
+        $transient = $this->transientFailure($failure);
+        if (null === $transient) {
+            return;
+        }
+
+        if ($this->errorPage) {
+            $retrySafe = ConflictCode::forFailure($failure)->retrySafe();
+            $event->setThrowable(new HttpException($this->policy->status, 'The service is temporarily unavailable. Retry later.', $failure, $retrySafe ? $this->policy->headers($this->hint($transient)) : []));
 
             return;
         }
 
-        if ($this->isUniqueViolation($failure)) {
-            $event->setThrowable(new ConflictHttpException('A concurrent request changed the same data. Reload and retry.', $failure));
-        }
+        $event->setResponse($this->responder->respond($event->getRequest(), $failure));
     }
 
     /**
-     * The Retry-After seconds of a transient failure; null when the failure is not transient.
+     * The transient failure in the chain (the runner's, or a DBAL retryable one); null when the failure is not transient.
      */
-    private function retryAfter(Throwable $failure): ?int
+    private function transientFailure(Throwable $failure): ?Throwable
     {
         for ($current = $failure; $current instanceof Throwable; $current = $current->getPrevious()) {
-            if ($current instanceof TransientStorageFailure) {
-                return max(1, $current->retryAfterSeconds() ?? self::DEFAULT_RETRY_AFTER);
-            }
-            if ($current instanceof RetryableException) {
-                return self::DEFAULT_RETRY_AFTER;
+            if ($current instanceof TransientStorageFailure || $current instanceof RetryableException) {
+                return $current;
             }
         }
 
         return null;
     }
 
-    private function isUniqueViolation(Throwable $failure): bool
+    private function hint(Throwable $transient): ?int
     {
-        for ($current = $failure; $current instanceof Throwable; $current = $current->getPrevious()) {
-            if ($current instanceof UniqueConstraintViolationException) {
-                return true;
-            }
-        }
-
-        return false;
+        return $transient instanceof TransientStorageFailure ? $transient->retryAfterSeconds() : null;
     }
 
     private function isBundleRequest(Request $request): bool

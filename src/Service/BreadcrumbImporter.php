@@ -15,6 +15,9 @@ use Nowo\BreadcrumbKitBundle\Security\BreadcrumbPathPatternValidator;
 use Nowo\BreadcrumbKitBundle\Transaction\BreadcrumbRowLock;
 use Nowo\BreadcrumbKitBundle\Transaction\BreadcrumbTransactionRunner;
 use Nowo\TransactionContract\TransientStorageFailure;
+use Nowo\TransactionDoctrine\TransientFailureClassifier;
+use Nowo\TransactionDoctrine\TransientFailureKind;
+use Nowo\TransactionDoctrine\WriteUnit\ConcurrencyConflict;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 use Symfony\Contracts\Translation\TranslatorInterface;
@@ -100,34 +103,10 @@ final readonly class BreadcrumbImporter
         $result = ['created' => 0, 'updated' => 0, 'skipped' => 0, 'errors' => []];
 
         if (isset($data['collections']) && \is_array($data['collections'])) {
-            /** @var array<string, true> $seen */
-            $seen = [];
-            foreach ($data['collections'] as $i => $block) {
-                if (!\is_array($block) || !isset($block['collection']) || !isset($block['items'])) {
-                    $result['errors'][] = $this->t('import.error.entry_missing_keys', ['%index%' => (string) $i]);
-
-                    continue;
-                }
-                $colData = $block['collection'];
-                $itemsData = \is_array($block['items']) ? array_values($block['items']) : [];
-                if (!\is_array($colData)) {
-                    $result['errors'][] = $this->t('import.error.collection_not_object', ['%index%' => (string) $i]);
-
-                    continue;
-                }
-                $code = isset($colData['code']) && \is_string($colData['code']) ? trim($colData['code']) : '';
-                if ('' === $code) {
-                    $result['errors'][] = $this->t('import.error.entry_code_required', ['%index%' => (string) $i]);
-
-                    continue;
-                }
-                $ctxKey = $this->contextKeyFromData($colData);
-                $sig = $code."\0".$ctxKey;
-                if (isset($seen[$sig])) {
-                    continue;
-                }
-                $seen[$sig] = true;
-                $this->importOne($colData, $itemsData, $strategy, $result);
+            try {
+                $this->importCollections($data['collections'], $strategy, $result);
+            } catch (TransientStorageFailure $failure) {
+                throw $this->afterCommit($failure, $result);
             }
         } elseif (isset($data['collection']) && \is_array($data['collection']) && isset($data['items']) && \is_array($data['items'])) {
             $this->importOne($data['collection'], array_values($data['items']), $strategy, $result);
@@ -136,6 +115,67 @@ final readonly class BreadcrumbImporter
         }
 
         return $result;
+    }
+
+    /**
+     * The collections of a multi-collection file, one unit of work each.
+     *
+     * @param array<int|string, mixed>                                              $collections
+     * @param self::STRATEGY_*                                                      $strategy
+     * @param array{created: int, updated: int, skipped: int, errors: list<string>} $result
+     */
+    private function importCollections(array $collections, string $strategy, array &$result): void
+    {
+        /** @var array<string, true> $seen */
+        $seen = [];
+        foreach ($collections as $i => $block) {
+            if (!\is_array($block) || !isset($block['collection']) || !isset($block['items'])) {
+                $result['errors'][] = $this->t('import.error.entry_missing_keys', ['%index%' => (string) $i]);
+
+                continue;
+            }
+            $colData = $block['collection'];
+            $itemsData = \is_array($block['items']) ? array_values($block['items']) : [];
+            if (!\is_array($colData)) {
+                $result['errors'][] = $this->t('import.error.collection_not_object', ['%index%' => (string) $i]);
+
+                continue;
+            }
+            $code = isset($colData['code']) && \is_string($colData['code']) ? trim($colData['code']) : '';
+            if ('' === $code) {
+                $result['errors'][] = $this->t('import.error.entry_code_required', ['%index%' => (string) $i]);
+
+                continue;
+            }
+            $ctxKey = $this->contextKeyFromData($colData);
+            $sig = $code."\0".$ctxKey;
+            if (isset($seen[$sig])) {
+                continue;
+            }
+            $seen[$sig] = true;
+            $this->importOne($colData, $itemsData, $strategy, $result);
+        }
+    }
+
+    /**
+     * A conflict after one collection of the file committed (each collection is its own unit): part of the file is
+     * stored, so the answer is CONFLICT_002 (read again, do not repeat blindly). Inside a transaction of the caller
+     * nothing is committed yet.
+     *
+     * @param array{created: int, updated: int, skipped: int, errors: list<string>} $result
+     */
+    private function afterCommit(TransientStorageFailure $failure, array $result): TransientStorageFailure
+    {
+        if ($failure instanceof ConcurrencyConflict && $failure->committed) {
+            return $failure;
+        }
+        if (0 === $result['created'] + $result['updated'] || $this->transactionRunner->manager()->getConnection()->isTransactionActive()) {
+            return $failure;
+        }
+        $cause = $failure->getPrevious() ?? $failure;
+        $kind = (new TransientFailureClassifier())->classify($cause) ?? TransientFailureKind::Retryable;
+
+        return new ConcurrencyConflict(1, $kind, null, $failure, true);
     }
 
     /**

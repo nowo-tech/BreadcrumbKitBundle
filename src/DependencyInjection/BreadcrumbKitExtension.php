@@ -6,6 +6,7 @@ namespace Nowo\BreadcrumbKitBundle\DependencyInjection;
 
 use Nowo\BreadcrumbKitBundle\Dashboard\DashboardChrome;
 use Nowo\BreadcrumbKitBundle\Dashboard\DashboardPages;
+use Nowo\BreadcrumbKitBundle\DependencyInjection\Compiler\ConflictResponsePass;
 use Nowo\BreadcrumbKitBundle\DependencyInjection\Compiler\LinkAccessCheckerPass;
 use Nowo\BreadcrumbKitBundle\Dto\BreadcrumbCollapse;
 use Nowo\BreadcrumbKitBundle\Enum\CssFramework;
@@ -232,6 +233,7 @@ final class BreadcrumbKitExtension extends Extension implements PrependExtension
         $container->setParameter(Configuration::ALIAS.'.doctrine.table_prefix', $config['doctrine']['table_prefix']);
         $container->setParameter(Configuration::ALIAS.'.table_prefix', $config['doctrine']['table_prefix']);
         $container->setParameter(Configuration::ALIAS.'.locales', $locales);
+        $container->setParameter(ConflictResponsePass::PARAMETER, $config['conflict_response']);
         // With runtime (env) locales and no default_locale, the parameter holds the fallback; BreadcrumbLoader gets the
         // first locale from a factory below.
         $container->setParameter(Configuration::ALIAS.'.default_locale_resolved', ConfiguredLocales::defaultLocale($runtimeLocales ? [] : $locales, $defaultLocale));
