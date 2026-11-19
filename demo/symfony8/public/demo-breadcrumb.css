@@ -6,7 +6,13 @@ ol.breadcrumb-list > li { list-style: none; margin: 0; padding: 0; display: flex
 ol.breadcrumb-list > li::marker { content: none; }
 .breadcrumb-app-override.breadcrumb--many .breadcrumb-list > li { flex-shrink: 0; white-space: nowrap; }
 @media (max-width: 960px) {
-    .breadcrumb-app-override.breadcrumb--many .breadcrumb-list { flex-wrap: nowrap; overflow-x: auto; max-width: 100%; padding-bottom: 0.45rem; scrollbar-width: thin; }
+    .breadcrumb-app-override.breadcrumb--many .breadcrumb-list { flex-wrap: nowrap; overflow-x: auto; max-width: 100%; padding-bottom: 0.45rem; }
+    .breadcrumb-app-override.breadcrumb--many .breadcrumb-list::-webkit-scrollbar { width: var(--nowo-ui-scrollbar-size, 6px); height: var(--nowo-ui-scrollbar-size, 6px); }
+    .breadcrumb-app-override.breadcrumb--many .breadcrumb-list::-webkit-scrollbar-track { background: var(--nowo-ui-scrollbar-track, transparent); }
+    .breadcrumb-app-override.breadcrumb--many .breadcrumb-list::-webkit-scrollbar-thumb { background: var(--nowo-ui-scrollbar-thumb, color-mix(in srgb, currentColor 28%, transparent)); border-radius: 999px; }
+    .breadcrumb-app-override.breadcrumb--many .breadcrumb-list::-webkit-scrollbar-thumb:hover { background: var(--nowo-ui-scrollbar-thumb-hover, color-mix(in srgb, currentColor 45%, transparent)); }
+    .breadcrumb-app-override.breadcrumb--many .breadcrumb-list::-webkit-scrollbar-button { display: none; }
+    @supports not selector(::-webkit-scrollbar) { .breadcrumb-app-override.breadcrumb--many .breadcrumb-list { scrollbar-width: thin; scrollbar-color: var(--nowo-ui-scrollbar-thumb, color-mix(in srgb, currentColor 28%, transparent)) var(--nowo-ui-scrollbar-track, transparent); } }
 }
 .demo-trail-list { margin: 1rem 0 0 1.25rem; padding: 0; line-height: 1.8; }
 .bc-custom-fragment { display: flex; flex-wrap: wrap; gap: 0.5rem; align-items: center; list-style: none; padding: 0; margin: 0; }

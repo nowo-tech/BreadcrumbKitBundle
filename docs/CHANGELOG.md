@@ -78,6 +78,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Demo: the horizontally scrolling trail (`breadcrumb--many`) of `demo-breadcrumb.css` uses the UiKit thin scrollbar (6px, `--nowo-ui-scrollbar-*` tokens with fallbacks). The bundle's own stylesheet and Twig assets define no scrollable area (the collapsed trail uses `overflow: visible`), so nothing shipped changes; docs gain a "Scrollbars" note.
 - CI: new `deps-floor` job. It checks that the demo lock installs every nowo-tech requirement of the bundle (`.scripts/check-demo-lock.py`), then downgrades nowo-tech/transaction-* to the lowest versions composer.json allows (`composer update 'nowo-tech/transaction-*' --prefer-lowest`) and runs PHPStan and the unit and integration suites there, so a call to a newer API than the constraint allows fails the pull request.
 - Demo: `make update-bundle` runs `composer update nowo-tech/breadcrumb-kit-bundle -w`, so the bundle's new or raised requirements reach the demo lock too.
 

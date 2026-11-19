@@ -20,6 +20,7 @@
 - [Links the user cannot open](#links-the-user-cannot-open)
 - [Caching](#caching)
 - [Testing: breadcrumb coverage](#testing-breadcrumb-coverage)
+- [Scrollbars](#scrollbars)
 
 ## Twig functions
 
@@ -704,3 +705,12 @@ checks. Rows whose route is `*` (path-pattern rows) are not checked against the 
 `$filter->nonPageReason($name, $route)` tells why a route is skipped. The static assertions
 (`assertBreadcrumbCoverage()`, `assertBreadcrumbRowsAreConsistent()`, `missingBreadcrumbRoutes()`) take a
 `RouteCollection` and a row map and work in any PHPUnit test.
+
+## Scrollbars
+
+Scrollable areas of this bundle (the demo's horizontally scrolling trail (`breadcrumb--many`); the bundle's own stylesheet and Twig assets define no scrollable area) use the same thin scrollbar as UiKit: 6px wide, thumb in the text colour at
+28 % (45 % on hover), transparent track, no arrow buttons. Hosts restyle them **only** through the shared tokens
+`--nowo-ui-scrollbar-size`, `--nowo-ui-scrollbar-thumb`, `--nowo-ui-scrollbar-thumb-hover` and
+`--nowo-ui-scrollbar-track`; each has a fallback, so nothing is needed without UiKit. Do not set `scrollbar-width` or
+`scrollbar-color` on these elements: on Chromium 121+ they disable the `::-webkit-scrollbar` rules (the standard
+properties are only applied by the bundle where `::-webkit-scrollbar` is unsupported).
