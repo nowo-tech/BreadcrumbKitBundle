@@ -54,7 +54,7 @@ Public routes use the **`/{_locale}/…`** prefix (`en`, `es`). **`/`** redirect
 | **`link_enabled = false`** (middle segment) | `/en/product/42` — “Shop” / “Tienda” is not a link |
 | **Same route, different `static_route_params`** (best match wins) | `/en/topics/sales` vs `/en/topics/support` |
 | **Second collection** + `breadcrumb_render('admin')` | `/en/admin`, `/en/admin/users` (admin layout) |
-| **Deep trail (8 crumbs)** + responsive scroll (`breadcrumb--many`, `data-breadcrumb-count`) | `/en/demo/deep` … `/en/demo/deep/s1/s2/s3/s4/s5/s6` |
+| **Deep trail (8 crumbs)** + wrapping trail on narrow screens (`breadcrumb--many`, `data-breadcrumb-count`; UiKit's `nowo-ui-breadcrumbs__list` wraps, no demo CSS) | `/en/demo/deep` … `/en/demo/deep/s1/s2/s3/s4/s5/s6` |
 | **Admin deep trail (6 crumbs)** | `/en/admin/long/w1` … `/en/admin/long/w1/w2/w3/w4/w5` |
 | **`breadcrumb_trail()`** custom markup | `/en/demo/breadcrumb-trail` |
 | **`breadcrumb_render('default', 'breadcrumb/custom_fragment.html.twig')`** | `/en/demo/custom-template` |

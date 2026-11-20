@@ -708,7 +708,7 @@ checks. Rows whose route is `*` (path-pattern rows) are not checked against the 
 
 ## Scrollbars
 
-Scrollable areas of this bundle (the demo's horizontally scrolling trail (`breadcrumb--many`); the bundle's own stylesheet and Twig assets define no scrollable area) use the same thin scrollbar as UiKit: 6px wide, thumb in the text colour at
+Any scrollable area a host adds around the trail (the bundle's own stylesheet and Twig assets define none, and the demo's long trail (`breadcrumb--many`) wraps onto several lines on narrow screens instead of scrolling) should use the same thin scrollbar as UiKit: 6px wide, thumb in the text colour at
 28 % (45 % on hover), transparent track, no arrow buttons. Hosts restyle them **only** through the shared tokens
 `--nowo-ui-scrollbar-size`, `--nowo-ui-scrollbar-thumb`, `--nowo-ui-scrollbar-thumb-hover` and
 `--nowo-ui-scrollbar-track`; each has a fallback, so nothing is needed without UiKit. Do not set `scrollbar-width` or
