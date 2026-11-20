@@ -9,9 +9,9 @@
 
 {% block body %}
     <p>{{ 'demo.breadcrumb_trail.lead_html'|trans|raw }}</p>
-    <ol class="demo-trail-list">
+    <ol class="nowo-ui-list">
         {% for node in breadcrumb_trail('default') %}
-            <li>
+            <li class="nowo-ui-list-item">
                 {% if not node.current and node.linkEnabled and node.url %}
                     <a href="{{ node.url }}">{{ node.label }}</a>
                 {% else %}

@@ -6,12 +6,6 @@
 
 {% block nowo_ui_document_title %}{% block title %}{{ 'demo.base.title_default'|trans }}{% endblock %}{% endblock %}
 
-{% block nowo_ui_styles %}
-    {{ parent() }}
-    <link rel="stylesheet" href="{{ asset('demo-breadcrumb.css') }}">
-    {% block styles %}{% endblock %}
-{% endblock %}
-
 {% block nowo_ui_body %}
     {% set dashboard_collections_url = breadcrumb_kit_dashboard_collections_url() %}
     {% set _brand %}
@@ -53,7 +47,7 @@
                 {{ include(nowo_ui_partial('flashes', nowo_ui_bundle|default(null)), {bundle: nowo_ui_bundle|default(null)}) }}
             {% endblock %}
             {% block breadcrumb_card %}
-                <section class="nowo-ui-card demo-breadcrumb-card">
+                <section class="nowo-ui-card">
                     <div class="nowo-ui-card__body">
                         {% block breadcrumb %}
                             {{ breadcrumb_render() }}

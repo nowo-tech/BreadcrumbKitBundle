@@ -1,4 +1,4 @@
-{# Demo override: bundle default + test classes (breadcrumb-app-override, --many) + inline edit modal (styled in public/demo-breadcrumb.css) + collapse on narrow screens (bundle partials). #}
+{# Demo override: bundle default + test classes (breadcrumb-app-override, --many) + inline edit modal (UiKit dialog classes, no demo CSS) + collapse on narrow screens (bundle partials). #}
 {% trans_default_domain 'NowoBreadcrumbKitBundle' %}
 {% set has_trail = trail.nodes is not empty %}
 {% set collapse = has_trail and trail.collapsible %}
@@ -7,15 +7,15 @@
   {% if has_trail %}
   {% set many = trail.nodes|length > 5 %}
   <nav class="{{ trail.classList|default('breadcrumb') }} breadcrumb-app-override{{ many ? ' breadcrumb--many' : '' }}" aria-label="{{ 'breadcrumb.aria_label'|trans }}" data-breadcrumb-count="{{ trail.nodes|length }}"{% if trail.responsiveConfig.breakpoint is defined %} data-breadcrumb-breakpoint="{{ trail.responsiveConfig.breakpoint }}"{% endif %}>
-    <ol class="breadcrumb-list">
+    <ol class="breadcrumb-list nowo-ui-breadcrumbs__list">
       {% for node in trail.nodes %}
         {% if collapse and node.current %}{% include '@NowoBreadcrumbKitBundle/_breadcrumb_collapse.html.twig' with { trail: trail } only %}{% endif %}
         {% if not loop.first %}
-          <li class="{{ trail.classSeparator|default('breadcrumb-separator') }}" aria-hidden="true">{% if trail.separatorIcon %}<span class="breadcrumb-sep-icon">{{ trail.separatorIcon }}</span>{% else %}<span>/</span>{% endif %}</li>
+          <li class="{{ trail.classSeparator|default('breadcrumb-separator') }} nowo-ui-breadcrumbs__separator" aria-hidden="true">{% if trail.separatorIcon %}<span class="breadcrumb-sep-icon">{{ trail.separatorIcon }}</span>{% else %}<span>/</span>{% endif %}</li>
         {% endif %}
-        <li class="{{ trail.classItem|default('breadcrumb-item') }}{% if node.current %} {{ trail.classCurrent|default('is-current') }}{% endif %}">
+        <li class="{{ trail.classItem|default('breadcrumb-item') }} nowo-ui-breadcrumbs__item{% if node.current %} {{ trail.classCurrent|default('is-current') }}{% endif %}">
           {% if not node.current and node.linkEnabled and node.url %}
-            <a href="{{ node.url }}">{% if node.icon %}<span class="breadcrumb-icon" aria-hidden="true">{{ node.icon }}</span> {% endif %}{{ node.label }}</a>
+            <a class="nowo-ui-breadcrumbs__link" href="{{ node.url }}">{% if node.icon %}<span class="breadcrumb-icon" aria-hidden="true">{{ node.icon }}</span> {% endif %}{{ node.label }}</a>
           {% else %}
             <span{% if node.current %} aria-current="page"{% endif %}>{% if node.icon %}<span class="breadcrumb-icon" aria-hidden="true">{{ node.icon }}</span> {% endif %}{{ node.label }}</span>
           {% endif %}
@@ -28,12 +28,12 @@
   {% if breadcrumb_inline_edit.show %}
   <div class="breadcrumb-kit__inline-toolbar">
     <button type="button" class="breadcrumb-kit__inline-open nowo-ui-btn nowo-ui-btn--outline nowo-ui-btn--sm" data-bk-inline-open aria-haspopup="dialog">{{ 'breadcrumb.inline_edit.open'|trans }}</button>
-    <dialog class="breadcrumb-kit__dialog" data-bk-inline-dialog aria-labelledby="breadcrumb-kit-inline-title">
-      <div class="breadcrumb-kit__dialog-bar">
-        <h2 id="breadcrumb-kit-inline-title" class="breadcrumb-kit__dialog-title">{{ breadcrumb_inline_edit.modal_title }}</h2>
-        <button type="button" class="breadcrumb-kit__dialog-close nowo-ui-btn nowo-ui-btn--outline nowo-ui-btn--sm" data-bk-inline-close autofocus>{{ 'breadcrumb.inline_edit.close'|trans }}</button>
+    <dialog class="breadcrumb-kit__dialog nowo-ui-dialog nowo-ui-dialog--wide" data-bk-inline-dialog aria-labelledby="breadcrumb-kit-inline-title">
+      <div class="nowo-ui-dialog__header">
+        <h2 id="breadcrumb-kit-inline-title" class="nowo-ui-dialog__title">{{ breadcrumb_inline_edit.modal_title }}</h2>
+        <button type="button" class="breadcrumb-kit__dialog-close nowo-ui-dialog__close nowo-ui-btn nowo-ui-btn--outline nowo-ui-btn--sm" data-bk-inline-close autofocus>{{ 'breadcrumb.inline_edit.close'|trans }}</button>
       </div>
-      <iframe class="breadcrumb-kit__iframe" src="{{ breadcrumb_inline_edit.iframe_url }}" title="{{ breadcrumb_inline_edit.modal_title }}"></iframe>
+      <div class="nowo-ui-dialog__body"><iframe class="breadcrumb-kit__iframe" width="100%" height="480" src="{{ breadcrumb_inline_edit.iframe_url }}" title="{{ breadcrumb_inline_edit.modal_title }}"></iframe></div>
     </dialog>
   </div>
   <script src="{{ asset('js/breadcrumb-inline.js', 'nowo_breadcrumb_kit') }}" defer></script>
