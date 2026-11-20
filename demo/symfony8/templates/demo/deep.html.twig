@@ -12,10 +12,10 @@
     <h2>{{ 'demo.deep.current_level'|trans }}</h2>
     <p><code>{{ 'demo.deep.step_label'|trans }} {{ level }} / {{ maxLevel }}</code></p>
     <p class="nowo-ui-muted">{{ 'demo.deep.shortcuts'|trans }}</p>
-    <nav class="demo-deep-jumps" aria-label="{{ 'demo.deep.jump_aria'|trans }}">
-        <a href="{{ path('app_demo_deep') }}">hub</a>
+    <nav class="nowo-ui-toolbar" aria-label="{{ 'demo.deep.jump_aria'|trans }}">
+        <a class="nowo-ui-btn nowo-ui-btn--outline nowo-ui-btn--sm" href="{{ path('app_demo_deep') }}">hub</a>
         {% for i in 1..maxLevel %}
-            <a href="{{ path('app_demo_deep_s' ~ i) }}">+{{ i }}</a>
+            <a class="nowo-ui-btn nowo-ui-btn--outline nowo-ui-btn--sm" href="{{ path('app_demo_deep_s' ~ i) }}">+{{ i }}</a>
         {% endfor %}
     </nav>
 {% endblock %}

@@ -12,9 +12,9 @@
     <h2>{{ 'demo.admin_long.level_heading'|trans }}</h2>
     <p><code>w{{ level }} / w{{ maxLevel }}</code></p>
     <p class="nowo-ui-muted">{{ 'demo.admin_long.shortcuts'|trans }}</p>
-    <nav class="demo-deep-jumps" aria-label="{{ 'demo.admin_long.jump_aria'|trans }}">
+    <nav class="nowo-ui-toolbar" aria-label="{{ 'demo.admin_long.jump_aria'|trans }}">
         {% for i in 1..maxLevel %}
-            <a href="{{ path('app_admin_long_w' ~ i) }}">w{{ i }}</a>
+            <a class="nowo-ui-btn nowo-ui-btn--outline nowo-ui-btn--sm" href="{{ path('app_admin_long_w' ~ i) }}">w{{ i }}</a>
         {% endfor %}
     </nav>
 {% endblock %}

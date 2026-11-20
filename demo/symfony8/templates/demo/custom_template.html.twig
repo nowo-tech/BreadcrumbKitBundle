@@ -5,7 +5,7 @@
 
 {% block breadcrumb %}
 {# Second argument: app template; receives trail (BreadcrumbTrailView) #}
-<nav class="breadcrumb-demo" aria-label="{{ 'demo.custom_template.nav_aria'|trans }}">
+<nav aria-label="{{ 'demo.custom_template.nav_aria'|trans }}">
     {{ breadcrumb_render('default', 'breadcrumb/custom_fragment.html.twig') }}
 </nav>
 {% endblock %}

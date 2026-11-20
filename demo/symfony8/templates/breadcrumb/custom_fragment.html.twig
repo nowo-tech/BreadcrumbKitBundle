@@ -1,8 +1,8 @@
 {# Receives `trail` y `breadcrumb_inline_edit` (como la plantilla por defecto del bundle). #}
 {% if trail.nodes is not empty %}
-<ul class="bc-custom-fragment">
+<ul class="nowo-ui-breadcrumbs__list">
     {% for node in trail.nodes %}
-        <li>
+        <li class="nowo-ui-breadcrumbs__item">
             {% if not loop.first %}<span aria-hidden="true">→</span>{% endif %}
             {% if not node.current and node.linkEnabled and node.url %}
                 <a href="{{ node.url }}">{{ node.label }}</a>
