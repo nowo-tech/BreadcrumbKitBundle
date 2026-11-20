@@ -8,8 +8,10 @@
 {% endblock %}
 
 {% block body %}
-    <p>
-        {{ 'demo.section.lead_html'|trans|raw }}
-    </p>
-    <p><a href="{{ path('app_home') }}">{{ 'demo.section.back_home'|trans }}</a></p>
+    {% embed '@NowoUiKit/demo_platform/_section.html.twig' with {kind: 'content'} %}
+        {% block section_body %}
+            <p>{{ 'demo.section.lead_html'|trans|raw }}</p>
+            <p><a href="{{ path('app_home') }}">{{ 'demo.section.back_home'|trans }}</a></p>
+        {% endblock %}
+    {% endembed %}
 {% endblock %}

@@ -4,11 +4,14 @@
 {% block title %}{{ 'demo.shop.title'|trans }}{% endblock %}
 
 {% block nowo_ui_page_header %}
-    {{ include(nowo_ui_partial('page_header'), {title: 'demo.shop.heading'|trans}) }}
+    {{ include(nowo_ui_partial('page_header'), {title: 'demo.shop.heading'|trans, intro: 'demo.shop.lead'|trans}) }}
 {% endblock %}
 
 {% block body %}
-    <p>{{ 'demo.shop.lead'|trans }}</p>
-    <p><a href="{{ path('app_product_show', { id: 42 }) }}">{{ 'demo.shop.open_product'|trans }}</a></p>
-    <p><a href="{{ path('app_home') }}">{{ 'demo.shop.back_home'|trans }}</a></p>
+    {% embed '@NowoUiKit/demo_platform/_section.html.twig' with {kind: 'content'} %}
+        {% block section_body %}
+            <p><a href="{{ path('app_product_show', { id: 42 }) }}">{{ 'demo.shop.open_product'|trans }}</a></p>
+            <p><a href="{{ path('app_home') }}">{{ 'demo.shop.back_home'|trans }}</a></p>
+        {% endblock %}
+    {% endembed %}
 {% endblock %}

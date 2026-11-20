@@ -3,15 +3,13 @@ import { mkdirSync } from 'node:fs';
 import { resolve } from 'node:path';
 import type { Page } from '@playwright/test';
 
-/** The Symfony WebProfiler toolbar (dev) is part of the demo frame: wait until it has loaded. */
+/** The Symfony debug toolbar is not part of the demo platform: hide it so the screenshots never show it. */
 async function waitForToolbar(page: Page): Promise<void> {
   await page.waitForLoadState('networkidle');
-  if (await page.locator('.sf-toolbar').count()) {
-    await expect(page.locator('.sf-toolbar .sf-toolbar-block').first()).toBeVisible();
-  }
+  await page.addStyleTag({ content: '.sf-toolbar,.sf-minitoolbar,[id^="sfwdt"]{display:none!important}' });
 }
 
-/** REQ-DEMO-013 — the dashboard in the demo frame (demo header + sidebar + UiKit page + Symfony toolbar). */
+/** REQ-DEMO-013 — the dashboard in the demo frame (demo platform top bar + aside + UiKit page). */
 const outDir = process.env.SCREENSHOT_DIR ? resolve(process.env.SCREENSHOT_DIR) : resolve(__dirname, '../../../../docs/images/demo');
 /** One cropped widget image for docs/USAGE.md (REQ-DEMO-013 §3), kept out of the README set under docs/images/demo/. */
 const usageDir = process.env.USAGE_SCREENSHOT_DIR ? resolve(process.env.USAGE_SCREENSHOT_DIR) : resolve(__dirname, '../../../../docs/images/usage');

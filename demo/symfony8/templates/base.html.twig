@@ -1,62 +1,64 @@
-{#- REQ-DEMO-014: the demo shell is UiKit's admin layout with UiKit's signed-in app shell (header, aside, footer) and
-    UiKit's default theme (nowo-ui.css from the bundle's own asset package, no CSS framework, no CDN, no token
-    overrides). The Breadcrumb Kit dashboard pages render in the same layout (layouts/admin.html.twig, REQ-UI-003). -#}
+{#- REQ-DEMO-014: the demo runs inside UiKit's shared demo platform shell (@NowoUiKit/demo_platform/layout.html.twig).
+    This file only declares the demo (nowo_ui_demo_platform): every example of the trail is an aside item. The trail
+    itself (breadcrumb_render()) is the product, so it is the first section of the content of every public page; the
+    Breadcrumb Kit dashboard pages render in the same shell (layouts/admin.html.twig, REQ-UI-003) and show the trail in
+    their page header instead. -#}
 {% trans_default_domain 'NowoBreadcrumbKitBundle' %}
-{% extends '@NowoUiKit/layout/admin.html.twig' %}
+{% extends '@NowoUiKit/demo_platform/layout.html.twig' %}
+{% set _locale = app.request.locale %}
+{% set _route = app.request.attributes.get('_route') %}
+{% set _dashboard_url = breadcrumb_kit_dashboard_collections_url() %}
+{% set _nav = [
+    {label: 'demo.sidebar.overview', route: 'app_home', params: {_locale: _locale}, section: 'demo.sidebar.section_start'},
+] %}
+{% if _dashboard_url %}
+    {% set _nav = _nav|merge([
+        {label: 'demo.sidebar.breadcrumb_editor', href: _dashboard_url, active: ['nowo_breadcrumb_kit_dashboard_*'], section: 'demo.sidebar.section_manage', testid: 'demo-nav-breadcrumb-editor'},
+    ]) %}
+{% endif %}
+{% set _nav = _nav|merge([
+    {label: 'demo.sidebar.home_with_flag', href: path('app_home', {_locale: _locale}) ~ '?breadcrumb_edit=1', active: [], section: 'demo.sidebar.section_inline', testid: 'demo-nav-home-edit'},
+    {label: 'demo.sidebar.product_with_modal', href: path('app_product_show', {_locale: _locale, id: 42}) ~ '?breadcrumb_edit=1', active: [], section: 'demo.sidebar.section_inline', testid: 'demo-nav-product-edit'},
+    {label: 'demo.sidebar.shop', route: 'app_shop', params: {_locale: _locale}, section: 'demo.sidebar.section_chain'},
+    {label: 'demo.sidebar.product_42', route: 'app_product_show', params: {_locale: _locale, id: 42}, section: 'demo.sidebar.section_chain'},
+    {label: 'demo.sidebar.sales', route: 'app_section_show', params: {_locale: _locale, section: 'sales'}, section: 'demo.sidebar.section_static', testid: 'demo-nav-section-sales'},
+    {label: 'demo.sidebar.support', route: 'app_section_show', params: {_locale: _locale, section: 'support'}, section: 'demo.sidebar.section_static', testid: 'demo-nav-section-support'},
+    {label: 'demo.sidebar.long_trail', route: 'app_demo_deep', params: {_locale: _locale}, section: 'demo.sidebar.section_depth'},
+    {label: 'demo.sidebar.eight_crumbs', route: 'app_demo_deep_s6', params: {_locale: _locale}, section: 'demo.sidebar.section_depth'},
+    {label: 'demo.sidebar.admin', route: 'app_admin_dashboard', params: {_locale: _locale}, section: 'demo.sidebar.section_admin_col'},
+    {label: 'demo.sidebar.users', route: 'app_admin_users', params: {_locale: _locale}, section: 'demo.sidebar.section_admin_col'},
+    {label: 'demo.sidebar.six_admin_crumbs', route: 'app_admin_long_w5', params: {_locale: _locale}, active: ['app_admin_long_*'], section: 'demo.sidebar.section_admin_col'},
+    {label: 'demo.sidebar.breadcrumb_trail', route: 'app_demo_breadcrumb_trail', params: {_locale: _locale}, section: 'demo.sidebar.section_twig'},
+    {label: 'demo.sidebar.custom_template', route: 'app_demo_custom_template', params: {_locale: _locale}, section: 'demo.sidebar.section_twig'},
+    {label: 'demo.sidebar.no_db_row', route: 'app_demo_no_breadcrumb_match', params: {_locale: _locale}, section: 'demo.sidebar.section_edge'},
+]) %}
+{% set _footer_links = [{label: 'demo.base.footer_home', href: path('app_home', {_locale: _locale})}] %}
+{% if _dashboard_url %}
+    {% set _footer_links = _footer_links|merge([{label: 'demo.base.footer_crud', href: _dashboard_url}]) %}
+{% endif %}
+{% set nowo_ui_demo_platform = {
+    bundle: 'Breadcrumb Kit',
+    home_route: 'app_home',
+    home_params: {_locale: _locale},
+    repository: 'https://github.com/nowo-tech/BreadcrumbKitBundle',
+    translation_domain: 'NowoBreadcrumbKitBundle',
+    locales: ['en', 'es'],
+    footer_links: _footer_links,
+    nav: _nav,
+} %}
 
-{% block nowo_ui_document_title %}{% block title %}{{ 'demo.base.title_default'|trans }}{% endblock %}{% endblock %}
+{% block nowo_ui_document_title %}{% block title %}{{ 'demo.base.title_default'|trans }}{% endblock %} — Symfony 8{% endblock %}
 
-{% block nowo_ui_body %}
-    {% set dashboard_collections_url = breadcrumb_kit_dashboard_collections_url() %}
-    {% set _brand %}
-        <a class="nowo-ui-brand" href="{{ path('app_home') }}">{{ 'dashboard.brand'|trans }} <small class="nowo-ui-muted">{{ 'demo.base.brand_sub'|trans }}</small></a>
-    {% endset %}
-    {% set _header_end %}
-        {% if app.request.attributes.get('_route') %}
-            {% set rp = app.request.attributes.get('_route_params')|default({}) %}
-            <nav aria-label="{{ 'demo.base.language_switch_aria'|trans }}">
-                {% for loc in ['en', 'es'] %}
-                    <a href="{{ path(app.request.attributes.get('_route'), rp|merge({ _locale: loc })) }}" class="nowo-ui-btn nowo-ui-btn--sm {{ app.request.locale == loc ? 'nowo-ui-btn--primary' : 'nowo-ui-btn--outline' }}">{{ loc|upper }}</a>
-                {% endfor %}
-            </nav>
-        {% endif %}
-        {% if dashboard_collections_url %}
-            <a href="{{ dashboard_collections_url }}" class="nowo-ui-btn nowo-ui-btn--outline nowo-ui-btn--sm">{{ 'demo.base.edit_breadcrumbs'|trans }}</a>
-        {% endif %}
-    {% endset %}
-    {% set _aside %}
-        {% include '_demo_sidebar.html.twig' %}
-        <div class="nowo-ui-aside__inner">
-            <p class="nowo-ui-aside__label">{{ 'demo.base.resources_title'|trans }}</p>
-            <nav class="nowo-ui-aside__nav" aria-label="{{ 'demo.base.resources_aria'|trans }}">
-                <a class="nowo-ui-aside__link" href="https://github.com/nowo-tech/BreadcrumbKitBundle" rel="noopener noreferrer" target="_blank">{{ 'demo.base.github'|trans }}</a>
-                <a class="nowo-ui-aside__link" href="https://packagist.org/packages/nowo-tech/breadcrumb-kit-bundle" rel="noopener noreferrer" target="_blank">{{ 'demo.base.packagist'|trans }}</a>
-            </nav>
-            <p class="nowo-ui-muted">{{ 'demo.base.resources_note'|trans }}</p>
-        </div>
-    {% endset %}
-    {% set _footer_links = [{label: 'demo.base.footer_home'|trans, href: path('app_home')}] %}
-    {% if dashboard_collections_url %}
-        {% set _footer_links = _footer_links|merge([{label: 'demo.base.footer_crud'|trans, href: dashboard_collections_url}]) %}
-    {% endif %}
+{#- The trail: one block (overridden by the admin pages and the custom-template example), printed in the first section. -#}
+{% block breadcrumb %}
+    {{ breadcrumb_render() }}
+{% endblock %}
 
-    {{ include(nowo_ui_partial('app_shell_open'), {brand_html: _brand, header_end: _header_end, aside_html: _aside, content_width: 'full'}) }}
-        <div class="nowo-ui-content" id="nowo-ui-content"{% if nowo_ui_bundle|default(null) %} data-nowo-ui-bundle="{{ nowo_ui_bundle }}"{% endif %}>
-            {% block nowo_ui_page_header %}{% endblock %}
-            {% block nowo_ui_flashes %}
-                {{ include(nowo_ui_partial('flashes', nowo_ui_bundle|default(null)), {bundle: nowo_ui_bundle|default(null)}) }}
-            {% endblock %}
-            {% block breadcrumb_card %}
-                <section class="nowo-ui-card">
-                    <div class="nowo-ui-card__body">
-                        {% block breadcrumb %}
-                            {{ breadcrumb_render() }}
-                        {% endblock %}
-                    </div>
-                </section>
-            {% endblock %}
-            {% block nowo_ui_content %}{% block body %}{% endblock %}{% endblock %}
-        </div>
-    {{ include(nowo_ui_partial('app_shell_close'), {footer_links: _footer_links}) }}
-    {% block nowo_ui_modals %}{% endblock %}
+{% block nowo_ui_content %}
+    {% block breadcrumb_card %}
+        {% embed '@NowoUiKit/demo_platform/_section.html.twig' with {kind: 'content', crumb: block('breadcrumb')} %}
+            {% block section_body %}{{ crumb|raw }}{% endblock %}
+        {% endembed %}
+    {% endblock %}
+    {{ parent() }}
 {% endblock %}

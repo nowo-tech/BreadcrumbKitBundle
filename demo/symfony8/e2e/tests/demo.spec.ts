@@ -39,7 +39,7 @@ test.describe('breadcrumb kit dashboard', () => {
     await expect(dialog.locator('input[name="breadcrumb_collection[code]"]')).toBeVisible();
     await dialog.locator('input[name="breadcrumb_collection[code]"]').fill(code);
     await dialog.getByRole('button', { name: 'Create' }).click();
-    await expect(page.getByRole('alert').filter({ hasText: 'Collection created.' })).toBeVisible();
+    await expect(page.getByRole('status').filter({ hasText: 'Collection created.' })).toBeVisible();
     await page.goto(`${ADMIN}/collections?q=${code}`);
     await expect(page.locator('tbody tr', { hasText: code })).toBeVisible();
   });
@@ -57,7 +57,7 @@ test.describe('breadcrumb kit dashboard', () => {
     const dialog = page.locator('dialog[open]');
     await expect(dialog).toContainText(`Delete collection “${code}” and all its items?`);
     await dialog.getByRole('button', { name: 'Delete' }).click();
-    await expect(page.getByRole('alert').filter({ hasText: 'Collection deleted.' })).toBeVisible();
+    await expect(page.getByRole('status').filter({ hasText: 'Collection deleted.' })).toBeVisible();
     await expect(page.locator('tbody tr', { hasText: code })).toHaveCount(0);
   });
 
@@ -75,7 +75,7 @@ test.describe('breadcrumb kit dashboard', () => {
     await page.goto(url.replace(/&amp;/g, '&'));
     await expect(page.locator('[data-nowo-ui-page="confirm"]')).toBeVisible();
     await page.getByTestId('breadcrumb-kit-item-delete').getByRole('button', { name: 'Delete' }).click();
-    await expect(page.getByRole('alert').filter({ hasText: 'Item deleted.' })).toBeVisible();
+    await expect(page.getByRole('status').filter({ hasText: 'Item deleted.' })).toBeVisible();
   });
 
   test('items list, filters and the import dialog', async ({ page }) => {

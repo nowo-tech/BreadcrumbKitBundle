@@ -83,6 +83,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - CI: new `deps-floor` job. It checks that the demo lock installs every nowo-tech requirement of the bundle (`.scripts/check-demo-lock.py`), then downgrades nowo-tech/transaction-* to the lowest versions composer.json allows (`composer update 'nowo-tech/transaction-*' --prefer-lowest`) and runs PHPStan and the unit and integration suites there, so a call to a newer API than the constraint allows fails the pull request.
 - Demo: `make update-bundle` runs `composer update nowo-tech/breadcrumb-kit-bundle -w`, so the bundle's new or raised requirements reach the demo lock too.
 - Requires `nowo-tech/transaction-doctrine` ^1.8.1 (fixes GHSA-9wh3-m3m5-jffx and GHSA-65w2-9r4h-848g).
+- Demo: runs in UiKit's demo platform shell (`@NowoUiKit/demo_platform/layout.html.twig`, UiKit ^2.60): the demo declares itself in `templates/base.html.twig` (every example of the trail is an aside item in sections, locale pills from the shell), the trail is the first section card of each page, the demo's own header, aside markup and brand are gone, a demo-platform e2e spec checks the layout rules, the drawer and axe, and the README screenshots no longer show the Symfony toolbar.
 
 ## [2.23.0] - 2026-11-18
 

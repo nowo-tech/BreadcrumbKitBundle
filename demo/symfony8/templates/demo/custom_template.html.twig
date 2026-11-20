@@ -15,6 +15,9 @@
 {% endblock %}
 
 {% block body %}
-    <p>{{ 'demo.custom_template.lead_html'|trans }}</p>
-    <p><a href="{{ path('app_home') }}">{{ 'demo.custom_template.back_home'|trans }}</a></p>
+    {% embed '@NowoUiKit/demo_platform/_section.html.twig' with {kind: 'content', intro: 'demo.custom_template.lead_html'|trans} %}
+        {% block section_body %}
+            <p><a href="{{ path('app_home') }}">{{ 'demo.custom_template.back_home'|trans }}</a></p>
+        {% endblock %}
+    {% endembed %}
 {% endblock %}

@@ -8,13 +8,16 @@
 {% endblock %}
 
 {% block body %}
-    {{ 'demo.admin_long.body_html'|trans|raw }}
-    <h2>{{ 'demo.admin_long.level_heading'|trans }}</h2>
-    <p><code>w{{ level }} / w{{ maxLevel }}</code></p>
-    <p class="nowo-ui-muted">{{ 'demo.admin_long.shortcuts'|trans }}</p>
-    <nav class="nowo-ui-toolbar" aria-label="{{ 'demo.admin_long.jump_aria'|trans }}">
-        {% for i in 1..maxLevel %}
-            <a class="nowo-ui-btn nowo-ui-btn--outline nowo-ui-btn--sm" href="{{ path('app_admin_long_w' ~ i) }}">w{{ i }}</a>
-        {% endfor %}
-    </nav>
+    {% embed '@NowoUiKit/demo_platform/_section.html.twig' with {kind: 'content', title: 'demo.admin_long.level_heading'|trans} %}
+        {% block section_body %}
+            {{ 'demo.admin_long.body_html'|trans|raw }}
+            <p><code>w{{ level }} / w{{ maxLevel }}</code></p>
+            <p class="nowo-ui-muted">{{ 'demo.admin_long.shortcuts'|trans }}</p>
+            <nav class="nowo-ui-toolbar" aria-label="{{ 'demo.admin_long.jump_aria'|trans }}">
+                {% for i in 1..maxLevel %}
+                    <a class="nowo-ui-btn nowo-ui-btn--outline nowo-ui-btn--sm" href="{{ path('app_admin_long_w' ~ i) }}">w{{ i }}</a>
+                {% endfor %}
+            </nav>
+        {% endblock %}
+    {% endembed %}
 {% endblock %}
