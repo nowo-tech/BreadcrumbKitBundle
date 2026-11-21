@@ -152,7 +152,7 @@ form:
     class_item.label: CSS ítem
     class_separator.label: CSS separador
     class_current.label: CSS ítem actual
-    responsive_config.label: Responsive (JSON)
+    responsive_config.label: "Adaptable (JSON)"
     responsive_config.help: 'Objeto JSON (breakpoint, hints). Vacío = null.'
     inline_edit_access.label: Edición en línea (servicio de acceso)
     inline_edit_access.placeholder: Desactivada
@@ -163,10 +163,10 @@ form:
     route_name.placeholder: 'app_product_show'
     static_params.label: Parámetros estáticos (JSON)
     static_params.help: 'Ej. {"section":"sales"} — debe coincidir con _route_params.'
-    path_pattern.label: Path pattern (PCRE)
+    path_pattern.label: "Patrón de ruta (PCRE)"
     path_pattern.placeholder: '^/shop/.+'
     path_pattern.help: Optional regex against request path; use route * for path-only matches.
-    match_attributes.label: Request attributes (JSON)
+    match_attributes.label: "Atributos de la petición (JSON)"
     match_attributes.help: Extra request attributes that must match.
     dynamic_keys.label: Claves dinámicas (JSON array)
     dynamic_keys.help: 'Ej. ["id"] copiados de la petición al generar el enlace.'
@@ -265,7 +265,7 @@ demo:
     lead_html: 'No hay ningún BreadcrumbItem para esta ruta; la zona de migas arriba está vacía.'
     back_home: Inicio
   breadcrumb_trail:
-    title: 'breadcrumb_trail() — Breadcrumb demo'
+    title: "breadcrumb_trail() — Demo de migas de pan"
     lead_html: 'Mismo modelo de datos que <code>breadcrumb_render()</code>, maquetación manual:'
     current_suffix: ' (actual)'
     back_home: Inicio
@@ -275,7 +275,7 @@ demo:
     lead_html: 'Esta página usa una plantilla Twig propia en lugar de la del bundle.'
     back_home: Inicio
   admin_dashboard:
-    title: 'Admin — Breadcrumb demo'
+    title: "Admin — Demo de migas de pan"
     heading: Panel
     lead_intro: 'Colección «admin» y ruta hija:'
     back_public: 'Volver al sitio público'

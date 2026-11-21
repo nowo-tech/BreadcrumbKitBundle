@@ -152,7 +152,7 @@ form:
     class_item.label: Item-CSS
     class_separator.label: Scheidingsteken-CSS
     class_current.label: Huidig item-CSS
-    responsive_config.label: Responsive (JSON)
+    responsive_config.label: "Responsief (JSON)"
     responsive_config.help: 'JSON-object (breakpoints, hints). Leeg = null.'
     inline_edit_access.label: Inline bewerken (toegangsservice)
     inline_edit_access.placeholder: Uitgeschakeld
@@ -163,10 +163,10 @@ form:
     route_name.placeholder: 'app_product_show'
     static_params.label: Statische parameters (JSON)
     static_params.help: 'bijv. {"section":"sales"} — moet overeenkomen met _route_params.'
-    path_pattern.label: Path pattern (PCRE)
+    path_pattern.label: "Padpatroon (PCRE)"
     path_pattern.placeholder: '^/shop/.+'
     path_pattern.help: Optional regex against request path; use route * for path-only matches.
-    match_attributes.label: Request attributes (JSON)
+    match_attributes.label: "Request-attributen (JSON)"
     match_attributes.help: Extra request attributes that must match.
     dynamic_keys.label: Dynamische sleutels (JSON-array)
     dynamic_keys.help: 'bijv. ["id"] gekopieerd uit het verzoek bij het genereren van de link.'
@@ -265,7 +265,7 @@ demo:
     lead_html: 'Er is geen <code>BreadcrumbItem</code> voor deze route; het breadcrumbgebied hierboven is leeg.'
     back_home: Start
   breadcrumb_trail:
-    title: 'breadcrumb_trail() — Breadcrumb demo'
+    title: "breadcrumb_trail() — Broodkruimel-demo"
     lead_html: 'Dezelfde gegevens als <code>breadcrumb_render()</code>, aangepaste markup:'
     current_suffix: ' (huidig)'
     back_home: Start
@@ -275,7 +275,7 @@ demo:
     lead_html: 'Deze pagina gebruikt een applicatie-Twig-template in plaats van de bundle-standaard.'
     back_home: Start
   admin_dashboard:
-    title: 'Admin — Breadcrumb demo'
+    title: "Admin — Broodkruimel-demo"
     heading: Paneel
     lead_intro: 'Tweede collectie <code>admin</code> en childroute:'
     back_public: 'Terug naar publieke site'
