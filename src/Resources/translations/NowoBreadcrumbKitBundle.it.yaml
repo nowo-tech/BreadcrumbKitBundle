@@ -141,7 +141,7 @@ form:
 
   breadcrumb_collection:
     code.label: Codice
-    context_key.label: Context key
+    context_key.label: "Chiave di contesto"
     context_key.help: 'Lascia vuoto salvo che tu usi più collezioni con lo stesso codice.'
     name.label: Nome visualizzato
     home_icon.label: Icona home (emoji/HTML breve)
@@ -152,7 +152,7 @@ form:
     class_item.label: CSS elemento
     class_separator.label: CSS separatore
     class_current.label: CSS elemento corrente
-    responsive_config.label: Responsive (JSON)
+    responsive_config.label: "Adattivo (JSON)"
     responsive_config.help: 'Oggetto JSON (breakpoint, hints). Vuoto = null.'
     inline_edit_access.label: Modifica inline (servizio di accesso)
     inline_edit_access.placeholder: Disabilitata
@@ -163,10 +163,10 @@ form:
     route_name.placeholder: 'app_product_show'
     static_params.label: Parametri statici (JSON)
     static_params.help: 'Es. {"section":"sales"} — deve corrispondere a _route_params.'
-    path_pattern.label: Path pattern (PCRE)
+    path_pattern.label: "Pattern del percorso (PCRE)"
     path_pattern.placeholder: '^/shop/.+'
     path_pattern.help: Optional regex against request path; use route * for path-only matches.
-    match_attributes.label: Request attributes (JSON)
+    match_attributes.label: "Attributi della richiesta (JSON)"
     match_attributes.help: Extra request attributes that must match.
     dynamic_keys.label: Chiavi dinamiche (array JSON)
     dynamic_keys.help: 'Es. ["id"] copiati dalla richiesta durante la generazione del link.'
@@ -206,8 +206,8 @@ demo:
     shop: Negozio
     product_42: 'Prodotto #42'
     section_static: static_route_params
-    sales: Sales
-    support: Support
+    sales: "Vendite"
+    support: "Supporto"
     section_depth: Profondità
     long_trail: Catena lunga
     eight_crumbs: 8 elementi
