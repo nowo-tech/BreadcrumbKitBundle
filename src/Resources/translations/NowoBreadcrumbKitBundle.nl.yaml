@@ -141,7 +141,7 @@ form:
 
   breadcrumb_collection:
     code.label: Code
-    context_key.label: Context key
+    context_key.label: "Contextsleutel"
     context_key.help: 'Leeg laten tenzij u meerdere collecties met dezelfde code gebruikt.'
     name.label: Weergavenaam
     home_icon.label: Home-icoon (kort emoji/HTML)
@@ -206,7 +206,7 @@ demo:
     shop: Winkel
     product_42: 'Product nr. 42'
     section_static: static_route_params
-    sales: Sales
+    sales: "Verkoop"
     support: Support
     section_depth: Diepte
     long_trail: Lange keten
@@ -248,7 +248,7 @@ demo:
     open_product: 'Product #42 openen'
     back_home: 'Terug naar start'
   section:
-    title: '%section% — Breadcrumb demo'
+    title: "%section% — Broodkruimel-demo"
     lead_html: 'Dezelfde Symfony-route voor <code>sales</code> en <code>support</code>; het item met de meeste overeenkomende <code>static_route_params</code> wint.'
     back_home: Start
   deep:

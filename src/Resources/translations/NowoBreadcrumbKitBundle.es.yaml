@@ -30,7 +30,7 @@ dashboard:
   open_form_full_page: Abrir formulario en página
   table_id: ID
   table_code: Código
-  table_context: Context
+  table_context: "Contexto"
   table_name: Nombre
   table_items: Ítems
   table_actions: Acciones
@@ -60,7 +60,7 @@ dashboard:
   table_route: Ruta
   table_label: Etiqueta
   table_parent: Padre
-  table_link: Link
+  table_link: "Enlace"
   link_yes: sí
   link_no: 'no'
   filter_by_route: Filtrar
@@ -141,7 +141,7 @@ form:
 
   breadcrumb_collection:
     code.label: Código
-    context_key.label: Context key
+    context_key.label: "Clave de contexto"
     context_key.help: 'Vacío salvo que uses varias colecciones con el mismo code.'
     name.label: Nombre visible
     home_icon.label: Icono inicio (emoji/HTML corto)
@@ -206,8 +206,8 @@ demo:
     shop: Tienda
     product_42: 'Producto #42'
     section_static: static_route_params
-    sales: Sales
-    support: Support
+    sales: "Ventas"
+    support: "Soporte"
     section_depth: Profundidad
     long_trail: Cadena larga
     eight_crumbs: 8 migas
@@ -248,7 +248,7 @@ demo:
     open_product: 'Ver producto #42'
     back_home: 'Volver al inicio'
   section:
-    title: '%section% — Breadcrumb demo'
+    title: "%section% — Demo de migas de pan"
     lead_html: 'Misma ruta Symfony para <code>sales</code> y <code>support</code>; el ítem con más <code>static_route_params</code> coincidentes gana.'
     back_home: Inicio
   deep:

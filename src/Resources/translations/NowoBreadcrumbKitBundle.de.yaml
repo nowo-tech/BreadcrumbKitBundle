@@ -141,7 +141,7 @@ form:
 
   breadcrumb_collection:
     code.label: Code
-    context_key.label: Context key
+    context_key.label: "Kontextschlüssel"
     context_key.help: 'Leer lassen, es sei denn, Sie verwenden mehrere Sammlungen mit demselben Code.'
     name.label: Anzeigename
     home_icon.label: Start-Icon (kurzes Emoji/HTML)
@@ -206,7 +206,7 @@ demo:
     shop: Shop
     product_42: 'Produkt #42'
     section_static: static_route_params
-    sales: Sales
+    sales: "Vertrieb"
     support: Support
     section_depth: Tiefe
     long_trail: Lange Kette

@@ -60,7 +60,7 @@ dashboard:
   table_route: Rota
   table_label: Etiqueta
   table_parent: Pai
-  table_link: Link
+  table_link: "Ligação"
   link_yes: sim
   link_no: 'não'
   filter_by_route: Filtrar
@@ -141,7 +141,7 @@ form:
 
   breadcrumb_collection:
     code.label: Código
-    context_key.label: Context key
+    context_key.label: "Chave de contexto"
     context_key.help: 'Deixe vazio salvo se usar várias coleções com o mesmo código.'
     name.label: Nome visível
     home_icon.label: Ícone início (emoji/HTML curto)
@@ -206,8 +206,8 @@ demo:
     shop: Loja
     product_42: 'Produto #42'
     section_static: static_route_params
-    sales: Sales
-    support: Support
+    sales: "Vendas"
+    support: "Suporte"
     section_depth: Profundidade
     long_trail: Cadeia longa
     eight_crumbs: 8 breadcrumbs

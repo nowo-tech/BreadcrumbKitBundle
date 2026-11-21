@@ -9,23 +9,160 @@ use PHPUnit\Framework\TestCase;
 use Symfony\Component\Yaml\Yaml;
 
 /**
- * Guards against untranslated strings: in every non-en catalogue (all domains) a key must exist and a value longer than
- * 15 characters, without placeholders, must differ from the English one unless the key is in ALLOWED_IDENTICAL.
+ * Guards against untranslated strings: in every non-en catalogue (all domains) a key must exist, and a value identical to
+ * the English one (any length, ignoring values without letters once placeholders are removed) must be listed in
+ * ALLOWED_IDENTICAL for that locale. An allow-list entry that is no longer identical to English is reported as stale.
  */
 final class TranslationCatalogueTest extends TestCase
 {
     private const DIR = __DIR__.'/../../../src/Resources/translations';
 
     /**
-     * Keys whose value is legitimately identical across locales (brands, product names, CSS classes, route names).
+     * Keys that are correctly identical to English in a locale (brands, product and technical names, codes, loanwords
+     * and cognates), per locale.
      *
-     * @var array<string, string>
+     * @var array<string, list<string>>
      */
     private const ALLOWED_IDENTICAL = [
-        'form.breadcrumb_collection.class_list.placeholder' => 'CSS class example',
-        'form.breadcrumb_item.route_name.placeholder' => 'Route name example',
-        'demo.base.brand_sub' => 'Package name',
-        'demo.sidebar.section_static' => 'Route parameter name',
+        'de' => [
+            'dashboard.brand',
+            'dashboard.link_export_json',
+            'dashboard.table_code',
+            'dashboard.table_id',
+            'dashboard.table_link',
+            'dashboard.table_name',
+            'dashboard.table_route',
+            'dashboard.title',
+            'demo.base.brand_sub',
+            'demo.base.footer_crud',
+            'demo.base.github',
+            'demo.base.packagist',
+            'demo.shop.heading',
+            'demo.sidebar.admin',
+            'demo.sidebar.admin_block',
+            'demo.sidebar.navigation',
+            'demo.sidebar.section_static',
+            'demo.sidebar.section_twig',
+            'demo.sidebar.shop',
+            'demo.sidebar.support',
+            'form.breadcrumb_collection.class_list.placeholder',
+            'form.breadcrumb_collection.code.label',
+            'form.breadcrumb_item.path_pattern.placeholder',
+            'form.breadcrumb_item.route_name.placeholder',
+        ],
+        'es' => [
+            'dashboard.brand',
+            'dashboard.link_export_json',
+            'dashboard.link_no',
+            'dashboard.table_id',
+            'dashboard.title',
+            'demo.base.brand_sub',
+            'demo.base.footer_crud',
+            'demo.base.github',
+            'demo.base.packagist',
+            'demo.sidebar.admin',
+            'demo.sidebar.admin_block',
+            'demo.sidebar.section_static',
+            'demo.sidebar.section_twig',
+            'form.breadcrumb_collection.class_list.placeholder',
+            'form.breadcrumb_item.path_pattern.placeholder',
+            'form.breadcrumb_item.route_name.placeholder',
+        ],
+        'fr' => [
+            'dashboard.back_collections',
+            'dashboard.brand',
+            'dashboard.collection_modal_title',
+            'dashboard.collection_styles_modal_title',
+            'dashboard.collections_heading',
+            'dashboard.link_export_json',
+            'dashboard.nav_collections',
+            'dashboard.table_actions',
+            'dashboard.table_code',
+            'dashboard.table_id',
+            'dashboard.table_parent',
+            'dashboard.table_route',
+            'dashboard.title',
+            'demo.base.brand_sub',
+            'demo.base.footer_crud',
+            'demo.base.github',
+            'demo.base.packagist',
+            'demo.sidebar.admin',
+            'demo.sidebar.admin_block',
+            'demo.sidebar.navigation',
+            'demo.sidebar.section_static',
+            'demo.sidebar.section_twig',
+            'demo.sidebar.support',
+            'form.breadcrumb_collection.class_list.placeholder',
+            'form.breadcrumb_collection.code.label',
+            'form.breadcrumb_item.parent.label',
+            'form.breadcrumb_item.path_pattern.placeholder',
+            'form.breadcrumb_item.route_name.placeholder',
+        ],
+        'it' => [
+            'dashboard.brand',
+            'dashboard.link_export_json',
+            'dashboard.link_no',
+            'dashboard.table_id',
+            'dashboard.table_link',
+            'dashboard.title',
+            'demo.base.brand_sub',
+            'demo.base.footer_crud',
+            'demo.base.github',
+            'demo.base.packagist',
+            'demo.sidebar.admin',
+            'demo.sidebar.admin_block',
+            'demo.sidebar.section_static',
+            'demo.sidebar.section_twig',
+            'form.breadcrumb_collection.class_list.placeholder',
+            'form.breadcrumb_item.path_pattern.placeholder',
+            'form.breadcrumb_item.route_name.placeholder',
+        ],
+        'nl' => [
+            'dashboard.back_items',
+            'dashboard.brand',
+            'dashboard.item_modal_title',
+            'dashboard.link_export_json',
+            'dashboard.table_code',
+            'dashboard.table_context',
+            'dashboard.table_id',
+            'dashboard.table_label',
+            'dashboard.table_link',
+            'dashboard.table_route',
+            'dashboard.title',
+            'demo.base.brand_sub',
+            'demo.base.footer_crud',
+            'demo.base.github',
+            'demo.base.packagist',
+            'demo.product.heading',
+            'demo.sidebar.admin',
+            'demo.sidebar.admin_block',
+            'demo.sidebar.section_static',
+            'demo.sidebar.section_twig',
+            'demo.sidebar.support',
+            'form.breadcrumb_collection.class_list.placeholder',
+            'form.breadcrumb_collection.code.label',
+            'form.breadcrumb_item.path_pattern.placeholder',
+            'form.breadcrumb_item.route_name.placeholder',
+        ],
+        'pt' => [
+            'dashboard.brand',
+            'dashboard.item_modal_title',
+            'dashboard.link_export_json',
+            'dashboard.table_id',
+            'dashboard.title',
+            'demo.admin_dashboard.heading',
+            'demo.base.brand_sub',
+            'demo.base.footer_crud',
+            'demo.base.github',
+            'demo.base.packagist',
+            'demo.sidebar.admin',
+            'demo.sidebar.admin_block',
+            'demo.sidebar.section_static',
+            'demo.sidebar.section_twig',
+            'form.breadcrumb_collection.class_list.placeholder',
+            'form.breadcrumb_item.path_pattern.placeholder',
+            'form.breadcrumb_item.route_name.placeholder',
+        ],
     ];
 
     /** @return iterable<string, array{string, string}> */
@@ -54,14 +191,15 @@ final class TranslationCatalogueTest extends TestCase
     {
         $english = $this->load($domain, 'en');
         $target = $this->load($domain, $locale);
+        $allowed = self::ALLOWED_IDENTICAL[$locale] ?? [];
         $gaps = [];
 
         foreach ($english as $key => $value) {
-            if (!isset($target[$key]) || $target[$key] !== $value || isset(self::ALLOWED_IDENTICAL[$key])) {
+            if (!isset($target[$key]) || $target[$key] !== $value || \in_array($key, $allowed, true)) {
                 continue;
             }
 
-            if (mb_strlen($value) > 15 && 1 !== preg_match('/%[^%\s]+%|\{[^}]+\}/', $value)) {
+            if (1 === preg_match('/[^\W\d_]/u', (string) preg_replace('/%[^%\s]+%|\{[^}]+\}/', '', $value))) {
                 $gaps[] = $key;
             }
         }
@@ -69,15 +207,27 @@ final class TranslationCatalogueTest extends TestCase
         self::assertSame([], $gaps, \sprintf('Values identical to English in %s.%s.yaml (translate or allow-list)', $domain, $locale));
     }
 
-    public function testAllowListOnlyHoldsExistingEnglishKeys(): void
+    public function testAllowListHasNoStaleEntries(): void
     {
-        $known = [];
+        $english = [];
+        $locales = [];
 
-        foreach (self::catalogues() as [$domain]) {
-            $known += $this->load($domain, 'en');
+        foreach (self::catalogues() as [$domain, $locale]) {
+            $english += $this->load($domain, 'en');
+            $locales[$locale] = ($locales[$locale] ?? []) + $this->load($domain, $locale);
         }
 
-        self::assertSame([], array_values(array_diff(array_keys(self::ALLOWED_IDENTICAL), array_keys($known))));
+        $stale = [];
+
+        foreach (self::ALLOWED_IDENTICAL as $locale => $keys) {
+            foreach ($keys as $key) {
+                if (!isset($english[$key]) || ($locales[$locale][$key] ?? null) !== $english[$key]) {
+                    $stale[] = $locale.':'.$key;
+                }
+            }
+        }
+
+        self::assertSame([], $stale, 'Allow-list entries that no longer exist or are no longer identical to English');
     }
 
     /** @return array<string, string> */
