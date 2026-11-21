@@ -1,9 +1,12 @@
-# REQ-DEMO-014 / REQ-UI-003: UiKit default theme, unchanged (no token overrides); one host layout for every bundle page.
+# REQ-DEMO-014 / REQ-UI-003: UiKit's default theme, unchanged (no theme tokens, no CSS framework, no CDN); one host
+# layout for every bundle page (the demo shell extends UiKit's demo platform layout; the dashboard drops the
+# in-content trail because its page header shows it).
 nowo_ui_kit:
     css_framework: custom
+    base_stylesheet: true
     icon_set: none
     layouts:
         admin: 'layouts/admin.html.twig'
+        guest: 'base.html.twig'
     breadcrumbs:
         breadcrumb_kit: true          # page headers render this app's BreadcrumbKit trail (collection "default")
-    base_stylesheet: true

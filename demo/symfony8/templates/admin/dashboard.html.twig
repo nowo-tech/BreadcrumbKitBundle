@@ -8,6 +8,10 @@
 {% endblock %}
 
 {% block body %}
-    <p>{{ 'demo.admin_dashboard.lead_intro'|trans|raw }} <a href="{{ path('app_admin_users') }}">/admin/users</a></p>
-    <p><a href="{{ path('app_home') }}">{{ 'demo.admin_dashboard.back_public'|trans }}</a></p>
+    {% embed '@NowoUiKit/demo_platform/_section.html.twig' with {kind: 'content'} %}
+        {% block section_body %}
+            <p>{{ 'demo.admin_dashboard.lead_intro'|trans|raw }} <a href="{{ path('app_admin_users') }}">/admin/users</a></p>
+            <p><a href="{{ path('app_home') }}">{{ 'demo.admin_dashboard.back_public'|trans }}</a></p>
+        {% endblock %}
+    {% endembed %}
 {% endblock %}

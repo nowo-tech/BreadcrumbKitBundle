@@ -8,14 +8,17 @@
 {% endblock %}
 
 {% block body %}
-    {{ 'demo.deep.body_html'|trans|raw }}
-    <h2>{{ 'demo.deep.current_level'|trans }}</h2>
-    <p><code>{{ 'demo.deep.step_label'|trans }} {{ level }} / {{ maxLevel }}</code></p>
-    <p class="nowo-ui-muted">{{ 'demo.deep.shortcuts'|trans }}</p>
-    <nav class="nowo-ui-toolbar" aria-label="{{ 'demo.deep.jump_aria'|trans }}">
-        <a class="nowo-ui-btn nowo-ui-btn--outline nowo-ui-btn--sm" href="{{ path('app_demo_deep') }}">hub</a>
-        {% for i in 1..maxLevel %}
-            <a class="nowo-ui-btn nowo-ui-btn--outline nowo-ui-btn--sm" href="{{ path('app_demo_deep_s' ~ i) }}">+{{ i }}</a>
-        {% endfor %}
-    </nav>
+    {% embed '@NowoUiKit/demo_platform/_section.html.twig' with {kind: 'content', title: 'demo.deep.current_level'|trans} %}
+        {% block section_body %}
+            {{ 'demo.deep.body_html'|trans|raw }}
+            <p><code>{{ 'demo.deep.step_label'|trans }} {{ level }} / {{ maxLevel }}</code></p>
+            <p class="nowo-ui-muted">{{ 'demo.deep.shortcuts'|trans }}</p>
+            <nav class="nowo-ui-toolbar" aria-label="{{ 'demo.deep.jump_aria'|trans }}">
+                <a class="nowo-ui-btn nowo-ui-btn--outline nowo-ui-btn--sm" href="{{ path('app_demo_deep') }}">hub</a>
+                {% for i in 1..maxLevel %}
+                    <a class="nowo-ui-btn nowo-ui-btn--outline nowo-ui-btn--sm" href="{{ path('app_demo_deep_s' ~ i) }}">+{{ i }}</a>
+                {% endfor %}
+            </nav>
+        {% endblock %}
+    {% endembed %}
 {% endblock %}

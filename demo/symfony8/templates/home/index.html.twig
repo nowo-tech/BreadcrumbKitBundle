@@ -4,46 +4,39 @@
 {% block title %}{{ 'demo.home.title'|trans }}{% endblock %}
 
 {% block nowo_ui_page_header %}
-    {{ include(nowo_ui_partial('page_header'), {title: 'demo.home.welcome'|trans}) }}
+    {{ include(nowo_ui_partial('page_header'), {title: 'demo.home.welcome'|trans, intro: 'demo.home.lead'|trans|striptags}) }}
 {% endblock %}
 
 {% block body %}
     {% set dashboard_collections_url = breadcrumb_kit_dashboard_collections_url() %}
-    <p class="nowo-ui-muted">
-        {{ 'demo.home.lead'|trans|raw }}
-    </p>
-
-    <section class="nowo-ui-card">
-        <div class="nowo-ui-card__header"><h2 class="nowo-ui-card__title">{{ 'demo.home.card_what_title'|trans }}</h2></div>
-        <div class="nowo-ui-card__body">
+    {% embed '@NowoUiKit/demo_platform/_section.html.twig' with {title: 'demo.home.card_what_title'|trans, kind: 'content'} %}
+        {% block section_body %}
             <p>{{ 'demo.home.card_what_p1'|trans|raw }}</p>
             <p>{{ 'demo.home.card_what_p2'|trans|raw }}</p>
-        </div>
-    </section>
+        {% endblock %}
+    {% endembed %}
 
     {% if dashboard_collections_url %}
-    <section class="nowo-ui-card">
-        <div class="nowo-ui-card__header"><h2 class="nowo-ui-card__title">{{ 'demo.home.card_editor_title'|trans }}</h2></div>
-        <div class="nowo-ui-card__body">
-            <ul class="nowo-ui-list">
-                <li class="nowo-ui-list-item">
-                    <a href="{{ dashboard_collections_url }}">{{ 'demo.home.manage_link'|trans }}</a>
-                    — <code class="nowo-ui-code">{{ breadcrumb_kit_dashboard_path_prefix }}</code>
-                </li>
-                <li class="nowo-ui-list-item">
-                    {{ 'demo.home.inline_help'|trans|raw }}
-                    <a href="{{ path('app_home', { _locale: app.request.locale }) }}?breadcrumb_edit=1">{{ 'demo.home.try_home'|trans }}</a>
-                </li>
-            </ul>
-        </div>
-    </section>
+        {% embed '@NowoUiKit/demo_platform/_section.html.twig' with {title: 'demo.home.card_editor_title'|trans, kind: 'list', dashboard_collections_url: dashboard_collections_url} %}
+            {% block section_body %}
+                <ul class="nowo-ui-list">
+                    <li class="nowo-ui-list-item">
+                        <a href="{{ dashboard_collections_url }}">{{ 'demo.home.manage_link'|trans }}</a>
+                        — <code class="nowo-ui-code">{{ breadcrumb_kit_dashboard_path_prefix }}</code>
+                    </li>
+                    <li class="nowo-ui-list-item">
+                        {{ 'demo.home.inline_help'|trans|raw }}
+                        <a href="{{ path('app_home', { _locale: app.request.locale }) }}?breadcrumb_edit=1">{{ 'demo.home.try_home'|trans }}</a>
+                    </li>
+                </ul>
+            {% endblock %}
+        {% endembed %}
     {% endif %}
 
-    <section class="nowo-ui-card">
-        <div class="nowo-ui-card__header"><h2 class="nowo-ui-card__title">{{ 'demo.home.card_check_title'|trans }}</h2></div>
-        <div class="nowo-ui-card__body">
+    {% embed '@NowoUiKit/demo_platform/_section.html.twig' with {title: 'demo.home.card_check_title'|trans, kind: 'content'} %}
+        {% block section_body %}
             <p class="nowo-ui-muted">{{ 'demo.home.check_p1'|trans }}</p>
             <p class="nowo-ui-muted">{{ 'demo.home.check_p2'|trans }}</p>
-        </div>
-    </section>
+        {% endblock %}
+    {% endembed %}
 {% endblock %}

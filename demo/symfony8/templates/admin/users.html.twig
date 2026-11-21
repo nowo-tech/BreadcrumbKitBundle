@@ -4,10 +4,13 @@
 {% block title %}{{ 'demo.admin_users.title'|trans }}{% endblock %}
 
 {% block nowo_ui_page_header %}
-    {{ include(nowo_ui_partial('page_header'), {title: 'demo.admin_users.heading'|trans}) }}
+    {{ include(nowo_ui_partial('page_header'), {title: 'demo.admin_users.heading'|trans, intro: 'demo.admin_users.lead'|trans}) }}
 {% endblock %}
 
 {% block body %}
-    <p>{{ 'demo.admin_users.lead'|trans }}</p>
-    <p><a href="{{ path('app_admin_dashboard') }}">{{ 'demo.admin_users.back_dashboard'|trans }}</a></p>
+    {% embed '@NowoUiKit/demo_platform/_section.html.twig' with {kind: 'content'} %}
+        {% block section_body %}
+            <p><a href="{{ path('app_admin_dashboard') }}">{{ 'demo.admin_users.back_dashboard'|trans }}</a></p>
+        {% endblock %}
+    {% endembed %}
 {% endblock %}

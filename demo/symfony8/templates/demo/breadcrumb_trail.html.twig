@@ -8,17 +8,21 @@
 {% endblock %}
 
 {% block body %}
-    <p>{{ 'demo.breadcrumb_trail.lead_html'|trans|raw }}</p>
-    <ol class="nowo-ui-list">
-        {% for node in breadcrumb_trail('default') %}
-            <li class="nowo-ui-list-item">
-                {% if not node.current and node.linkEnabled and node.url %}
-                    <a href="{{ node.url }}">{{ node.label }}</a>
-                {% else %}
-                    <span{% if node.current %} aria-current="page"{% endif %}>{{ node.label }}{% if node.current %}{{ 'demo.breadcrumb_trail.current_suffix'|trans }}{% endif %}</span>
-                {% endif %}
-            </li>
-        {% endfor %}
-    </ol>
-    <p><a href="{{ path('app_home') }}">{{ 'demo.breadcrumb_trail.back_home'|trans }}</a></p>
+    {% embed '@NowoUiKit/demo_platform/_section.html.twig' with {kind: 'content'} %}
+        {% block section_body %}
+            <p>{{ 'demo.breadcrumb_trail.lead_html'|trans|raw }}</p>
+            <ol class="nowo-ui-list">
+                {% for node in breadcrumb_trail('default') %}
+                    <li class="nowo-ui-list-item">
+                        {% if not node.current and node.linkEnabled and node.url %}
+                            <a href="{{ node.url }}">{{ node.label }}</a>
+                        {% else %}
+                            <span{% if node.current %} aria-current="page"{% endif %}>{{ node.label }}{% if node.current %}{{ 'demo.breadcrumb_trail.current_suffix'|trans }}{% endif %}</span>
+                        {% endif %}
+                    </li>
+                {% endfor %}
+            </ol>
+            <p><a href="{{ path('app_home') }}">{{ 'demo.breadcrumb_trail.back_home'|trans }}</a></p>
+        {% endblock %}
+    {% endembed %}
 {% endblock %}
