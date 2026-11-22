@@ -128,9 +128,15 @@ Dashboard look-and-feel composes **UiKitBundle**; dashboard Symfony forms compos
 - **FR-SVC-005**: `BreadcrumbParamMap` maps per-item route parameters from differently named parameters of the current route.
 - **FR-TEST-001**: Host test helpers under `Testing/`: `BreadcrumbRouteCoverageTrait` asserts every page route has a breadcrumb row and every row names an existing route; `BreadcrumbRows` reads rows as `route => parent`; `NonPageRouteFilter` decides which routes are HTML pages.
 
+### Additions 2.23–2.24
+
+- **FR-UI-003**: `HeaderActionsPlacement` (`web_ui.header_actions`) places the header actions of the dashboard lists (New, Export, Import, Config) (2.24).
+- **FR-WORKER-002**: `ConflictResponsePass` wires the conflict answer of `StorageFailureSubscriber` once every extension is loaded: 409 with `CONFLICT_001/002` and `X-Conflict-Code` through the transaction-doctrine responder (2.23, REQ-RUNTIME-003).
+- **FR-I18N-002**: Seven `validators.<locale>.yaml` catalogues carry the constraint messages (validators domain, REQ-I18N-003) for the same locales as FR-I18N-001.
+
 ## Success Criteria
 
-- **SC-001**: **97/97** production files under `src/` mapped in [`code-inventory.md`](code-inventory.md).
+- **SC-001**: **137/137** production files under `src/` mapped in [`code-inventory.md`](code-inventory.md).
 - **SC-002**: Config keys match `docs/CONFIGURATION.md` (incl. UiKit / FormKit prepend notes).
 - **SC-003**: QA/CI green (`make release-check` / PHPUnit / PHPStan / coverage floor).
 - **SC-004**: Hosts registering the dashboard can resolve UiKit macros/CSS and FormKit profile `breadcrumb_kit` without forking BreadcrumbKit form PHP for basic field chrome.
