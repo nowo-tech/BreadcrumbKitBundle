@@ -19,7 +19,8 @@
     {% endblock %}
     <div class="{{ nowo_ui_class('form_actions', _b) }}" data-nowo-ui-form-actions="cancel_first"{{ nowo_ui_attrs('form_actions', _b) }}>
         {% block bk_form_actions %}
-            {#- UiKit 2.66 house order (Beacon UX-017): Cancel first, then the primary on the right -#}
+            {#- Dialog anatomy (UiKit dialogs, Beacon UX-017): Cancel first, then the primary on the right, whatever UiKit's
+    theme.form_actions_order says (that option orders the full-page forms only, UiKit 2.66.1) -#}
             {% block bk_form_cancel %}
                 <button type="button" class="{{ nowo_ui_class('btn_secondary', _b) }}" data-nowo-ui-dialog-close data-nowo-ui-form-cancel>{{ 'dashboard.cancel'|trans }}</button>
             {% endblock %}
