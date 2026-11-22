@@ -21,6 +21,7 @@ services:
       $layoutTemplate: '%nowo_breadcrumb_kit.web_ui.layout_template%'
       $templates: '%nowo_breadcrumb_kit.web_ui.templates%'
       $dialogSizes: '%nowo_breadcrumb_kit.web_ui.dialog_sizes%'
+      $headerActions: '%nowo_breadcrumb_kit.web_ui.header_actions%'
 
   # Deprecated since 2.7 (1.x Twig globals, unused by the dashboard pages); removed in 3.0.
   Nowo\BreadcrumbKitBundle\Twig\BreadcrumbKitDashboardGlobalsExtension:

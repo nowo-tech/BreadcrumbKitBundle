@@ -6,6 +6,7 @@ namespace Nowo\BreadcrumbKitBundle\DependencyInjection;
 
 use Nowo\BreadcrumbKitBundle\Dashboard\DashboardChrome;
 use Nowo\BreadcrumbKitBundle\Dashboard\DashboardPages;
+use Nowo\BreadcrumbKitBundle\Dashboard\HeaderActionsPlacement;
 use Nowo\BreadcrumbKitBundle\DependencyInjection\Compiler\ConflictResponsePass;
 use Nowo\BreadcrumbKitBundle\DependencyInjection\Compiler\LinkAccessCheckerPass;
 use Nowo\BreadcrumbKitBundle\Dto\BreadcrumbCollapse;
@@ -269,6 +270,7 @@ final class BreadcrumbKitExtension extends Extension implements PrependExtension
         $container->setParameter(Configuration::ALIAS.'.web_ui.layout_template', $layoutTemplate);
         $container->setParameter(Configuration::ALIAS.'.web_ui.templates', \is_array($webUi['templates'] ?? null) ? $webUi['templates'] : []);
         $container->setParameter(Configuration::ALIAS.'.web_ui.dialog_sizes', \is_array($webUi['dialog_sizes'] ?? null) ? $webUi['dialog_sizes'] : []);
+        $container->setParameter(Configuration::ALIAS.'.web_ui.header_actions', (string) ($webUi['header_actions'] ?? HeaderActionsPlacement::BUTTONS));
         $container->setParameter(Configuration::ALIAS.'.dashboard.import_max_bytes', (int) ($webUi['import_max_bytes'] ?? Configuration::DEFAULT_IMPORT_MAX_BYTES));
         $container->setParameter(Configuration::ALIAS.'.dashboard.pagination.enabled', (bool) ($pagination['enabled'] ?? true));
         $container->setParameter(Configuration::ALIAS.'.dashboard.pagination.per_page', (int) ($pagination['per_page'] ?? 20));

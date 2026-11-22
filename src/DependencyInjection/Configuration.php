@@ -7,6 +7,7 @@ namespace Nowo\BreadcrumbKitBundle\DependencyInjection;
 use InvalidArgumentException;
 use Nowo\BreadcrumbKitBundle\Dashboard\DashboardChrome;
 use Nowo\BreadcrumbKitBundle\Dashboard\DashboardPages;
+use Nowo\BreadcrumbKitBundle\Dashboard\HeaderActionsPlacement;
 use Nowo\BreadcrumbKitBundle\Dto\BreadcrumbCollapse;
 use Nowo\BreadcrumbKitBundle\Enum\CssFramework;
 use Nowo\BreadcrumbKitBundle\Enum\IconSet;
@@ -211,6 +212,11 @@ final class Configuration implements ConfigurationInterface
                                 ->booleanNode('enabled')->defaultTrue()->end()
                                 ->integerNode('per_page')->min(1)->max(500)->defaultValue(20)->end()
                             ->end()
+                        ->end()
+                        ->enumNode('header_actions')
+                            ->info('Where the header actions (New, Export, Import, Collection styles) go: "buttons" (default) = one button per action in the page header; "page_actions" = UiKit View\\Action items in the square page-actions menu (UiKit split header; the compact header of the host reads the same PageHeader actions). Needs UiKit 2.21+.')
+                            ->values(HeaderActionsPlacement::MODES)
+                            ->defaultValue(HeaderActionsPlacement::BUTTONS)
                         ->end()
                         ->arrayNode('dialog_sizes')
                             ->info('UiKit dialog size (sm, md, lg, xl) of the collection form, item form and import dialogs.')

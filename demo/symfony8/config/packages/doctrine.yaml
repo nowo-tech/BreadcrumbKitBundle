@@ -11,4 +11,3 @@ doctrine:
                 type: attribute
                 dir: Entity
                 prefix: 'Nowo\BreadcrumbKitBundle\Entity'
-                alias: NowoBreadcrumbKitBundle
