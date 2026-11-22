@@ -74,6 +74,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- **Form actions order (Beacon UX-017):** every form puts Cancel first, then the primary on the right, like the UiKit
+  dialogs. The collection, item and import dialog fragments (`_collection_form_partial`, `_item_form_partial`,
+  `_import_partial`) render `bk_form_cancel` before `bk_form_submit` (both blocks kept; Cancel carries
+  `data-nowo-ui-form-cancel`, the row `data-nowo-ui-form-actions="cancel_first"`). The full pages (import, new / edit
+  collection, new / edit item) get the order from the UiKit form scaffold. Requires `nowo-tech/ui-kit-bundle`
+  **^2.66** (was ^2.5.1). Hosts that override `bk_form_actions` keep their own order. The page contract test checks
+  the order (`formActionsOrderChecked()`).
+
 ## [2.24.0] - 2026-11-22
 
 ### Added
