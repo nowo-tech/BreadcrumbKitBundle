@@ -81,7 +81,7 @@ valid submissions redirect back (flash), invalid ones render the full-page form 
 
 | Partial | Role | Renders through |
 | --- | --- | --- |
-| `dashboard/_collection_form_partial.html.twig` | Collection form in the dialog (blocks `bk_form_fields`, `bk_form_actions` = `bk_form_cancel` then `bk_form_submit`; `data-bk-dialog-title`) | `form`, `form_actions`, `btn_primary`, `btn_secondary` slots; Cancel first (UiKit 2.66 house order, Beacon UX-017) with `data-nowo-ui-dialog-close` and `data-nowo-ui-form-cancel`, then the primary |
+| `dashboard/_collection_form_partial.html.twig` | Collection form in the dialog (blocks `bk_form_fields`, `bk_form_actions` = `bk_form_cancel` then `bk_form_submit`; `data-bk-dialog-title`) | `form`, `form_actions`, `btn_primary`, `btn_secondary` slots; Cancel first (dialog anatomy, Beacon UX-017; the full-page forms follow UiKit's `theme.form_actions_order`) with `data-nowo-ui-dialog-close` and `data-nowo-ui-form-cancel`, then the primary |
 | `dashboard/_item_form_partial.html.twig` | Item form in the dialog (same blocks) | same slots |
 | `dashboard/_import_partial.html.twig` | Import form (blocks `bk_import_intro`, `bk_form_*`; `data-bk-submit-once`) | `muted`, `form`, `form_actions`, `btn_*` slots |
 | `dashboard/_form_dialog.html.twig` | Empty dialog (body `data-nowo-ui-dialog-body`, the remote-dialog target) with the loading / error texts; `js/dashboard.js` shows the loading text and copies the form's `data-bk-dialog-title` into the title on `nowo-ui:dialog-loaded` | `nowo_ui_partial('dialog')`, `muted` slot |

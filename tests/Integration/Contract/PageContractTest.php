@@ -11,6 +11,8 @@ use Nowo\FormKitBundle\Twig\LocaleTabsTwigExtension;
 use Nowo\UiKitBundle\Test\PageContractTestCase;
 use Nowo\UiKitBundle\Test\PageFixture;
 use Nowo\UiKitBundle\Test\RenderedPage;
+use Nowo\UiKitBundle\Test\StubHost;
+use Nowo\UiKitBundle\Theme\Theme;
 use Nowo\UiKitBundle\View\ConfirmPage;
 use Nowo\UiKitBundle\View\PageHeader;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -240,10 +242,29 @@ final class PageContractTest extends PageContractTestCase
             $this->assertNoForbiddenMarkup($page);
             $this->assertNoFrameworkUtilityClasses($page);
             $this->assertFormActionsCancelFirst($page);
-            self::assertSame([['cancel', 'primary']], $page->formActionsRows(), 'UX-017: Cancel first, then the primary.');
+            self::assertSame([['cancel', 'primary']], $page->formActionsRows(), 'A dialog keeps Cancel first, then the primary.');
             self::assertStringContainsString('data-nowo-ui-dialog-close', $html);
             self::assertStringContainsString('pc-form-actions', $html, 'The partials read the theme slots.');
             self::assertStringContainsString('data-bk-dialog-title="', $html);
+        }
+    }
+
+    /**
+     * UiKit 2.66.1 (owner decision 2026-11-22): the full-page forms get their actions row from the UiKit form scaffold, in
+     * the stub theme's theme.form_actions_order (primary_first by default since 2.66.1, cancel_first on 2.66.0); the
+     * dialog fragments keep Cancel first (testDialogPartialsUseThemeSlotsOnly).
+     */
+    public function testFullPageFormsFollowTheConfiguredOrder(): void
+    {
+        $expected = 'primary_first' === Theme::fromConfig('none', StubHost::theme())->formActionsOrder() ? [['primary', 'cancel']] : [['cancel', 'primary']];
+        $default = DashboardPageFixtures::collections()[0];
+
+        foreach ([
+            'collection form' => [DashboardPages::TEMPLATES['collection_form'], DashboardPageFixtures::collectionForm($default)],
+            'item form' => [DashboardPages::TEMPLATES['item_form'], DashboardPageFixtures::itemForm($default, null)],
+            'import' => [DashboardPages::TEMPLATES['import'], DashboardPageFixtures::import()],
+        ] as $name => [$template, $context]) {
+            self::assertSame($expected, $this->renderPage(new PageFixture($template, $context))->formActionsRows(), $name);
         }
     }
 
@@ -308,7 +329,10 @@ final class PageContractTest extends PageContractTestCase
         return \dirname(__DIR__, 3).'/docs/TEMPLATES.md';
     }
 
-    /** UiKit 2.66 (Beacon UX-017): every form actions row puts Cancel first, then the primary. */
+    /**
+     * UiKit 2.66 (Beacon UX-017): every form actions row is checked. On UiKit 2.66.1 the rule follows the configured order
+     * (full-page forms in theme.form_actions_order, dialogs Cancel first); on 2.66.0 it checks Cancel first everywhere.
+     */
     protected static function formActionsOrderChecked(): bool
     {
         return true;

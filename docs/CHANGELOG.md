@@ -75,6 +75,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- **Form actions order (UiKit 2.66.1, owner decision 2026-11-22):** the full-page forms (collection, item, import) get
+  their actions row from the UiKit form scaffold, which follows `theme.form_actions_order`: from UiKit 2.66.1 the primary
+  first, then Cancel (the 2.24 order), unless the host sets `form_actions_order: cancel_first`. The dialog fragments
+  (`_collection_form_partial`, `_item_form_partial`, `_import_partial`) are dialogs and keep Cancel first
+  (`bk_form_cancel`, then `bk_form_submit`), as in 2.25.0. Still `nowo-tech/ui-kit-bundle` **^2.66**.
+- Tests: the full-page forms are checked against the stub theme's configured order instead of a hard-coded Cancel
+  first (green on UiKit 2.66.0 and 2.66.1); the dialog fragments stay checked Cancel first.
+
 ## [2.25.0] - 2026-11-22
 
 ### Changed

@@ -84,6 +84,11 @@
 
 ## Unreleased
 
+- **Form actions order.** With UiKit **2.66.1** the full-page forms put the primary first again, then Cancel (UiKit's
+  default `theme.form_actions_order: primary_first`). Hosts that want Cancel first in the page forms set
+  `nowo_ui_kit.theme.form_actions_order: cancel_first`. The dialog forms keep Cancel first either way (no change from
+  2.25.0).
+
 ## To 2.25.0
 
 From **2.24.0**:
