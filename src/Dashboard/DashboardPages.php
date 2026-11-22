@@ -86,8 +86,9 @@ final readonly class DashboardPages
     private array $dialogSizes;
 
     /**
-     * @param array<string, string> $templates   web_ui.templates (page id => template)
-     * @param array<string, string> $dialogSizes web_ui.dialog_sizes
+     * @param array<string, string> $templates     web_ui.templates (page id => template)
+     * @param array<string, string> $dialogSizes   web_ui.dialog_sizes
+     * @param string                $headerActions web_ui.header_actions (`buttons` | `page_actions`, {@see HeaderActionsPlacement})
      */
     public function __construct(
         private UrlGeneratorInterface $urls,
@@ -95,6 +96,7 @@ final readonly class DashboardPages
         private ?string $layoutTemplate = null,
         private array $templates = [],
         array $dialogSizes = [],
+        private string $headerActions = HeaderActionsPlacement::BUTTONS,
     ) {
         $size = static fn (string $key, string $default): string => \in_array($dialogSizes[$key] ?? null, self::DIALOG_SIZES, true) ? $dialogSizes[$key] : $default;
         $this->dialogSizes = [
@@ -193,7 +195,7 @@ final readonly class DashboardPages
         }
 
         $newUrl = $this->url(self::ROUTE_COLLECTION_NEW);
-        $header = new PageHeader(self::label('dashboard.collections_heading'), self::label('dashboard.collections_lead'), [
+        $header = HeaderActionsPlacement::apply($this->headerActions, new PageHeader(self::label('dashboard.collections_heading'), self::label('dashboard.collections_lead'), [
             new Action('export', self::label('dashboard.export_all'), $this->url(self::ROUTE_EXPORT_ALL), attributes: ['data-testid' => 'bk-export-all']),
             new Action('import', self::label('dashboard.import'), $this->url(self::ROUTE_IMPORT), attributes: [
                 'data-nowo-ui-dialog-open' => self::DIALOG_IMPORT,
@@ -201,7 +203,7 @@ final readonly class DashboardPages
                 'data-testid' => 'bk-import-open',
             ]),
             new Action('create', self::label('dashboard.new_collection'), $newUrl, variant: 'primary', attributes: ['data-testid' => 'bk-collection-new'], dialogId: self::DIALOG_COLLECTION_FORM),
-        ], [new Crumb(self::label('dashboard.collections_heading'))], breadcrumbsMode: self::BREADCRUMBS_MODE);
+        ], [new Crumb(self::label('dashboard.collections_heading'))], breadcrumbsMode: self::BREADCRUMBS_MODE));
 
         return new ListPage(
             $header,
@@ -314,7 +316,7 @@ final readonly class DashboardPages
         $newUrl = $this->url(self::ROUTE_ITEM_NEW, ['collectionId' => $collectionId]);
         $name = $collection->getName();
 
-        $header = new PageHeader(
+        $header = HeaderActionsPlacement::apply($this->headerActions, new PageHeader(
             self::label('dashboard.items_title_with_code', ['%code%' => $code]),
             null !== $name && '' !== $name ? $name : null,
             [
@@ -324,7 +326,7 @@ final readonly class DashboardPages
             ],
             [new Crumb(self::label('dashboard.collections_heading'), $this->url(self::ROUTE_COLLECTIONS)), new Crumb($code)],
             breadcrumbsMode: self::BREADCRUMBS_MODE,
-        );
+        ));
 
         $empty = '' !== $search
             ? new EmptyState(message: self::label('dashboard.empty_items_search'), action: new Action('view', self::label('dashboard.view_all_link'), $itemsUrl, variant: 'link'))

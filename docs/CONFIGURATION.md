@@ -42,6 +42,7 @@ Configuration root key: `nowo_breadcrumb_kit` (see `Nowo\BreadcrumbKitBundle\Dep
 | `web_ui.import_max_bytes` | `int` | `2097152` | Maximum JSON upload size for the dashboard import (default 2 MiB). |
 | `web_ui.pagination.enabled` | `bool` | `true` | Paginate the collections and items lists. |
 | `web_ui.pagination.per_page` | `int` | `20` | Rows per page (1–500). |
+| `web_ui.header_actions` | `string` | `buttons` | `buttons`: one button per header action. `page_actions`: the header actions of the collections and items lists are items of UiKit's page-actions menu (split header, no filled primary button); a host compact header reads the same `PageHeader::$actions`. UiKit 2.21+. |
 | `web_ui.dialog_sizes.collection_form` | `string` | `lg` | UiKit dialog size (`sm`, `md`, `lg`, `xl`) of the collection form dialog. |
 | `web_ui.dialog_sizes.item_form` | `string` | `lg` | Dialog size of the item form dialog. |
 | `web_ui.dialog_sizes.import` | `string` | `md` | Dialog size of the JSON import dialog. |

@@ -31,6 +31,7 @@ final class WebUiConfigTest extends TestCase
             'templates' => [],
             'import_max_bytes' => 2_097_152,
             'pagination' => ['enabled' => true, 'per_page' => 20],
+            'header_actions' => 'buttons',
             'dialog_sizes' => ['collection_form' => 'lg', 'item_form' => 'lg', 'import' => 'md'],
         ], $config['web_ui']);
     }
@@ -45,6 +46,7 @@ final class WebUiConfigTest extends TestCase
                 'layout_template' => 'layouts/admin.html.twig',
                 'templates' => ['items_index' => 'admin/items.html.twig'],
                 'dialog_sizes' => ['import' => 'sm'],
+                'header_actions' => 'page_actions',
             ],
             'security' => ['allow_unauthenticated' => true],
         ]], $container);
@@ -55,6 +57,7 @@ final class WebUiConfigTest extends TestCase
         self::assertSame('layouts/admin.html.twig', $container->getParameter('nowo_breadcrumb_kit.web_ui.layout_template'));
         self::assertSame(['items_index' => 'admin/items.html.twig'], $container->getParameter('nowo_breadcrumb_kit.web_ui.templates'));
         self::assertEquals(['collection_form' => 'lg', 'item_form' => 'lg', 'import' => 'sm'], $container->getParameter('nowo_breadcrumb_kit.web_ui.dialog_sizes'));
+        self::assertSame('page_actions', $container->getParameter('nowo_breadcrumb_kit.web_ui.header_actions'));
 
         $arguments = $container->getDefinition(DashboardPages::class)->getArguments();
         self::assertSame('%nowo_breadcrumb_kit.web_ui.layout_template%', $arguments['$layoutTemplate']);

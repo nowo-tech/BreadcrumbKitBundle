@@ -68,9 +68,9 @@ final class DashboardPageFixtures
         return [$home, $shop, $product];
     }
 
-    public static function pages(?string $layout = null, ?Environment $twig = null): DashboardPages
+    public static function pages(?string $layout = null, ?Environment $twig = null, string $headerActions = 'buttons'): DashboardPages
     {
-        return new DashboardPages(self::urls(), $twig ?? new Environment(new ArrayLoader()), $layout, [], ['collection_form' => 'xl']);
+        return new DashboardPages(self::urls(), $twig ?? new Environment(new ArrayLoader()), $layout, [], ['collection_form' => 'xl'], $headerActions);
     }
 
     /**
@@ -78,12 +78,12 @@ final class DashboardPageFixtures
      *
      * @return array<string, mixed>
      */
-    public static function collectionsIndex(array $collections, string $search = '', bool $paginated = true): array
+    public static function collectionsIndex(array $collections, string $search = '', bool $paginated = true, string $headerActions = 'buttons'): array
     {
         $counts = [1 => 3, 2 => 12];
 
         return [
-            'page' => self::pages()->collectionsIndex(
+            'page' => self::pages(headerActions: $headerActions)->collectionsIndex(
                 $collections,
                 $counts,
                 self::searchForm(self::PREFIX.'/collections', $search),
@@ -99,12 +99,12 @@ final class DashboardPageFixtures
     /**
      * @return array<string, mixed>
      */
-    public static function itemsIndex(BreadcrumbCollection $collection, bool $empty = false, string $search = ''): array
+    public static function itemsIndex(BreadcrumbCollection $collection, bool $empty = false, string $search = '', string $headerActions = 'buttons'): array
     {
         $items = $empty ? [] : self::items($collection);
 
         return [
-            'page' => self::pages()->itemsIndex(
+            'page' => self::pages(headerActions: $headerActions)->itemsIndex(
                 $collection,
                 $items,
                 self::searchForm(self::PREFIX.'/collections/'.$collection->getId().'/items', $search),

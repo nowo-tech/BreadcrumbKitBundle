@@ -551,6 +551,12 @@ flashes come from UiKit and its theme. Pick the lightest tool:
 {% block nowo_ui_list_after %}<p class="{{ nowo_ui_class('muted', page.bundle) }}">Items are matched by route name.</p>{% endblock %}
 ```
 
+4. **Header actions in the page-actions menu** — `nowo_breadcrumb_kit.web_ui.header_actions: page_actions` (default
+   `buttons`) puts Export / Import / New / Collection styles of the collections and items lists into UiKit's square
+   page-actions menu (UiKit 2.21+ split header) instead of a row of header buttons. The actions stay `View\Action`
+   objects (`PageHeader::$actions`), so a host with the compact header (`nowo_ui_kit.header.compact_actions: bar`)
+   renders the same list in its own page-actions menu.
+
 Pages, view models, data blocks and dialogs: [TEMPLATES.md](TEMPLATES.md). The 1.x chrome hooks (`dashboard.classes`,
 `dashboard.partials`, `bk_*` blocks, layout slots) are deprecated or removed: see
 [UPGRADING.md](UPGRADING.md#template-contract).

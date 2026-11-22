@@ -12,6 +12,7 @@ use Nowo\UiKitBundle\Test\PageContractTestCase;
 use Nowo\UiKitBundle\Test\PageFixture;
 use Nowo\UiKitBundle\Test\RenderedPage;
 use Nowo\UiKitBundle\View\ConfirmPage;
+use Nowo\UiKitBundle\View\PageHeader;
 use PHPUnit\Framework\Attributes\DataProvider;
 use Symfony\Bridge\Twig\Extension\TranslationExtension;
 use Symfony\Component\Translation\DataCollectorTranslator;
@@ -35,6 +36,8 @@ final class PageContractTest extends PageContractTestCase
         yield 'collection form (new, error)' => new PageFixture(DashboardPages::TEMPLATES['collection_form'], DashboardPageFixtures::collectionForm(null, true));
         yield 'collection form (edit)' => new PageFixture(DashboardPages::TEMPLATES['collection_form'], DashboardPageFixtures::collectionForm($default));
         yield 'collection delete (no-JS confirm)' => new PageFixture(DashboardPages::TEMPLATES['collection_delete'], DashboardPageFixtures::collectionDelete($collections[2]));
+        yield 'collections index (header actions in the page-actions menu)' => new PageFixture(DashboardPages::TEMPLATES['collections_index'], DashboardPageFixtures::collectionsIndex($collections, headerActions: 'page_actions'));
+        yield 'items index (header actions in the page-actions menu)' => new PageFixture(DashboardPages::TEMPLATES['items_index'], DashboardPageFixtures::itemsIndex($default, headerActions: 'page_actions'));
         yield 'items index' => new PageFixture(DashboardPages::TEMPLATES['items_index'], DashboardPageFixtures::itemsIndex($default));
         yield 'items index (empty)' => new PageFixture(DashboardPages::TEMPLATES['items_index'], DashboardPageFixtures::itemsIndex($collections[1], true));
         yield 'items index (empty search)' => new PageFixture(DashboardPages::TEMPLATES['items_index'], DashboardPageFixtures::itemsIndex($default, true, 'nothing'));
@@ -109,6 +112,38 @@ final class PageContractTest extends PageContractTestCase
         self::assertStringContainsString('data-nowo-ui-region="pagination"', $html);
         self::assertStringContainsString('js/dashboard.js', $html);
         self::assertStringNotContainsString('modal-dialog', $html, 'No Bootstrap modal markup.');
+    }
+
+    public function testHeaderActionsAreButtonsByDefault(): void
+    {
+        $header = DashboardPageFixtures::collectionsIndex(DashboardPageFixtures::collections())['page']->header;
+
+        self::assertSame('toolbar', $header->actionsLayout);
+        self::assertSame('primary', $header->actions[2]->resolvedVariant(), 'New collection stays the primary button.');
+    }
+
+    public function testCollectionsHeaderActionsGoToThePageActionsMenuOnRequest(): void
+    {
+        $header = DashboardPageFixtures::collectionsIndex(DashboardPageFixtures::collections(), headerActions: 'page_actions')['page']->header;
+        self::assertSame('split', $header->actionsLayout);
+        $html = $this->headerHtml($header);
+
+        self::assertStringContainsString('data-nowo-ui-header-more', $html, 'The square page-actions menu replaces the header buttons.');
+        self::assertStringContainsString('data-testid="bk-collection-new"', $html, 'New collection is a menu item.');
+        self::assertStringContainsString('data-testid="bk-export-all"', $html);
+        self::assertStringContainsString('data-testid="bk-import-open"', $html, 'Import keeps its dialog opener.');
+        self::assertStringNotContainsString('nowo-ui-btn--primary', substr($html, 0, (int) strpos($html, 'data-nowo-ui-header-more')), 'No filled primary button in the header.');
+    }
+
+    public function testItemsHeaderActionsGoToThePageActionsMenuOnRequest(): void
+    {
+        $header = DashboardPageFixtures::itemsIndex(DashboardPageFixtures::collections()[0], headerActions: 'page_actions')['page']->header;
+        self::assertSame('split', $header->actionsLayout);
+        $html = $this->headerHtml($header);
+
+        self::assertStringContainsString('data-nowo-ui-header-more', $html);
+        self::assertStringContainsString('data-testid="bk-item-new"', $html);
+        self::assertStringContainsString('data-testid="bk-collection-styles"', $html);
     }
 
     public function testItemsIndexRendersParentsLinksAndEmptyStates(): void
@@ -269,6 +304,15 @@ final class PageContractTest extends PageContractTestCase
     protected static function templatesDocument(): string
     {
         return \dirname(__DIR__, 3).'/docs/TEMPLATES.md';
+    }
+
+    /**
+     * The header actions the way UiKit's page header draws a split header (the contract test's stub theme replaces the
+     * page header partial, so the real `header_actions` partial is rendered on the header's actions).
+     */
+    private function headerHtml(PageHeader $header): string
+    {
+        return $this->renderPage(new PageFixture('@NowoUiKitBundle/partials/_header_actions.html.twig', ['actions' => $header->actions, 'bundle' => DashboardPages::BUNDLE]))->html;
     }
 
     /**
