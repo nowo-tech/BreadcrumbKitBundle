@@ -83,6 +83,10 @@
 
 ## Unreleased
 
+- Requires `nowo-tech/ui-kit-bundle` **^2.66** (form actions order, Beacon UX-017): forms and dialogs put Cancel first,
+  then the primary. A host override of `bk_form_actions` keeps its own order; an override of only `bk_form_cancel` or
+  `bk_form_submit` now renders Cancel first.
+
 ## To 2.24.0
 
 From **2.23.1**:

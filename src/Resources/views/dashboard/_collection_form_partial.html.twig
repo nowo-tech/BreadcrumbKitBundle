@@ -3,7 +3,7 @@
   Collection create / edit form loaded into the collection form dialog (GET ?_partial=1, js/dashboard.js). A plain
   POST: the controller redirects back on success and renders the full-page form (collection/form.html.twig) on errors.
   Variables: form, title (translated; copied into the dialog title from data-bk-dialog-title), is_edit.
-  Blocks: bk_form_fields, bk_form_actions, bk_form_submit, bk_form_cancel.
+  Blocks: bk_form_fields, bk_form_actions (bk_form_cancel, then bk_form_submit).
   Theme slots (bundle NowoBreadcrumbKitBundle): form, form_actions, btn_primary, btn_secondary.
 #}
 {% set _b = 'NowoBreadcrumbKitBundle' %}
@@ -17,13 +17,14 @@
             {% endif %}
         {% endfor %}
     {% endblock %}
-    <div class="{{ nowo_ui_class('form_actions', _b) }}"{{ nowo_ui_attrs('form_actions', _b) }}>
+    <div class="{{ nowo_ui_class('form_actions', _b) }}" data-nowo-ui-form-actions="cancel_first"{{ nowo_ui_attrs('form_actions', _b) }}>
         {% block bk_form_actions %}
+            {#- UiKit 2.66 house order (Beacon UX-017): Cancel first, then the primary on the right -#}
+            {% block bk_form_cancel %}
+                <button type="button" class="{{ nowo_ui_class('btn_secondary', _b) }}" data-nowo-ui-dialog-close data-nowo-ui-form-cancel>{{ 'dashboard.cancel'|trans }}</button>
+            {% endblock %}
             {% block bk_form_submit %}
                 <button type="submit" class="{{ nowo_ui_class('btn_primary', _b) }}">{{ is_edit|default(false) ? ('dashboard.form_update'|trans) : ('dashboard.form_create'|trans) }}</button>
-            {% endblock %}
-            {% block bk_form_cancel %}
-                <button type="button" class="{{ nowo_ui_class('btn_secondary', _b) }}" data-nowo-ui-dialog-close>{{ 'dashboard.cancel'|trans }}</button>
             {% endblock %}
         {% endblock %}
     </div>

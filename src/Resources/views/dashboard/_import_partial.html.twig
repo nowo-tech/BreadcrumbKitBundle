@@ -3,7 +3,7 @@
   JSON import form: rendered inside the import dialog of the collections index (and by GET import?_partial=1 for
   1.x integrations). A plain multipart POST; the import page (import.html.twig) is its full-page / no-JS fallback.
   Variables: form, dialog (true: the cancel button closes the UiKit dialog).
-  Blocks: bk_import_intro (format hint), bk_form_fields, bk_form_actions, bk_form_submit, bk_form_cancel.
+  Blocks: bk_import_intro (format hint), bk_form_fields, bk_form_actions (bk_form_cancel, then bk_form_submit).
   Theme slots (bundle NowoBreadcrumbKitBundle): muted, form, form_actions, btn_primary, btn_secondary.
 #}
 {% set _b = 'NowoBreadcrumbKitBundle' %}
@@ -20,13 +20,14 @@
                 {% endif %}
             {% endfor %}
         {% endblock %}
-        <div class="{{ nowo_ui_class('form_actions', _b) }}"{{ nowo_ui_attrs('form_actions', _b) }}>
+        <div class="{{ nowo_ui_class('form_actions', _b) }}" data-nowo-ui-form-actions="cancel_first"{{ nowo_ui_attrs('form_actions', _b) }}>
             {% block bk_form_actions %}
+                {#- UiKit 2.66 house order (Beacon UX-017): Cancel first, then the primary on the right -#}
+                {% block bk_form_cancel %}
+                    <button type="button" class="{{ nowo_ui_class('btn_secondary', _b) }}" data-nowo-ui-dialog-close data-nowo-ui-form-cancel>{{ 'dashboard.cancel'|trans }}</button>
+                {% endblock %}
                 {% block bk_form_submit %}
                     <button type="submit" class="{{ nowo_ui_class('btn_primary', _b) }}">{{ 'dashboard.import_submit'|trans }}</button>
-                {% endblock %}
-                {% block bk_form_cancel %}
-                    <button type="button" class="{{ nowo_ui_class('btn_secondary', _b) }}" data-nowo-ui-dialog-close>{{ 'dashboard.cancel'|trans }}</button>
                 {% endblock %}
             {% endblock %}
         </div>

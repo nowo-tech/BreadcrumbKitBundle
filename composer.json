@@ -31,7 +31,7 @@
         "nowo-tech/form-kit-bundle": "^2.13",
         "nowo-tech/transaction-contract": "^1.0",
         "nowo-tech/transaction-doctrine": "^1.8.1",
-        "nowo-tech/ui-kit-bundle": "^2.5.1",
+        "nowo-tech/ui-kit-bundle": "^2.66",
         "psr/cache": "^3.0",
         "psr/log": "^2.0 || ^3.0",
         "symfony/asset": "^7.4 || ^8.0",

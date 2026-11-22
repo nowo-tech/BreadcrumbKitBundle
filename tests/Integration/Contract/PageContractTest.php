@@ -239,6 +239,8 @@ final class PageContractTest extends PageContractTestCase
             $page = new RenderedPage($template, $html, 'bootstrap5');
             $this->assertNoForbiddenMarkup($page);
             $this->assertNoFrameworkUtilityClasses($page);
+            $this->assertFormActionsCancelFirst($page);
+            self::assertSame([['cancel', 'primary']], $page->formActionsRows(), 'UX-017: Cancel first, then the primary.');
             self::assertStringContainsString('data-nowo-ui-dialog-close', $html);
             self::assertStringContainsString('pc-form-actions', $html, 'The partials read the theme slots.');
             self::assertStringContainsString('data-bk-dialog-title="', $html);
@@ -304,6 +306,12 @@ final class PageContractTest extends PageContractTestCase
     protected static function templatesDocument(): string
     {
         return \dirname(__DIR__, 3).'/docs/TEMPLATES.md';
+    }
+
+    /** UiKit 2.66 (Beacon UX-017): every form actions row puts Cancel first, then the primary. */
+    protected static function formActionsOrderChecked(): bool
+    {
+        return true;
     }
 
     /**
