@@ -3,6 +3,7 @@
 ## Table of contents
 
 - [Unreleased](#unreleased)
+- [To 2.25.1](#to-2251)
 - [To 2.25.0](#to-2250)
 - [To 2.24.0](#to-2240)
 - [To 2.23.1](#to-2231)
@@ -83,6 +84,14 @@
 - [General upgrade steps (any version)](#general-upgrade-steps-any-version)
 
 ## Unreleased
+
+## To 2.25.1
+
+From **2.25.0**:
+
+```bash
+composer update nowo-tech/breadcrumb-kit-bundle
+```
 
 - **Form actions order.** With UiKit **2.66.1** the full-page forms put the primary first again, then Cancel (UiKit's
   default `theme.form_actions_order: primary_first`). Hosts that want Cancel first in the page forms set
