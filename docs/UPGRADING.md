@@ -3,6 +3,7 @@
 ## Table of contents
 
 - [Unreleased](#unreleased)
+- [To 2.25.0](#to-2250)
 - [To 2.24.0](#to-2240)
 - [To 2.23.1](#to-2231)
 - [To 2.23.0](#to-2230)
@@ -82,6 +83,14 @@
 - [General upgrade steps (any version)](#general-upgrade-steps-any-version)
 
 ## Unreleased
+
+## To 2.25.0
+
+From **2.24.0**:
+
+```bash
+composer update nowo-tech/breadcrumb-kit-bundle
+```
 
 - Requires `nowo-tech/ui-kit-bundle` **^2.66** (form actions order, Beacon UX-017): forms and dialogs put Cancel first,
   then the primary. A host override of `bk_form_actions` keeps its own order; an override of only `bk_form_cancel` or
