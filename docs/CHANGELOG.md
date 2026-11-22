@@ -76,6 +76,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- CI: new `release-gates` job in `.github/workflows/ci.yml` runs the `make release-check` gates (`rector-dry`, `validate-phpdoc`, `validate-translations`, `check-twig-extra`) on every full-mode push and PR, so they no longer fail only at release time. CI only, no bundle change.
+- `rector.php` skips `FunctionFirstClassCallableRector` for `tests/Support/CommandFunctionOverrides.php` (written reason in the file: the namespaced `file_get_contents()` override would call itself). Test support only, no bundle change.
+
 ## [2.25.1] - 2026-11-22
 
 ### Changed
