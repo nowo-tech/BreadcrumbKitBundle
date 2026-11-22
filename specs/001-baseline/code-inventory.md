@@ -2,8 +2,8 @@
 
 **Baseline spec**: [`spec.md`](spec.md)  
 **Package**: `nowo-tech/breadcrumb-kit-bundle`  
-**Last audited**: 2026-11-16 (REQ sweep: 2.13–2.20 additions mapped)  
-**Audit**: `git ls-files src | wc -l` → **128** (matches summary total; earlier category counts were recorded before the Twig views were split, the total now counts every tracked `src/` file)
+**Last audited**: 2026-11-22 (REQ sweeps: 2.13–2.20 additions mapped 2026-11-16; 2.23–2.24 and validator catalogues 2026-11-22)  
+**Audit**: `git ls-files src | wc -l` → **137** (matches summary total; earlier category counts were recorded before the Twig views were split, the total now counts every tracked `src/` file)
 
 ## Symfony config
 
@@ -237,6 +237,20 @@ BreadcrumbKit prepends FormKit profile `breadcrumb_kit` and may seed FormKit/UiK
 | `Testing/BreadcrumbRows.php` | Additions 2.13–2.20 | FR-TEST-001 |
 | `Testing/NonPageRouteFilter.php` | Additions 2.13–2.20 | FR-TEST-001 |
 
+## Additions 2.23–2.24 and validator messages (sweep 2026-11-22)
+
+| Source file | Spec section | Requirement IDs |
+| --- | --- | --- |
+| `Dashboard/HeaderActionsPlacement.php` | Additions 2.23–2.24 | FR-UI-003 |
+| `DependencyInjection/Compiler/ConflictResponsePass.php` | Additions 2.23–2.24 | FR-WORKER-002 |
+| `Resources/translations/validators.de.yaml` | Additions 2.23–2.24 | FR-I18N-002 |
+| `Resources/translations/validators.en.yaml` | Additions 2.23–2.24 | FR-I18N-002 |
+| `Resources/translations/validators.es.yaml` | Additions 2.23–2.24 | FR-I18N-002 |
+| `Resources/translations/validators.fr.yaml` | Additions 2.23–2.24 | FR-I18N-002 |
+| `Resources/translations/validators.it.yaml` | Additions 2.23–2.24 | FR-I18N-002 |
+| `Resources/translations/validators.nl.yaml` | Additions 2.23–2.24 | FR-I18N-002 |
+| `Resources/translations/validators.pt.yaml` | Additions 2.23–2.24 | FR-I18N-002 |
+
 ## Coverage summary
 
 | Category | Files | Mapped |
@@ -260,4 +274,5 @@ BreadcrumbKit prepends FormKit profile `breadcrumb_kit` and may seed FormKit/UiK
 | Twig views — profiler | 2 | 2 |
 | Twig views — dashboard | 13 | 13 |
 | Additions 2.13–2.20 | 20 | 20 |
-| **Total production sources** | **128** | **128** |
+| Additions 2.23–2.24 and validator messages | 9 | 9 |
+| **Total production sources** | **137** | **137** |
