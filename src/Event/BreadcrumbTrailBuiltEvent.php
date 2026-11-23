@@ -40,7 +40,7 @@ final class BreadcrumbTrailBuiltEvent extends Event
         /**
          * @deprecated since 2.18, use {@see self::getRouteContext()} (or `$routeName` / `$routeParameters`); removed in 3.0
          */
-        public readonly ?Request $request,
+        public readonly ?Request $request, // @igor-ignore - Per-dispatch event built with new by BreadcrumbLoader for one trail; never a shared service.
         public readonly ?string $matchedItemRoute,
     ) {
         $this->routeContext = null === $request ? null : BreadcrumbRequestContextFactory::route($request);
