@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "200bf2f7d5a10449588ef5fc45571296",
+    "content-hash": "495f403cb9738747288c241abd15282b",
     "packages": [
         {
             "name": "doctrine/collections",
@@ -1120,8 +1120,7 @@
                 "issues": "https://github.com/nowo-tech/transaction-contract/issues",
                 "source": "https://github.com/nowo-tech/transaction-contract"
             },
-            "time": "2026-11-15T08:04:23+00:00",
-            "published-time": "2026-11-15T08:05:10+00:00"
+            "time": "2026-11-15T08:04:23+00:00"
         },
         {
             "name": "nowo-tech/transaction-doctrine",
@@ -1231,8 +1230,7 @@
                 "issues": "https://github.com/nowo-tech/transaction-doctrine/issues",
                 "source": "https://github.com/nowo-tech/transaction-doctrine"
             },
-            "time": "2026-11-20T09:09:22+00:00",
-            "published-time": "2026-11-20T09:23:55+00:00"
+            "time": "2026-11-20T09:09:22+00:00"
         },
         {
             "name": "nowo-tech/ui-kit-bundle",
@@ -1335,8 +1333,7 @@
                 "issues": "https://github.com/nowo-tech/UiKitBundle/issues",
                 "source": "https://github.com/nowo-tech/UiKitBundle"
             },
-            "time": "2026-11-22T14:50:44+00:00",
-            "published-time": "2026-11-22T14:52:58+00:00"
+            "time": "2026-11-22T14:50:44+00:00"
         },
         {
             "name": "psr/cache",
@@ -3174,8 +3171,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2026-10-28T17:57:58+00:00",
-            "published-time": "2026-10-28T18:20:24+00:00"
+            "time": "2026-10-28T17:57:58+00:00"
         },
         {
             "name": "symfony/options-resolver",
@@ -3662,8 +3658,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2026-09-23T14:40:04+00:00",
-            "published-time": "2026-09-30T10:23:39+00:00"
+            "time": "2026-09-23T14:40:04+00:00"
         },
         {
             "name": "symfony/polyfill-intl-normalizer",
@@ -6363,16 +6358,16 @@
         },
         {
             "name": "igor-php/igor-php",
-            "version": "v0.10.1",
+            "version": "v0.11.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/igor-php/igor-php.git",
-                "reference": "a4f9153de9bae1e746a34dfb571462bcda6f4235"
+                "reference": "0ce6295d7c3546e7b8d8146a60f3ddff7a1d38a7"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/igor-php/igor-php/zipball/a4f9153de9bae1e746a34dfb571462bcda6f4235",
-                "reference": "a4f9153de9bae1e746a34dfb571462bcda6f4235",
+                "url": "https://api.github.com/repos/igor-php/igor-php/zipball/0ce6295d7c3546e7b8d8146a60f3ddff7a1d38a7",
+                "reference": "0ce6295d7c3546e7b8d8146a60f3ddff7a1d38a7",
                 "shasum": ""
             },
             "require": {
@@ -6382,8 +6377,16 @@
                 "bin/igor-php"
             ],
             "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "IgorPhp\\Laravel\\IgorServiceProvider"
+                    ]
+                }
+            },
             "autoload": {
                 "psr-4": {
+                    "IgorPhp\\Laravel\\": "src/laravel/",
                     "IgorPhp\\IgorBundle\\": "src/php/"
                 }
             },
@@ -6397,19 +6400,23 @@
                     "email": "kevin.martins@me.com"
                 }
             ],
-            "description": "The faithful assistant for your FrankenPHP Workers.",
+            "description": "The faithful assistant for your FrankenPHP Workers: finds the state that leaks between requests in Symfony and Laravel Octane apps, from the CLI, PhpStorm, Claude Code or any MCP client.",
             "keywords": [
                 "frankenphp",
+                "laravel",
                 "linter",
+                "mcp",
+                "memory-leak",
+                "octane",
                 "static-analysis",
                 "symfony",
                 "worker"
             ],
             "support": {
                 "issues": "https://github.com/igor-php/igor-php/issues",
-                "source": "https://github.com/igor-php/igor-php/tree/v0.10.1"
+                "source": "https://github.com/igor-php/igor-php/tree/v0.11.0"
             },
-            "time": "2026-10-02T23:10:19+00:00"
+            "time": "2026-11-14T15:18:44+00:00"
         },
         {
             "name": "myclabs/deep-copy",
@@ -9848,5 +9855,5 @@
     "platform-overrides": {
         "php": "8.2.0"
     },
-    "plugin-api-version": "2.11.0"
+    "plugin-api-version": "2.9.0"
 }
