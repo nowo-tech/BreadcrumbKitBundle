@@ -29,6 +29,7 @@ Hosts that embed the dashboard in their own admin (Beacon: Tailwind tokens, `<di
 - **FR-005** Layout contract variables: `bk_page_actions_in_layout`, `bk_page_title_in_layout`, `bk_title_suffix`.
 - **FR-006** `TwigPathsPass` registers `!NowoBreadcrumbKitBundle` → bundle views.
 - **FR-007** `dashboard.js` carries the request `csp_nonce` attribute; full-page forms follow `css_framework` through UiKit macros when it is not Bootstrap (Bootstrap output unchanged).
+- **FR-009** (since 2.25.0, UX-017) The three dialog partials (`_collection_form_partial`, `_item_form_partial`, `_import_partial`) always render Cancel first, then the primary action (`data-nowo-ui-form-actions="cancel_first"`, Cancel carries `data-nowo-ui-form-cancel`), whatever UiKit `theme.form_actions_order` says; that option and `cancel_first` only order the full-page forms. Block order inside `bk_form_actions` is `bk_form_cancel`, then `bk_form_submit`.
 - **FR-008** i18n: new key `dashboard.table_items` in all 7 locales; no hard-coded English in dashboard templates; catalogue parity enforced by test.
 
 ## Success criteria

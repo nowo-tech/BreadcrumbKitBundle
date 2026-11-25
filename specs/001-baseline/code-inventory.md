@@ -2,7 +2,7 @@
 
 **Baseline spec**: [`spec.md`](spec.md)  
 **Package**: `nowo-tech/breadcrumb-kit-bundle`  
-**Last audited**: 2026-11-22 (REQ sweeps: 2.13–2.20 additions mapped 2026-11-16; 2.23–2.24 and validator catalogues 2026-11-22)  
+**Last audited**: 2026-11-25 (REQ sweeps: 2.13–2.20 additions mapped 2026-11-16; 2.23–2.24 and validator catalogues 2026-11-22)  
 **Audit**: `git ls-files src | wc -l` → **137** (matches summary total; earlier category counts were recorded before the Twig views were split, the total now counts every tracked `src/` file)
 
 ## Symfony config
@@ -117,7 +117,7 @@
 
 | Source file | Spec section | Requirement IDs |
 | --- | --- | --- |
-| `Event/BreadcrumbTrailBuiltEvent.php` | Events | FR-EVT-002 |
+| `Event/BreadcrumbTrailBuiltEvent.php` | Events (per-dispatch mutable event, never a shared service) | FR-EVT-002 |
 
 ## Forms
 
@@ -198,9 +198,9 @@ BreadcrumbKit prepends FormKit profile `breadcrumb_kit` and may seed FormKit/UiK
 
 | Source file | Spec section | Requirement IDs |
 | --- | --- | --- |
-| `Resources/views/dashboard/_collection_form_partial.html.twig` | Twig views — dashboard | FR-TWIG-002, FR-UI-001 |
-| `Resources/views/dashboard/_import_partial.html.twig` | Twig views — dashboard | FR-TWIG-002, FR-UI-001 |
-| `Resources/views/dashboard/_item_form_partial.html.twig` | Twig views — dashboard | FR-TWIG-002, FR-UI-001 |
+| `Resources/views/dashboard/_collection_form_partial.html.twig` | Twig views — dashboard (dialog partial, Cancel-first actions, spec 003 FR-009) | FR-TWIG-002, FR-UI-001 |
+| `Resources/views/dashboard/_import_partial.html.twig` | Twig views — dashboard (dialog partial, Cancel-first actions, spec 003 FR-009) | FR-TWIG-002, FR-UI-001 |
+| `Resources/views/dashboard/_item_form_partial.html.twig` | Twig views — dashboard (dialog partial, Cancel-first actions, spec 003 FR-009) | FR-TWIG-002, FR-UI-001 |
 | `Resources/views/dashboard/collection/form.html.twig` | Twig views — dashboard | FR-TWIG-002 |
 | `Resources/views/dashboard/collection/index.html.twig` | Twig views — dashboard | FR-TWIG-002, FR-UI-001 |
 | `Resources/views/dashboard/import.html.twig` | Twig views — dashboard | FR-TWIG-002 |
