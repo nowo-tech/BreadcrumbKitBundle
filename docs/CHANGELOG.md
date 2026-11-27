@@ -78,6 +78,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- PHP 8.6: `composer.json` allows PHP below 8.7 (was below 8.6). CI adds a forward-compatibility workflow with a
+  PHP 8.6 cell and a Symfony 8.2 cell (release candidates, allowed to fail until 8.2.0 is stable).
 - Dev: Igor 0.11 (REQ-CS-008) — `BreadcrumbTrailBuiltEvent::$request` is a per-dispatch event, never a shared service; documented `@igor-ignore` (false positive). `igor-php/igor-php` accepts `^0.11.0` (supersedes #120).
 - CI: new `release-gates` job in `.github/workflows/ci.yml` runs the `make release-check` gates (`rector-dry`, `validate-phpdoc`, `validate-translations`, `check-twig-extra`) on every full-mode push and PR, so they no longer fail only at release time. CI only, no bundle change.
 - `rector.php` skips `FunctionFirstClassCallableRector` for `tests/Support/CommandFunctionOverrides.php` (written reason in the file: the namespaced `file_get_contents()` override would call itself). Test support only, no bundle change.
