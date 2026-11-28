@@ -75,7 +75,7 @@ nowo_breadcrumb_kit:
 
 ## Requirements
 
-- PHP `>=8.2 <8.6`
+- PHP `>=8.2 <8.7`
 - Symfony 7.4+ or 8.x (`^7.4 || ^8.0`; see `composer.json`)
 - Doctrine ORM
 - Twig Extra Bundle (`twig/extra-bundle` + `twig/string-extra`; REQ-TWIG-004)
